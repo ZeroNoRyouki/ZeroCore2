@@ -1,0 +1,39 @@
+# Zero CORE 2 - mods.toml
+
+modLoader="javafml"
+loaderVersion="${forge_versionrange}"
+
+# A URL to refer people to when problems occur with this mod
+#issueTrackerURL="http://my.issue.tracker/" #optional
+
+[[mods]]
+
+	modId="zerocore"
+	version="${mod_version}"
+	displayName="${mod_name}"
+	
+	authors="ZeroNoRyouki"
+	description="Utility mod and multiblock API"
+	
+	# A URL to query for updates for this mod. See the JSON update specification <here>
+	#updateJSONURL="http://myurl.me/" #optional
+	# A URL for the "homepage" for this mod, displayed in the mod UI
+	#displayURL="http://example.com/" #optional
+	# A file name (in the root of the mod JAR) containing a logo for display
+	#logoFile="examplemod.png" #optional
+
+[[dependencies.zerocore]]
+
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_versionrange}"
+    ordering="NONE"
+    side="BOTH"
+	
+[[dependencies.zerocore]]
+
+	modId="forge"
+	mandatory=true
+	versionRange="${forge_versionrange}"
+	ordering="NONE"
+	side="BOTH"
