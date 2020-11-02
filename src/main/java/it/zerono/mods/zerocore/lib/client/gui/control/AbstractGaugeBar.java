@@ -1,0 +1,69 @@
+/*
+ *
+ * AbstractGaugeBar.java
+ *
+ * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * DO NOT REMOVE OR EDIT THIS HEADER
+ *
+ */
+
+package it.zerono.mods.zerocore.lib.client.gui.control;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+
+public abstract class AbstractGaugeBar
+        extends AbstractControl {
+
+    public AbstractGaugeBar(final ModContainerScreen<? extends ModContainer> gui, final String name, final double maxValue) {
+
+        super(gui, name);
+        this._maxValue = maxValue;
+    }
+
+    public double getMaxValue() {
+        return this._maxValue;
+    }
+
+    public void setOverlay(final ISprite overlay) {
+        this._overlay = overlay;
+    }
+
+    //region AbstractControl
+
+    @Override
+    public void onPaintOverlay(final MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
+
+        super.onPaintOverlay(matrix, partialTicks, mouseX, mouseY);
+
+        if (null != this._overlay) {
+            this.paintSprite(matrix, this._overlay, 0, 0);
+        }
+    }
+
+    @Override
+    protected StringBuilder toStringBuilder() {
+        return super.toStringBuilder()
+                .append(" max:")
+                .append(this._maxValue);
+    }
+
+    //endregion
+    //region internals
+
+    private final double _maxValue;
+    private ISprite _overlay;
+
+    //endregion
+}

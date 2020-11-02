@@ -1,0 +1,71 @@
+/*
+ *
+ * SpiralParticle.java
+ *
+ * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * DO NOT REMOVE OR EDIT THIS HEADER
+ *
+ */
+
+package it.zerono.mods.zerocore.lib.client.particle;
+
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
+public abstract class SpiralParticle
+        extends Particle {
+
+    protected SpiralParticle(ClientWorld world, double centerX, double centerY, double centerZ, double radius, int lifeInTicks) {
+
+        super(world, centerX + radius * /*MathHelper.cos(0)*/1, centerY, centerZ + radius * /*MathHelper.sin(0)*/0);
+        this._angle = 0;
+        this._centerX = centerX;
+        this._centerZ = centerZ;
+        this._radius = radius;
+        this.setMaxAge(lifeInTicks);
+    }
+
+    @Override
+    public void tick() {
+
+        this.prevPosX = this.posX;
+        this.prevPosY = this.posY;
+        this.prevPosZ = this.posZ;
+
+        if (++this.age >= this.getMaxAge()) {
+            this.setExpired();
+        }
+
+        if ((this._angle += 10) >= 360) {
+            this._angle = 0;
+        }
+
+        final float radiants = (float)(this._angle * Math.PI / 180.0);
+        final double newX = this._centerX + this._radius * MathHelper.cos(radiants);
+        final double newZ = this._centerZ + this._radius * MathHelper.sin(radiants);
+
+        this.motionX = newX - this.posX;
+        this.motionZ = newZ - this.posZ;
+        this.motionY = 0.01;
+
+        this.move(this.motionX, this.motionY, this.motionZ);
+    }
+
+    protected float _angle;
+    protected final double _centerX;
+    protected final double _centerZ;
+    protected final double _radius;
+}
