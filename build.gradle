@@ -72,6 +72,10 @@ minecraft {
     }
 }
 
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+}
+
 processResources {
 
 	inputs.property "mod_version", version
@@ -89,13 +93,23 @@ processResources {
     }
 }
 
+repositories {
+
+    // cc-tweaked
+    maven {
+        url 'https://squiddev.cc/maven/'
+    }
+}
+
 dependencies {
 	minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
+
+    implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
 }
 
 jar {
 
-	classifier = 'universal'
+	//classifier = 'universal'
 	finalizedBy 'reobfJar'
 
     manifest {
