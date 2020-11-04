@@ -20,11 +20,9 @@ package it.zerono.mods.zerocore.lib.tag;
 
 import com.google.common.collect.Iterables;
 import net.minecraft.block.Block;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.NonNullFunction;
@@ -37,6 +35,7 @@ public final class TagsHelper<T>
 
     public static final TagsHelper<Block> BLOCKS = new TagsHelper<>(CollectionProviders.BLOCKS_PROVIDER, BlockTags::makeWrapperTag, BlockTags::createOptional);
     public static final TagsHelper<Item> ITEMS = new TagsHelper<>(CollectionProviders.ITEMS_PROVIDER, ItemTags::makeWrapperTag, ItemTags::createOptional);
+    public static final TagsHelper<Fluid> FLUIDS = new TagsHelper<>(CollectionProviders.FLUIDS_PROVIDER, FluidTags::makeWrapperTag, FluidTags::createOptional);
 
     public static <T> T getTagFirstElement(final ITag<T> tag) {
         return Iterables.get(tag.getAllElements(), 0);
