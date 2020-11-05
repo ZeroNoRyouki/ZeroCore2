@@ -105,6 +105,10 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos position, PlayerEntity player,
                                              Hand hand, BlockRayTraceResult hit) {
 
+        if (CodeHelper.calledByLogicalClient(world)) {
+            return ActionResultType.SUCCESS;
+        }
+
        if (this.hasTileEntity(state) && !player.isSneaking() && CodeHelper.calledByLogicalServer(world)) {
 
             final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
@@ -140,7 +144,7 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
                     }
                 }
 
-                if (heldItem.isEmpty() && (hand == Hand.MAIN_HAND) &&
+                if ((hand == Hand.MAIN_HAND) &&
                         part.filter(p -> p instanceof INamedContainerProvider && p instanceof AbstractModBlockEntity)
                             .map(p -> (AbstractModBlockEntity)p)
                             .filter(mbe -> mbe.canOpenGui(world, position, state))
@@ -151,7 +155,7 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
             }
         }
 
-        return ActionResultType.PASS;
+       return super.onBlockActivated(state, world, position, player, hand, hit);
     }
 /*
     private ActionResultType onPartActivated(BlockState state, World world, BlockPos position, PlayerEntity player,
