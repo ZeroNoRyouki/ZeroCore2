@@ -88,7 +88,7 @@ public class DebugToolItem
         final BlockPos pos = context.getPos();
         final LogicalSide side = CodeHelper.getWorldLogicalSide(world);
 
-        if (CodeHelper.isDevEnv() && null != s_testCallback && !stack.isEmpty()) {
+        if (CodeHelper.isDevEnv() && null != s_testCallback && !stack.isEmpty() && stack.getCount() > 1) {
 
             s_testCallback.runTest(stack.getCount(), player, world, pos);
             return ActionResultType.SUCCESS;
