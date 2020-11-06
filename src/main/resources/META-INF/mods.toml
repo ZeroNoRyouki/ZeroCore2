@@ -2,7 +2,6 @@
 
 modLoader="javafml"
 loaderVersion="${forge_versionrange}"
-updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2-issues/main/update.json"
 
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
@@ -15,8 +14,8 @@ license="All rights reserved"
 
 	modId="zerocore"
 	version="${mod_version}"
-	displayName="${mod_name}"
-	
+    updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2-issues/main/update.json"
+    displayName="${mod_name}"
 	authors="ZeroNoRyouki"
 	description="Utility mod and multiblock API"
 	
