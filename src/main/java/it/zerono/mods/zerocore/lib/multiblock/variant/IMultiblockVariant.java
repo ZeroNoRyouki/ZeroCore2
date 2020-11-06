@@ -68,7 +68,6 @@ public interface IMultiblockVariant {
                 .setLightLevel(blockState -> 0)
                 .setAllowsSpawn((blockState, blockReader, pos, entity) -> false)
                 .setOpaque((blockState, blockReader, pos) -> true)
-                .setBlocksVision((blockState, blockReader, pos) -> true)
-                .noDrops();
+                .setBlocksVision((blockState, blockReader, pos) -> true);
     }
 }
