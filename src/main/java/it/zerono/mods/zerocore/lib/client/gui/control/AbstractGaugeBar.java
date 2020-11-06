@@ -36,6 +36,10 @@ public abstract class AbstractGaugeBar
         return this._maxValue;
     }
 
+    public void setMaxValue(final double value) {
+        this._maxValue = value;
+    }
+
     public void setOverlay(final ISprite overlay) {
         this._overlay = overlay;
     }
@@ -62,7 +66,7 @@ public abstract class AbstractGaugeBar
     //endregion
     //region internals
 
-    private final double _maxValue;
+    private double _maxValue;
     private ISprite _overlay;
 
     //endregion
