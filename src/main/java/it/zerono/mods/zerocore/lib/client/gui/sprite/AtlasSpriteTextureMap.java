@@ -18,24 +18,54 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
+import it.zerono.mods.zerocore.internal.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.util.Optional;
 
-public class AtlasSpriteTextureMap implements ISpriteTextureMap {
+public class AtlasSpriteTextureMap
+        implements ISpriteTextureMap {
 
     public static final AtlasSpriteTextureMap BLOCKS = new AtlasSpriteTextureMap(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
 
     public AtlasSpriteTextureMap(final ResourceLocation atlasName) {
+
         this._atlasName = atlasName;
+        this._atlasWidth = this._atlasHeight = -1;
     }
 
     public ISprite sprite(final ResourceLocation spriteName) {
-        return new AtlasSprite(this, Minecraft.getInstance().getAtlasSpriteGetter(this._atlasName).apply(spriteName));
+        return this.sprite(Minecraft.getInstance().getAtlasSpriteGetter(this._atlasName).apply(spriteName));
+    }
+
+    public ISprite sprite(final TextureAtlasSprite sprite) {
+
+        int spriteX = -1;
+        int spriteY = -1;
+
+        try {
+
+            spriteX = s_xField.getInt(sprite);
+            spriteY = s_yField.getInt(sprite);
+
+        } catch (IllegalAccessException e) {
+            Log.LOGGER.warn(Log.CORE, "Unable to get the value of field x or y for a TextureAtlasSprite");
+        }
+
+        if (this._atlasHeight < 0 || this._atlasWidth < 0) {
+
+            this._atlasWidth = (int)(spriteX / sprite.getMinU());
+            this._atlasHeight = (int)(spriteY / sprite.getMinV());
+        }
+
+        return new AtlasSprite(this, sprite, spriteX, spriteY);
     }
 
     //region ISpriteTextureMap
@@ -47,12 +77,12 @@ public class AtlasSpriteTextureMap implements ISpriteTextureMap {
 
     @Override
     public int getWidth() {
-        return -1;
+        return this._atlasWidth;
     }
 
     @Override
     public int getHeight() {
-        return -1;
+        return this._atlasHeight;
     }
 
     @Override
@@ -64,13 +94,16 @@ public class AtlasSpriteTextureMap implements ISpriteTextureMap {
     //region internals
     //region AtlasSprite
 
-    static class AtlasSprite implements ISprite {
+    static class AtlasSprite
+            implements ISprite {
 
-        public AtlasSprite(final ISpriteTextureMap textureMap, final TextureAtlasSprite sprite) {
+        public AtlasSprite(final ISpriteTextureMap textureMap, final TextureAtlasSprite sprite, final int u, final int v) {
 
             this._map = textureMap;
             this._atlasSprite = sprite;
             this._overlay = null;
+            this._u = u;
+            this._v = v;
         }
 
         //region ISprite
@@ -87,12 +120,12 @@ public class AtlasSpriteTextureMap implements ISpriteTextureMap {
 
         @Override
         public int getU() {
-            return -1;
+            return this._u;
         }
 
         @Override
         public int getV() {
-            return -1;
+            return this._v;
         }
 
         @Override
@@ -157,22 +190,22 @@ public class AtlasSpriteTextureMap implements ISpriteTextureMap {
         //region internals
 
         protected AtlasSprite(final AtlasSprite other) {
-
-            this._map = other._map;
-            this._atlasSprite = other._atlasSprite;
-            this._overlay = other._overlay;
+            this(other, null);
         }
 
-        protected AtlasSprite(final AtlasSprite other, final ISprite overlay) {
+        protected AtlasSprite(final AtlasSprite other, @Nullable final ISprite overlay) {
 
             this._map = other._map;
             this._atlasSprite = other._atlasSprite;
             this._overlay = overlay;
+            this._u = other._u;
+            this._v = other._v;
         }
 
         private final ISpriteTextureMap _map;
         private final TextureAtlasSprite _atlasSprite;
         private final ISprite _overlay;
+        private final int _u, _v;
 
         //endregion
     }
@@ -180,6 +213,31 @@ public class AtlasSpriteTextureMap implements ISpriteTextureMap {
     //endregion
 
     private final ResourceLocation _atlasName;
+    private int _atlasWidth;
+    private int _atlasHeight;
+
+    private static final Field s_xField;
+    private static final Field s_yField;
+
+    static {
+
+        s_xField = getField("field_110975_c"); // x
+        s_yField = getField("field_110974_d"); // y
+    }
+
+    @Nullable
+    private static Field getField(final String name) {
+
+        try {
+
+            return ObfuscationReflectionHelper.findField(TextureAtlasSprite.class, name);
+
+        } catch (ObfuscationReflectionHelper.UnableToFindFieldException ex) {
+
+            Log.LOGGER.error(Log.CORE, "AtlasSpriteTextureMap - Unable to get field {} : {}", name, ex);
+            return null;
+        }
+    }
 
     //endregion
 }
