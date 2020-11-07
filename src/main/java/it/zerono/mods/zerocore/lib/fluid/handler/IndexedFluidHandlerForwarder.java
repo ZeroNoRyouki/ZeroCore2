@@ -27,7 +27,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
-public class IndexedFluidHandlerForwarder<Index extends Enum<Index>> implements IFluidHandler {
+public class IndexedFluidHandlerForwarder<Index extends Enum<Index>>
+        implements IFluidHandler {
 
     public IndexedFluidHandlerForwarder(IndexedStackContainer<Index, Fluid, FluidStack> container, Index index) {
         this(container, index, AllowedHandlerAction.InsertExtract);
@@ -79,9 +80,8 @@ public class IndexedFluidHandlerForwarder<Index extends Enum<Index>> implements 
      * </p>
      *
      * @param tank Tank to query.
-     * @return FluidStack in a given tank. NULL if the tank is empty.
+     * @return FluidStack in a given tank. FluidStack.EMPTY if the tank is empty.
      */
-    @Nonnull
     @Override
     public FluidStack getFluidInTank(int tank) {
         return this.getContainer().getStackCopy(this.getIndex());
