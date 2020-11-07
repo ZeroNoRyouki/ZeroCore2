@@ -30,6 +30,7 @@ import net.minecraftforge.fluids.FluidStack;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.*;
 
 @SuppressWarnings({"WeakerAccess"})
 public final class StackAdapters {
@@ -144,6 +145,45 @@ public final class StackAdapters {
             public String toString(ItemStack stack) {
                 return stack.toString();
             }
+
+            @Override
+            public <T> T map(ItemStack stack, Function<Item, T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getItem());
+            }
+
+            @Override
+            public <T> T map(ItemStack stack, IntFunction<T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getCount());
+            }
+
+            @Override
+            public <T> T map(ItemStack stack, BiFunction<Item, Integer, T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getItem(), stack.getCount());
+            }
+
+            @Override
+            public void accept(ItemStack stack, Consumer<Item> consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getItem());
+                }
+            }
+
+            @Override
+            public void accept(ItemStack stack, IntConsumer consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getCount());
+                }
+            }
+
+            @Override
+            public void accept(ItemStack stack, BiConsumer<Item, Integer> consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getItem(), stack.getCount());
+                }
+            }
         };
 
         FLUIDSTACK = new IStackAdapter<FluidStack, Fluid>() {
@@ -237,6 +277,45 @@ public final class StackAdapters {
             @Override
             public String toString(FluidStack stack) {
                 return stack.getAmount() + " " + stack.getFluid();
+            }
+
+            @Override
+            public <T> T map(FluidStack stack, Function<Fluid, T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getFluid());
+            }
+
+            @Override
+            public <T> T map(FluidStack stack, IntFunction<T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getAmount());
+            }
+
+            @Override
+            public <T> T map(FluidStack stack, BiFunction<Fluid, Integer, T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getFluid(), stack.getAmount());
+            }
+
+            @Override
+            public void accept(FluidStack stack, Consumer<Fluid> consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getFluid());
+                }
+            }
+
+            @Override
+            public void accept(FluidStack stack, IntConsumer consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getAmount());
+                }
+            }
+
+            @Override
+            public void accept(FluidStack stack, BiConsumer<Fluid, Integer> consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getFluid(), stack.getAmount());
+                }
             }
         };
     }

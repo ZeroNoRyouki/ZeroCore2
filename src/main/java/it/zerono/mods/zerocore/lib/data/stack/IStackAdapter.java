@@ -23,6 +23,7 @@ import net.minecraft.nbt.CompoundNBT;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.*;
 
 /**
  * A generic interface to manipulate stacks
@@ -171,4 +172,16 @@ public interface IStackAdapter<StackType, ContentType> {
      * @return a String containing the textual representation of the stack
      */
     String toString(StackType stack);
+
+    <T> T map(StackType stack, Function<ContentType, T> mapper, T defaultValue);
+
+    <T> T map(StackType stack, IntFunction<T> mapper, T defaultValue);
+
+    <T> T map(StackType stack, BiFunction<ContentType, Integer, T> mapper, T defaultValue);
+
+    void accept(StackType stack, Consumer<ContentType> consumer);
+
+    void accept(StackType stack, IntConsumer consumer);
+
+    void accept(StackType stack, BiConsumer<ContentType, Integer> consumer);
 }

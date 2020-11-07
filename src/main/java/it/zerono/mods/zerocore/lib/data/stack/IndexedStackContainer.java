@@ -30,6 +30,7 @@ import net.minecraftforge.fml.LogicalSide;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.*;
 
 @SuppressWarnings({"WeakerAccess"})
 public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
@@ -151,6 +152,30 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
         return this.getStackAdapter().getAmount(this.getStack(index));
     }
 
+    public <T> T map(final Index type, final Function<Content, T> mapper, final T defaultValue) {
+        return this._stacks.map(type, stack -> this.getStackAdapter().map(stack, mapper, defaultValue), defaultValue);
+    }
+
+    public <T> T map(final Index type, final IntFunction<T> mapper, final T defaultValue) {
+        return this._stacks.map(type, stack -> this.getStackAdapter().map(stack, mapper, defaultValue), defaultValue);
+    }
+
+    public <T> T map(final Index type, final BiFunction<Content, Integer, T> mapper, final T defaultValue) {
+        return this._stacks.map(type, stack -> this.getStackAdapter().map(stack, mapper, defaultValue), defaultValue);
+    }
+
+    public void accept(final Index type, final Consumer<Content> consumer) {
+        this._stacks.accept(type, stack -> this.getStackAdapter().accept(stack, consumer));
+    }
+
+    public void accept(final Index type, final IntConsumer consumer) {
+        this._stacks.accept(type, stack -> this.getStackAdapter().accept(stack, consumer));
+    }
+
+    public void accept(final Index type, final BiConsumer<Content, Integer> consumer) {
+        this._stacks.accept(type, stack -> this.getStackAdapter().accept(stack, consumer));
+    }
+
     /**
      * Evalutate if stacks were changed enough that an update should be sent to the client
      *
@@ -213,6 +238,24 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
      */
     protected boolean evaluateUpdate(int currentDeviance, boolean currentUpdateValuation) {
         return currentUpdateValuation;
+    }
+
+    /**
+     * Override this to get notified when an insert operation is completed on the given index
+     *
+     * @param index the index target of the insert operation
+     * @param wasEmpty true if the index was empty before the insert operation
+     */
+    protected void onInsert(Index index, boolean wasEmpty) {
+    }
+
+    /**
+     * Override this to get notified when an extract operation is completed on the given index
+     *
+     * @param index the index target of the extract operation
+     * @param isEmptyNow true if the index has become empty after the extract operation
+     */
+    protected void onExtract(Index index, boolean isEmptyNow) {
     }
 
     /**
@@ -438,6 +481,7 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
         if (this.canExtract(index) && !adapter.isEmpty(currentStack)) {
 
             this.setStack(index, adapter.getEmptyStack());
+            this.onExtract(index, true);
             return currentStack;
         }
 
@@ -715,10 +759,12 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
 
                 adapter.setAmount(stackCopy, amountToAdd);
                 this.setStack(index, stackCopy);
+                this.onInsert(index, true);
 
             } else {
 
                 adapter.modifyAmount(currentStack, amountToAdd);
+                this.onInsert(index, false);
             }
         }
 
@@ -748,9 +794,14 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
             if (mode.execute()) {
 
                 if (currentAmount == amountToRemove) {
+
                     this.setStack(index, adapter.getEmptyStack());
+                    this.onExtract(index, true);
+
                 } else {
+
                     adapter.modifyAmount(currentStack, -amountToRemove);
+                    this.onExtract(index, false);
                 }
             }
 

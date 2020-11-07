@@ -18,11 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.data;
 
+import com.mojang.datafixers.types.Func;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -65,12 +67,32 @@ public class EnumIndexedArray<Index extends Enum<Index>, Element>
         return this.getElement(type).orElse(defaultValue);
     }
 
+    public <T> T map(final Index type, final Function<Element, T> mapper, final T defaultValue) {
+
+        final Element e = this._elements[this.getOrdinal(type)];
+
+        return null != e ? mapper.apply(e) : defaultValue;
+    }
+
+    public void accept(final Index type, final Consumer<Element> consumer) {
+
+        final Element e = this._elements[this.getOrdinal(type)];
+
+        if (null != e) {
+            consumer.accept(e);
+        }
+    }
+
     public void setElement(final Index type, @Nullable final Element element) {
         this._elements[this.getOrdinal(type)] = element;
     }
 
     public void setAll(@Nullable final Element element) {
         Arrays.fill(this._elements, element);
+    }
+
+    public boolean isEmpty(final Index type) {
+        return null == this._elements[this.getOrdinal(type)];
     }
 
     public Stream<Element> stream() {
