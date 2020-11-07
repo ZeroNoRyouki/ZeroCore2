@@ -24,6 +24,7 @@ import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
+import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.util.math.MathHelper;
 
@@ -37,6 +38,7 @@ public class GaugeBar
         super(gui, name, maxValue);
         this._value = 0;
         this._barSprite = Preconditions.checkNotNull(barSprite);
+        this._barSpriteTint = Colour.WHITE;
     }
 
     public double getValue() {
@@ -51,6 +53,10 @@ public class GaugeBar
         this._barSprite = Preconditions.checkNotNull(barSprite);
     }
 
+    public void setBarSpriteTint(final Colour tint) {
+        this._barSpriteTint = tint;
+    }
+
     //region AbstractGaugeBar
 
     @Override
@@ -61,7 +67,8 @@ public class GaugeBar
         final Rectangle area = this.getPaddingRect();
 
         ModRenderHelper.paintVerticalProgressBarSprite(matrix, this._barSprite,
-                this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio());
+                this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
+                this._barSpriteTint);
     }
 
     @Override
@@ -81,6 +88,7 @@ public class GaugeBar
     private double _value;
     @Nonnull
     private ISprite _barSprite;
+    private Colour _barSpriteTint;
 
     //endregion
 }
