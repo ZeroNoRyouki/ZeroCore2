@@ -23,6 +23,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
@@ -144,6 +145,33 @@ public final class ModRenderHelper {
         final ResourceLocation rl = fluid.getFluid().getAttributes().getOverlayTexture();
 
         return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
+    }
+
+    public static ISprite getStillFluidSprite(final Fluid fluid) {
+        return buildSprite(getFluidStillSprite(fluid), null);
+    }
+
+    public static ISprite getStillFluidSpriteWithOverlay(final Fluid fluid) {
+        return buildSprite(getFluidStillSprite(fluid), getFluidOverlaySprite(fluid));
+    }
+
+    public static ISprite getFlowingFluidSprite(final Fluid fluid) {
+        return buildSprite(getFluidFlowingSprite(fluid), null);
+    }
+
+    public static ISprite getFlowingFluidSpriteWithOverlay(final Fluid fluid) {
+        return buildSprite(getFluidFlowingSprite(fluid), getFluidOverlaySprite(fluid));
+    }
+
+    private static ISprite buildSprite(final TextureAtlasSprite main, @Nullable final TextureAtlasSprite overlay) {
+
+        final ISprite s = AtlasSpriteTextureMap.from(main).sprite(main);
+
+        if (null != overlay) {
+            return s.copyWith(AtlasSpriteTextureMap.from(overlay).sprite(overlay));
+        } else {
+            return s;
+        }
     }
 
     //region render BakedQuad(s)
@@ -410,7 +438,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for the rectangle
      * @param area the maximum area to be filled (the origin is ignored)
      * @param skip number of pixels to skip at the bottom of the area
-     * @param progress      a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
     public static int paintVerticalProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
@@ -434,7 +462,7 @@ public final class ModRenderHelper {
      * @param areaWidth the width of the maximum area to be filled
      * @param areaHeight the height of the maximum area to be filled
      * @param skip number of pixels to skip at the bottom of the area
-     * @param progress      a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
     public static int paintVerticalProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
@@ -454,6 +482,24 @@ public final class ModRenderHelper {
         return filledHeight;
     }
 
+    /**
+     * Paint a vertical rectangle filled, from the bottom up, with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param area the maximum area to be filled (the origin is ignored)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @return the height of the painted sprite
+     */
+    public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite, final Point screenXY,
+                                                      final int zLevel, final Rectangle area, final double progress) {
+        paintVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
+                area.Width, area.Height, progress, Colour.WHITE);
+    }
 
     /**
      * Paint a vertical rectangle filled, from the bottom up, with an ISprite up to the indicated progress percentage.
@@ -465,13 +511,15 @@ public final class ModRenderHelper {
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the rectangle
      * @param area the maximum area to be filled (the origin is ignored)
-     * @param progress      a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
      * @return the height of the painted sprite
      */
     public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite, final Point screenXY,
-                                                      final int zLevel, final Rectangle area, final double progress) {
+                                                      final int zLevel, final Rectangle area, final double progress,
+                                                      final Colour tint) {
         paintVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
-                area.Width, area.Height, progress);
+                area.Width, area.Height, progress, tint);
     }
 
     /**
@@ -491,7 +539,31 @@ public final class ModRenderHelper {
      */
     public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite,
                                                       final int x, final int y, final int zLevel,
-                                                      final int areaWidth, final int areaHeight, final double progress) {
+                                                      final int areaWidth, final int areaHeight,
+                                                      final double progress) {
+        paintVerticalProgressBarSprite(matrix, sprite, x, y, zLevel, areaWidth, areaHeight, progress, Colour.WHITE);
+    }
+
+    /**
+     * Paint a vertical rectangle filled, from the bottom up, with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param areaWidth the width of the maximum area to be filled
+     * @param areaHeight the height of the maximum area to be filled
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     * @return the height of the painted sprite
+     */
+    public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite,
+                                                      final int x, final int y, final int zLevel,
+                                                      final int areaWidth, final int areaHeight,
+                                                      final double progress, final Colour tint) {
 
         if (progress < 0.01) {
             return;
@@ -505,9 +577,38 @@ public final class ModRenderHelper {
         RenderSystem.defaultBlendFunc();
 
         bindTexture(sprite);
-        blitSprite(matrix, x, x + areaWidth, y1, y2, zLevel, sprite.getWidth(), filledHeight,
-                sprite.getU(), sprite.getV() + (sprite.getHeight() - filledHeight),
-                sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight());
+
+        if (sprite.getHeight() == areaHeight) {
+
+            blitSprite(matrix, x, x + areaWidth, y1, y2, zLevel, sprite.getWidth(), filledHeight,
+                    sprite.getU(), sprite.getV() + (sprite.getHeight() - filledHeight),
+                    sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+
+        } else {
+
+            final float verticalSlices = filledHeight / 16.0f;
+            int verticalSliceIdx = 0;
+
+            for (; verticalSliceIdx <= verticalSlices - 1.0f; ++verticalSliceIdx) {
+
+                final int sliceY2 = y2 - (verticalSliceIdx * 16);
+                final int sliceY1 = sliceY2 - 16;
+
+                blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
+                        sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+            }
+
+            final float missing = verticalSlices - verticalSliceIdx;
+
+            if (missing > 0.0f) {
+
+                final int sliceY2 = y2 - (verticalSliceIdx * 16);
+                final int sliceY1 = sliceY2 - (int)Math.ceil(16 * missing);
+
+                blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
+                        sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+            }
+        }
 
         RenderSystem.disableBlend();
 
@@ -840,6 +941,14 @@ public final class ModRenderHelper {
         blitSprite(matrix.getLast().getMatrix(), x1, x2, y1, y2, blitOffset,
                 (u + 0.0F) / (float)textureWidth, (u + (float)spriteWidth) / (float)textureWidth,
                 (v + 0.0F) / (float)textureHeight, (v + (float)spriteHeight) / (float)textureHeight);
+    }
+
+    private static void blitSprite(final MatrixStack matrix, final int x1, final int x2, final int y1, final int y2, final int blitOffset,
+                                   final int spriteWidth, final int spriteHeight, final float u, final float v,
+                                   final int textureWidth, final int textureHeight, final Colour tint) {
+        blitSprite(matrix.getLast().getMatrix(), x1, x2, y1, y2, blitOffset,
+                (u + 0.0F) / (float)textureWidth, (u + (float)spriteWidth) / (float)textureWidth,
+                (v + 0.0F) / (float)textureHeight, (v + (float)spriteHeight) / (float)textureHeight, tint);
     }
 
     // modified from AbstractGui::fill(Matrix4f matrix, int minX, int minY, int maxX, int maxY, int color)

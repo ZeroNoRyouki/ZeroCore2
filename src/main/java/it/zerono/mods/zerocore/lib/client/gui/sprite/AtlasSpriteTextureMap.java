@@ -35,6 +35,17 @@ public class AtlasSpriteTextureMap
 
     public static final AtlasSpriteTextureMap BLOCKS = new AtlasSpriteTextureMap(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
 
+    public static AtlasSpriteTextureMap from(final TextureAtlasSprite sprite) {
+
+        final ResourceLocation id = sprite.getAtlasTexture().getTextureLocation();
+
+        if (BLOCKS.getTextureLocation().equals(id)) {
+            return BLOCKS;
+        } else {
+            return new AtlasSpriteTextureMap(id);
+        }
+    }
+
     public AtlasSpriteTextureMap(final ResourceLocation atlasName) {
 
         this._atlasName = atlasName;
@@ -45,27 +56,12 @@ public class AtlasSpriteTextureMap
         return this.sprite(Minecraft.getInstance().getAtlasSpriteGetter(this._atlasName).apply(spriteName));
     }
 
+    public ISprite sprite(final TextureAtlasSprite sprite, final ISprite overlay) {
+        return this.makeSprite(sprite, overlay);
+    }
+
     public ISprite sprite(final TextureAtlasSprite sprite) {
-
-        int spriteX = -1;
-        int spriteY = -1;
-
-        try {
-
-            spriteX = s_xField.getInt(sprite);
-            spriteY = s_yField.getInt(sprite);
-
-        } catch (IllegalAccessException e) {
-            Log.LOGGER.warn(Log.CORE, "Unable to get the value of field x or y for a TextureAtlasSprite");
-        }
-
-        if (this._atlasHeight < 0 || this._atlasWidth < 0) {
-
-            this._atlasWidth = (int)(spriteX / sprite.getMinU());
-            this._atlasHeight = (int)(spriteY / sprite.getMinV());
-        }
-
-        return new AtlasSprite(this, sprite, spriteX, spriteY);
+        return this.makeSprite(sprite, null);
     }
 
     //region ISpriteTextureMap
@@ -97,11 +93,12 @@ public class AtlasSpriteTextureMap
     static class AtlasSprite
             implements ISprite {
 
-        public AtlasSprite(final ISpriteTextureMap textureMap, final TextureAtlasSprite sprite, final int u, final int v) {
+        public AtlasSprite(final ISpriteTextureMap textureMap, final TextureAtlasSprite sprite,
+                           final int u, final int v, @Nullable final ISprite overlay) {
 
             this._map = textureMap;
             this._atlasSprite = sprite;
-            this._overlay = null;
+            this._overlay = overlay;
             this._u = u;
             this._v = v;
         }
@@ -211,6 +208,29 @@ public class AtlasSpriteTextureMap
     }
 
     //endregion
+
+    private ISprite makeSprite(final TextureAtlasSprite sprite, @Nullable final ISprite overlay) {
+
+        int spriteX = -1;
+        int spriteY = -1;
+
+        try {
+
+            spriteX = s_xField.getInt(sprite);
+            spriteY = s_yField.getInt(sprite);
+
+        } catch (IllegalAccessException e) {
+            Log.LOGGER.warn(Log.CORE, "Unable to get the value of field x or y for a TextureAtlasSprite");
+        }
+
+        if (this._atlasHeight < 0 || this._atlasWidth < 0) {
+
+            this._atlasWidth = (int)(spriteX / sprite.getMinU());
+            this._atlasHeight = (int)(spriteY / sprite.getMinV());
+        }
+
+        return new AtlasSprite(this, sprite, spriteX, spriteY, overlay);
+    }
 
     private final ResourceLocation _atlasName;
     private int _atlasWidth;
