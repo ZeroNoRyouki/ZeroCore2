@@ -98,9 +98,8 @@ public class WorldGenManager {
                                                                final int placementBottomOffset, final int placementTopOffset,
                                                                final int placementMaximum) {
         return () -> Feature.ORE.withConfiguration(new OreFeatureConfig(matchRule, oreBlock.get().getDefaultState(), oresPerCluster))
-                .withPlacement(Placement.field_242907_l/*range*/
-                        .configure(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
-                        .func_242728_a/* spreadHorizontally */()
+                .withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
+                        .square()
                         .func_242731_b/* repeat */(clustersAmount));
     }
 
