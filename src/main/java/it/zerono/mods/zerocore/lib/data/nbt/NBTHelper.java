@@ -18,7 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.data.nbt;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.types.Func;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.ListNBT;
@@ -30,6 +32,7 @@ import java.io.FileOutputStream;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class NBTHelper {
 
@@ -103,6 +106,31 @@ public class NBTHelper {
      */
     public static <E extends Enum<E>> E nbtGetEnum(CompoundNBT nbt, String key, Class<E> enumClass) throws IllegalArgumentException {
         return E.valueOf(enumClass, nbt.getString(key));
+    }
+
+    /**
+     * Get an Enum value from the provided NBT tag
+     *
+     * Please note that this method assume that the requested value is in the tag (i.e., that nbt.hasKey(key) is true)
+     *
+     * @param nbt       the NBT tag to load the data from
+     * @param key       the key associated with the data
+     * @param enumFactory a factory function that convert the enum value name to the actual enum value (usually Enum::valueOf)
+     * @return The Enum value contained in the NBT tag
+     * @throws IllegalArgumentException if the value contained in the NBT tag is not a valid value for the provided Enum class
+     */
+    public static <E extends Enum<E>> E nbtGetEnum(CompoundNBT nbt, String key, Function<String, E> enumFactory, E defaultValue) {
+
+        if (nbt.contains(key)) {
+
+            final String value = nbt.getString(key);
+
+            if (!Strings.isNullOrEmpty(value)) {
+                return enumFactory.apply(nbt.getString(key));
+            }
+        }
+
+        return defaultValue;
     }
 
     /**
