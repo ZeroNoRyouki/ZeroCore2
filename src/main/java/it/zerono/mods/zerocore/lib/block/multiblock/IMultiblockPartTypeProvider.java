@@ -39,4 +39,20 @@ public interface IMultiblockPartTypeProvider<Controller extends IMultiblockContr
 
         return Optional.empty();
     }
+
+    @SuppressWarnings("unchecked")
+    default PartType getPartTypeOrDefault(final PartType defaultValue) {
+
+        final Block block = this.getBlockType();
+
+        if (block instanceof MultiblockPartBlock) {
+            return ((MultiblockPartBlock<Controller, PartType>) block).getPartType();
+        }
+
+        return defaultValue;
+    }
+
+    default boolean isTypeOfPart(final PartType type) {
+        return this.getPartType().map(t -> t == type).orElse(false);
+    }
 }
