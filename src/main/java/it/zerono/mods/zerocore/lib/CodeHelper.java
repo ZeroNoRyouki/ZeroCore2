@@ -109,6 +109,13 @@ public final class CodeHelper {
         return s_fakeRandom;
     }
 
+    public static String neutralLowercase(final String input) {
+        return input.toLowerCase(Locale.ROOT);
+    }
+
+    //endregion
+    //region Direction helpers
+
     public static Direction.Plane perpendicularPlane(final Direction direction) {
         return perpendicularPlane(direction.getAxis().getPlane());
     }
@@ -121,8 +128,140 @@ public final class CodeHelper {
         return Direction.Plane.HORIZONTAL == plane ? Direction.Plane.VERTICAL : Direction.Plane.HORIZONTAL;
     }
 
-    public static String neutralLowercase(final String input) {
-        return input.toLowerCase(Locale.ROOT);
+    /**
+     * Rotate this Facing around the given axis clockwise. If this facing cannot be rotated around the given axis,
+     * returns this facing without rotating.
+     */
+    public static Direction directionRotateAround(final Direction direction, Direction.Axis axis) {
+
+        switch (axis) {
+
+            case X:
+
+                if (direction != Direction.WEST && direction != Direction.EAST) {
+                    return directionRotateX(direction);
+                }
+
+                return direction;
+
+            case Y:
+
+                if (direction != Direction.UP && direction != Direction.DOWN) {
+                    return directionRotateY(direction);
+                }
+
+                return direction;
+
+            case Z:
+
+                if (direction != Direction.NORTH && direction != Direction.SOUTH) {
+                    return directionRotateZ(direction);
+                }
+
+                return direction;
+
+            default:
+                throw new IllegalStateException("Unable to get CW facing for axis " + axis);
+        }
+    }
+
+    /**
+     * Rotate the given Direction around the Y axis clockwise (NORTH => EAST => SOUTH => WEST => NORTH)
+     */
+    public static Direction directionRotateY(final Direction direction) {
+
+        switch (direction) {
+
+            case NORTH:
+                return Direction.EAST;
+
+            case EAST:
+                return Direction.SOUTH;
+
+            case SOUTH:
+                return Direction.WEST;
+
+            case WEST:
+                return Direction.NORTH;
+
+            default:
+                throw new IllegalStateException("Unable to get Y-rotated facing of " + direction);
+        }
+    }
+
+    /**
+     * Rotate the given Direction around the X axis (NORTH => DOWN => SOUTH => UP => NORTH)
+     */
+    public static Direction directionRotateX(final Direction direction) {
+
+        switch (direction) {
+
+            case NORTH:
+                return Direction.DOWN;
+
+            case EAST:
+            case WEST:
+            default:
+                throw new IllegalStateException("Unable to get X-rotated facing of " + direction);
+
+            case SOUTH:
+                return Direction.UP;
+
+            case UP:
+                return Direction.NORTH;
+
+            case DOWN:
+                return Direction.SOUTH;
+        }
+    }
+
+    /**
+     * Rotate the given Direction around the Z axis (EAST => DOWN => WEST => UP => EAST)
+     */
+    public static Direction directionRotateZ(final Direction direction) {
+
+        switch (direction) {
+
+            case EAST:
+                return Direction.DOWN;
+
+            case SOUTH:
+            default:
+                throw new IllegalStateException("Unable to get Z-rotated facing of " + direction);
+
+            case WEST:
+                return Direction.UP;
+
+            case UP:
+                return Direction.EAST;
+
+            case DOWN:
+                return Direction.WEST;
+        }
+    }
+
+    /**
+     * Rotate the given Direction around the Y axis counter-clockwise (NORTH => WEST => SOUTH => EAST => NORTH)
+     */
+    public static Direction directionRotateYCCW(final Direction direction) {
+
+        switch (direction) {
+
+            case NORTH:
+                return Direction.WEST;
+
+            case EAST:
+                return Direction.NORTH;
+
+            case SOUTH:
+                return Direction.EAST;
+
+            case WEST:
+                return Direction.SOUTH;
+
+            default:
+                throw new IllegalStateException("Unable to get CCW facing of " + direction);
+        }
     }
 
     //endregion
