@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class TagList<T>
         extends TagSource<T> {
@@ -156,6 +157,14 @@ public class TagList<T>
      */
     public Optional<ITag<T>> find(final Predicate<ITag<T>> predicate) {
         return this._tags.values().stream().filter(predicate).findFirst();
+    }
+
+    public Stream<ResourceLocation> idStream() {
+        return this._ids.stream();
+    }
+
+    public Stream<ITag<T>> tagStream() {
+        return this._tags.values().stream();
     }
 
     //region internals
