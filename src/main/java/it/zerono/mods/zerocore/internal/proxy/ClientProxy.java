@@ -75,7 +75,11 @@ public class ClientProxy implements IProxy {
     @Override
     public void addResourceReloadListener(ISelectiveResourceReloadListener listener) {
 
-        if (Minecraft.getInstance().getResourceManager() instanceof IReloadableResourceManager) {
+        final Minecraft mc = Minecraft.getInstance();
+
+        // always check for a null here, there is not MC instance while running the datagens
+        //noinspection ConstantConditions
+        if (null != mc && mc.getResourceManager() instanceof IReloadableResourceManager) {
             ((IReloadableResourceManager)Minecraft.getInstance().getResourceManager()).addReloadListener(listener);
         }
     }
