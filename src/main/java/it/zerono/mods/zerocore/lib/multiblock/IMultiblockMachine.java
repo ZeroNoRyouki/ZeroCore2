@@ -45,6 +45,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public interface IMultiblockMachine {
 
@@ -68,4 +71,14 @@ public interface IMultiblockMachine {
      * @return The maximum bounding-box coordinate containing this machine's blocks.
      */
     Optional<BlockPos> getMaximumCoord();
+
+    <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue);
+
+    <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue, 
+                                    Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
+
+    void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer);
+
+    void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer,
+                                   Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
 }

@@ -741,6 +741,35 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     @Override
+    public <T> T mapBoundingBoxCoordinates(final BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue) {
+        return null != this._minimumCoord && null != this._maximumCoord ? minMaxCoordMapper.apply(this._minimumCoord, this._maximumCoord) : defaultValue;
+    }
+
+    @Override
+    public <T> T mapBoundingBoxCoordinates(final BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue,
+                                           final Function<BlockPos, BlockPos> minRemapper, final Function<BlockPos, BlockPos> maxRemapper) {
+        return null != this._minimumCoord && null != this._maximumCoord ?
+                minMaxCoordMapper.apply(minRemapper.apply(this._minimumCoord), maxRemapper.apply(this._maximumCoord)) : defaultValue;
+    }
+
+    @Override
+    public void forBoundingBoxCoordinates(final BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer) {
+
+        if (null != this._minimumCoord && null != this._maximumCoord) {
+            minMaxCoordConsumer.accept(this._minimumCoord, this._maximumCoord);
+        }
+    }
+
+    @Override
+    public void forBoundingBoxCoordinates(final BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer,
+                                          final Function<BlockPos, BlockPos> minRemapper, final Function<BlockPos, BlockPos> maxRemapper) {
+
+        if (null != this._minimumCoord && null != this._maximumCoord) {
+            minMaxCoordConsumer.accept(minRemapper.apply(this._minimumCoord), maxRemapper.apply(this._maximumCoord));
+        }
+    }
+
+    @Override
     public void forceStructureUpdate(World world) {
     }
 
