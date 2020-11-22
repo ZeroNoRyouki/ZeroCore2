@@ -35,4 +35,8 @@ public interface IProxy {
     void sendPlayerStatusMessage(final PlayerEntity player, final ITextComponent message);
 
     void addResourceReloadListener(ISelectiveResourceReloadListener listener);
+
+    default long getLastRenderTime() {
+        return 0;
+    }
 }

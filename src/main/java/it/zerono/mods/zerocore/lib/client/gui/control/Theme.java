@@ -24,7 +24,7 @@ final class Theme {
 
     static final Colour FLAT_BACKGROUND_COLOR = new Colour(0x86, 0x86, 0x86, 0xFF); /*ok*/
 
-    static final Colour TEXT_ENABLED_COLOR = new Colour(0x30, 0x30, 0x30, 0xFF);
+    static final Colour TEXT_ENABLED_COLOR = new Colour(0x27, 0x27, 0x27, 0xFF); // 303030
     static final Colour TEXT_DISABLED_COLOR = new Colour(0xA0, 0xA0, 0xA0, 0xFF);
 
     static final Colour DARK_OUTLINE_COLOR = new Colour(0.0, 0.0, 0.0, 0.7);

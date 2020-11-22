@@ -21,6 +21,8 @@ package it.zerono.mods.zerocore.lib;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import joptsimple.internal.Strings;
@@ -57,6 +59,8 @@ public final class CodeHelper {
     public static final Object[] EMPTY_GENERIC_ARRAY = new Object[0];
 
     public static final ITextComponent TEXT_EMPTY_LINE = new StringTextComponent("");
+
+    public static final Direction[] DIRECTIONS = Direction.values();
 
     /*
      * Mouse button constants
@@ -116,6 +120,10 @@ public final class CodeHelper {
     //endregion
     //region Direction helpers
 
+    public static Stream<Direction> directionStream() {
+        return Arrays.stream(DIRECTIONS);
+    }
+
     public static Direction.Plane perpendicularPlane(final Direction direction) {
         return perpendicularPlane(direction.getAxis().getPlane());
     }
@@ -126,6 +134,10 @@ public final class CodeHelper {
 
     public static Direction.Plane perpendicularPlane(final Direction.Plane plane) {
         return Direction.Plane.HORIZONTAL == plane ? Direction.Plane.VERTICAL : Direction.Plane.HORIZONTAL;
+    }
+
+    public static List<Direction> perpendicularDirections(final Direction direction) {
+        return s_perpendicularDirections.get(direction);
     }
 
     /**
@@ -845,6 +857,7 @@ public final class CodeHelper {
 
     private static final Map<Integer, String> s_siPrefixes;
     private static final Random s_fakeRandom;
+    private static final Map<Direction, List<Direction>> s_perpendicularDirections;
 
     static {
 
@@ -871,6 +884,25 @@ public final class CodeHelper {
         prefixes.put(-24, "y"); // yocto, 10^-24
 
         s_siPrefixes = Collections.unmodifiableMap(prefixes);
+
+        // perpendicular directions
+
+        final List<Direction> xPerpendicularsDirections = new ObjectArrayList<>(new Direction[] { Direction.NORTH, Direction.DOWN, Direction.SOUTH, Direction.UP });
+        final List<Direction> yPerpendicularsDirections = new ObjectArrayList<>(new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST });
+        final List<Direction> zPerpendicularsDirections = new ObjectArrayList<>(new Direction[] { Direction.EAST, Direction.DOWN, Direction.WEST, Direction.UP });
+
+        s_perpendicularDirections = new Object2ObjectArrayMap<>(DIRECTIONS.length);
+        s_perpendicularDirections.put(Direction.UP, yPerpendicularsDirections);
+        s_perpendicularDirections.put(Direction.DOWN, yPerpendicularsDirections);
+        s_perpendicularDirections.put(Direction.NORTH, zPerpendicularsDirections);
+        s_perpendicularDirections.put(Direction.SOUTH, zPerpendicularsDirections);
+        s_perpendicularDirections.put(Direction.EAST, xPerpendicularsDirections);
+        s_perpendicularDirections.put(Direction.WEST, xPerpendicularsDirections);
+
+//        directionStream()
+//                .forEach(direction -> s_perpendicularDirections.put(direction, directionStream()
+//                        .filter(otherDirection -> otherDirection.getAxis() != direction.getAxis())
+//                        .collect(Collectors.toSet())));
     }
 
     //endregion

@@ -228,7 +228,7 @@ public abstract class AbstractCuboidMultiblockBlockStateProvider extends BlockSt
                 texturePlating, texturePlating)
                 .texture("particle", texturePlating);
 
-        mbp.cubeAll(fullResourceName + "_01_face", textureSingle);
+        mbp.cubeAll(fullResourceName + "_01_face", texturePlating);
 
         mbp.withExistingParent(fullResourceName + "_02_frame_ds", templateLoc)
                 .texture("down", textureUp)

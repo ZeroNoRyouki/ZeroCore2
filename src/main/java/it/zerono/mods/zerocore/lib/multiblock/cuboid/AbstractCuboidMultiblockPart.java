@@ -108,19 +108,45 @@ public abstract class AbstractCuboidMultiblockPart<Controller extends AbstractCu
 	 */
 	@SuppressWarnings("unused")
 	public Optional<Direction> getOutwardFacingFromWorldPosition() {
-        return this.getMultiblockController().flatMap(controller -> CodeHelper.optionalMap(controller.getMinimumCoord(),
-                controller.getMaximumCoord(), (min, max) -> {
+//        return this.getMultiblockController().flatMap(controller -> CodeHelper.optionalMap(controller.getMinimumCoord(),
+//                controller.getMaximumCoord(), (min, max) -> {
+//
+//                    final BlockPos position = this.getWorldPosition();
+//                    final int x = position.getX(), y = position.getY(), z = position.getZ();
+//
+//                    return BlockFacings.from(min.getY() == y, max.getY() == y,
+//                            min.getZ() == z, max.getZ() == z,
+//                            min.getX() == x, max.getX() == x);
+//                }))
+//                .filter(blockFacings -> blockFacings.some() && 1 == blockFacings.countFacesIf(true))
+//                .flatMap(blockFacings -> blockFacings.firstIf(true));
 
-                    final BlockPos position = this.getWorldPosition();
-                    final int x = position.getX(), y = position.getY(), z = position.getZ();
-
-                    return BlockFacings.from(min.getY() == y, max.getY() == y,
-                            min.getZ() == z, max.getZ() == z,
-                            min.getX() == x, max.getX() == x);
-                }))
-                .filter(blockFacings -> blockFacings.some() && 1 == blockFacings.countFacesIf(true))
-                .flatMap(blockFacings -> blockFacings.firstIf(true));
+        return this.getMultiblockController().flatMap(controller ->
+                CodeHelper.optionalFlatMap(controller.getMinimumCoord(), controller.getMaximumCoord(),
+                        (min, max) -> getOutwardFacingFromWorldPositionInternal(this.getWorldPosition(), min, max)));
 	}
+
+    public Direction getOutwardFacingFromWorldPosition(final Direction defaultResult) {
+	    return this.evalOnController(controller -> controller.mapBoundingBoxCoordinates(
+                (min, max) -> getOutwardFacingFromWorldPositionInternal(this.getWorldPosition(), min, max).orElse(defaultResult), defaultResult), defaultResult);
+    }
+
+    private static Optional<Direction> getOutwardFacingFromWorldPositionInternal(final BlockPos partPosition,
+                                                                                 final BlockPos min,
+                                                                                 final BlockPos max) {
+
+        final int x = partPosition.getX(), y = partPosition.getY(), z = partPosition.getZ();
+
+        final BlockFacings facings = BlockFacings.from(min.getY() == y, max.getY() == y,
+                min.getZ() == z, max.getZ() == z,
+                min.getX() == x, max.getX() == x);
+
+        if (facings.some() && 1 == facings.countFacesIf(true)) {
+            return facings.firstIf(true);
+        } else {
+            return Optional.empty();
+        }
+    }
 
 	/**
      * Tell all blocks in our outward-facing-set that our blockstate is changed

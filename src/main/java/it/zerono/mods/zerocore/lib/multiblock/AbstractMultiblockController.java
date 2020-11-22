@@ -1088,7 +1088,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 //
         this.callOnLogicalServer(() ->
                 CodeHelper.optionalIfPresent(this.getReferenceCoord(), this.getReferenceTile(),
-                    (coord, tile) -> this.getWorld().markChunkDirty(coord, tile)));
+                    (coord, tile) -> {
+
+                        this.getWorld().markChunkDirty(coord, tile);
+                        WorldHelper.notifyBlockUpdate(this.getWorld(), coord);
+                    }));
     }
 
     /***
@@ -1503,7 +1507,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     private void clearDataUpdatedSubscribers() {
-        ((Event<Runnable>)this.DataUpdated).unsubscribeAll();
+        this.DataUpdated.unsubscribeAll();
     }
 
     /**
