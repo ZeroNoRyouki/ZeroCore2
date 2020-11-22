@@ -23,6 +23,8 @@ import com.google.common.collect.Maps;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.ITagCollection;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.List;
@@ -47,8 +49,25 @@ public class TagList<T>
      * @param id the id of the Tag
      * @return the requested Tag if present, null otherwise
      */
+    @Override
     public Optional<ITag<T>> getTag(final ResourceLocation id) {
         return Optional.ofNullable(this._tags.get(id));
+    }
+
+    public <R> R mapTag(final ResourceLocation id, final NonNullFunction<ITag<T>, R> mapper, final R defaultValue) {
+
+        final ITag<T> tag = this._tags.get(id);
+
+        return null != tag ? mapper.apply(tag) : defaultValue;
+    }
+
+    public void forTag(final ResourceLocation id, final NonNullConsumer<ITag<T>> consumer) {
+
+        final ITag<T> tag = this._tags.get(id);
+
+        if (null != tag) {
+            consumer.accept(tag);
+        }
     }
 
 //    /**
