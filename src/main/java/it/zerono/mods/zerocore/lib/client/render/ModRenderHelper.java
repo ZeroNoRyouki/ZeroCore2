@@ -22,6 +22,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
@@ -65,6 +66,10 @@ public final class ModRenderHelper {
     public static final float ONE_PIXEL = 1.0f / 16.0f;
 
     public static final NonNullSupplier<FontRenderer> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().fontRenderer;
+
+    public static long getLastRenderTime() {
+        return ZeroCore.getProxy().getLastRenderTime();
+    }
 
     public static ModelManager getModelManager() {
         return Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModelManager();

@@ -27,6 +27,7 @@ import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -35,7 +36,8 @@ import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import java.util.Optional;
 
-public class ClientProxy implements IProxy {
+public class ClientProxy
+        implements IProxy {
 
     public ClientProxy() {
 
@@ -44,6 +46,10 @@ public class ClientProxy implements IProxy {
         modBus.register(this);
         modBus.register(BakedModelSupplier.INSTANCE);
         modBus.register(AtlasSpriteSupplier.INSTANCE);
+
+        final IEventBus forgeBus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
+
+        forgeBus.addListener(this::onRenderTick);
     }
 
     /**
@@ -83,4 +89,22 @@ public class ClientProxy implements IProxy {
             ((IReloadableResourceManager)Minecraft.getInstance().getResourceManager()).addReloadListener(listener);
         }
     }
+
+    @Override
+    public long getLastRenderTime() {
+        return s_lastRenderTime;
+    }
+
+    //region internals
+
+    private void onRenderTick(final TickEvent.RenderTickEvent event) {
+
+        if (TickEvent.Phase.END == event.phase) {
+            s_lastRenderTime = System.currentTimeMillis();
+        }
+    }
+
+    private static long s_lastRenderTime = System.currentTimeMillis();
+
+    //endregion
 }
