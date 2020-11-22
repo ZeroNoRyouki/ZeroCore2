@@ -120,7 +120,7 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
 
                 final ItemStack heldItem = player.getHeldItem(hand);
 
-                if (heldItem.isEmpty() && (hand == Hand.OFF_HAND)) {
+                if (heldItem.isEmpty() && (hand == Hand.MAIN_HAND)) {
 
                     final Optional<Controller> controller = part.flatMap(IMultiblockPart::getMultiblockController);
                     final ITextComponent message;
