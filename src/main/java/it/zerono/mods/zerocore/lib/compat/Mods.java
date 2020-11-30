@@ -50,6 +50,7 @@ public enum Mods {
     THERMALFOUNDATION("thermalfoundation"),
     MINEFACTORYRELOADED("minefactoryreloaded"),
     APPLIEDENERGISTICS2("appliedenergistics2"),
+    PATCHOULI("patchouli")
     ;
 
     public static Optional<Mods> from(String id) {
