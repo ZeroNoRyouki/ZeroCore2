@@ -20,7 +20,11 @@ package it.zerono.mods.zerocore.internal.gamecontent;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.gamecontent.debugtool.DebugToolItem;
+import it.zerono.mods.zerocore.lib.world.feature.ModOreFeature;
+import it.zerono.mods.zerocore.lib.world.feature.ModOreFeatureConfig;
+import it.zerono.mods.zerocore.lib.world.feature.ModOreReGenFeature;
 import net.minecraft.item.Item;
+import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
@@ -29,10 +33,16 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class Content {
 
     public static void initialize() {
+
         ITEMS.register(Mod.EventBusSubscriber.Bus.MOD.bus().get());
+        FEATURES.register(Mod.EventBusSubscriber.Bus.MOD.bus().get());
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ZeroCore.MOD_ID);
+    private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, ZeroCore.MOD_ID);
 
     public static final RegistryObject<DebugToolItem> DEBUG_TOOL = ITEMS.register("debugtool", DebugToolItem::new);
+
+    public static final RegistryObject<Feature<ModOreFeatureConfig>> FEATURE_ORE = FEATURES.register("mod_ores", () -> new ModOreFeature(ModOreFeatureConfig.CODEC));
+    public static final RegistryObject<Feature<ModOreFeatureConfig>> FEATURE_ORE_REGEN = FEATURES.register("mod_ores_regen", () -> new ModOreReGenFeature(ModOreFeatureConfig.CODEC));
 }

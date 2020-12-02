@@ -18,38 +18,26 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.tags.ITag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.OreFeatureConfig;
-import net.minecraft.world.gen.feature.template.BlockMatchRuleTest;
-import net.minecraft.world.gen.feature.template.BlockStateMatchRuleTest;
 import net.minecraft.world.gen.feature.template.RuleTest;
-import net.minecraft.world.gen.feature.template.TagMatchRuleTest;
-import net.minecraft.world.gen.placement.Placement;
-import net.minecraft.world.gen.placement.TopSolidRangeConfig;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class WorldGenManager {
+public class WorldGenManager
+        extends AbstractWorldGenFeaturesMap<BiomeLoadingEvent> {
 
     public static final WorldGenManager INSTANCE = new WorldGenManager();
 
@@ -81,37 +69,17 @@ public class WorldGenManager {
         return event -> Biome.Category.THEEND != event.getCategory();
     }
 
-    public static RuleTest oreMatch(final Block block) {
-        return new BlockMatchRuleTest(block);
-    }
-
-    public static RuleTest oreMatch(final ITag<Block> tag) {
-        return new TagMatchRuleTest(tag);
-    }
-
-    public static RuleTest oreMatch(final BlockState state) {
-        return new BlockStateMatchRuleTest(state);
-    }
-
     public static Supplier<ConfiguredFeature<?, ?>> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
                                                                final int clustersAmount, final int oresPerCluster,
                                                                final int placementBottomOffset, final int placementTopOffset,
                                                                final int placementMaximum) {
-        return () -> Feature.ORE.withConfiguration(new OreFeatureConfig(matchRule, oreBlock.get().getDefaultState(), oresPerCluster))
-                .withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
-                        .square()
-                        .func_242731_b/* repeat */(clustersAmount));
-    }
-
-    public void addOre(final Predicate<BiomeLoadingEvent> biomeMatcher, final Supplier<ConfiguredFeature<?, ?>> configSupplier) {
-        this.add(GenerationStage.Decoration.UNDERGROUND_ORES, biomeMatcher, configSupplier);
+        return oreFeature(Content.FEATURE_ORE, oreBlock, matchRule,clustersAmount, oresPerCluster, placementBottomOffset,
+                placementTopOffset, placementMaximum);
     }
 
     //region internals
 
     private WorldGenManager() {
-
-        this._entries = Maps.newHashMap();
         MinecraftForge.EVENT_BUS.addListener(this::onBiomesLoaded);
     }
 
@@ -129,13 +97,6 @@ public class WorldGenManager {
                     .forEach(p -> biomeFeatures.add(p.getValue()));
         }
     }
-
-    private void add(final GenerationStage.Decoration stage, final Predicate<BiomeLoadingEvent> biomeMatcher,
-                     final Supplier<ConfiguredFeature<?, ?>> configSupplier) {
-        this._entries.computeIfAbsent(stage, s -> Lists.newLinkedList()).add(Pair.of(biomeMatcher, configSupplier));
-    }
-
-    private final Map<GenerationStage.Decoration, List<Pair<Predicate<BiomeLoadingEvent>, Supplier<ConfiguredFeature<?, ?>>>>> _entries;
 
     //endregion
 }
