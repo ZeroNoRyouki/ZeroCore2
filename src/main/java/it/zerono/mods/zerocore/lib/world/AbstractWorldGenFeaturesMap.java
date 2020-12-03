@@ -34,6 +34,9 @@ import net.minecraft.world.gen.feature.template.RuleTest;
 import net.minecraft.world.gen.feature.template.TagMatchRuleTest;
 import net.minecraft.world.gen.placement.Placement;
 import net.minecraft.world.gen.placement.TopSolidRangeConfig;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -55,29 +58,35 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
         return new BlockStateMatchRuleTest(state);
     }
 
-    public void addOre(final Predicate<PredicateObject> biomeMatcher, final Supplier<ConfiguredFeature<?, ?>> configSupplier) {
+    public void addOre(final Predicate<PredicateObject> biomeMatcher, final ConfiguredFeature<?, ?> configSupplier) {
         this.add(GenerationStage.Decoration.UNDERGROUND_ORES, biomeMatcher, configSupplier);
     }
 
     protected AbstractWorldGenFeaturesMap() {
+
         this._entries = Maps.newHashMap();
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Feature.class, EventPriority.HIGHEST, this::clearItems);
     }
 
     protected void add(final GenerationStage.Decoration stage, final Predicate<PredicateObject> biomeMatcher,
-                       final Supplier<ConfiguredFeature<?, ?>> configSupplier) {
+                       final ConfiguredFeature<?, ?> configSupplier) {
         this._entries.computeIfAbsent(stage, s -> Lists.newLinkedList()).add(Pair.of(biomeMatcher, configSupplier));
     }
 
-    protected static Supplier<ConfiguredFeature<?, ?>> oreFeature(final Supplier<Feature<ModOreFeatureConfig>> oreFeature,
-                                                                  final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                                                                  final int clustersAmount, final int oresPerCluster,
-                                                                  final int placementBottomOffset, final int placementTopOffset,
-                                                                  final int placementMaximum) {
-        return () -> oreFeature.get().withConfiguration(new ModOreFeatureConfig(matchRule, oreBlock.get().getDefaultState(), oresPerCluster))
+    protected static ConfiguredFeature<?, ?> oreFeature(final Supplier<Feature<ModOreFeatureConfig>> oreFeature,
+                                                        final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                        final int clustersAmount, final int oresPerCluster,
+                                                        final int placementBottomOffset, final int placementTopOffset,
+                                                        final int placementMaximum) {
+        return oreFeature.get().withConfiguration(new ModOreFeatureConfig(matchRule, oreBlock.get().getDefaultState(), oresPerCluster))
                 .withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
                         .square()
                         .func_242731_b/* repeat */(clustersAmount));
     }
 
-    protected final Map<GenerationStage.Decoration, List<Pair<Predicate<PredicateObject>, Supplier<ConfiguredFeature<?, ?>>>>> _entries;
+    public void clearItems(final RegistryEvent.Register<Feature<?>> event) {
+        this._entries.clear();
+    }
+
+    protected final Map<GenerationStage.Decoration, List<Pair<Predicate<PredicateObject>, ConfiguredFeature<?, ?>>>> _entries;
 }

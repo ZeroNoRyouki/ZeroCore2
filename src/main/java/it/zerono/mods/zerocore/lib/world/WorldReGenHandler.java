@@ -97,29 +97,29 @@ public class WorldReGenHandler
         return biome -> Biome.Category.THEEND != biome.getCategory();
     }
 
-    public static Supplier<ConfiguredFeature<?, ?>> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                                                               final int clustersAmount, final int oresPerCluster,
-                                                               final int placementBottomOffset, final int placementTopOffset,
-                                                               final int placementMaximum) {
+    public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                     final int clustersAmount, final int oresPerCluster,
+                                                     final int placementBottomOffset, final int placementTopOffset,
+                                                     final int placementMaximum) {
         return oreFeature(Content.FEATURE_ORE_REGEN, oreBlock, matchRule,clustersAmount, oresPerCluster, placementBottomOffset,
                 placementTopOffset, placementMaximum);
     }
 
-    public static Pair<Supplier<ConfiguredFeature<?, ?>>, Supplier<ConfiguredFeature<?, ?>>>
+    public static Pair<ConfiguredFeature<?, ?>, ConfiguredFeature<?, ?>>
         oreGenAndRegenFeatures(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
                                final int clustersAmount, final int oresPerCluster, final int placementBottomOffset,
                                final int placementTopOffset, final int placementMaximum) {
 
-        final Supplier<ConfiguredFeature<?, ?>> gen = WorldGenManager.oreFeature(oreBlock, matchRule, clustersAmount, oresPerCluster,
+        final ConfiguredFeature<?, ?> gen = WorldGenManager.oreFeature(oreBlock, matchRule, clustersAmount, oresPerCluster,
                 placementBottomOffset, placementTopOffset,placementMaximum);
 
-        final Supplier<ConfiguredFeature<?, ?>> regen = oreFeature(oreBlock, matchRule, clustersAmount, oresPerCluster,
+        final ConfiguredFeature<?, ?> regen = oreFeature(oreBlock, matchRule, clustersAmount, oresPerCluster,
                 placementBottomOffset, placementTopOffset,placementMaximum);
 
         return Pair.of(gen, regen);
     }
 
-    public void addGenAndRegenOre(final Pair<Supplier<ConfiguredFeature<?, ?>>, Supplier<ConfiguredFeature<?, ?>>> suppliers,
+    public void addGenAndRegenOre(final Pair<ConfiguredFeature<?, ?>, ConfiguredFeature<?, ?>> suppliers,
                                   final Predicate<BiomeLoadingEvent> genBiomeMatcher, final Predicate<Biome> reGenBiomeMatcher) {
 
         WorldGenManager.INSTANCE.addOre(genBiomeMatcher, suppliers.getLeft());
@@ -230,10 +230,10 @@ public class WorldReGenHandler
 
             boolean processed = false;
 
-            for (Pair<Predicate<Biome>, Supplier<ConfiguredFeature<?, ?>>> pair : this._entries.get(stage)) {
+            for (Pair<Predicate<Biome>, ConfiguredFeature<?, ?>> pair : this._entries.get(stage)) {
 
                 if (pair.getKey().test(biome)) {
-                    processed |= pair.getValue().get().generate(world, chunkGenerator, random, position);
+                    processed |= pair.getValue().generate(world, chunkGenerator, random, position);
                 }
             }
 

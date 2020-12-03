@@ -69,10 +69,10 @@ public class WorldGenManager
         return event -> Biome.Category.THEEND != event.getCategory();
     }
 
-    public static Supplier<ConfiguredFeature<?, ?>> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                                                               final int clustersAmount, final int oresPerCluster,
-                                                               final int placementBottomOffset, final int placementTopOffset,
-                                                               final int placementMaximum) {
+    public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                     final int clustersAmount, final int oresPerCluster,
+                                                     final int placementBottomOffset, final int placementTopOffset,
+                                                     final int placementMaximum) {
         return oreFeature(Content.FEATURE_ORE, oreBlock, matchRule,clustersAmount, oresPerCluster, placementBottomOffset,
                 placementTopOffset, placementMaximum);
     }
@@ -94,7 +94,7 @@ public class WorldGenManager
 
             this._entries.getOrDefault(stage, Collections.emptyList()).stream()
                     .filter(p -> p.getKey().test(event))
-                    .forEach(p -> biomeFeatures.add(p.getValue()));
+                    .forEach(p -> biomeFeatures.add(p::getValue));
         }
     }
 
