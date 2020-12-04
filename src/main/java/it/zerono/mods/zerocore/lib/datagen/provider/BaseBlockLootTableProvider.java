@@ -19,10 +19,16 @@
 package it.zerono.mods.zerocore.lib.datagen.provider;
 
 import it.zerono.mods.zerocore.lib.datagen.LootTableType;
+import net.minecraft.advancements.criterion.EnchantmentPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.loot.*;
+import net.minecraft.loot.conditions.MatchTool;
 import net.minecraft.loot.conditions.SurvivesExplosion;
+import net.minecraft.loot.functions.ApplyBonus;
 import net.minecraft.loot.functions.SetCount;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
@@ -56,11 +62,40 @@ public class BaseBlockLootTableProvider
                 .acceptFunction(SetCount.builder(ConstantRange.of(count))));
     }
 
+    protected void addSilkDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> standardDrop,
+                               final int count, final Supplier<? extends IItemProvider> silkDrop) {
+        this.addDrop(block.get(), AlternativesLootEntry.builder(
+                // with silk touch ...
+                ItemLootEntry.builder(silkDrop.get())
+                        .acceptCondition(MatchTool.builder(ItemPredicate.Builder.create()
+                                .enchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1))))),
+                // without ...
+                ItemLootEntry.builder(standardDrop.get())
+                        .acceptCondition(SurvivesExplosion.builder())
+                        .acceptFunction(SetCount.builder(ConstantRange.of(count)))));
+    }
+
     protected void addDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> drop,
                            final int min, final int max) {
         this.addDrop(block.get(), ItemLootEntry.builder(drop.get())
                 .acceptCondition(SurvivesExplosion.builder())
+                .acceptFunction(ApplyBonus.uniformBonusCount(Enchantments.FORTUNE, 1))
                 .acceptFunction(SetCount.builder(RandomValueRange.of(min, max))));
+    }
+
+    protected void addSilkDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> standardDrop,
+                               final int min, final int max, final Supplier<? extends IItemProvider> silkDrop) {
+
+        this.addDrop(block.get(), AlternativesLootEntry.builder(
+                // with silk touch ...
+                ItemLootEntry.builder(silkDrop.get())
+                        .acceptCondition(MatchTool.builder(ItemPredicate.Builder.create()
+                                .enchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1))))),
+                // without ...
+                ItemLootEntry.builder(standardDrop.get())
+                        .acceptCondition(SurvivesExplosion.builder())
+                        .acceptFunction(ApplyBonus.uniformBonusCount(Enchantments.FORTUNE, 1))
+                        .acceptFunction(SetCount.builder(new RandomValueRange(min, max)))));
     }
 
     //region internals

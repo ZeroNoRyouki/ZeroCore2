@@ -71,7 +71,7 @@ public class BaseLootTableProvider
      * @param cache
      */
     @Override
-    public void act(DirectoryCache cache) throws IOException {
+    public void act(DirectoryCache cache) {
 
         this.generateTables();
         this._tables.forEach((id, builder) -> this.writeTable(cache, id,
