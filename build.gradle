@@ -38,6 +38,8 @@ minecraft {
     runs {
         client {
 
+            properties 'mixin.env.disableRefMap': 'true'
+
             workingDirectory runDir
 			
             mods {
@@ -48,6 +50,8 @@ minecraft {
         }
 
         server {
+
+            properties 'mixin.env.disableRefMap': 'true'
             
 			workingDirectory runDir
 			
@@ -59,6 +63,8 @@ minecraft {
         }
 
         data {
+
+            properties 'mixin.env.disableRefMap': 'true'
 
             workingDirectory runDir
             args '--mod', 'zerocore', '--all', '--output', file('src/generated/resources/')
@@ -99,12 +105,21 @@ repositories {
     maven {
         url 'https://squiddev.cc/maven/'
     }
+
+    // patchouli
+    maven {
+        url 'https://maven.blamejared.com'
+    }
 }
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
 
     implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
+
+    // patchouli
+    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
 }
 
 jar {
