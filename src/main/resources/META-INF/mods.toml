@@ -14,7 +14,7 @@ license="All rights reserved"
 
 	modId="zerocore"
 	version="${mod_version}"
-    updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2-issues/main/update.json"
+    updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2/master/update.json"
     displayName="${mod_name}"
 	authors="ZeroNoRyouki"
 	description="Utility mod and multiblock API"
