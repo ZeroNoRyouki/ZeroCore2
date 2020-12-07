@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.data;
 
-import com.mojang.datafixers.types.Func;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 
 import javax.annotation.Nullable;
