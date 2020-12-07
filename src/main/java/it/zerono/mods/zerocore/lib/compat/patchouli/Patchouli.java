@@ -30,9 +30,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import vazkii.patchouli.api.IMultiblock;
 import vazkii.patchouli.api.PatchouliAPI;
 import vazkii.patchouli.client.book.template.BookTemplate;
@@ -40,7 +37,6 @@ import vazkii.patchouli.client.book.template.BookTemplate;
 import java.util.Map;
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Patchouli {
 
     public static void registerMultiblock(final ResourceLocation id, final IMultiblock multiblock,
@@ -60,10 +56,13 @@ public class Patchouli {
         return s_modelDataMappers.getOrDefault(multiblock, b -> EmptyModelData.INSTANCE).apply(block);
     }
 
-    @SubscribeEvent
-    public static void onClientInit(final FMLClientSetupEvent event) {
+    public static void initialize() {
 
         Mods.PATCHOULI.ifPresent(() -> () -> {
+
+            if (s_init) {
+                return;
+            }
 
             Log.LOGGER.info("Initializing Patchouli custom templates...");
 
@@ -71,11 +70,14 @@ public class Patchouli {
             BookTemplate.registerComponent("zcsptSpotlight", Spotlight.class);
             BookTemplate.registerComponent("zcsptCrafting", Crafting.class);
             BookTemplate.registerComponent("zcsptSmelting", Smelting.class);
+
+            s_init = true;
         });
     }
 
     //region internals
 
+    private static boolean s_init = false;
     private static final Map<IMultiblock, Function<Block, BlockState>> s_renderBlockStateMappers = Maps.newHashMap();
     private static final Map<IMultiblock, Function<Block, IModelData>> s_modelDataMappers = Maps.newHashMap();
 
