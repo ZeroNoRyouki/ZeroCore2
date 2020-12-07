@@ -47,11 +47,9 @@ public class Spotlight
 
         try {
 
-            final PageSpotlight page = this.getPage();
-
-            itemField.set(page, lookup.apply(item));
-            titleField.set(page, lookup.apply(IVariable.wrap(title)).asString());
-            linkRecipeField.set(page, lookup.apply(IVariable.wrap(linkRecipe)).asBoolean());
+            itemField.set(this.getPage(), lookup.apply(item));
+            titleField.set(this.getPage(), lookup.apply(IVariable.wrap(title)).asString());
+            linkRecipeField.set(this.getPage(), lookup.apply(IVariable.wrap(linkRecipe)).asBoolean());
 
         } catch (IllegalAccessException e) {
             Log.LOGGER.warn(Log.CORE, "patchouli Spotlight wrapper : Unable to set inner page fields");

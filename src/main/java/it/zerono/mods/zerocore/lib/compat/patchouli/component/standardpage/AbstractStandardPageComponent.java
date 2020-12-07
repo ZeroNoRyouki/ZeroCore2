@@ -54,7 +54,7 @@ public abstract class AbstractStandardPageComponent<PageType extends BookPage>
 
     @Override
     public boolean mouseScrolled(BookPage page, double mouseX, double mouseY, int mouseButton) {
-        return getPage().mouseScrolled(mouseX, mouseY, mouseButton);
+        return this.getPage().mouseScrolled(mouseX, mouseY, mouseButton);
     }
 
     @Override
@@ -64,17 +64,21 @@ public abstract class AbstractStandardPageComponent<PageType extends BookPage>
 
             stack.push();
             stack.translate(this.x, this.y, 0);
-            this.getPage().render(stack, mouseX, mouseY, partialTicks);
+            this.renderPage(stack, mouseX, mouseY, partialTicks);
             stack.pop();
 
         } else {
 
-            this.getPage().render(stack, mouseX, mouseY, partialTicks);
+            this.renderPage(stack, mouseX, mouseY, partialTicks);
         }
     }
 
     //endregion
     //region internals
+
+    protected void renderPage(final MatrixStack stack, final int mouseX, final int mouseY, final float partialTicks) {
+        this.getPage().render(stack, mouseX, mouseY, partialTicks);
+    }
 
     @Nullable
     protected static <T> Field getField(final Class<? super T> clazz, final String name) {
