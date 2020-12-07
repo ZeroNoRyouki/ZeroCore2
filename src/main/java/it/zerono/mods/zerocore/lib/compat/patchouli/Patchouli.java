@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.compat.patchouli;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.compat.Mods;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Crafting;
+import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Multiblock;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Smelting;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Spotlight;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -38,6 +39,7 @@ public class PatchouliSetup {
 
             Log.LOGGER.info("Initializing Patchouli custom templates...");
 
+            BookTemplate.registerComponent("zcsptMultiblock", Multiblock.class);
             BookTemplate.registerComponent("zcsptSpotlight", Spotlight.class);
             BookTemplate.registerComponent("zcsptCrafting", Crafting.class);
             BookTemplate.registerComponent("zcsptSmelting", Smelting.class);
