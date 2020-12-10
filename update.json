@@ -7,7 +7,8 @@
     "2.0.6": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3109530",
     "2.0.7": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3120031",
     "2.0.11": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3128644",
-      "2.0.12": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3130324"
+      "2.0.12": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3130324",
+      "1.16.4-2.0.13": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3135474"
       
   },
   "1.16.4": {
@@ -15,12 +16,13 @@
     "2.0.6": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3109530",
     "2.0.7": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3120031",
     "2.0.11": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3128644",
-      "2.0.12": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3130324"
+      "2.0.12": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3130324",
+      "1.16.4-2.0.13": "Changelog: https://www.curseforge.com/minecraft/mc-mods/zerocore/files/3135474"
   },
   "promos": {
-    "1.16.3-latest": "2.0.12",
-    "1.16.3-recommended": "2.0.12",
-    "1.16.4-latest": "2.0.12",
-    "1.16.4-recommended": "2.0.12"
+    "1.16.3-latest": "1.16.4-2.0.13",
+    "1.16.3-recommended": "1.16.4-2.0.13",
+    "1.16.4-latest": "1.16.4-2.0.13",
+    "1.16.4-recommended": "1.16.4-2.0.13"
   }
 }
