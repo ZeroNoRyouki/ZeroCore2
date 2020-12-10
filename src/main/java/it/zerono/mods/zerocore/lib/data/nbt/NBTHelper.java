@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.data.nbt;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.mojang.datafixers.types.Func;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.ListNBT;
