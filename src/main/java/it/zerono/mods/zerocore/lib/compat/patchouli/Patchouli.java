@@ -25,7 +25,6 @@ import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Craft
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Multiblock;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Smelting;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Spotlight;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -40,20 +39,20 @@ import java.util.function.Function;
 public class Patchouli {
 
     public static void registerMultiblock(final ResourceLocation id, final IMultiblock multiblock,
-                                          final Function<Block, BlockState> renderBlockStateMappers,
-                                          final Function<Block, IModelData> modelDataMapper) {
+                                          final Function<BlockState, BlockState> renderBlockStateMappers,
+                                          final Function<BlockState, IModelData> modelDataMapper) {
 
         PatchouliAPI.get().registerMultiblock(id, multiblock);
         s_renderBlockStateMappers.put(multiblock, renderBlockStateMappers);
         s_modelDataMappers.put(multiblock, modelDataMapper);
     }
 
-    public static BlockState getRenderBlockStateFor(final IMultiblock multiblock, final Block block) {
-        return s_renderBlockStateMappers.getOrDefault(multiblock, Block::getDefaultState).apply(block);
+    public static BlockState getRenderBlockStateFor(final IMultiblock multiblock, final BlockState blockState) {
+        return s_renderBlockStateMappers.getOrDefault(multiblock, bs -> bs).apply(blockState);
     }
 
-    public static IModelData getModelDataFor(final IMultiblock multiblock, final Block block) {
-        return s_modelDataMappers.getOrDefault(multiblock, b -> EmptyModelData.INSTANCE).apply(block);
+    public static IModelData getModelDataFor(final IMultiblock multiblock, final BlockState blockState) {
+        return s_modelDataMappers.getOrDefault(multiblock, b -> EmptyModelData.INSTANCE).apply(blockState);
     }
 
     public static void initialize() {
@@ -78,8 +77,8 @@ public class Patchouli {
     //region internals
 
     private static boolean s_init = false;
-    private static final Map<IMultiblock, Function<Block, BlockState>> s_renderBlockStateMappers = Maps.newHashMap();
-    private static final Map<IMultiblock, Function<Block, IModelData>> s_modelDataMappers = Maps.newHashMap();
+    private static final Map<IMultiblock, Function<BlockState, BlockState>> s_renderBlockStateMappers = Maps.newHashMap();
+    private static final Map<IMultiblock, Function<BlockState, IModelData>> s_modelDataMappers = Maps.newHashMap();
 
     //endregion
 }

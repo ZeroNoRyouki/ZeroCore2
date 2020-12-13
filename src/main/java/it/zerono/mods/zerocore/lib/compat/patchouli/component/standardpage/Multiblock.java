@@ -203,8 +203,8 @@ public class Multiblock
         for (BlockPos pos : blocks) {
 
             BlockState bs = mb.getBlockState(pos);
-            final BlockState renderBlockState = Patchouli.getRenderBlockStateFor(mb, bs.getBlock());
-            final IModelData renderModelData = Patchouli.getModelDataFor(mb, bs.getBlock());
+            final BlockState renderBlockState = Patchouli.getRenderBlockStateFor(mb, bs);
+            final IModelData renderModelData = Patchouli.getModelDataFor(mb, bs);
 
             ms.push();
             ms.translate(pos.getX(), pos.getY(), pos.getZ());
