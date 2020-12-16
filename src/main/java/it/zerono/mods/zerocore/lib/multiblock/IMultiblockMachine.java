@@ -47,6 +47,7 @@ import net.minecraft.world.World;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface IMultiblockMachine {
@@ -72,13 +73,25 @@ public interface IMultiblockMachine {
      */
     Optional<BlockPos> getMaximumCoord();
 
-    <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue);
+    default boolean hasValidBoundingBoxCoordinates() {
+        return true;
+    }
 
-    <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue, 
+    <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, T defaultValue);
+
+    <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, T defaultValue,
                                     Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
+
+    default <T> T mapReferenceCoordinates(Function<BlockPos, T> mapper, T defaultValue) {
+        return this.getReferenceCoord().map(mapper).orElse(defaultValue);
+    }
 
     void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer);
 
     void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer,
                                    Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
+
+    default void forReferenceCoordinates(Consumer<BlockPos> consumer) {
+        this.getReferenceCoord().ifPresent(consumer);
+    }
 }

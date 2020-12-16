@@ -39,39 +39,20 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.multiblock.cuboid;
+package it.zerono.mods.zerocore.lib.multiblock.rectangular;
 
 import net.minecraft.state.EnumProperty;
-import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
-
-import javax.annotation.Nullable;
-import java.util.Optional;
 
 public enum PartPosition
         implements IStringSerializable {
 
-	Unknown(null, Type.Unknown),
-	Interior(null, Type.Unknown),
-	FrameCorner(null, Type.Frame),
-	FrameEastWest(null, Type.Frame),
-	FrameSouthNorth(null, Type.Frame),
-	FrameUpDown(null, Type.Frame),
-	TopFace(Direction.UP, Type.Face),
-	BottomFace(Direction.DOWN, Type.Face),
-	NorthFace(Direction.NORTH, Type.Face),
-	SouthFace(Direction.SOUTH, Type.Face),
-	EastFace(Direction.EAST, Type.Face),
-	WestFace(Direction.WEST, Type.Face);
-
-	public enum Type {
-
-		Unknown,
-		Interior,
-		Frame,
-		Face
-	}
+    Unknown,
+    FrameCorner,
+    FrameEastWest,
+    FrameSouthNorth,
+    FrameUpDown;
 
     /**
      * Compute the position of a block in the multiblock volume
@@ -80,10 +61,33 @@ public enum PartPosition
      * @param blockPosition the position of the block
      * @return the position of the block in the multiblock
      */
-    public static <Controller extends AbstractCuboidMultiblockController<Controller>> PartPosition positionIn(
+    public static <Controller extends AbstractRectangularMultiblockController<Controller>> PartPosition positionIn(
             final Controller controller, final BlockPos blockPosition) {
         return controller.mapBoundingBoxCoordinates((min, max) -> positionIn(blockPosition, min, max), PartPosition.Unknown);
     }
+
+    public boolean isFrame() {
+        return this != Unknown;
+    }
+
+    public boolean isCorner() {
+        return this != FrameCorner;
+    }
+
+    @SuppressWarnings("unused")
+    public static EnumProperty<PartPosition> createProperty(String name) {
+        return EnumProperty.create(name, PartPosition.class);
+    }
+
+    //region IStringSerializable
+
+    @Override
+    public String getString() {
+        return this.toString();
+    }
+
+    //endregion
+    //region internals
 
     private static PartPosition positionIn(final BlockPos blockPosition, final BlockPos minimumCoord, final BlockPos maximumCoord) {
 
@@ -116,11 +120,11 @@ public enum PartPosition
 
         final PartPosition position;
 
-        if (facesMatching <= 0) {
-            position = PartPosition.Interior;
-        } else if (facesMatching >= 3) {
+        if (3 == facesMatching) {
+
             position = PartPosition.FrameCorner;
-        } else if (facesMatching == 2) {
+
+        } else if (2 == facesMatching) {
 
             if (!eastFacing && !westFacing) {
                 position = PartPosition.FrameEastWest;
@@ -132,65 +136,11 @@ public enum PartPosition
 
         } else {
 
-            // only 1 face matches
-
-            if (eastFacing) {
-                position = PartPosition.EastFace;
-            } else if (westFacing) {
-                position = PartPosition.WestFace;
-            } else if (southFacing) {
-                position = PartPosition.SouthFace;
-            } else if (northFacing) {
-                position = PartPosition.NorthFace;
-            } else if (upFacing) {
-                position = PartPosition.TopFace;
-            } else {
-                position = PartPosition.BottomFace;
-            }
+            position = PartPosition.Unknown;
         }
 
         return position;
     }
-	
-	public boolean isFace() {
-		return this._type == Type.Face;
-	}
 
-	public boolean isFrame() {
-		return this._type == Type.Frame;
-	}
-
-	public Optional<Direction> getDirection() {
-		return Optional.ofNullable(this._facing);
-	}
-
-	public Type getType() {
-		return this._type;
-	}
-
-	@SuppressWarnings("unused")
-	public static EnumProperty<PartPosition> createProperty(String name) {
-		return EnumProperty.create(name, PartPosition.class);
-	}
-
-	//region IStringSerializable
-
-	@Override
-	public String getString() {
-		return this.toString();
-	}
-
-	//endregion
-	//region internals
-
-	PartPosition(@Nullable Direction facing, Type type) {
-
-		this._facing = facing;
-		this._type = type;
-	}
-
-	private final Direction _facing;
-	private final Type _type;
-
-	//endregion
+    //endregion
 }

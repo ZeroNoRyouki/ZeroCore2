@@ -108,22 +108,8 @@ public abstract class AbstractCuboidMultiblockPart<Controller extends AbstractCu
 	 */
 	@SuppressWarnings("unused")
 	public Optional<Direction> getOutwardFacingFromWorldPosition() {
-//        return this.getMultiblockController().flatMap(controller -> CodeHelper.optionalMap(controller.getMinimumCoord(),
-//                controller.getMaximumCoord(), (min, max) -> {
-//
-//                    final BlockPos position = this.getWorldPosition();
-//                    final int x = position.getX(), y = position.getY(), z = position.getZ();
-//
-//                    return BlockFacings.from(min.getY() == y, max.getY() == y,
-//                            min.getZ() == z, max.getZ() == z,
-//                            min.getX() == x, max.getX() == x);
-//                }))
-//                .filter(blockFacings -> blockFacings.some() && 1 == blockFacings.countFacesIf(true))
-//                .flatMap(blockFacings -> blockFacings.firstIf(true));
-
-        return this.getMultiblockController().flatMap(controller ->
-                CodeHelper.optionalFlatMap(controller.getMinimumCoord(), controller.getMaximumCoord(),
-                        (min, max) -> getOutwardFacingFromWorldPositionInternal(this.getWorldPosition(), min, max)));
+        return this.evalOnController(controller -> controller.mapBoundingBoxCoordinates(
+                (min, max) -> getOutwardFacingFromWorldPositionInternal(this.getWorldPosition(), min, max), Optional.empty()), Optional.empty());
 	}
 
     public Direction getOutwardFacingFromWorldPosition(final Direction defaultResult) {
@@ -199,25 +185,25 @@ public abstract class AbstractCuboidMultiblockPart<Controller extends AbstractCu
 
 	//region internals
 
-    private void recalculateOutwardsDirection(Controller controller) {
+    private void recalculateOutwardsDirection(final Controller controller) {
+        controller.forBoundingBoxCoordinates((min, max) -> recalculateOutwardsDirection(controller, min, max));
+    }
 
-        CodeHelper.optionalIfPresent(controller.getMinimumCoord(), controller.getMaximumCoord(), (min, max) -> {
+    private void recalculateOutwardsDirection(final Controller controller, final BlockPos min, final BlockPos max) {
 
-            final BlockPos myPosition = this.getWorldPosition();
+        final BlockPos myPosition = this.getWorldPosition();
 
-            // witch direction are we facing?
+        // witch direction are we facing?
 
-            final boolean downFacing = myPosition.getY() == min.getY();
-            final boolean upFacing = myPosition.getY() == max.getY();
-            final boolean northFacing = myPosition.getZ() == min.getZ();
-            final boolean southFacing = myPosition.getZ() == max.getZ();
-            final boolean westFacing = myPosition.getX() == min.getX();
-            final boolean eastFacing = myPosition.getX() == max.getX();
+        final boolean downFacing = myPosition.getY() == min.getY();
+        final boolean upFacing = myPosition.getY() == max.getY();
+        final boolean northFacing = myPosition.getZ() == min.getZ();
+        final boolean southFacing = myPosition.getZ() == max.getZ();
+        final boolean westFacing = myPosition.getX() == min.getX();
+        final boolean eastFacing = myPosition.getX() == max.getX();
 
-            this._outwardFacings = BlockFacings.from(downFacing, upFacing, northFacing, southFacing, westFacing, eastFacing);
-
-            this._position = PartPosition.positionIn(controller, myPosition);
-        });
+        this._outwardFacings = BlockFacings.from(downFacing, upFacing, northFacing, southFacing, westFacing, eastFacing);
+        this._position = PartPosition.positionIn(controller, myPosition);
     }
 
     private PartPosition _position;

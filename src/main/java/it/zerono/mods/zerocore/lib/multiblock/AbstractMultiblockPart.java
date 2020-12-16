@@ -83,22 +83,15 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         this._cachedMultiblockData = null;
 	}
 
-	//TODO clean
-	/*
-    public void notifyUpdate() {
-        notifyUpdate(this);
-    }
-
-    public static <Controller extends IMultiblockController<Controller>> void notifyUpdate(final IMultiblockPart<Controller> part) {
-        part.getPartWorld().ifPresent(world -> WorldHelper.notifyBlockUpdate(world, part.getWorldPosition()));
-    }
-
-    public static <Controller extends IMultiblockController<Controller>> void notifyUpdate(final Collection<? extends IMultiblockPart<Controller>> parts) {
-        parts.forEach(AbstractMultiblockPart::notifyUpdate);
-    }*/
-
 	public World getPartWorldOrFail() {
-	    return this.getPartWorld().orElseThrow(IllegalStateException::new);
+
+	    final World world = this.getWorld();
+
+	    if (null == world) {
+	        throw new IllegalStateException("Found a multiblock part without a world!");
+        }
+
+	    return world;
     }
 
 	/*
@@ -190,6 +183,24 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
+    public <T> T mapPartWorld(Function<World, T> mapper, T defaultValue) {
+
+        final World world = this.getWorld();
+
+        return null != world ? mapper.apply(world) : defaultValue;
+    }
+
+    @Override
+    public void forPartWorld(Consumer<World> consumer) {
+
+        final World world = this.getWorld();
+
+        if (null != world) {
+            consumer.accept(world);
+        }
+    }
+
+    @Override
     public BlockPos getWorldPosition() {
         return this.getPos();
     }
@@ -213,7 +224,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     public void onOrphaned(Controller controller, int oldSize, int newSize) {
 
         this.markDirty();
-        this.getPartWorld().ifPresent(w -> w.markChunkDirty(this.getWorldPosition(), this));
+        this.forPartWorld(w -> w.markChunkDirty(this.getWorldPosition(), this));
     }
 
     @Override
@@ -257,47 +268,12 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public List<IMultiblockPart<Controller>> getNeighboringParts() {
 
-        return this.getPartWorld()
-                .map(w -> WorldHelper.getTilesFrom(w, WorldHelper.getNeighboringPositions(this.getWorldPosition()))
-                            .filter(tile -> tile instanceof IMultiblockPart)
-                            .map(tile -> (IMultiblockPart<Controller>)tile)
-                            .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
-
-        /*
-
-        final World myWorld = this.getWorld();
-
-        if (null == myWorld) {
-            return Collections.emptyList();
-        }
-
-        final BlockPos partPosition = this.getWorldPosition();
-        List<IMultiblockPart<Controller>> neighborParts = null;
-
-        for (final Direction facing : Direction.values()) {
-
-            final BlockPos neighborPosition = partPosition.offset(facing);
-
-            if (WorldHelper.chunkExists(myWorld, neighborPosition)) {
-
-                final TileEntity te = WorldHelper.getTile(myWorld, neighborPosition);
-
-                if (te instanceof IMultiblockPart) {
-
-                    if (null == neighborParts) {
-                        neighborParts = Lists.newArrayListWithCapacity(Direction.values().length);
-                    }
-
-                    @SuppressWarnings("unchecked")
-                    final IMultiblockPart<Controller> part = (IMultiblockPart<Controller>)te;
-                    neighborParts.add(part);
-                }
-            }
-        }
-
-        return null != neighborParts ? neighborParts : Collections.emptyList();
-         */
+        return this.mapPartWorld(w -> WorldHelper.getTilesFrom(w, WorldHelper.getNeighboringPositions(this.getWorldPosition()))
+                        .filter(tile -> tile instanceof IMultiblockPart)
+                        .map(tile -> (IMultiblockPart<Controller>)tile)
+                        .collect(Collectors.toList()),
+                Collections.emptyList()
+        );
     }
 
     @Override
@@ -359,6 +335,19 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public Optional<CompoundNBT> getMultiblockSaveData() {
         return Optional.ofNullable(this._cachedMultiblockData);
+    }
+
+    @Override
+    public <T> T mapMultiblockSaveData(final Function<CompoundNBT, T> mapper, final T defaultValue) {
+        return null != this._cachedMultiblockData ? mapper.apply(this._cachedMultiblockData) : defaultValue;
+    }
+
+    @Override
+    public void forMultiblockSaveData(final Consumer<CompoundNBT> consumer) {
+
+        if (null != this._cachedMultiblockData) {
+            consumer.accept(this._cachedMultiblockData);
+        }
     }
 
     @Override
@@ -488,13 +477,12 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     //region internals
 
 	protected void notifyNeighborsOfBlockChange() {
-        this.getPartWorld().ifPresent(w -> WorldHelper.notifyNeighborsOfStateChange(w, this.getWorldPosition(), this.getBlockType()));
+        this.forPartWorld(w -> WorldHelper.notifyNeighborsOfStateChange(w, this.getWorldPosition(), this.getBlockType()));
 	}
 
 	@Deprecated // not implemented yet
 	protected void notifyNeighborsOfTileChange() {
 		//WORLD.func_147453_f(xCoord, yCoord, zCoord, getBlockType());
-
 	}
 
 	/*

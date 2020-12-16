@@ -144,9 +144,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         if (part.hasMultiblockSaveData()) {
 
-            part.getMultiblockSaveData().ifPresent(data -> {
+            part.forMultiblockSaveData(data -> {
 
-//                this.onAttachedPartWithMultiblockData(part, data);
                 this.syncFromSaveDelegate(data, SyncReason.FullSync);
                 part.onMultiblockDataAssimilated();
             });
@@ -738,6 +737,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         }
 
         return Optional.ofNullable(this._maximumCoord);
+    }
+
+    @Override
+    public boolean hasValidBoundingBoxCoordinates() {
+        return null != this._minimumCoord && null != this._maximumCoord;
     }
 
     @Override
@@ -1472,7 +1476,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * Marks the whole multiblock for a render update on the client. On the server, this does nothing
      */
 	protected void markMultiblockForRenderUpdate() {
-        CodeHelper.optionalIfPresent(this.getMinimumCoord(), this.getMaximumCoord(), WorldHelper::markBlockRangeForRenderUpdate);
+	    this.forBoundingBoxCoordinates(WorldHelper::markBlockRangeForRenderUpdate);
 	}
 
     /*
