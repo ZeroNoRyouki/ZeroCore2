@@ -106,7 +106,8 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
                                              Hand hand, BlockRayTraceResult hit) {
 
         if (CodeHelper.calledByLogicalClient(world)) {
-            return ActionResultType.SUCCESS;
+            return super.onBlockActivated(state, world, position, player, hand, hit);
+//            return ActionResultType.SUCCESS;
         }
 
        if (this.hasTileEntity(state) && !player.isSneaking() && CodeHelper.calledByLogicalServer(world)) {
@@ -140,7 +141,7 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
                     if (null != message) {
 
                         CodeHelper.sendStatusMessage(player, message);
-                        return ActionResultType.SUCCESS;
+                        return ActionResultType.CONSUME;
                     }
                 }
 
@@ -150,10 +151,10 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
                             .filter(mbe -> mbe.canOpenGui(world, position, state))
                             .map(mbe -> this.openGui((ServerPlayerEntity) player, mbe))
                             .orElse(false)) {
-                    return ActionResultType.SUCCESS;
+                    return ActionResultType.CONSUME;
                 }
             }
-        }
+       }
 
        return super.onBlockActivated(state, world, position, player, hand, hit);
     }
