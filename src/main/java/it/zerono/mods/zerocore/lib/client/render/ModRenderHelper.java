@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.render;
 
+import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -56,6 +57,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -177,6 +179,49 @@ public final class ModRenderHelper {
         } else {
             return s;
         }
+    }
+
+    public static List<String> wrapLines(final String text, final int maxLineWidth, final FontRenderer font) {
+
+        final List<String> lines = Lists.newLinkedList();
+        final int spaceWidth = font.getStringWidth(" ");
+
+        final String[] tokens = text.split("\\s+");
+        final Integer[] tokenWidths = Arrays.stream(tokens).map(font::getStringWidth).toArray(Integer[]::new);
+
+        StringBuilder wrappedLine = new StringBuilder(text.length());
+        int lineWidth = 0;
+
+        for (int i = 0; i < tokens.length; ++i) {
+
+            final String token = tokens[i];
+            final int tokenWidth = tokenWidths[i];
+
+            if (lineWidth + tokenWidth + spaceWidth > maxLineWidth) {
+
+                lines.add(wrappedLine.toString());
+                wrappedLine = new StringBuilder(text.length());
+                lineWidth = 0;
+            }
+
+            if (i < tokens.length - 1 && (lineWidth + tokenWidth + spaceWidth + tokenWidths[i + 1] <= maxLineWidth)) {
+
+                wrappedLine.append(token);
+                wrappedLine.append(" ");
+                lineWidth += tokenWidth + spaceWidth;
+
+            } else {
+
+                wrappedLine.append(token);
+                lineWidth += tokenWidth;
+            }
+        }
+
+        if (wrappedLine.length() > 0) {
+            lines.add(wrappedLine.toString());
+        }
+
+        return lines;
     }
 
     //region render BakedQuad(s)
@@ -1033,7 +1078,13 @@ public final class ModRenderHelper {
             matrix.push();
             RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, (float) 240, (float) 240);
 
-            Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGUI(stack, x, y);
+            ItemRenderer render = Minecraft.getInstance().getItemRenderer();
+            float renderZ = render.zLevel;
+
+            render.zLevel = 300;
+            render.renderItemAndEffectIntoGUI(stack, x, y);
+            render.zLevel = renderZ;
+
             renderItemOverlayIntoGUI(matrix, Minecraft.getInstance().fontRenderer, stack, x, y, text, text.length() - 2);
 
             matrix.pop();
