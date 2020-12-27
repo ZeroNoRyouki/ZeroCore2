@@ -46,17 +46,20 @@ public class DebugHelper {
     @OnlyIn(Dist.CLIENT)
     public static void initVoxelShapeHighlighter() {
 
-        if (!isFlagSet(DebugFlags.HighlighterInitialized)) {
+        if (!isVoxelShapeHighlighterEnabled()) {
 
             Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(VoxelShapeHighlighter.class);
             setFlag(DebugFlags.HighlighterInitialized);
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public static boolean isVoxelShapeHighlighterEnabled() {
+        return isFlagSet(DebugFlags.HighlighterInitialized);
+    }
+
     public static void addVoxelShapeHighlight(final World world, final BlockPos position, final VoxelShapeType type) {
 
-        if (!isFlagSet(DebugFlags.HighlighterInitialized)) {
+        if (!isVoxelShapeHighlighterEnabled()) {
             throw new IllegalStateException("ZeroCore Voxel shape highlighting debug facility must be initialized before using it");
         }
 
@@ -74,10 +77,9 @@ public class DebugHelper {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static VoxelShapeType getBlockVoxelShapeHighlight(final World world, final BlockPos position) {
 
-        if (!isFlagSet(DebugFlags.HighlighterInitialized)) {
+        if (!isVoxelShapeHighlighterEnabled()) {
             throw new IllegalStateException("ZeroCore Voxel shape highlighting debug facility must be initialized before using it");
         }
 

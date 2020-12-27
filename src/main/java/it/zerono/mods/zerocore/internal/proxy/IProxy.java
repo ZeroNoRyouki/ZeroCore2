@@ -24,6 +24,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 public interface IProxy {
@@ -32,11 +33,13 @@ public interface IProxy {
 
     void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max);
 
-    void sendPlayerStatusMessage(final PlayerEntity player, final ITextComponent message);
+    void sendPlayerStatusMessage(PlayerEntity player, ITextComponent message);
 
     void addResourceReloadListener(ISelectiveResourceReloadListener listener);
 
     default long getLastRenderTime() {
         return 0;
     }
+
+    void notifyMultiblockError(@Nullable PlayerEntity player, ITextComponent message, @Nullable BlockPos position);
 }

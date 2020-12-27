@@ -21,8 +21,10 @@ package it.zerono.mods.zerocore.lib.block.multiblock;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
+import it.zerono.mods.zerocore.lib.debug.DebugHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
+import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
@@ -45,7 +47,7 @@ import net.minecraft.world.World;
 import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
-public class    MultiblockPartBlock<Controller extends IMultiblockController<Controller>,
+public class MultiblockPartBlock<Controller extends IMultiblockController<Controller>,
                                  PartType extends Enum<PartType> & IMultiblockPartType>
         extends ModBlock {
 
@@ -105,110 +107,53 @@ public class    MultiblockPartBlock<Controller extends IMultiblockController<Con
     public ActionResultType onBlockActivated(BlockState state, World world, BlockPos position, PlayerEntity player,
                                              Hand hand, BlockRayTraceResult hit) {
 
-        if (CodeHelper.calledByLogicalClient(world)) {
-            return ActionResultType.SUCCESS;
-        }
+        if (CodeHelper.calledByLogicalServer(world)) {
 
-       if (this.hasTileEntity(state) && !player.isSneaking() && CodeHelper.calledByLogicalServer(world)) {
+            if (this.hasTileEntity(state) && Hand.MAIN_HAND == hand) {
 
-            final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
-
-            // If the player's hands are empty and they right-click on a multiblock, they get a
-            // multiblock-debugging message if the machine is not assembled.
-
-            if (part.isPresent()) {
-
+                final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
                 final ItemStack heldItem = player.getHeldItem(hand);
 
-                if (heldItem.isEmpty() && (hand == Hand.MAIN_HAND)) {
+                if (heldItem.isEmpty()) {
 
                     final Optional<Controller> controller = part.flatMap(IMultiblockPart::getMultiblockController);
-                    final ITextComponent message;
 
-                    if (controller.isPresent()) {
+                    // report any multiblock errors
 
-                        message = controller
-                                .flatMap(IMultiblockController::getLastError)
-                                .map(ValidationError::getChatMessage)
-                                .orElse(null);
+                    final ValidationError error = !controller.isPresent() ? ValidationError.VALIDATION_ERROR_NOT_CONNECTED :
+                            controller.filter(IMultiblockValidator::hasLastError)
+                                    .flatMap(IMultiblockValidator::getLastError)
+                                    .orElse(null);
 
-                    } else {
+                    if (null != error) {
 
-                        message = new TranslationTextComponent("multiblock.validation.block_not_connected");
-                    }
-
-                    if (null != message) {
-
-                        CodeHelper.sendStatusMessage(player, message);
+                        CodeHelper.reportMultiblockError(player, error);
                         return ActionResultType.SUCCESS;
                     }
                 }
 
-                if ((hand == Hand.MAIN_HAND) &&
-                        part.filter(p -> p instanceof INamedContainerProvider && p instanceof AbstractModBlockEntity)
-                            .map(p -> (AbstractModBlockEntity)p)
-                            .filter(mbe -> mbe.canOpenGui(world, position, state))
-                            .map(mbe -> this.openGui((ServerPlayerEntity) player, mbe))
-                            .orElse(false)) {
-                    return ActionResultType.SUCCESS;
-                }
-            }
-        }
-
-       return super.onBlockActivated(state, world, position, player, hand, hit);
-    }
-/*
-    private ActionResultType onPartActivated(BlockState state, World world, BlockPos position, PlayerEntity player,
-                                             Hand hand, BlockRayTraceResult hit) {
-
-        if (this.hasTileEntity(state) && !player.isSneaking() && CodeHelper.calledByLogicalServer(world)) {
-
-            final Optional<IMultiblockPart<Controller>> part = this.getMultiblockPart(world, position);
-
-            // If the player's hands are empty and they rightclick on a multiblock, they get a
-            // multiblock-debugging message if the machine is not assembled.
-
-            if (part.isPresent()) {
-
-                final ItemStack heldItem = player.getHeldItem(hand);
-
-                if ((ItemHelper.stackIsEmpty(heldItem)) && (hand == Hand.OFF_HAND)) {
-
-                    final Optional<Controller> controller = part.flatMap(IMultiblockPart::getMultiblockController);
-                    final ITextComponent message;
-
-                    if (controller.isPresent()) {
-
-                        message = controller
-                                .flatMap(IMultiblockController::getLastError)
-                                .map(ValidationError::getChatMessage)
-                                .orElse(null);
-
-                    } else {
-
-                        message = new TranslationTextComponent("multiblock.validation.block_not_connected");
-                    }
-
-                    if (null != message) {
-
-                        CodeHelper.sendStatusMessage(player, message);
-                        return ActionResultType.SUCCESS;
-                    }
-                }
+                // open block GUI
 
                 if (part.filter(p -> p instanceof INamedContainerProvider && p instanceof AbstractModBlockEntity)
                         .map(p -> (AbstractModBlockEntity)p)
                         .filter(mbe -> mbe.canOpenGui(world, position, state))
                         .map(mbe -> this.openGui((ServerPlayerEntity) player, mbe))
                         .orElse(false)) {
-                    return ActionResultType.SUCCESS;
+                    return ActionResultType.CONSUME;
                 }
             }
+        } else {
+
+            return WorldHelper.getMultiblockPartFrom(world, position)
+                    .filter(p -> p instanceof INamedContainerProvider && p instanceof AbstractModBlockEntity)
+                    .map(p -> (AbstractModBlockEntity)p)
+                    .filter(mbe -> mbe.canOpenGui(world, position, state))
+                    .map(mbe -> ActionResultType.CONSUME)
+                    .orElse(ActionResultType.PASS);
         }
 
-        return ActionResultType.PASS;
+        return super.onBlockActivated(state, world, position, player, hand, hit);
     }
-*/
 
     public static class MultiblockPartProperties<PartType extends Enum<PartType> & IMultiblockPartType> {
 

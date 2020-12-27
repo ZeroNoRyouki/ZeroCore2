@@ -123,13 +123,13 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
                         // Ensure this part should actually be allowed within a cube of this controller's type
                         if (!cuboidPart.getMultiblockController().map(this::isControllerCompatible).orElse(false)) {
 
-                            validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part", x, y, z);
+                            validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part");
                             return false;
                         }
 
                         if (!this.containsPart(cuboidPart)) {
 
-                            validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_foreign_part", x, y, z);
+                            validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_foreign_part");
                             return false;
                         }
 
@@ -177,7 +177,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 						if (!isPartValid) {
 
 							if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_frame", x, y, z);
+                                validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_frame");
                             }
 
 							return false;
@@ -193,7 +193,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 							if (!isPartValid) {
 
                                 if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_top", x, y, z);
+                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_top");
                                 }
 
 								return false;
@@ -207,7 +207,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 							if (!isPartValid) {
 
                                 if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_bottom", x, y, z);
+                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_bottom");
                                 }
 
 								return false;
@@ -222,7 +222,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 							if (!isPartValid) {
 
                                 if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_sides", x, y, z);
+                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_sides");
                                 }
 
 								return false;
@@ -237,7 +237,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 						if (!isPartValid) {
 
                             if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError("zerocore:api.multiblock.validation.reactor.invalid_part_for_interior", x, y, z);
+                                validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_interior");
                             }
 
 							return false;
