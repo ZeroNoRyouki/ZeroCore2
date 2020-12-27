@@ -44,6 +44,7 @@ package it.zerono.mods.zerocore.lib.multiblock.validation;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.LogicalSide;
@@ -52,16 +53,24 @@ import javax.annotation.Nullable;
 
 public class ValidationError implements IDebuggable {
 
-    public static final ValidationError VALIDATION_ERROR_TOO_FEW_PARTS = new ValidationError("zerocore:api.multiblock.validation.too_few_parts");
+    public static final ValidationError VALIDATION_ERROR_TOO_FEW_PARTS = new ValidationError(null, "zerocore:api.multiblock.validation.too_few_parts");
+    public static final ValidationError VALIDATION_ERROR_NOT_CONNECTED = new ValidationError(null, "zerocore:api.multiblock.validation.block_not_connected");
 
-    public ValidationError(String messageFormatStringResourceKey, @Nullable Object... messageParameters) {
+    public ValidationError(@Nullable final BlockPos position, final String messageFormatStringResourceKey,
+                           final @Nullable Object... messageParameters) {
 
         this._resourceKey = messageFormatStringResourceKey;
         this._parameters = null != messageParameters ? messageParameters : CodeHelper.EMPTY_GENERIC_ARRAY;
+        this._position = position;
     }
 
     public ITextComponent getChatMessage() {
         return new TranslationTextComponent(this._resourceKey, _parameters);
+    }
+
+    @Nullable
+    public BlockPos getPosition() {
+        return this._position;
     }
 
     //region IDebuggable
@@ -76,6 +85,7 @@ public class ValidationError implements IDebuggable {
 
     protected final String _resourceKey;
     protected final Object[] _parameters;
+    protected final BlockPos _position;
 
     //endregion
 }
