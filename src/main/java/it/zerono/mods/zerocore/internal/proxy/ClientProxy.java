@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.internal.proxy;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.RichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
@@ -32,9 +33,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -62,6 +68,7 @@ public class ClientProxy
 
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
+        forgeBus.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
     }
 
     /**
@@ -115,6 +122,11 @@ public class ClientProxy
         this._multiblockErrorMessage = message;
         this._multiblockErrorPosition = position;
         this._multiblockErrorTimeout = 60 * 100;
+    }
+
+    @Override
+    public void clearMultiblockErrorReport() {
+        this.resetMultiblockError();
     }
 
     //region internals
@@ -202,6 +214,25 @@ public class ClientProxy
         }
 
         this._multiblockErrorText.paint(matrix, boxBounds.getX1() + MULTIBLOCK_ERROR_BORDER, boxBounds.getY1() + errorOffsetY, z + 1);
+    }
+
+    private void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
+
+        final BlockRayTraceResult result = event.getTarget();
+
+        if (null == this._multiblockErrorPosition || RayTraceResult.Type.BLOCK != result.getType() ||
+                !result.getPos().equals(this._multiblockErrorPosition)) {
+            return;
+        }
+
+        final Vector3d projectedView = event.getInfo().getProjectedView();
+
+        ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.fullCube(),
+                event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
+                this._multiblockErrorPosition.getX() - projectedView.getX(),
+                this._multiblockErrorPosition.getY() - projectedView.getY(),
+                this._multiblockErrorPosition.getZ() - projectedView.getZ(),
+                MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR);
     }
 
     private void resetMultiblockError() {

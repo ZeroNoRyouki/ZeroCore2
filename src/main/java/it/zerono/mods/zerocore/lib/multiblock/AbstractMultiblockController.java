@@ -217,6 +217,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         }
 
         this.getRegistry().addDirtyController(this.castSelf());
+
+        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
     }
 
     /**
@@ -261,6 +263,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         if (null == this._referenceCoord) {
             this.selectNewReferenceCoord();
         }
+
+        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
     }
 
     /**
@@ -568,6 +572,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             this.disassembleMachine();
         }
         // Else Paused, do nothing
+
+        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
     }
     /**
      * @return True if this multiblock machine is considered assembled and ready to go.
@@ -1586,7 +1592,6 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * Set whenever we validate the multiblock
      */
     private ValidationError _lastValidationError;
-    private BlockPos _lastValidationErrorPosition;
 
     private final INetworkTileEntitySyncProvider _syncProvider;
     private boolean _requestDataUpdateNotification;

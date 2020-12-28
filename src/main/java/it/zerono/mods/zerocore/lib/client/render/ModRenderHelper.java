@@ -46,6 +46,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -428,6 +429,25 @@ public final class ModRenderHelper {
                 .add(offset);
 
         return vertices;
+    }
+
+    //endregion
+    //region voxel shapes helpers
+
+    public static void paintVoxelShape(final MatrixStack matrix, final VoxelShape shape,  final IVertexBuilder vertexBuilder,
+                                       final double originX, final double originY, final double originZ, final Colour colour) {
+
+        final Matrix4f m = matrix.getLast().getMatrix();
+        final float red = colour.glRed();
+        final float green = colour.glGreen();
+        final float blue = colour.glBlue();
+        final float alpha = colour.glAlpha();
+
+        shape.forEachEdge((x1, y1, z1, x2, y2, z2) -> {
+
+            vertexBuilder.pos(m, (float)(x1 + originX), (float)(y1 + originY), (float)(z1 + originZ)).color(red, green, blue, alpha).endVertex();
+            vertexBuilder.pos(m, (float)(x2 + originX), (float)(y2 + originY), (float)(z2 + originZ)).color(red, green, blue, alpha).endVertex();
+        });
     }
 
     //endregion

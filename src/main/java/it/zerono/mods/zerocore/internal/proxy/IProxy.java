@@ -42,4 +42,6 @@ public interface IProxy {
     }
 
     void notifyMultiblockError(@Nullable PlayerEntity player, ITextComponent message, @Nullable BlockPos position);
+
+    void clearMultiblockErrorReport();
 }

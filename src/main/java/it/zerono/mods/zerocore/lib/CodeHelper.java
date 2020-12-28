@@ -466,6 +466,10 @@ public final class CodeHelper {
         ZeroCore.getProxy().notifyMultiblockError(player, error, position);
     }
 
+    public static void clearMultiblockErrorReport() {
+        ZeroCore.getProxy().clearMultiblockErrorReport();
+    }
+
     //endregion
     //region Filesystem helper functions
 

@@ -72,4 +72,8 @@ public class ServerProxy implements IProxy {
             Network.HANDLER.sendToPlayer(MultiblockErrorMessage.create(message, position), (ServerPlayerEntity)player);
         }
     }
+
+    @Override
+    public void clearMultiblockErrorReport() {
+    }
 }
