@@ -63,6 +63,7 @@ import net.minecraftforge.fml.DistExecutor;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public final class MultiblockRegistry<Controller extends IMultiblockController<Controller>>
         implements IMultiblockRegistry<Controller> {
@@ -125,7 +126,7 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
 
         final World world = controller.getWorld();
 
-        CodeHelper.optionalIfPresentOrElse(this.getRegistry(world),
+        this.forRegistry(world,
                 registry -> registry.addDirtyController(controller),
                 () -> Log.LOGGER.error(Log.MULTIBLOCK, "Adding a dirty controller to a world ({}) that has no registered controllers!",
                         world.getDimensionKey()));
@@ -142,10 +143,6 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
         MinecraftForge.EVENT_BUS.addListener(this::onWorldTick);
 
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(this::onClientTick));
-
-//        if (Dist.CLIENT == FMLEnvironment.dist) {
-//            MinecraftForge.EVENT_BUS.addListener(this::onClientTick);
-//        }
     }
 
     /**
@@ -156,7 +153,7 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
 
         world.getProfiler().startSection("Zero CORE|Multiblock|Tick");
 
-        this.getRegistry(world).ifPresent(registry -> {
+        this.forRegistry(world, registry -> {
 
             registry.processMultiblockChanges();
             registry.tickStart();
@@ -172,7 +169,7 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
      * @param chunkZ The Z coordinate of the chunk
      */
     private void onChunkLoaded(final IWorld world, final int chunkX, final int chunkZ) {
-        this.getRegistry(world).ifPresent(registry -> registry.onChunkLoaded(chunkX, chunkZ));
+        this.forRegistry(world, registry -> registry.onChunkLoaded(chunkX, chunkZ));
     }
 
     /**
@@ -181,7 +178,7 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
      */
     private void onWorldUnloaded(final IWorld world) {
 
-        this.getRegistry(world).ifPresent(registry -> {
+        this.forRegistry(world, registry -> {
 
             registry.onWorldUnloaded();
             this.removeRegistry(world);
@@ -190,6 +187,27 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
 
     private Optional<MultiblockWorldRegistry<Controller>> getRegistry(final IWorld world) {
         return Optional.ofNullable(this._registries.get(world));
+    }
+
+    private void forRegistry(final IWorld world, final Consumer<MultiblockWorldRegistry<Controller>> consumer) {
+
+        final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
+
+        if (null != registry) {
+            consumer.accept(registry);
+        }
+    }
+
+    private void forRegistry(final IWorld world, final Consumer<MultiblockWorldRegistry<Controller>> consumer,
+                             final Runnable registryNotFound) {
+
+        final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
+
+        if (null != registry) {
+            consumer.accept(registry);
+        } else {
+            registryNotFound.run();
+        }
     }
 
     private MultiblockWorldRegistry<Controller> getRegistryOrDefault(final World world) {

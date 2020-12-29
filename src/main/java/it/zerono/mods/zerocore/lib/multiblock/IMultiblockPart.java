@@ -107,6 +107,14 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
      */
     Optional<World> getPartWorld();
 
+    default <T> T mapPartWorld(Function<World, T> mapper, T defaultValue) {
+        return this.getPartWorld().map(mapper).orElse(defaultValue);
+    }
+
+    default void forPartWorld(Consumer<World> consumer) {
+        this.getPartWorld().ifPresent(consumer);
+    }
+
 	/**
 	 * Returns the location of this multiblock part in the world, in BlockPos form.
 	 * @return A BlockPos set to the location of this multiblock part in the world.
@@ -285,6 +293,14 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
 	 * @return The part's saved multiblock game-data in NBT format, or null if there isn't any.
 	 */
 	Optional<CompoundNBT> getMultiblockSaveData();
+
+	default <T> T mapMultiblockSaveData(Function<CompoundNBT, T> mapper, T defaultValue) {
+	    return this.getMultiblockSaveData().map(mapper).orElse(defaultValue);
+    }
+
+	default void forMultiblockSaveData(Consumer<CompoundNBT> consumer) {
+	    this.getMultiblockSaveData().ifPresent(consumer);
+    }
 
 	/**
 	 * Called after a block is added and the controller has incorporated the part's saved

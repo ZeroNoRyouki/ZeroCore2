@@ -41,7 +41,6 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.cuboid;
 
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
@@ -63,9 +62,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
      * @return true if position lay in the internal volume, false otherwise
      */
     protected boolean containPosition(final BlockPos position) {
-        return CodeHelper.optionalMap(this.getMinimumCoord(), this.getMaximumCoord(),
-                    (minPos, maxPos) -> minPos.compareTo(position) < 0 && maxPos.compareTo(position) > 0)
-                .orElse(false);
+        return this.mapBoundingBoxCoordinates((minPos, maxPos) -> minPos.compareTo(position) < 0 && maxPos.compareTo(position) > 0, false);
     }
 
 	//region AbstractMultiblockController
@@ -74,24 +71,27 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 	 * @return True if the machine is "whole" and should be assembled. False otherwise.
 	 */
 	@Override
-	protected boolean isMachineWhole(IMultiblockValidator validatorCallback) {
+	protected boolean isMachineWhole(final IMultiblockValidator validatorCallback) {
 
-        final Optional<BlockPos> maximumCoord = this.getMaximumCoord();
-        final Optional<BlockPos> minimumCoord = this.getMinimumCoord();
+        if (this.getPartsCount() < this.getMinimumNumberOfPartsForAssembledMachine() ||
+                !this.hasValidBoundingBoxCoordinates()) {
 
-		if (this.getPartsCount() < getMinimumNumberOfPartsForAssembledMachine() ||
-                !maximumCoord.isPresent() || !minimumCoord.isPresent()) {
+            validatorCallback.setLastError(ValidationError.VALIDATION_ERROR_TOO_FEW_PARTS);
+            return false;
+        }
 
-			validatorCallback.setLastError(ValidationError.VALIDATION_ERROR_TOO_FEW_PARTS);
-			return false;
-		}
+        return this.mapBoundingBoxCoordinates((min, max) -> this.isMachineWhole(validatorCallback, min, max), false);
+    }
 
-        final int minX = minimumCoord.get().getX();
-        final int minY = minimumCoord.get().getY();
-        final int minZ = minimumCoord.get().getZ();
-        final int maxX = maximumCoord.get().getX();
-        final int maxY = maximumCoord.get().getY();
-        final int maxZ = maximumCoord.get().getZ();
+    private boolean isMachineWhole(final IMultiblockValidator validatorCallback,
+                                   final BlockPos minimumCoord, final BlockPos maximumCoord) {
+
+        final int minX = minimumCoord.getX();
+        final int minY = minimumCoord.getY();
+        final int minZ = minimumCoord.getZ();
+        final int maxX = maximumCoord.getX();
+        final int maxY = maximumCoord.getY();
+        final int maxZ = maximumCoord.getZ();
 
         if (isSizeWrong(validatorCallback, Direction.Axis.X, this.getMinimumXSize(), this.getMaximumXSize(), maxX - minX + 1) ||
             isSizeWrong(validatorCallback, Direction.Axis.Y, this.getMinimumYSize(), this.getMaximumYSize(), maxY - minY + 1) ||
@@ -123,13 +123,13 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
                         // Ensure this part should actually be allowed within a cube of this controller's type
                         if (!cuboidPart.getMultiblockController().map(this::isControllerCompatible).orElse(false)) {
 
-                            validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part", x, y, z);
+                            validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part");
                             return false;
                         }
 
                         if (!this.containsPart(cuboidPart)) {
 
-                            validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_foreign_part", x, y, z);
+                            validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_foreign_part");
                             return false;
                         }
 
@@ -177,7 +177,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 						if (!isPartValid) {
 
 							if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_frame", x, y, z);
+                                validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_frame");
                             }
 
 							return false;
@@ -193,7 +193,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 							if (!isPartValid) {
 
                                 if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_top", x, y, z);
+                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_top");
                                 }
 
 								return false;
@@ -207,7 +207,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 							if (!isPartValid) {
 
                                 if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_bottom", x, y, z);
+                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_bottom");
                                 }
 
 								return false;
@@ -222,7 +222,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 							if (!isPartValid) {
 
                                 if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_sides", x, y, z);
+                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_sides");
                                 }
 
 								return false;
@@ -237,7 +237,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 						if (!isPartValid) {
 
                             if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError("zerocore:api.multiblock.validation.reactor.invalid_part_for_interior", x, y, z);
+                                validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_interior");
                             }
 
 							return false;
@@ -252,32 +252,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 
 	@Override
 	public void forceStructureUpdate(final World world) {
-
-		final Optional<BlockPos> minCoord = this.getMinimumCoord();
-		final Optional<BlockPos> maxCoord = this.getMaximumCoord();
-
-		if (!minCoord.isPresent() || !maxCoord.isPresent()) {
-		    return;
-        }
-
-		final int minX = minCoord.get().getX();
-		final int minY = minCoord.get().getY();
-		final int minZ = minCoord.get().getZ();
-		final int maxX = maxCoord.get().getX();
-		final int maxY = maxCoord.get().getY();
-		final int maxZ = maxCoord.get().getZ();
-
-		for (int x = minX; x <= maxX; ++x) {
-			for (int y = minY; y <= maxY; ++y) {
-				for (int z = minZ; z <= maxZ; ++z) {
-
-					final BlockPos pos = new BlockPos(x, y, z);
-                    final BlockState state = world.getBlockState(pos);
-
-					world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.DEFAULT);
-				}
-			}
-		}
+	    this.forBoundingBoxCoordinates((min, max) -> forceStructureUpdate(world, min, max));
 	}
 
 	//endregion
@@ -310,6 +285,28 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
         return WorldHelper.getTile(this.getWorld(), position)
                 .filter(te -> te instanceof AbstractCuboidMultiblockPart)
                 .map(te -> (AbstractCuboidMultiblockPart<Controller>)te);
+    }
+
+    private static void forceStructureUpdate(final World world, final BlockPos minCoord, final BlockPos maxCoord) {
+
+        final int minX = minCoord.getX();
+        final int minY = minCoord.getY();
+        final int minZ = minCoord.getZ();
+        final int maxX = maxCoord.getX();
+        final int maxY = maxCoord.getY();
+        final int maxZ = maxCoord.getZ();
+
+        for (int x = minX; x <= maxX; ++x) {
+            for (int y = minY; y <= maxY; ++y) {
+                for (int z = minZ; z <= maxZ; ++z) {
+
+                    final BlockPos pos = new BlockPos(x, y, z);
+                    final BlockState state = world.getBlockState(pos);
+
+                    world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.DEFAULT);
+                }
+            }
+        }
     }
 
     //endregion

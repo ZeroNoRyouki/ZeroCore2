@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import joptsimple.internal.Strings;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
@@ -43,6 +44,7 @@ import net.minecraftforge.fml.*;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -453,6 +455,22 @@ public final class CodeHelper {
     }
 
     //endregion
+    //region multiblock helper
+
+    public static void reportMultiblockError(final PlayerEntity player, final ValidationError error) {
+        reportMultiblockError(player, error.getChatMessage(), error.getPosition());
+    }
+
+    public static void reportMultiblockError(final PlayerEntity player, final ITextComponent error,
+                                             final @Nullable BlockPos position) {
+        ZeroCore.getProxy().notifyMultiblockError(player, error, position);
+    }
+
+    public static void clearMultiblockErrorReport() {
+        ZeroCore.getProxy().clearMultiblockErrorReport();
+    }
+
+    //endregion
     //region Filesystem helper functions
 
     public static boolean ioDirectoryExist(final Path path) {
@@ -656,6 +674,7 @@ public final class CodeHelper {
     }
 
     //endregion
+    //region misc
 
     /**
      * i18n support and helper functions
@@ -680,6 +699,7 @@ public final class CodeHelper {
         ZeroCore.getProxy().sendPlayerStatusMessage(player, message);
     }
 
+    //endregion
     //region Math helper functions
 
     public static int positiveModulo(int numerator, int denominator) {

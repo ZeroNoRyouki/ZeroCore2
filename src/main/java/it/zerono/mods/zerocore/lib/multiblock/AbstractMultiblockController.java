@@ -144,9 +144,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         if (part.hasMultiblockSaveData()) {
 
-            part.getMultiblockSaveData().ifPresent(data -> {
+            part.forMultiblockSaveData(data -> {
 
-//                this.onAttachedPartWithMultiblockData(part, data);
                 this.syncFromSaveDelegate(data, SyncReason.FullSync);
                 part.onMultiblockDataAssimilated();
             });
@@ -218,6 +217,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         }
 
         this.getRegistry().addDirtyController(this.castSelf());
+
+        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
     }
 
     /**
@@ -262,6 +263,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         if (null == this._referenceCoord) {
             this.selectNewReferenceCoord();
         }
+
+        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
     }
 
     /**
@@ -569,6 +572,8 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             this.disassembleMachine();
         }
         // Else Paused, do nothing
+
+        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
     }
     /**
      * @return True if this multiblock machine is considered assembled and ready to go.
@@ -741,6 +746,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     @Override
+    public boolean hasValidBoundingBoxCoordinates() {
+        return null != this._minimumCoord && null != this._maximumCoord;
+    }
+
+    @Override
     public <T> T mapBoundingBoxCoordinates(final BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, final T defaultValue) {
         return null != this._minimumCoord && null != this._maximumCoord ? minMaxCoordMapper.apply(this._minimumCoord, this._maximumCoord) : defaultValue;
     }
@@ -776,6 +786,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     //endregion
     //region IMultiblockValidator
 
+    @Override
+    public boolean hasLastError() {
+        return null != this._lastValidationError;
+    }
+
     /**
      * @return the last validation error encountered when trying to assemble the multiblock, or null if there is no error.
      */
@@ -789,7 +804,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param error the error
      */
     @Override
-    public void setLastError(ValidationError error) {
+    public void setLastError(final ValidationError error) {
         this._lastValidationError = error;
     }
 
@@ -799,8 +814,21 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param messageParameters optional parameters for a message format string
      */
     @Override
-    public void setLastError(String messageFormatStringResourceKey, Object... messageParameters) {
-        this._lastValidationError = new ValidationError(messageFormatStringResourceKey, messageParameters);
+    public void setLastError(final String messageFormatStringResourceKey, final Object... messageParameters) {
+        this._lastValidationError = new ValidationError(null, messageFormatStringResourceKey, messageParameters);
+    }
+
+    /**
+     * Set a validation error
+     *
+     * @param position                       the in-world position of the error
+     * @param messageFormatStringResourceKey a translation key for a message or a message format string
+     * @param messageParameters              optional parameters for a message format string
+     */
+    @Override
+    public void setLastError(final BlockPos position, final String messageFormatStringResourceKey,
+                             final Object... messageParameters) {
+        this._lastValidationError = new ValidationError(position, messageFormatStringResourceKey, messageParameters);
     }
 
     //endregion
@@ -1199,6 +1227,16 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
                 .filter(test);
     }
 
+    protected Stream<BlockPos> getConnectedPartsPositions() {
+        return this._connectedParts.stream()
+                .map(IMultiblockPart::getWorldPosition);
+    }
+
+    protected Stream<BlockPos> getConnectedPartsPositions(final Predicate<BlockPos> test) {
+        return this.getConnectedPartsPositions()
+                .filter(test);
+    }
+
     /**
      * @return The number of blocks connected to this controller that match the given Predicate
      */
@@ -1213,7 +1251,6 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         return this.getConnectedParts().stream()
                 .anyMatch(test);
     }
-
 
     //region Logical sides and deferred execution helpers
 
@@ -1472,7 +1509,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * Marks the whole multiblock for a render update on the client. On the server, this does nothing
      */
 	protected void markMultiblockForRenderUpdate() {
-        CodeHelper.optionalIfPresent(this.getMinimumCoord(), this.getMaximumCoord(), WorldHelper::markBlockRangeForRenderUpdate);
+	    this.forBoundingBoxCoordinates(WorldHelper::markBlockRangeForRenderUpdate);
 	}
 
     /*
