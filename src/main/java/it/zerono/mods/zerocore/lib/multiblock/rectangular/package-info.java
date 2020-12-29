@@ -40,6 +40,13 @@
   *
   */
 
+/**
+ * An hollow multiblock structure that lay on one of the three cartesian planes, following the perimeter of a rectangle.
+ *
+ * The structure must be one block long or high or depp and you can use getMaximumX/Y/ZSize(), returning 1,
+ * to force a particular dimension to be the one.
+ */
+
  @ParametersAreNonnullByDefault
  @MethodsReturnNonnullByDefault
  package it.zerono.mods.zerocore.lib.multiblock.rectangular;

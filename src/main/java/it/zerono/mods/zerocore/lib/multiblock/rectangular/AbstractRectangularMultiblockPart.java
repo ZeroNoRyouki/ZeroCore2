@@ -155,4 +155,6 @@ public abstract class AbstractRectangularMultiblockPart<Controller extends Abstr
 
     private PartPosition _position;
     private BlockFacings _outwardFacings;
+
+    //endregion
 }

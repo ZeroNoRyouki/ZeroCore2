@@ -71,7 +71,7 @@ public enum PartPosition
     }
 
     public boolean isCorner() {
-        return this != FrameCorner;
+        return this == FrameCorner;
     }
 
     @SuppressWarnings("unused")

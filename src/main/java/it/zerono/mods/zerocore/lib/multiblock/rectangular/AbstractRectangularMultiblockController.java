@@ -48,10 +48,13 @@ import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public abstract class AbstractRectangularMultiblockController<Controller extends AbstractRectangularMultiblockController<Controller>>
         extends AbstractMultiblockController<Controller> {
@@ -73,177 +76,102 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
     @Override
     protected boolean isMachineWhole(final IMultiblockValidator validatorCallback) {
 
-        if (this.getPartsCount() < this.getMinimumNumberOfPartsForAssembledMachine() ||
+        final int partsCount = this.getPartsCount();
+
+        if (partsCount < this.getMinimumNumberOfPartsForAssembledMachine() ||
                 !this.hasValidBoundingBoxCoordinates()) {
 
             validatorCallback.setLastError(ValidationError.VALIDATION_ERROR_TOO_FEW_PARTS);
             return false;
         }
 
-        return this.mapBoundingBoxCoordinates((min, max) -> this.isMachineWhole(validatorCallback, min, max), false);
+        return this.mapBoundingBoxCoordinates((min, max) -> this.isMachineWhole(validatorCallback, partsCount, min, max), false);
     }
-
-    private boolean isMachineWhole(final IMultiblockValidator validatorCallback,
+    
+    private boolean isMachineWhole(final IMultiblockValidator validatorCallback, final int partsCount,
                                    final BlockPos minimumCoord, final BlockPos maximumCoord) {
 
-        final int minX = minimumCoord.getX();
-        final int minY = minimumCoord.getY();
-        final int minZ = minimumCoord.getZ();
-        final int maxX = maximumCoord.getX();
-        final int maxY = maximumCoord.getY();
-        final int maxZ = maximumCoord.getZ();
+        final Vector3i translation = maximumCoord.subtract(minimumCoord);
+        final Direction.Axis sizeOneAxis = getZeroAxis(translation);
 
-        if (isSizeWrong(validatorCallback, Direction.Axis.X, this.getMinimumXSize(), this.getMaximumXSize(), maxX - minX + 1) ||
-                isSizeWrong(validatorCallback, Direction.Axis.Y, this.getMinimumYSize(), this.getMaximumYSize(), maxY - minY + 1) ||
-                isSizeWrong(validatorCallback, Direction.Axis.Z, this.getMinimumZSize(), this.getMaximumZSize(), maxZ - minZ + 1)) {
+        // is the size of one (and only one) dimension equal to 1?
+
+        if (null == sizeOneAxis) {
+
+            validatorCallback.setLastError("ONLY ONE AXIS CAN BE 1!!!");
             return false;
         }
 
-        // Now we run a simple check on each block within that volume.
-        // Any block deviating = NO DEAL SIR
+        // check min/max sizes
 
-        boolean isPartValid;
+        final int xLength = translation.getX() + 1;
+        final int yLength = translation.getY() + 1;
+        final int zLength = translation.getZ() + 1;
 
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
+        if (isSizeWrong(validatorCallback, Direction.Axis.X, this.getMinimumXSize(), this.getMaximumXSize(), xLength) ||
+                isSizeWrong(validatorCallback, Direction.Axis.Y, this.getMinimumYSize(), this.getMaximumYSize(), yLength) ||
+                isSizeWrong(validatorCallback, Direction.Axis.Z, this.getMinimumZSize(), this.getMaximumZSize(), zLength)) {
+            return false;
+        }
 
-                    // Okay, figure out what sort of block this should be.
+        // check blocks
 
-                    final BlockPos partLocation = new BlockPos(x, y, z);
-                    final Optional<AbstractRectangularMultiblockPart<Controller>> part = this.getCuboidPartFromWorld(partLocation);
-                    final AbstractRectangularMultiblockPart<Controller> cuboidPart;
-                    final boolean isCuboidMultiblockPart;
+        final int perimeter;
+        final BiFunction<Integer, Integer, BlockPos> positionFactory;
+        final int uMin, uMax, vMin, vMax;
 
-                    if (part.isPresent()) {
+        switch (sizeOneAxis) {
 
-                        isCuboidMultiblockPart = true;
-                        cuboidPart = part.get();
+            case X:
+                perimeter = 2 * (yLength + zLength - 2);
+                uMin = minimumCoord.getZ();
+                uMax = maximumCoord.getZ();
+                vMin = minimumCoord.getY();
+                vMax = maximumCoord.getY();
+                positionFactory = (u, v) -> new BlockPos(minimumCoord.getX(), v, u);
+                break;
 
-                        // Ensure this part should actually be allowed within a cube of this controller's type
-                        if (!cuboidPart.getMultiblockController().map(this::isControllerCompatible).orElse(false)) {
+            case Y:
+                perimeter = 2 * (xLength + zLength - 2);
+                uMin = minimumCoord.getX();
+                uMax = maximumCoord.getX();
+                vMin = minimumCoord.getZ();
+                vMax = maximumCoord.getZ();
+                positionFactory = (u, v) -> new BlockPos(u, minimumCoord.getY(), v);
+                break;
 
-                            validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part", x, y, z);
-                            return false;
-                        }
+            case Z:
+                perimeter = 2 * (xLength + yLength - 2);
+                uMin = minimumCoord.getX();
+                uMax = maximumCoord.getX();
+                vMin = minimumCoord.getY();
+                vMax = maximumCoord.getY();
+                positionFactory = (u, v) -> new BlockPos(u, v, minimumCoord.getZ());
+                break;
 
-                        if (!this.containsPart(cuboidPart)) {
+            default:
+                throw new IllegalStateException("Illegal fourth axis");
+        }
 
-                            validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_foreign_part", x, y, z);
-                            return false;
-                        }
+        if (perimeter != partsCount) {
 
-                    } else {
+            validatorCallback.setLastError("the number of blocks does not match the number of required parts!!!");
+            return false;
+        }
 
-                        // This is permitted so that we can incorporate certain non-multiblock parts inside interiors
-                        isCuboidMultiblockPart = false;
-                        cuboidPart = null;
-                    }
+        for (int u = uMin; u <= uMax; ++u) {
 
-                    // Validate block type against both part-level and material-level validators.
+            if (!this.validateBlock(positionFactory.apply(u, vMin), validatorCallback) ||
+                !this.validateBlock(positionFactory.apply(u, vMax), validatorCallback)) {
+                return false;
+            }
+        }
 
-                    final PartPosition position = PartPosition.positionIn(this.castSelf(), partLocation);
-                    int extremes = 0;
+        for (int v = vMin + 1; v <= vMax - 1; ++v) {
 
-                    if (x == minX) {
-                        ++extremes;
-                    }
-
-                    if (y == minY) {
-                        ++extremes;
-                    }
-
-                    if (z == minZ) {
-                        ++extremes;
-                    }
-
-                    if (x == maxX) {
-                        ++extremes;
-                    }
-
-                    if (y == maxY) {
-                        ++extremes;
-                    }
-
-                    if (z == maxZ) {
-                        ++extremes;
-                    }
-
-                    if (extremes >= 2) {
-
-                        isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                this.isBlockGoodForFrame(this.getWorld(), x, y, z, validatorCallback);
-
-                        if (!isPartValid) {
-
-                            if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_frame", x, y, z);
-                            }
-
-                            return false;
-                        }
-
-                    } else if (1 == extremes) {
-
-                        if (y == maxY) {
-
-                            isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                    this.isBlockGoodForTop(this.getWorld(), x, y, z, validatorCallback);
-
-                            if (!isPartValid) {
-
-                                if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_top", x, y, z);
-                                }
-
-                                return false;
-                            }
-
-                        } else if (y == minY) {
-
-                            isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                    this.isBlockGoodForBottom(this.getWorld(), x, y, z, validatorCallback);
-
-                            if (!isPartValid) {
-
-                                if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_bottom", x, y, z);
-                                }
-
-                                return false;
-                            }
-
-                        } else {
-
-                            // Side
-                            isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                    this.isBlockGoodForSides(this.getWorld(), x, y, z, validatorCallback);
-
-                            if (!isPartValid) {
-
-                                if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError("zerocore:api.multiblock.validation.invalid_part_for_sides", x, y, z);
-                                }
-
-                                return false;
-                            }
-                        }
-
-                    } else {
-
-                        isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                this.isBlockGoodForInterior(this.getWorld(), x, y, z, validatorCallback);
-
-                        if (!isPartValid) {
-
-                            if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError("zerocore:api.multiblock.validation.reactor.invalid_part_for_interior", x, y, z);
-                            }
-
-                            return false;
-                        }
-                    }
-                }
+            if (!this.validateBlock(positionFactory.apply(uMin, v), validatorCallback) ||
+                !this.validateBlock(positionFactory.apply(uMax, v), validatorCallback)) {
+                return false;
             }
         }
 
@@ -260,6 +188,96 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
 
     protected AbstractRectangularMultiblockController(World world) {
         super(world);
+    }
+
+    @Nullable
+    private static Direction.Axis getZeroAxis(final Vector3i vector) {
+
+        final boolean x = 0 == vector.getX();
+        final boolean y = 0 == vector.getY();
+        final boolean z = 0 == vector.getZ();
+        final int count = (x ? 1 : 0) + (y ? 1 : 0) + (z ? 1 : 0);
+
+        if (1 != count) {
+            return null;
+        }
+
+        return x ? Direction.Axis.X : y ? Direction.Axis.Y : Direction.Axis.Z;
+    }
+
+    private boolean validateBlock(final BlockPos blockPosition, final IMultiblockValidator validatorCallback) {
+        return this.getPartFromWorld(blockPosition)
+                .map(part -> this.validatePart(part, blockPosition, validatorCallback))
+                .orElse(this.validateGenericBlock(blockPosition, validatorCallback));
+    }
+
+    private boolean validatePart(final AbstractRectangularMultiblockPart<Controller> part, final BlockPos blockPosition,
+                                 final IMultiblockValidator validatorCallback) {
+
+        // Ensure this part should actually be allowed within a rectangle of this controller's type
+
+        if (!part.getMultiblockController().map(this::isControllerCompatible).orElse(false)) {
+
+            validatorCallback.setLastError(blockPosition, "zerocore:api.multiblock.validation.invalid_part");
+            return false;
+        }
+
+        if (!this.containsPart(part)) {
+
+            validatorCallback.setLastError(blockPosition, "zerocore:api.multiblock.validation.invalid_foreign_part");
+            return false;
+        }
+
+        final PartPosition position = PartPosition.positionIn(this.castSelf(), blockPosition);
+
+        if (!part.isGoodForPosition(position, validatorCallback)) {
+
+            if (!validatorCallback.hasLastError()) {
+                validatorCallback.setLastError(blockPosition, "zerocore:api.multiblock.validation.invalid_part_for_frame");
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validateGenericBlock(final BlockPos blockPosition, final IMultiblockValidator validatorCallback) {
+
+        if (!this.isBlockGoodForFrame(this.getWorld(), blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), validatorCallback)) {
+
+            if (!validatorCallback.hasLastError()) {
+                validatorCallback.setLastError(blockPosition, "zerocore:api.multiblock.validation.invalid_part_for_frame");
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static boolean isValueNot(final int value, final int min, final int max) {
+        return value != min && value != max;
+    }
+
+    private static boolean isOnCorner(final int a, final int b, final int aTarget, final int bTarget) {
+        return a == aTarget && b == bTarget;
+    }
+
+    private static boolean isOnCorner(final int a, final int b, final int minA, final int minB, final int maxA, final int maxB) {
+        return isOnCorner(a, b, minA, minB) || isOnCorner(a, b, minA, maxB) || isOnCorner(a, b, maxA, maxB) || isOnCorner(a, b, maxA, minB);
+    }
+
+    private static boolean isOnCornerX(final BlockPos pos, final BlockPos minPos, final BlockPos maxPos) {
+        return isOnCorner(pos.getY(), pos.getZ(), minPos.getY(), minPos.getZ(), maxPos.getY(), maxPos.getZ());
+    }
+
+    private static boolean isOnCornerY(final BlockPos pos, final BlockPos minPos, final BlockPos maxPos) {
+        return isOnCorner(pos.getX(), pos.getZ(), minPos.getX(), minPos.getZ(), maxPos.getX(), maxPos.getZ());
+    }
+
+    private static boolean isOnCornerZ(final BlockPos pos, final BlockPos minPos, final BlockPos maxPos) {
+        return isOnCorner(pos.getX(), pos.getY(), minPos.getX(), minPos.getY(), maxPos.getX(), maxPos.getY());
     }
 
     private static boolean isSizeWrong(final IMultiblockValidator validatorCallback, final Direction.Axis axis,
@@ -280,7 +298,7 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
         return false;
     }
 
-    private Optional<AbstractRectangularMultiblockPart<Controller>> getCuboidPartFromWorld(BlockPos position) {
+    private Optional<AbstractRectangularMultiblockPart<Controller>> getPartFromWorld(BlockPos position) {
         //noinspection unchecked
         return WorldHelper.getTile(this.getWorld(), position)
                 .filter(te -> te instanceof AbstractRectangularMultiblockPart)
