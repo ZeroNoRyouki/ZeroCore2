@@ -37,6 +37,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
+import java.util.Queue;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 @OnlyIn(Dist.CLIENT)
@@ -59,6 +60,7 @@ public class ModContainerScreen<C extends ModContainer>
         this.xSize = guiWidth;
         this.ySize = guiHeight;
         this._tickHandlers = Lists.newArrayListWithCapacity(2);
+        this._deferred = Lists.newLinkedList();
         this._originalMouseX = this._originalMouseY = 0;
         this._ignoreCloseOnInventoryKey = false;
         this._nextBogusId = 0;
@@ -169,6 +171,10 @@ public class ModContainerScreen<C extends ModContainer>
 
     public String nextGenericName() {
         return Integer.toString(this.nextGenericId());
+    }
+
+    public void enqueueTask(final Runnable runnable) {
+        this._deferred.add(runnable);
     }
 
     protected IWindow createWindow(final IControlContainer rootContainer, boolean modalWindow) {
@@ -421,6 +427,12 @@ public class ModContainerScreen<C extends ModContainer>
         super.tick();
         this._windowsManager.onGuiContainerTick();
         this._tickHandlers.forEach(Runnable::run);
+
+        if (!this._deferred.isEmpty()) {
+
+            this._deferred.forEach(Runnable::run);
+            this._deferred.clear();
+        }
     }
 
     /**
@@ -555,6 +567,7 @@ public class ModContainerScreen<C extends ModContainer>
 
     private final AbstractWindowsManager<C> _windowsManager;
     private final List<Runnable> _tickHandlers;
+    private final Queue<Runnable> _deferred;
     private int _originalMouseX;
     private int _originalMouseY;
     private boolean _ignoreCloseOnInventoryKey;

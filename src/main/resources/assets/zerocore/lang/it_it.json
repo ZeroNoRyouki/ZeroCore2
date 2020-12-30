@@ -16,18 +16,10 @@
 
     "_comment": "Items",
     "item.zerocore:debugtool": "Debug Tool",
-    "zerocore:debugTool.tile.header": "Analisi %1$s side della Tile Entity alle coordinate %2$d, %3$d, %4$d",
-    "zerocore:debugTool.block.header": "Analisi %1$s side del blocco alle coordinate %2$d, %3$d, %4$d",
-    "zerocore:debugTool.block.notfound": "Il blocco non è registrato nell'Ore Dictionary",
-    "zerocore:debugTool.block.intro": "Trovati %1$d nome(i) nell'Ore Dictionary per il blocco %2$s",
-    "zerocore:debugTool.block.nameentry": "- %1$s",
     "zerocore:debugTool.block.tooltip1": "Clicca con il tasto destro un blocco per visualizzare informazioni di debug",
     "zerocore:debugTool.block.tooltip2": "%1$sL'analisi è eseguita server side come impostazione predefinita",
     "zerocore:debugTool.block.tooltip3": "%1$sAccovacciati: %2$sesegui l'analisi client side",
 
-    "_comment": "Debug-tools messages",
-    "debug.zerocore.true": "Vero",
-    "debug.zerocore.false": "Falso",
-    "debug.zerocore.stackcontainer.capacity": "Capacità del Container: %1$d",
-    "debug.zerocore.stackcontainer.stack": "[%1$s] %2$s: %3$d"
+    "_comment": "Miscellanea",
+    "zerocore:gui.patchouli.missing": "Il mod Patchouli deve essere presente per utilizzare questa funzionalità"
 }

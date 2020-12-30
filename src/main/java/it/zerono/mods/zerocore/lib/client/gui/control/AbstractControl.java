@@ -954,6 +954,9 @@ public abstract class AbstractControl
         ModRenderHelper.renderItemStack(matrix, stack, screenXY.X, screenXY.Y, "", highlight);
     }
 
+    //endregion
+    //region misc helpers
+
     protected StringBuilder toStringBuilder() {
         return new StringBuilder()
                 .append("id:")
@@ -968,6 +971,10 @@ public abstract class AbstractControl
 
     protected String nextGenericName() {
         return this.getGui().nextGenericName();
+    }
+
+    protected void enqueueTask(final Runnable runnable) {
+        this.getGui().enqueueTask(runnable);
     }
 
     //endregion
