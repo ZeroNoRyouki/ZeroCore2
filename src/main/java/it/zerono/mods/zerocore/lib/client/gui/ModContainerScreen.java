@@ -202,7 +202,7 @@ public class ModContainerScreen<C extends ModContainer>
 
         final IControl help = HelpButton.patchouli(this, "helpPatchouli", bookId, entryId, pageNum);
 
-        help.setLayoutEngineHint(FixedLayoutEngine.hint(this.getGuiWidth() - 20, this.getGuiHeight() - 41));
+        help.setLayoutEngineHint(FixedLayoutEngine.hint(this.getGuiWidth() - 30, this.getGuiHeight() - 41));
         return help;
     }
 
