@@ -21,5 +21,6 @@
     "zerocore:debugTool.block.tooltip3": "%1$sSneak: %2$squery on the client side",
 
     "_comment": "Miscellanea",
-    "zerocore:gui.patchouli.missing": "The mod Patchouli need to be installed to use this feature"
+    "zerocore:gui.patchouli.missing": "The mod Patchouli need to be installed to use this feature",
+    "zerocore:gui.manual.open": "Open the manual page"
 }

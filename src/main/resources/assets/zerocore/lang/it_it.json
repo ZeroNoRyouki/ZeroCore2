@@ -21,5 +21,6 @@
     "zerocore:debugTool.block.tooltip3": "%1$sAccovacciati: %2$sesegui l'analisi client side",
 
     "_comment": "Miscellanea",
-    "zerocore:gui.patchouli.missing": "Il mod Patchouli deve essere presente per utilizzare questa funzionalità"
+    "zerocore:gui.patchouli.missing": "Il mod Patchouli deve essere presente per utilizzare questa funzionalità",
+    "zerocore:gui.manual.open": "Apri la pagina del manuale"
 }

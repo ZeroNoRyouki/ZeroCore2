@@ -37,6 +37,7 @@ public class HelpButton
         if (Mods.PATCHOULI.isPresent()) {
 
             button.Clicked.subscribe((control, mb) -> control.enqueueTask(() -> PatchouliAPI.get().openBookEntry(bookId, entryId, pageNum)));
+            button.setTooltips(ImmutableList.of(new TranslationTextComponent("zerocore:gui.manual.open")));
 
         } else {
 
