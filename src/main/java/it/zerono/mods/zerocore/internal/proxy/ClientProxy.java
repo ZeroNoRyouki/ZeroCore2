@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.internal.proxy;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
@@ -30,7 +29,6 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Items;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -38,7 +36,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -51,12 +48,15 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 public class ClientProxy
         implements IProxy {
 
     public ClientProxy() {
+
+        this._multiblockErrorData = new MultiblockErrorData();
 
         final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
 
@@ -117,16 +117,12 @@ public class ClientProxy
     @Override
     public void notifyMultiblockError(@Nullable PlayerEntity player, ITextComponent message,
                                       @Nullable BlockPos position) {
-
-        this.resetMultiblockError();
-        this._multiblockErrorMessage = message;
-        this._multiblockErrorPosition = position;
-        this._multiblockErrorTimeout = 60 * 100;
+        this._multiblockErrorData.setError(message, position);
     }
 
     @Override
     public void clearMultiblockErrorReport() {
-        this.resetMultiblockError();
+        this._multiblockErrorData.resetError();
     }
 
     //region internals
@@ -136,65 +132,35 @@ public class ClientProxy
         if (TickEvent.Phase.END == event.phase) {
 
             s_lastRenderTime = System.currentTimeMillis();
-
-            if (this._multiblockErrorTimeout > 0) {
-
-                --this._multiblockErrorTimeout;
-
-                if (0 == this._multiblockErrorTimeout) {
-                    this.resetMultiblockError();
-                }
-            }
+            this._multiblockErrorData.tick();
         }
     }
 
     private void onGameOverlayRender(final RenderGameOverlayEvent.Post event) {
 
-        if (null == this._multiblockErrorMessage || this._multiblockErrorTimeout <= 0) {
-            return;
-        }
+        final List<RichText> errorTexts = this._multiblockErrorData.getErrorTexts(Minecraft.getInstance().getMainWindow().getScaledWidth() / 2);
 
-        final int maxTextWidth = Minecraft.getInstance().getMainWindow().getScaledWidth() / 2;
-
-        if (null == this._multiblockErrorText) {
-            this._multiblockErrorText = RichText.builder(maxTextWidth)
-                    .textLines(Lists.newArrayList(this._multiblockErrorMessage))
-                    .defaultColour(Colour.WHITE)
-                    .build();
-        }
-
-        if (null != this._multiblockErrorPosition && null == this._multiblockErrorPositionText) {
-            this._multiblockErrorPositionText = RichText.builder(maxTextWidth)
-                    .textLines(Lists.newArrayList(new StringTextComponent(String.format("@0 %d, %d, %d",
-                            this._multiblockErrorPosition.getX(),
-                            this._multiblockErrorPosition.getY(),
-                            this._multiblockErrorPosition.getZ()))))
-                    .objects(Lists.newArrayList(Items.COMPASS))
-                    .defaultColour(Colour.WHITE)
-                    .build();
-        }
-
-        if (this._multiblockErrorText.isEmpty()) {
+        if (errorTexts.isEmpty()) {
             return;
         }
 
         final Rectangle boxBounds;
-        final int errorOffsetY;
+        final int yOffsetDelta;
 
-        if (null != this._multiblockErrorPositionText) {
+        if (errorTexts.size() > 1) {
 
-            final Rectangle errorBounds = this._multiblockErrorText.bounds();
-            final Rectangle positionBounds = this._multiblockErrorPositionText.bounds();
+            final Rectangle positionBounds = errorTexts.get(0).bounds();
+            final Rectangle errorBounds = errorTexts.get(1).bounds();
 
             boxBounds = new Rectangle(10, 10,
                     Math.max(errorBounds.Width, positionBounds.Width) + MULTIBLOCK_ERROR_BORDER * 2,
                     errorBounds.Height + positionBounds.Height + MULTIBLOCK_ERROR_BORDER * 3);
-            errorOffsetY = positionBounds.Height + MULTIBLOCK_ERROR_BORDER * 2;
+            yOffsetDelta = positionBounds.Height + MULTIBLOCK_ERROR_BORDER;
 
         } else {
 
-            boxBounds = this._multiblockErrorText.bounds().expand(MULTIBLOCK_ERROR_BORDER * 2, MULTIBLOCK_ERROR_BORDER * 2).offset(10, 10);
-            errorOffsetY = MULTIBLOCK_ERROR_BORDER;
+            boxBounds = errorTexts.get(0).bounds().expand(MULTIBLOCK_ERROR_BORDER * 2, MULTIBLOCK_ERROR_BORDER * 2).offset(10, 10);
+            yOffsetDelta = MULTIBLOCK_ERROR_BORDER;
         }
 
         final MatrixStack matrix = event.getMatrixStack();
@@ -209,39 +175,29 @@ public class ClientProxy
         ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, z, MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR, MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR);
         ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR, MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR);
 
-        if (null != this._multiblockErrorPositionText) {
-            this._multiblockErrorPositionText.paint(matrix, boxBounds.getX1() + MULTIBLOCK_ERROR_BORDER, boxBounds.getY1() + MULTIBLOCK_ERROR_BORDER, z + 1);
-        }
+        int yOffset = MULTIBLOCK_ERROR_BORDER;
 
-        this._multiblockErrorText.paint(matrix, boxBounds.getX1() + MULTIBLOCK_ERROR_BORDER, boxBounds.getY1() + errorOffsetY, z + 1);
+        for (final RichText text: errorTexts) {
+
+            text.paint(matrix, boxBounds.getX1() + MULTIBLOCK_ERROR_BORDER, boxBounds.getY1() + yOffset, z + 1);
+            yOffset += yOffsetDelta;
+        }
     }
 
     private void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
 
         final BlockRayTraceResult result = event.getTarget();
+        final BlockPos position = result.getPos();
 
-        if (null == this._multiblockErrorPosition || RayTraceResult.Type.BLOCK != result.getType() ||
-                !result.getPos().equals(this._multiblockErrorPosition)) {
-            return;
+        if (RayTraceResult.Type.BLOCK == result.getType() && this._multiblockErrorData.test(position)) {
+
+            final Vector3d projectedView = event.getInfo().getProjectedView();
+
+            ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.fullCube(),
+                    event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
+                    position.getX() - projectedView.getX(), position.getY() - projectedView.getY(),
+                    position.getZ() - projectedView.getZ(), MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR);
         }
-
-        final Vector3d projectedView = event.getInfo().getProjectedView();
-
-        ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.fullCube(),
-                event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
-                this._multiblockErrorPosition.getX() - projectedView.getX(),
-                this._multiblockErrorPosition.getY() - projectedView.getY(),
-                this._multiblockErrorPosition.getZ() - projectedView.getZ(),
-                MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR);
-    }
-
-    private void resetMultiblockError() {
-
-        this._multiblockErrorMessage = null;
-        this._multiblockErrorPosition = null;
-        this._multiblockErrorTimeout = 0;
-        this._multiblockErrorText = null;
-        this._multiblockErrorPositionText = null;
     }
 
     private static final Colour MULTIBLOCK_ERROR_BACKGROUND_COLOUR = Colour.fromARGB(0x1f5e5e5e);
@@ -249,13 +205,9 @@ public class ClientProxy
     private static final Colour MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR = Colour.fromARGB((0x50e8ee4d & 0xFEFEFE) >> 1 | 0x50e8ee4d & -16777216);
     private static final int MULTIBLOCK_ERROR_BORDER = 5;
 
-    private static long s_lastRenderTime = System.currentTimeMillis();
+    private static volatile long s_lastRenderTime = System.currentTimeMillis();
 
-    private ITextComponent _multiblockErrorMessage;
-    private BlockPos _multiblockErrorPosition;
-    private int _multiblockErrorTimeout;
-    private RichText _multiblockErrorText;
-    private RichText _multiblockErrorPositionText;
+    private final MultiblockErrorData _multiblockErrorData;
 
     //endregion
 }
