@@ -304,7 +304,6 @@ public abstract class AbstractControl
         final Colour highlight2 = Colour.fromARGB(1347420415);
         final int z = 300;
 
-//        matrix.translate(0, 0, 600);
         ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
         ModRenderHelper.paintSolidRect(matrix, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, z, bk);
         ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
@@ -317,8 +316,6 @@ public abstract class AbstractControl
         // text
 
         rich.paint(matrix, boxBounds.getX1() + borderSize, boxBounds.getY1() + borderSize, z);
-
-//        matrix.translate(0, 0, -600);
     }
 
     @Override
@@ -335,6 +332,11 @@ public abstract class AbstractControl
         this._tooltipsLines = lines.isEmpty() ? Collections.emptyList() : lines;
         this._tooltipsObjects = lines.isEmpty() || objects.isEmpty() ? Collections.emptyList() : objects;
         this._tooltipsRichText = null;
+    }
+
+    @Override
+    public void useTooltipsFrom(@Nullable IControl control) {
+        this._tooltipsSource = control;
     }
 
     @Override
@@ -492,21 +494,37 @@ public abstract class AbstractControl
 
     protected final RichText getTooltipsRichText() {
 
+        if (null != this._tooltipsSource) {
+
+            if (this._tooltipsSource instanceof AbstractControl) {
+                return ((AbstractControl)this._tooltipsSource).getTooltipsRichText();
+            }
+
+            final List<ITextComponent> lines = this._tooltipsSource.getTooltips();
+
+            return lines.isEmpty() ? RichText.EMPTY : buildTooltipsRichText(lines, this._tooltipsSource.getTooltipsObjects());
+        }
+
         if (null == this._tooltipsRichText) {
 
             final List<ITextComponent> lines = this.getTooltips();
 
             if (!lines.isEmpty()) {
-                this._tooltipsRichText = RichText.builder()
-                        .textLines(lines)
-                        .objects(this.getTooltipsObjects())
-                        .defaultColour(Colour.WHITE)
-                        //TODO add formatting and other stuff
-                        .build();
+                this._tooltipsRichText = buildTooltipsRichText(lines, this.getTooltipsObjects());
             }
         }
 
         return null != this._tooltipsRichText ? this._tooltipsRichText : RichText.EMPTY;
+    }
+
+    private static RichText buildTooltipsRichText(final List<ITextComponent> lines, final List<Object> objects) {
+
+        return RichText.builder()
+                .textLines(lines)
+                .objects(objects)
+                .defaultColour(Colour.WHITE)
+                //TODO add formatting and other stuff
+                .build();
     }
 
     /**
@@ -1069,6 +1087,7 @@ public abstract class AbstractControl
     private List<ITextComponent> _tooltipsLines;
     private List<Object> _tooltipsObjects;
     private RichText _tooltipsRichText;
+    private IControl _tooltipsSource;
     private Object _tag;
 
     //endregion

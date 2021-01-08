@@ -169,6 +169,8 @@ public interface IControl {
 
     void setTooltips(List<ITextComponent> lines, List<Object> objects);
 
+    void useTooltipsFrom(@Nullable IControl control);
+
     Point controlToScreen(int x, int y);
 
     Point screenToControl(int x, int y);
