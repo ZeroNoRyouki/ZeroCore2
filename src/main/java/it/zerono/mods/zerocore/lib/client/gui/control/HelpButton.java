@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.collect.ImmutableList;
+import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.compat.Mods;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -36,7 +37,14 @@ public class HelpButton
 
         if (Mods.PATCHOULI.isPresent()) {
 
-            button.Clicked.subscribe((control, mb) -> control.enqueueTask(() -> PatchouliAPI.get().openBookEntry(bookId, entryId, pageNum)));
+            button.Clicked.subscribe((control, mb) -> control.enqueueTask(() -> {
+
+                try {
+                    PatchouliAPI.get().openBookEntry(bookId, entryId, pageNum);
+                } catch (Exception ex) {
+                    Log.LOGGER.error(Log.CORE, "Exception while opening Patchouli book.", ex);
+                }
+            }));
             button.setTooltips(ImmutableList.of(new TranslationTextComponent("zerocore:gui.manual.open")));
 
         } else {
