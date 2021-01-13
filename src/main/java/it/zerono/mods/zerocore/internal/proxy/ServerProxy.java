@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.internal.proxy;
 
-import it.zerono.mods.zerocore.internal.network.MultiblockErrorMessage;
+import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,6 +33,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 public class ServerProxy implements IProxy {
@@ -65,15 +66,23 @@ public class ServerProxy implements IProxy {
     }
 
     @Override
-    public void notifyMultiblockError(final @Nullable PlayerEntity player, final ITextComponent message,
-                                      final @Nullable BlockPos position) {
+    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
+                                    final ITextComponent... messages) {
 
         if (player instanceof ServerPlayerEntity) {
-            Network.HANDLER.sendToPlayer(MultiblockErrorMessage.create(message, position), (ServerPlayerEntity)player);
+            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayerEntity)player);
+        }
+    }
+
+    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
+                                    final List<ITextComponent> messages) {
+
+        if (player instanceof ServerPlayerEntity) {
+            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayerEntity)player);
         }
     }
 
     @Override
-    public void clearMultiblockErrorReport() {
+    public void clearErrorReport() {
     }
 }

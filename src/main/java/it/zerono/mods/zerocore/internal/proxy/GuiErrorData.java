@@ -19,24 +19,27 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import com.google.common.collect.Lists;
+import it.zerono.mods.zerocore.lib.client.gui.CompositeRichText;
+import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.RichText;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.common.util.NonNullFunction;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Predicate;
 
-class MultiblockErrorData
-        implements Predicate<BlockPos> {
+class GuiErrorData
+        implements Predicate<BlockPos>, NonNullFunction<Integer, IRichText> {
 
-    public MultiblockErrorData() {
+    public GuiErrorData() {
 
         this._lock = new StampedLock();
         this._timeout = new AtomicInteger(0);
@@ -46,52 +49,61 @@ class MultiblockErrorData
 
         if (this._timeout.get() > 0) {
             if (0 == this._timeout.decrementAndGet()) {
-                this.resetError();
+                this.resetErrors();
             }
         }
     }
 
-    public void setError(final ITextComponent message, final @Nullable BlockPos position) {
+    public void addErrors(final @Nullable BlockPos position, final ITextComponent... messages) {
+        this.addErrors(position, Lists.newArrayList(messages));
+    }
+
+    public void addErrors(final @Nullable BlockPos position, final List<ITextComponent> messages) {
 
         final long stamp = this._lock.writeLock();
 
         this._timeout.set(60 * 100);
-        this._errorMessage = message;
+        this._errorMessages = messages;
         this._errorPosition = position;
-        this._errorTexts = null;
+        this._errorText = null;
 
         this._lock.unlockWrite(stamp);
     }
 
-    public void resetError() {
+    public void addErrors(final ITextComponent... messages) {
+        this.addErrors(null, messages);
+    }
+
+    public void resetErrors() {
 
         final long stamp = this._lock.writeLock();
 
         this._timeout.set(0);
-        this._errorMessage = null;
+        this._errorMessages = null;
         this._errorPosition = null;
-        this._errorTexts = null;
+        this._errorText = null;
 
         this._lock.unlockWrite(stamp);
     }
 
-    public List<RichText> getErrorTexts(final int maxTextWidth) {
+    //region NonNullFunction<Integer, IRichText>
+
+    @Nonnull
+    @Override
+    public IRichText apply(@Nonnull final Integer maxTextWidth) {
 
         long lockStamp = this._lock.readLock();
+        final List<ITextComponent> errorMessages = this._errorMessages;
 
-        final ITextComponent errorMessage = this._errorMessage;
-
-        if (null == errorMessage || this._timeout.get() <= 0) {
+        if (null == errorMessages || errorMessages.isEmpty() || this._timeout.get() <= 0) {
 
             this._lock.unlockRead(lockStamp);
-            return Collections.emptyList();
+            return RichText.EMPTY;
         }
 
-        List<RichText> errorTexts = this._errorTexts;
+        IRichText texts = this._errorText;
 
-        if (null == errorTexts) {
-
-            errorTexts = Lists.newArrayList();
+        if (null == texts) {
 
             do {
 
@@ -101,21 +113,26 @@ class MultiblockErrorData
 
                     final BlockPos errorPosition = this._errorPosition;
 
-                    if (null != errorPosition) {
-                        errorTexts.add(RichText.builder(maxTextWidth)
-                                .textLines(Lists.newArrayList(new StringTextComponent(String.format("@0 %d, %d, %d",
-                                        errorPosition.getX(), errorPosition.getY(), errorPosition.getZ()))))
-                                .objects(Lists.newArrayList(Items.COMPASS))
-                                .defaultColour(Colour.WHITE)
-                                .build());
+                    if (null == errorPosition && 1 == errorMessages.size()) {
+
+                        texts = this._errorText = textFrom(errorMessages.get(0), maxTextWidth);
+
+                    } else {
+
+                        final CompositeRichText.Builder builder = CompositeRichText.builder().interline(5);
+
+                        if (null != errorPosition) {
+                            builder.add(RichText.builder(maxTextWidth)
+                                    .textLines(Lists.newArrayList(new StringTextComponent(String.format("@0 %d, %d, %d",
+                                            errorPosition.getX(), errorPosition.getY(), errorPosition.getZ()))))
+                                    .objects(Lists.newArrayList(Items.COMPASS))
+                                    .defaultColour(Colour.WHITE)
+                                    .build());
+                        }
+
+                        errorMessages.forEach(message -> builder.add(textFrom(message, maxTextWidth)));
+                        texts = this._errorText = builder.build();
                     }
-
-                    errorTexts.add(RichText.builder(maxTextWidth)
-                            .textLines(Lists.newArrayList(errorMessage))
-                            .defaultColour(Colour.WHITE)
-                            .build());
-
-                    this._errorTexts = errorTexts;
 
                     lockStamp = writeLockStamp;
                     break;
@@ -130,9 +147,10 @@ class MultiblockErrorData
         }
 
         this._lock.unlock(lockStamp);
-        return errorTexts;
+        return texts;
     }
 
+    //endregion
     //region Predicate<BlockPos>
 
     /**
@@ -161,13 +179,19 @@ class MultiblockErrorData
     //endregion
     //region internals
 
+    private static IRichText textFrom(final ITextComponent errorMessage, final int maxTextWidth) {
+        return RichText.builder(maxTextWidth)
+                .textLines(errorMessage)
+                .defaultColour(Colour.WHITE)
+                .build();
+    }
+
     private final StampedLock _lock;
     private final AtomicInteger _timeout;
 
-    private ITextComponent _errorMessage;
+    private List<ITextComponent> _errorMessages;
     private BlockPos _errorPosition;
-
-    private List<RichText> _errorTexts;
+    private IRichText _errorText;
 
     //endregion
 }

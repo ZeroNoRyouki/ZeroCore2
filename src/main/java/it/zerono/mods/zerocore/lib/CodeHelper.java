@@ -55,7 +55,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.*;
 import java.util.stream.Stream;
 
-@SuppressWarnings({"WeakerAccess"})
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class CodeHelper {
 
     public static final Object[] EMPTY_GENERIC_ARRAY = new Object[0];
@@ -455,19 +455,24 @@ public final class CodeHelper {
     }
 
     //endregion
-    //region multiblock helper
+    //region error reporting helpers
 
-    public static void reportMultiblockError(final PlayerEntity player, final ValidationError error) {
-        reportMultiblockError(player, error.getChatMessage(), error.getPosition());
+    public static void reportErrorToPlayer(final PlayerEntity player, final ValidationError error) {
+        reportErrorToPlayer(player, error.getPosition(), error.getChatMessage());
     }
 
-    public static void reportMultiblockError(final PlayerEntity player, final ITextComponent error,
-                                             final @Nullable BlockPos position) {
-        ZeroCore.getProxy().notifyMultiblockError(player, error, position);
+    public static void reportErrorToPlayer(final PlayerEntity player, final @Nullable BlockPos position,
+                                           final ITextComponent... errors) {
+        ZeroCore.getProxy().reportErrorToPlayer(player, position, errors);
     }
 
-    public static void clearMultiblockErrorReport() {
-        ZeroCore.getProxy().clearMultiblockErrorReport();
+    public static void reportErrorToPlayer(final PlayerEntity player, final @Nullable BlockPos position,
+                                           final List<ITextComponent> errors) {
+        ZeroCore.getProxy().reportErrorToPlayer(player, position, errors);
+    }
+
+    public static void clearErrorReport() {
+        ZeroCore.getProxy().clearErrorReport();
     }
 
     //endregion
@@ -708,10 +713,6 @@ public final class CodeHelper {
 
     /**
      * Math helper function - Linear interpolate between two numbers
-     * @param from
-     * @param to
-     * @param modifier
-     * @return
      */
     public static float mathLerp(float from, float to, float modifier) {
 
@@ -813,7 +814,7 @@ public final class CodeHelper {
             return "0.000 mB";
         }
 
-        final int power = (int)Math.floor(Math.log10(value));
+        final int power = (int) Math.floor(Math.log10(value));
         String format;
 
         if (power < 1) {
@@ -838,39 +839,7 @@ public final class CodeHelper {
         }
 
         return String.format(format, value);
-
-        /*
-        if (power < 1) {
-            return String.format("%.3f mB", value);
-        } else if (power < 2) {
-            return String.format("%.2f mB", value);
-        } else if (power < 3) {
-            return String.format("%.1f mB", value);
-        } else if (power < 4) {
-            return String.format("%.0f mB", value);
-        } else {
-
-            value /= 1000f; // Re-render into buckets
-
-            if (power < 5) {
-                return String.format("%.2f B", value);
-            } else if (power < 6) {
-                return String.format("%.1f B", value);
-            } else {
-                return String.format("%.0f B", value);
-            }
-        }
-        */
     }
-
-//    /**
-//     * Create a ResourceLocation to be used as a TileEntity Id
-//     */
-//    public static ResourceLocation createTileEntityId(final String modId, final Class<? extends TileEntity> teClass) {
-//
-//        Preconditions.checkArgument(!Strings.isNullOrEmpty(modId));
-//        return new ResourceLocation(modId, teClass.getSimpleName().toLowerCase(Locale.ROOT));
-//    }
 
     //endregion
     //region internals
@@ -918,11 +887,6 @@ public final class CodeHelper {
         s_perpendicularDirections.put(Direction.SOUTH, zPerpendicularsDirections);
         s_perpendicularDirections.put(Direction.EAST, xPerpendicularsDirections);
         s_perpendicularDirections.put(Direction.WEST, xPerpendicularsDirections);
-
-//        directionStream()
-//                .forEach(direction -> s_perpendicularDirections.put(direction, directionStream()
-//                        .filter(otherDirection -> otherDirection.getAxis() != direction.getAxis())
-//                        .collect(Collectors.toSet())));
     }
 
     //endregion

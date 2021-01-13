@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 public interface IProxy {
@@ -41,7 +42,9 @@ public interface IProxy {
         return 0;
     }
 
-    void notifyMultiblockError(@Nullable PlayerEntity player, ITextComponent message, @Nullable BlockPos position);
+    void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, ITextComponent... messages);
 
-    void clearMultiblockErrorReport();
+    void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, List<ITextComponent> messages);
+
+    void clearErrorReport();
 }

@@ -21,11 +21,10 @@ package it.zerono.mods.zerocore.internal.proxy;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.client.gui.RichText;
+import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
 import it.zerono.mods.zerocore.lib.client.model.BakedModelSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,6 +37,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -56,7 +56,7 @@ public class ClientProxy
 
     public ClientProxy() {
 
-        this._multiblockErrorData = new MultiblockErrorData();
+        this._guiErrorData = new GuiErrorData();
 
         final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
 
@@ -68,6 +68,7 @@ public class ClientProxy
 
         forgeBus.addListener(this::onRenderTick);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
+        forgeBus.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
     }
 
@@ -115,14 +116,20 @@ public class ClientProxy
     }
 
     @Override
-    public void notifyMultiblockError(@Nullable PlayerEntity player, ITextComponent message,
-                                      @Nullable BlockPos position) {
-        this._multiblockErrorData.setError(message, position);
+    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
+                                    final ITextComponent... messages) {
+        this._guiErrorData.addErrors(position, messages);
     }
 
     @Override
-    public void clearMultiblockErrorReport() {
-        this._multiblockErrorData.resetError();
+    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
+                                    final List<ITextComponent> messages) {
+        this._guiErrorData.addErrors(position, messages);
+    }
+
+    @Override
+    public void clearErrorReport() {
+        this._guiErrorData.resetErrors();
     }
 
     //region internals
@@ -132,55 +139,21 @@ public class ClientProxy
         if (TickEvent.Phase.END == event.phase) {
 
             s_lastRenderTime = System.currentTimeMillis();
-            this._multiblockErrorData.tick();
+            this._guiErrorData.tick();
         }
     }
 
     private void onGameOverlayRender(final RenderGameOverlayEvent.Post event) {
 
-        final List<RichText> errorTexts = this._multiblockErrorData.getErrorTexts(Minecraft.getInstance().getMainWindow().getScaledWidth() / 2);
-
-        if (errorTexts.isEmpty()) {
-            return;
+        if (!isGuiOpen()) {
+            this.paintErrorMessage(event.getMatrixStack());
         }
+    }
 
-        final Rectangle boxBounds;
-        final int yOffsetDelta;
+    private void onGuiDrawScreenEventPost(final GuiScreenEvent.DrawScreenEvent.Post event) {
 
-        if (errorTexts.size() > 1) {
-
-            final Rectangle positionBounds = errorTexts.get(0).bounds();
-            final Rectangle errorBounds = errorTexts.get(1).bounds();
-
-            boxBounds = new Rectangle(10, 10,
-                    Math.max(errorBounds.Width, positionBounds.Width) + MULTIBLOCK_ERROR_BORDER * 2,
-                    errorBounds.Height + positionBounds.Height + MULTIBLOCK_ERROR_BORDER * 3);
-            yOffsetDelta = positionBounds.Height + MULTIBLOCK_ERROR_BORDER;
-
-        } else {
-
-            boxBounds = errorTexts.get(0).bounds().expand(MULTIBLOCK_ERROR_BORDER * 2, MULTIBLOCK_ERROR_BORDER * 2).offset(10, 10);
-            yOffsetDelta = MULTIBLOCK_ERROR_BORDER;
-        }
-
-        final MatrixStack matrix = event.getMatrixStack();
-        final int z = 300;
-
-        ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, MULTIBLOCK_ERROR_BACKGROUND_COLOUR);
-        ModRenderHelper.paintSolidRect(matrix, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, z, MULTIBLOCK_ERROR_BACKGROUND_COLOUR);
-        ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, MULTIBLOCK_ERROR_BACKGROUND_COLOUR);
-
-        ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX1() + 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR, MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR);
-        ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY1() + 1, boxBounds.Width - 4, z, MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR, MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR);
-        ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, z, MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR, MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR);
-        ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR, MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR);
-
-        int yOffset = MULTIBLOCK_ERROR_BORDER;
-
-        for (final RichText text: errorTexts) {
-
-            text.paint(matrix, boxBounds.getX1() + MULTIBLOCK_ERROR_BORDER, boxBounds.getY1() + yOffset, z + 1);
-            yOffset += yOffsetDelta;
+        if (isGuiOpen()) {
+            this.paintErrorMessage(event.getMatrixStack());
         }
     }
 
@@ -189,25 +162,41 @@ public class ClientProxy
         final BlockRayTraceResult result = event.getTarget();
         final BlockPos position = result.getPos();
 
-        if (RayTraceResult.Type.BLOCK == result.getType() && this._multiblockErrorData.test(position)) {
+        if (RayTraceResult.Type.BLOCK == result.getType() && this._guiErrorData.test(position)) {
 
             final Vector3d projectedView = event.getInfo().getProjectedView();
 
             ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.fullCube(),
                     event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
                     position.getX() - projectedView.getX(), position.getY() - projectedView.getY(),
-                    position.getZ() - projectedView.getZ(), MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR);
+                    position.getZ() - projectedView.getZ(), ERROR_HIGHLIGHT1_COLOUR);
         }
     }
 
-    private static final Colour MULTIBLOCK_ERROR_BACKGROUND_COLOUR = Colour.fromARGB(0x1f5e5e5e);
-    private static final Colour MULTIBLOCK_ERROR_HIGHLIGHT1_COLOUR = Colour.fromARGB(0x50e8ee4d);
-    private static final Colour MULTIBLOCK_ERROR_HIGHLIGHT2_COLOUR = Colour.fromARGB((0x50e8ee4d & 0xFEFEFE) >> 1 | 0x50e8ee4d & -16777216);
-    private static final int MULTIBLOCK_ERROR_BORDER = 5;
+    private void paintErrorMessage(final MatrixStack matrix) {
+
+        final IRichText texts = this._guiErrorData.apply(Minecraft.getInstance().getMainWindow().getScaledWidth() / 2);
+
+        if (texts.isEmpty()) {
+            return;
+        }
+
+        ModRenderHelper.paintMessage(matrix, texts, 5, 5, 300, ERROR_BORDER, ERROR_BACKGROUND_COLOUR,
+                ERROR_HIGHLIGHT1_COLOUR, ERROR_HIGHLIGHT2_COLOUR);
+    }
+
+    private static boolean isGuiOpen() {
+        return null != Minecraft.getInstance().currentScreen;
+    }
+
+    private static final Colour ERROR_BACKGROUND_COLOUR = Colour.fromARGB(0x5f5e5e5e);
+    private static final Colour ERROR_HIGHLIGHT1_COLOUR = Colour.fromARGB(0x50e8ee4d);
+    private static final Colour ERROR_HIGHLIGHT2_COLOUR = Colour.fromARGB((0x50e8ee4d & 0xFEFEFE) >> 1 | 0x50e8ee4d & -16777216);
+    private static final int ERROR_BORDER = 5;
 
     private static volatile long s_lastRenderTime = System.currentTimeMillis();
 
-    private final MultiblockErrorData _multiblockErrorData;
+    private final GuiErrorData _guiErrorData;
 
     //endregion
 }

@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.internal.network;
 
+import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
 import net.minecraft.network.PacketBuffer;
@@ -27,31 +28,46 @@ import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
-public class MultiblockErrorMessage
+public class ErrorReportMessage
     extends AbstractModMessage {
 
     /**
      * Create the message on the sender side
      *
-     * @param error the error message
      * @param position the position, in world, of the error message. Can be null.
+     * @param errors the error messages
      * @return the new message
      */
-    public static MultiblockErrorMessage create(final ITextComponent error, @Nullable final BlockPos position) {
-        return new MultiblockErrorMessage(error, position);
+    public static ErrorReportMessage create(@Nullable final BlockPos position, final ITextComponent... errors) {
+        return new ErrorReportMessage(position, errors);
     }
 
-    public MultiblockErrorMessage(final PacketBuffer buffer) {
+    /**
+     * Create the message on the sender side
+     *
+     * @param position the position, in world, of the error message. Can be null.
+     * @param errors the error messages
+     * @return the new message
+     */
+    public static ErrorReportMessage create(@Nullable final BlockPos position, final List<ITextComponent> errors) {
+        return new ErrorReportMessage(position, errors);
+    }
+
+    public ErrorReportMessage(final PacketBuffer buffer) {
 
         super(buffer);
-        this._error = buffer.readTextComponent();
 
-        if (buffer.readBoolean()) {
-            this._position = buffer.readBlockPos();
-        } else {
-            this._position = null;
+        final int count = buffer.readInt();
+
+        this._errors = Lists.newArrayListWithCapacity(count);
+
+        for (int i = 0; i < count; ++i) {
+            this._errors.add(buffer.readTextComponent());
         }
+
+        this._position = buffer.readBoolean() ? buffer.readBlockPos() : null;
     }
 
     //region AbstractModMessage
@@ -64,7 +80,8 @@ public class MultiblockErrorMessage
     @Override
     public void encodeTo(final PacketBuffer buffer) {
 
-        buffer.writeTextComponent(this._error);
+        buffer.writeInt(this._errors.size());
+        this._errors.forEach(buffer::writeTextComponent);
 
         if (null == this._position) {
 
@@ -86,7 +103,7 @@ public class MultiblockErrorMessage
     public void processMessage(final NetworkEvent.Context messageContext) {
 
         if (NetworkDirection.PLAY_TO_CLIENT == messageContext.getDirection()) {
-            ZeroCore.getProxy().notifyMultiblockError(null, this._error, this._position);
+            ZeroCore.getProxy().reportErrorToPlayer(null, this._position, this._errors);
         }
     }
 
@@ -96,16 +113,26 @@ public class MultiblockErrorMessage
     /**
      * Construct the message on the sender side
      *
-     * @param error the error message
      * @param position the position, in world, of the error message. Can be null.
+     * @param errors the error messages
      */
-    protected MultiblockErrorMessage(final ITextComponent error, @Nullable final BlockPos position) {
+    protected ErrorReportMessage(@Nullable final BlockPos position, final ITextComponent... errors) {
+        this(position, Lists.newArrayList(errors));
+    }
 
-        this._error = error;
+    /**
+     * Construct the message on the sender side
+     *
+     * @param position the position, in world, of the error message. Can be null.
+     * @param errors the error messages
+     */
+    protected ErrorReportMessage(@Nullable final BlockPos position, final List<ITextComponent> errors) {
+
+        this._errors = Lists.newArrayList(errors);
         this._position = position;
     }
 
-    private final ITextComponent _error;
+    private final List<ITextComponent> _errors;
     private final BlockPos _position;
 
     //endregion

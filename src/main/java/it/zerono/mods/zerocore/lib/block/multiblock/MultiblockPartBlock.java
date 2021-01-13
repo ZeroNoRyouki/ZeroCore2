@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.block.multiblock;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
-import it.zerono.mods.zerocore.lib.debug.DebugHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
@@ -39,8 +38,6 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 
@@ -128,7 +125,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                     if (null != error) {
 
 
-                        CodeHelper.reportMultiblockError(player, error);
+                        CodeHelper.reportErrorToPlayer(player, error);
                         return ActionResultType.SUCCESS;
                     }
                 }

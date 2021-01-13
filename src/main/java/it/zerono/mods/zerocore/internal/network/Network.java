@@ -30,7 +30,7 @@ public final class Network {
 
         HANDLER.registerMessage(TileCommandMessage.class, TileCommandMessage::new);
         HANDLER.registerMessage(ModSyncableTileMessage.class, ModSyncableTileMessage::new);
-        HANDLER.registerMessage(MultiblockErrorMessage.class, MultiblockErrorMessage::new);
+        HANDLER.registerMessage(ErrorReportMessage.class, ErrorReportMessage::new);
     }
 
     static {

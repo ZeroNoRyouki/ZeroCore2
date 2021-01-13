@@ -25,6 +25,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
@@ -967,6 +968,29 @@ public final class ModRenderHelper {
         paintVerticalLine(matrix, x + 1, y + 1, height - 3, zLevel, borderLightColour);
         paintHorizontalLine(matrix, x + 1, y + height - 2, width - 2, zLevel, borderDarkColour);
         paintVerticalLine(matrix, x + width - 2, y + 1+1, height - 3, zLevel, borderDarkColour);
+    }
+
+    //endregion
+    //region message box
+
+    public static void paintMessage(final MatrixStack matrix, final IRichText message, final int x, final int y,
+                                    final int zLevel, final int margin, final Colour background,
+                                    final Colour highlight1, final Colour highlight2) {
+
+        final Rectangle boxBounds = message.bounds()
+                .expand(margin * 2, margin * 2)
+                .offset(x, y);
+
+        ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, background);
+        ModRenderHelper.paintSolidRect(matrix, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, zLevel, background);
+        ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, background);
+
+        ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX1() + 1, boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, highlight1, highlight2);
+        ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY1() + 1, boxBounds.Width - 4, zLevel, highlight1, highlight2);
+        ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, zLevel, highlight1, highlight2);
+        ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, highlight1, highlight2);
+
+        message.paint(matrix, boxBounds.getX1() + margin, boxBounds.getY1() + margin, zLevel + 1);
     }
 
     //endregion

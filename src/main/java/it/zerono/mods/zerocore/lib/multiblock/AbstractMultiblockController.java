@@ -218,7 +218,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this.getRegistry().addDirtyController(this.castSelf());
 
-        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
+        this.callOnLogicalClient(CodeHelper::clearErrorReport);
     }
 
     /**
@@ -264,7 +264,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             this.selectNewReferenceCoord();
         }
 
-        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
+        this.callOnLogicalClient(CodeHelper::clearErrorReport);
     }
 
     /**
@@ -573,7 +573,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         }
         // Else Paused, do nothing
 
-        this.callOnLogicalClient(CodeHelper::clearMultiblockErrorReport);
+        this.callOnLogicalClient(CodeHelper::clearErrorReport);
     }
     /**
      * @return True if this multiblock machine is considered assembled and ready to go.
