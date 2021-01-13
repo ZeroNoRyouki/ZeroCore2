@@ -44,7 +44,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class RichText {
+public class RichText
+    implements IRichText {
 
     public static final RichText EMPTY = new RichText();
 
@@ -56,6 +57,9 @@ public class RichText {
         return new WrappedBuilder(maxWidth);
     }
 
+    //region IRichText
+
+    @Override
     public void paint(final MatrixStack matrix, int x, int y, final int zLevel) {
 
         matrix.push();
@@ -70,6 +74,7 @@ public class RichText {
         matrix.pop();
     }
 
+    @Override
     public Rectangle bounds() {
 
         if (null == this._bounds || this._dynamic) {
@@ -87,14 +92,17 @@ public class RichText {
         return this._bounds;
     }
 
+    @Override
     public boolean isEmpty() {
         return this._lines.isEmpty();
     }
 
+    @Override
     public boolean isNotEmpty() {
         return !this._lines.isEmpty();
     }
 
+    //endregion
     //region internals
 
     private RichText() {
@@ -358,7 +366,6 @@ public class RichText {
 
     public static class Builder {
 
-
         public RichText build() {
 
             final RichText rich = new RichText(this._fontSupplier, this.buildLines(this._lines, this._objects));
@@ -374,6 +381,14 @@ public class RichText {
             Preconditions.checkArgument(!lines.isEmpty());
             this._lines = lines;
             return this;
+        }
+
+        public Builder textLines(final ITextComponent line) {
+            return this.textLines(ImmutableList.of(line));
+        }
+
+        public Builder textLines(final ITextComponent... lines) {
+            return this.textLines(ImmutableList.copyOf(lines));
         }
 
         public Builder objects(final List<Object> objects) {
