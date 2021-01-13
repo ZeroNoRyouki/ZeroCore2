@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
 import it.zerono.mods.zerocore.lib.client.gui.control.SlotsGroup;
 import it.zerono.mods.zerocore.lib.client.gui.layout.FixedLayoutEngine;
@@ -40,6 +41,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
@@ -101,6 +103,26 @@ public class ModContainerScreen<C extends ModContainer>
      * Override to handle this event
      */
     protected void onScreenClose() {
+    }
+
+    /**
+     * Run the control validators
+     *
+     * @return true if the validation process is successful, false otherwise
+     */
+    public boolean isValid() {
+
+        final List<ITextComponent> errors = Lists.newArrayList();
+
+        this._windowsManager.validate(errors::add);
+
+        if (!errors.isEmpty()) {
+
+            CodeHelper.reportErrorToPlayer(Objects.requireNonNull(this.getMinecraft().player), null, errors);
+            return false;
+        }
+
+        return true;
     }
 
     public void requestTickUpdates(final Runnable handler) {
@@ -264,6 +286,7 @@ public class ModContainerScreen<C extends ModContainer>
         this.Create.unsubscribeAll();
         this.Created.unsubscribeAll();
         this.Close.unsubscribeAll();
+        CodeHelper.clearErrorReport();
     }
 
     /**

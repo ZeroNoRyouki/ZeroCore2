@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @SuppressWarnings("WeakerAccess")
 public class Window<C extends ModContainer>
@@ -245,6 +246,10 @@ public class Window<C extends ModContainer>
 
     boolean onKeyReleased(final int keyCode, final int scanCode, final int modifiers) {
         return null != this._keyboardFocus && this._keyboardFocus.onKeyReleased(this, keyCode, scanCode, modifiers);
+    }
+
+    void validate(final Consumer<ITextComponent> errorReport) {
+        this._topLevelContainer.validate(errorReport);
     }
 
     private void updateMouseOverControl(final int clippedX, final int clippedY) {

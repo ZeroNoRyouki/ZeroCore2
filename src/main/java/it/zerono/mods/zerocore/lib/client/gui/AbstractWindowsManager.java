@@ -24,6 +24,7 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -323,6 +324,10 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
             this._dragData.clear();
             this._dragData = null;
         }
+    }
+
+    void validate(Consumer<ITextComponent> errorReport) {
+        this.forEachWindow(w -> w.validate(errorReport));
     }
 
     //region internals

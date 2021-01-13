@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
+import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
@@ -30,6 +31,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -228,6 +230,11 @@ public class PanelGroup<Index extends Enum<Index>>
     @Override
     public void setLayoutEngine(ILayoutEngine engine) {
         this.getActivePanel().ifPresent(p -> p.setLayoutEngine(engine));
+    }
+
+    @Override
+    public void validate(final Consumer<ITextComponent> errorReport) {
+        this.getActivePanel().ifPresent(p -> p.validate(errorReport));
     }
 
     //endregion

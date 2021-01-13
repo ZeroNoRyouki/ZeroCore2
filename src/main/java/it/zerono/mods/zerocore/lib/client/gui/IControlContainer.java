@@ -19,6 +19,10 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
+import it.zerono.mods.zerocore.lib.client.gui.validator.IControlValidator;
+import net.minecraft.util.text.ITextComponent;
+
+import java.util.function.Consumer;
 
 /**
  * A control that contains other controls
@@ -40,4 +44,8 @@ public interface IControlContainer
     ILayoutEngine getLayoutEngine();
 
     void setLayoutEngine(ILayoutEngine engine);
+
+    void setValidator(IControlValidator validator);
+
+    void validate(Consumer<ITextComponent> errorReport);
 }

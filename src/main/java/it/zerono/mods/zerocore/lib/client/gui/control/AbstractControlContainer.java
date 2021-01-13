@@ -24,12 +24,15 @@ import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.FixedLayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
+import it.zerono.mods.zerocore.lib.client.gui.validator.IControlValidator;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public abstract class AbstractControlContainer
         extends AbstractCompoundControl
@@ -82,6 +85,23 @@ public abstract class AbstractControlContainer
         this.requestLayoutRun();
     }
 
+    @Override
+    public void setValidator(final IControlValidator validator) {
+        this._validator = validator;
+    }
+
+    @Override
+    public void validate(final Consumer<ITextComponent> errorReport) {
+
+        this._validator.validate(this, errorReport);
+        this.forEach(control -> {
+
+            if (control instanceof IControlContainer) {
+                ((IControlContainer)control).validate(errorReport);
+            }
+        });
+    }
+
     //endregion
     //region AbstractCompoundControl
 
@@ -127,6 +147,7 @@ public abstract class AbstractControlContainer
         super(gui, name);
         this._flags = new Flags<>(ContainerFlags.class);
         this._layoutEngine = DEFAULT_LAYOUT_ENGINE;
+        this._validator = (c, e) -> {};
     }
 
     protected boolean isLayoutRunRequested() {
@@ -151,6 +172,7 @@ public abstract class AbstractControlContainer
 
     private final Flags<ContainerFlags> _flags;
     private ILayoutEngine _layoutEngine;
+    private IControlValidator _validator;
 
     //endregion
 }
