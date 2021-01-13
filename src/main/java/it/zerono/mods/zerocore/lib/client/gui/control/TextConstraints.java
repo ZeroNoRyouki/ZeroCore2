@@ -37,7 +37,7 @@ public class TextConstraints {
         } else {
 
             final long originalValue = Long.parseLong(text);
-            long value = MathHelper.clamp(originalValue, 0, Long.MAX_VALUE);
+            long value = MathHelper.clamp(originalValue, 0, Integer.MAX_VALUE);
 
             if (originalValue != value || '0' == text.charAt(0)) {
                 return Optional.of(Long.toString(value));

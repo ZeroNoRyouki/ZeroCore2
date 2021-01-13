@@ -112,6 +112,22 @@ public class TextInput
         }
     }
 
+    public int intValue() throws NumberFormatException {
+        return Integer.parseInt(this.getText());
+    }
+
+    public long longValue() throws NumberFormatException {
+        return Long.parseLong(this.getText());
+    }
+
+    public float floatValue() throws NumberFormatException {
+        return Float.parseFloat(this.getText());
+    }
+
+    public double doubleValue() throws NumberFormatException {
+        return Double.parseDouble(this.getText());
+    }
+
     //region AbstractTextualControl
 
     @Override
