@@ -38,6 +38,11 @@ public class TintingRenderTypeBufferWrapper
         this._blue = MathHelper.clamp(blueTint, 0, 255);
     }
 
+    public TintingRenderTypeBufferWrapper(final IRenderTypeBuffer originalBuffer, final float alpha,
+                                          final float redTint, final float greenTint, final float blueTint) {
+        this(originalBuffer, (int)(alpha * 255.0F), (int)(redTint * 255.0F), (int)(greenTint * 255.0F), (int)(blueTint * 255.0F));
+    }
+
     //region IRenderTypeBuffer
 
     @Override
