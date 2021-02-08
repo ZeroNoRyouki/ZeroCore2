@@ -47,7 +47,7 @@ public class TintingRenderTypeBufferWrapper
 
     @Override
     public IVertexBuilder getBuffer(final RenderType type) {
-        return new TintingVertexBuilder(this._buffer.getBuffer(type), this._red, this._green, this._blue, this._alpha);
+        return new TintingVertexBuilder(this._buffer.getBuffer(type), this._alpha, this._red, this._green, this._blue);
     }
 
     //endregion
