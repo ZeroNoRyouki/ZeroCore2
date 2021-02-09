@@ -23,6 +23,7 @@ import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.server.MinecraftServer;
@@ -30,6 +31,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
@@ -84,5 +87,14 @@ public class ServerProxy implements IProxy {
 
     @Override
     public void clearErrorReport() {
+    }
+
+    @Nullable
+    @Override
+    public RecipeManager getRecipeManager() {
+
+        final MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
+
+        return null != server ? server.getRecipeManager() : null;
     }
 }

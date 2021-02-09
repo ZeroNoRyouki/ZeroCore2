@@ -19,20 +19,27 @@
 package it.zerono.mods.zerocore.lib.item;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.IItemProvider;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -41,6 +48,14 @@ import java.util.stream.IntStream;
 public final class ItemHelper {
 
     public static final String INVENTORY = "inventory";
+
+    public static ResourceLocation getItemId(final IItemProvider item) {
+        return Objects.requireNonNull(item.asItem().getRegistryName());
+    }
+
+    public static ResourceLocation getItemId(final ItemStack stack) {
+        return Objects.requireNonNull(stack.getItem().getRegistryName());
+    }
 
     public enum MatchOption {
 
@@ -236,6 +251,59 @@ public final class ItemHelper {
     }
 
     /**
+     * Serialize a stack to NBT
+     *
+     * @param stack the stack to serialize
+     * @return the serialized NBT data
+     */
+    public static CompoundNBT stackToNBT(final ItemStack stack) {
+        return stack.write(new CompoundNBT());
+    }
+
+    /**
+     * Create a stack from the given JSON data
+     *
+     * @param json a JsonElement containing the data of the stack to create
+     * @return the newly create stack
+     */
+    public static ItemStack stackFrom(final JsonElement json) {
+
+        final JsonObject o = json.getAsJsonObject();
+        final Item item = JSONHelper.jsonGetItem(o, Lib.NAME_ITEM);
+        final int count = JSONHelper.jsonGetInt(o, Lib.NAME_COUNT, 1);
+
+        if (o.has(Lib.NAME_NBT_TAG)) {
+            return stackFrom(item, count, JSONHelper.jsonGetNBT(o, Lib.NAME_NBT_TAG));
+        } else {
+            return stackFrom(item, count);
+        }
+    }
+
+    /**
+     * Serialize a stack to JSON
+     *
+     * @param stack the stack to serialize
+     * @return the serialized JSON data
+     */
+    public static JsonElement stackToJSON(final ItemStack stack) {
+
+        final JsonObject json = new JsonObject();
+        final int count = stack.getCount();
+
+        JSONHelper.jsonSetItem(json, Lib.NAME_ITEM, stack.getItem());
+
+        if (count > 1) {
+            JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, count);
+        }
+
+        if (stack.hasTag()) {
+            JSONHelper.jsonSetNBT(json, Lib.NAME_NBT_TAG, Objects.requireNonNull(stack.getTag()));
+        }
+
+        return json;
+    }
+
+    /**
      * Create a copy of the given stack
      *
      * @param stack the stack to duplicate
@@ -264,37 +332,6 @@ public final class ItemHelper {
         return newStack;
     }
 
-//    /**
-//     * Check if the given stack is empty
-//     *
-//     * @param stack the stack to query
-//     * @return true if the stack is empty, false otherwise
-//     */
-//    @Deprecated
-//    public static boolean stackIsEmpty(final ItemStack stack) {
-//        return stack.isEmpty();
-//    }
-
-//    /**
-//     * Check if the given stack is NOT empty
-//     *
-//     * @param stack the stack to query
-//     * @return true if the stack is NOT empty, false otherwise
-//     */
-//    public static boolean stackIsNotEmpty(final ItemStack stack) {
-//        return !stack.isEmpty();
-//    }
-
-//    /**
-//     * Get the number of items inside a stack
-//     *
-//     * @param stack the stack to query
-//     * @return the number of items inside the stack
-//     */
-//    public static int stackGetSize(final ItemStack stack) {
-//        return stack.getCount();
-//    }
-
     /**
      * Set the number of items inside a stack
      *
@@ -307,20 +344,6 @@ public final class ItemHelper {
         stack.setCount(Math.max(amount, 0));
         return stack;
     }
-
-//    /**
-//     * Modify the number of items inside a stack by the given amount
-//     *
-//     * @param stack the stack to modify
-//     * @param amount the number of items to add or subtract from the stack
-//     * @return the modified stack or an empty stack
-//     */
-//    @SuppressWarnings("UnusedReturnValue")
-//    public static ItemStack stackAdd(final ItemStack stack, final int amount) {
-//
-//        stack.grow(amount);
-//        return stack;
-//    }
 
     /**
      * Set a stack as empty, removing all items from it
@@ -338,38 +361,10 @@ public final class ItemHelper {
      * Return an empty stack
      * @return an empty stack
      */
+    @Deprecated
     public static ItemStack stackEmpty() {
         return ItemStack.EMPTY;
     }
-
-//    /**
-//     * Return the damage value of the item
-//     * @param stack the stack to query
-//     * @return      the damage value
-//     */
-//    public static int stackGetDamage(final ItemStack stack)  {
-//        return stack.getDamage();
-//    }
-
-//    /**
-//     * Set the damage value of the item
-//     * @param stack the stack to modify
-//     * @param damage the new damage value
-//     */
-//    public static void stackSetDamage(final ItemStack stack, final int damage)  {
-//        stack.setDamage(damage);
-//    }
-
-//    /**
-//     * Return if the item is damaged
-//     * @param stack the stack to query
-//     */
-//    public static boolean stackIsDamaged(final ItemStack stack)  {
-//        return stack.isDamaged();
-//    }
-
-
-    //TODO docs
 
     public static Optional<CompoundNBT> stackGetTag(final ItemStack stack) {
         return Optional.ofNullable(stack.getTag());
@@ -413,23 +408,10 @@ public final class ItemHelper {
                                           final BlockPos position/*, final boolean withMomentum*/) {
 
         final double x = position.getX(), y = position.getY(), z = position.getZ();
-//        final int slotsCount = inventory.getSlots();
-//
-//        for (int slot = 0; slot < slotsCount; ++slot) {
-//
-//            final ItemStack stack = inventory.getStackInSlot(slot);
-//
-//            if (!stack.isEmpty()) {
-//
-//                inventory.setStackInSlot(slot, ItemHelper.stackEmpty());
-//                WorldHelper.spawnItemStack(stack, world, x, y, z, withMomentum);
-//            }
-//        }
 
         IntStream.range(0, inventory.getSlots())
                 .mapToObj(slot -> ItemHelper.removeStackFromSlot(inventory, slot))
                 .filter(stack -> !stack.isEmpty())
-                //.forEach(stack -> WorldHelper.spawnItemStack(stack, world, x, y, z, withMomentum));
                 .forEach(stack -> InventoryHelper.spawnItemStack(world, x, y, z, stack));
     }
 

@@ -31,6 +31,8 @@ import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public final class TagsHelper<T>
@@ -99,6 +101,15 @@ public final class TagsHelper<T>
         return this.getTag(tagId)
                 .filter(tag -> !tag.getAllElements().isEmpty())
                 .map(TagsHelper::getTagFirstElement);
+    }
+
+    public List<T> getMatchingElements(final ITag<T> tag) {
+
+        try {
+            return tag.getAllElements();
+        } catch (IllegalStateException e) {
+            return Collections.emptyList();
+        }
     }
 
     //region internals

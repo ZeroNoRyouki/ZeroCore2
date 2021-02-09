@@ -19,8 +19,10 @@
 package it.zerono.mods.zerocore.internal.network;
 
 import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.lib.network.IModMessage;
 import it.zerono.mods.zerocore.lib.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public final class Network {
 
@@ -31,6 +33,14 @@ public final class Network {
         HANDLER.registerMessage(TileCommandMessage.class, TileCommandMessage::new);
         HANDLER.registerMessage(ModSyncableTileMessage.class, ModSyncableTileMessage::new);
         HANDLER.registerMessage(ErrorReportMessage.class, ErrorReportMessage::new);
+        HANDLER.registerMessage(ClearRecipesMessage.class, ClearRecipesMessage::new);
+    }
+
+    public static <Message extends IModMessage> void sendToAllPlayers(final Message message) {
+
+        if (null != ServerLifecycleHooks.getCurrentServer()) {
+            HANDLER.sendToAllPlayers(message);
+        }
     }
 
     static {

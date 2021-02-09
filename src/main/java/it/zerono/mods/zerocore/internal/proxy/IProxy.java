@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -47,4 +48,7 @@ public interface IProxy {
     void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, List<ITextComponent> messages);
 
     void clearErrorReport();
+
+    @Nullable
+    RecipeManager getRecipeManager();
 }

@@ -27,8 +27,11 @@ import it.zerono.mods.zerocore.lib.client.model.BakedModelSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -43,7 +46,10 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
@@ -75,7 +81,7 @@ public class ClientProxy
     /**
      * Called on the physical client to perform client-specific initialization tasks
      *
-     * @param event
+     * @param event the event
      */
     @SubscribeEvent
     public void onClientInit(final FMLClientSetupEvent event) {
@@ -130,6 +136,23 @@ public class ClientProxy
     @Override
     public void clearErrorReport() {
         this._guiErrorData.resetErrors();
+    }
+
+    @Override
+    public RecipeManager getRecipeManager() {
+
+        if (EffectiveSide.get().isClient()) {
+
+            final ClientPlayNetHandler handler = Minecraft.getInstance().getConnection();
+
+            return null != handler ? handler.getRecipeManager() : null;
+
+        } else {
+
+            final MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
+
+            return null != server ? server.getRecipeManager() : null;
+        }
     }
 
     //region internals

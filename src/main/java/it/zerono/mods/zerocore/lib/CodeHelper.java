@@ -21,14 +21,17 @@ package it.zerono.mods.zerocore.lib;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import joptsimple.internal.Strings;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Util;
@@ -64,6 +67,12 @@ public final class CodeHelper {
 
     public static final Direction[] DIRECTIONS = Direction.values();
 
+    public static final BooleanSupplier TRUE_SUPPLIER = () -> true;
+    public static final BooleanSupplier FALSE_SUPPLIER = () -> false;
+    public static final IntConsumer VOID_INT_CONSUMER = v -> {};
+    public static final BooleanConsumer VOID_BOOL_CONSUMER = v -> {};
+    public static final Runnable VOID_RUNNABLE = () -> {};
+
     /*
      * Mouse button constants
      */
@@ -97,7 +106,10 @@ public final class CodeHelper {
     }
 
     public static boolean isDevEnv() {
-        return "fmluserdevclient".equals(System.getenv("target"));
+
+        final String target = System.getenv("target");
+
+        return !Strings.isNullOrEmpty(target) && target.startsWith("fmluserdev");
     }
 
     //region misc
@@ -117,6 +129,19 @@ public final class CodeHelper {
 
     public static String neutralLowercase(final String input) {
         return input.toLowerCase(Locale.ROOT);
+    }
+
+    @Nullable
+    public static RecipeManager getRecipeManager() {
+        return ZeroCore.getProxy().getRecipeManager();
+    }
+
+    public static RecipeManager getRecipeManager(final World world) {
+        return world.getRecipeManager();
+    }
+
+    public static boolean shouldInvalidateResourceCache() {
+        return Lib.shouldInvalidateResourceCache();
     }
 
     //endregion

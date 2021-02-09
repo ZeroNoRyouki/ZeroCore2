@@ -1,0 +1,108 @@
+/*
+ *
+ * ModRecipe.java
+ *
+ * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * DO NOT REMOVE OR EDIT THIS HEADER
+ *
+ */
+
+package it.zerono.mods.zerocore.lib.recipe;
+
+import it.zerono.mods.zerocore.lib.item.inventory.EmptyVanillaInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+
+import java.util.Objects;
+
+public class ModRecipe
+    implements IRecipe<EmptyVanillaInventory> {
+
+    //region IRecipe
+
+    /**
+     * Used to check if a recipe matches current crafting inventory
+     */
+    @Override
+    public boolean matches(final EmptyVanillaInventory inv, final World world) {
+        return true;
+    }
+
+    /**
+     * Returns an Item that is the result of this recipe
+     *
+     * @param inv the inventory
+     */
+    @Override
+    public ItemStack getCraftingResult(final EmptyVanillaInventory inv) {
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * Used to determine if this recipe can fit in a grid of the given width/height
+     *
+     * @param width grid width
+     * @param height grid height
+     */
+    @Override
+    public boolean canFit(final int width, final int height) {
+        return true;
+    }
+
+    /**
+     * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
+     * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
+     */
+    @Override
+    public ItemStack getRecipeOutput() {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return this._recipeId;
+    }
+
+    /**
+     * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
+     * doLimitedCrafting gamerule)
+     */
+    @Override
+    public boolean isDynamic() {
+        return true;
+    }
+
+    @Override
+    public IRecipeSerializer<?> getSerializer() {
+        throw new IllegalStateException("Override in derived class");
+    }
+
+    @Override
+    public IRecipeType<?> getType() {
+        throw new IllegalStateException("Override in derived class");
+    }
+
+    //endregion
+    //region internals
+
+    protected ModRecipe(final ResourceLocation id) {
+        this._recipeId = Objects.requireNonNull(id);
+    }
+
+    private final ResourceLocation _recipeId;
+
+    //endregion
+}

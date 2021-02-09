@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class NBTHelper {
+public final class NBTHelper {
 
     public static final CompoundNBT EMPTY_COMPOUND = new CompoundNBT();
 
@@ -178,4 +178,11 @@ public class NBTHelper {
 
         return EnumSet.copyOf(valueList);
     }
+
+    //region internals
+
+    private NBTHelper() {
+    }
+
+    //endregion
 }

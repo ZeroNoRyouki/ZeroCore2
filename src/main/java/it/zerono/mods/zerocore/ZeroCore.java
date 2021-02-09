@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore;
 
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.internal.proxy.ClientProxy;
@@ -34,7 +35,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public final class ZeroCore implements IModInitializationHandler {
 
     public static final String MOD_ID = "zerocore";
-    //public static final String MOD_NAME = "Zero CORE 2";
 
     public static ZeroCore getInstance() {
         return s_instance;
@@ -53,10 +53,8 @@ public final class ZeroCore implements IModInitializationHandler {
         s_instance = this;
         s_proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonInit);
+        Lib.initialize();
         Content.initialize();
-
-
-//        this._objectsHandler = new ObjectsHandler();
     }
 
     //region IModInitializationHandler
@@ -67,15 +65,15 @@ public final class ZeroCore implements IModInitializationHandler {
      * @param event the event
      */
     @Override
-//    @SubscribeEvent
     public void onCommonInit(FMLCommonSetupEvent event) {
         Network.initialize();
     }
 
+    //endregion
     //region internals
 
     private static ZeroCore s_instance;
     private static IProxy s_proxy;
 
-//    private final ObjectsHandler _objectsHandler;
+    //endregion
 }
