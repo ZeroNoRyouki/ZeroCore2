@@ -20,6 +20,8 @@ package it.zerono.mods.zerocore.lib.data.stack;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import it.zerono.mods.zerocore.lib.energy.EnergyStack;
+import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
@@ -38,6 +40,11 @@ public final class StackAdapters {
     public static final IStackAdapter<ItemStack, Item> ITEMSTACK;
 
     public static final IStackAdapter<FluidStack, Fluid> FLUIDSTACK;
+
+    /**
+     * @implNote currently the amount of energy stored in that stack is converted, and capped to, an int
+     */
+    public static final IStackAdapter<EnergyStack, EnergySystem> ENERGYSTACK;
 
     //region internals
 
@@ -315,6 +322,139 @@ public final class StackAdapters {
 
                 if (!stack.isEmpty()) {
                     consumer.accept(stack.getFluid(), stack.getAmount());
+                }
+            }
+        };
+
+        ENERGYSTACK = new IStackAdapter<EnergyStack, EnergySystem>() {
+
+            @Override
+            public Optional<EnergySystem> getContent(EnergyStack stack) {
+                return !stack.isEmpty() ? Optional.of(stack.getEnergySystem()) : Optional.empty();
+            }
+
+            @Override
+            public int getAmount(EnergyStack stack) {
+                return (int)stack.getAmount();
+            }
+
+            @Override
+            public EnergyStack setAmount(EnergyStack stack, int amount) {
+
+                validateNotEmpty(this, stack);
+                stack.setAmount(amount);
+                return stack;
+            }
+
+            @Override
+            public EnergyStack modifyAmount(EnergyStack stack, int delta) {
+
+                validateNotEmpty(this, stack);
+                stack.grow(delta);
+                return stack;
+            }
+
+            @Override
+            public EnergyStack getEmptyStack() {
+                return EnergyStack.EMPTY;
+            }
+
+            @Override
+            public boolean isEmpty(EnergyStack stack) {
+                return stack.isEmpty();
+            }
+
+            @Override
+            public boolean isStackContentEqual(EnergyStack stack1, EnergyStack stack2) {
+                return stack1.isEnergySystemEqual(stack2);
+            }
+
+            @Override
+            public boolean isContentEqual(EnergySystem content1, EnergySystem content2) {
+                return content1 == content2;
+            }
+
+            @Override
+            public boolean areIdentical(EnergyStack stack1, EnergyStack stack2) {
+                return EnergyStack.areItemStacksEqual(stack1, stack2);
+            }
+
+            @Override
+            public EnergyStack create(EnergySystem content, int amount) {
+                return new EnergyStack(content, amount);
+            }
+
+            @Override
+            public EnergyStack create(EnergyStack stack) {
+                return stack.copy();
+            }
+
+            @Override
+            public EnergyStack[] createArray(int length) {
+                return new EnergyStack[length];
+            }
+
+            @Override
+            public List<EnergyStack> createList() {
+                return Lists.newArrayList();
+            }
+
+            @Override
+            public Set<EnergyStack> createSet() {
+                return Sets.newHashSet();
+            }
+
+            @Override
+            public EnergyStack readFrom(CompoundNBT data) {
+                return EnergyStack.from(data);
+            }
+
+            @Override
+            public CompoundNBT writeTo(EnergyStack stack, CompoundNBT data) {
+                return stack.serializeTo(data);
+            }
+
+            @Override
+            public String toString(EnergyStack stack) {
+                return stack.toString();
+            }
+
+            @Override
+            public <T> T map(EnergyStack stack, Function<EnergySystem, T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getEnergySystem());
+            }
+
+            @Override
+            public <T> T map(EnergyStack stack, IntFunction<T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply((int)stack.getAmount());
+            }
+
+            @Override
+            public <T> T map(EnergyStack stack, BiFunction<EnergySystem, Integer, T> mapper, T defaultValue) {
+                return stack.isEmpty() ? defaultValue : mapper.apply(stack.getEnergySystem(), (int)stack.getAmount());
+            }
+
+            @Override
+            public void accept(EnergyStack stack, Consumer<EnergySystem> consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getEnergySystem());
+                }
+            }
+
+            @Override
+            public void accept(EnergyStack stack, IntConsumer consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept((int)stack.getAmount());
+                }
+            }
+
+            @Override
+            public void accept(EnergyStack stack, BiConsumer<EnergySystem, Integer> consumer) {
+
+                if (!stack.isEmpty()) {
+                    consumer.accept(stack.getEnergySystem(), (int)stack.getAmount());
                 }
             }
         };

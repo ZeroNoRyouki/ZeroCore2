@@ -24,14 +24,8 @@ package it.zerono.mods.zerocore.lib.energy;
  * Based upon the IEnergyStorage from King Lemming's RedstoneFlux API
  */
 @SuppressWarnings("unused")
-public interface IWideEnergyStorage {
-
-    /**
-     * Get the {@link EnergySystem} used natively by the IWideEnergyStorage
-     *
-     * @return the native {@link EnergySystem}
-     */
-    EnergySystem getEnergySystem();
+public interface IWideEnergyStorage
+    extends IEnergySystemAware {
 
     /**
      * Add energy, expressed in the specified {@link EnergySystem}, to the storage

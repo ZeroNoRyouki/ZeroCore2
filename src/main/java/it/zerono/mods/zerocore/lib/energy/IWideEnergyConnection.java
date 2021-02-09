@@ -30,14 +30,8 @@ import javax.annotation.Nullable;
  *
  * Based upon the IEnergyConnection from King Lemming's RedstoneFlux API
  */
-public interface IWideEnergyConnection {
-
-    /**
-     * Get the {@link EnergySystem} used by this entity
-     *
-     * @return the {@link EnergySystem} in use
-     */
-    EnergySystem getEnergySystem();
+public interface IWideEnergyConnection
+        extends IEnergySystemAware {
 
     /**
      * Returns true if the entity can connect on a given side and support with the provided {@link EnergySystem}.

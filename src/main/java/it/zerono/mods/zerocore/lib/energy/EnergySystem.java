@@ -121,4 +121,6 @@ public enum EnergySystem {
     private String _name;
     private String _unit;
     private double _conversionRatio;
+
+    //endregion
 }
