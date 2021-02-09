@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.handler;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.DebuggableHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
@@ -27,24 +28,46 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.ItemStackHandler;
 
+import java.util.Objects;
+import java.util.function.BiPredicate;
+import java.util.function.IntConsumer;
+
 public class TileEntityItemStackHandler extends ItemStackHandler implements IDebuggable {
 
-    public TileEntityItemStackHandler(TileEntity linkedTileEntity) {
-
-        super(1);
-        this._linkedTE = linkedTileEntity;
+    public TileEntityItemStackHandler(final TileEntity linkedTileEntity) {
+        this(linkedTileEntity, 1);
     }
 
-    public TileEntityItemStackHandler(TileEntity linkedTileEntity, int size) {
+    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final int size) {
+        this(linkedTileEntity, size, TileEntityItemStackHandler::defaultValidator);
+    }
+
+    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final int size,
+                                      final BiPredicate<Integer, ItemStack> itemValidator) {
 
         super(size);
         this._linkedTE = linkedTileEntity;
+        this._itemValidator = itemValidator;
+        this._slotChanged = CodeHelper.VOID_INT_CONSUMER;
     }
 
-    public TileEntityItemStackHandler(TileEntity linkedTileEntity, NonNullList<ItemStack> stacks) {
+    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final NonNullList<ItemStack> stacks) {
+        this(linkedTileEntity, stacks, TileEntityItemStackHandler::defaultValidator);
+    }
+
+    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final NonNullList<ItemStack> stacks,
+                                      final BiPredicate<Integer, ItemStack> itemValidator) {
 
         super(stacks);
         this._linkedTE = linkedTileEntity;
+        this._itemValidator = itemValidator;
+        this._slotChanged = CodeHelper.VOID_INT_CONSUMER;
+    }
+
+    public TileEntityItemStackHandler setContentsChangedListener(final IntConsumer listener) {
+
+        this._slotChanged = Objects.requireNonNull(listener);
+        return this;
     }
 
     //region IDebuggable
@@ -55,14 +78,30 @@ public class TileEntityItemStackHandler extends ItemStackHandler implements IDeb
     }
 
     //endregion
+    //region ItemStackHandler
+
+    @Override
+    public boolean isItemValid(final int slot, final ItemStack stack) {
+        return this._itemValidator.test(slot, stack);
+    }
+
+    //endregion
     //region internals
 
     @Override
     protected void onContentsChanged(int slot) {
+
         this._linkedTE.markDirty();
+        this._slotChanged.accept(slot);
+    }
+
+    private static boolean defaultValidator(final Integer slot, final ItemStack stack) {
+        return true;
     }
 
     private final TileEntity _linkedTE;
+    private final BiPredicate<Integer, ItemStack> _itemValidator;
+    private IntConsumer _slotChanged;
 
     //endregion
 }
