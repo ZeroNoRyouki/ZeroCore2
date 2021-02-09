@@ -36,7 +36,7 @@ public class ContainerFactory {
 
     public static final ContainerFactory EMPTY = new ContainerFactory();
 
-    protected ContainerFactory() {
+    public ContainerFactory() {
 
         this._slotFactories = Lists.newArrayList();
         this._slotIndexToTemplateMap = Maps.newHashMap();
@@ -52,6 +52,7 @@ public class ContainerFactory {
      *
      * Keep in mind that this is called during object construction
      */
+    @Deprecated // will be removed in the next release. just use method chaining instead
     protected void onAddSlots() {
     }
 
@@ -132,7 +133,7 @@ public class ContainerFactory {
         return this._playPlayerInventoryUsage;
     }
 
-    protected void addSlot(final int inventorySlotIndex, final String inventoryName, final SlotTemplate template, int x, int y) {
+    public ContainerFactory addSlot(final int inventorySlotIndex, final String inventoryName, final SlotTemplate template, int x, int y) {
 
         final SlotFactory slotFactory = new SlotFactory(inventoryName, template, inventorySlotIndex, x, y);
         final int slotIndex = this._slotFactories.size();
@@ -154,9 +155,11 @@ public class ContainerFactory {
             this._slotTypeToIndicesCache.clear();
             this._slotTypeToIndicesCache = null;
         }
+
+        return this;
     }
 
-    protected void addSlotsLine(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
+    public ContainerFactory addSlotsLine(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
                                 int x, int y, int slotAmount, int horizontalOffset, int verticalOffset) {
 
         for (int slotIndex = startingInventorySlotIndex ; slotIndex < startingInventorySlotIndex + slotAmount ; ++slotIndex) {
@@ -165,20 +168,22 @@ public class ContainerFactory {
             x += horizontalOffset;
             y += verticalOffset;
         }
+
+        return this;
     }
 
-    protected void addSlotsRow(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
+    public ContainerFactory addSlotsRow(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
                                int x, int y, int slotAmount, int offset) {
-        this.addSlotsLine(startingInventorySlotIndex, inventoryName, template, x, y, slotAmount, offset, 0);
+        return this.addSlotsLine(startingInventorySlotIndex, inventoryName, template, x, y, slotAmount, offset, 0);
     }
 
-    protected void addSlotsColumn(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
+    public ContainerFactory addSlotsColumn(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
                                   int x, int y, int slotAmount, int offset) {
-        this.addSlotsLine(startingInventorySlotIndex, inventoryName, template, x, y, slotAmount, 0, offset);
+        return this.addSlotsLine(startingInventorySlotIndex, inventoryName, template, x, y, slotAmount, 0, offset);
     }
 
     @SuppressWarnings("SameParameterValue")
-    protected void addSlotBox(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
+    public ContainerFactory addSlotBox(final int startingInventorySlotIndex, final String inventoryName, final SlotTemplate template,
                               int x, int y, int horizontalAmount, int horizontalOffset, int verticalAmount, int verticalOffset) {
 
         for (int i = 0 ; i < verticalAmount ; ++i) {
@@ -187,25 +192,30 @@ public class ContainerFactory {
                     horizontalAmount, horizontalOffset);
             y += verticalOffset;
         }
+
+        return this;
     }
 
-    protected void addPlayerMainInventorySlots(final int x, final int y) {
+    public ContainerFactory addPlayerMainInventorySlots(final int x, final int y) {
 
         this.addSlotBox(9, ModContainer.INVENTORYNAME_PLAYER_INVENTORY, SlotTemplate.TEMPLATE_PLAYERINVENTORY, x, y, 9, 18, 3, 18);
         this._playPlayerInventoryUsage = PlayerInventoryUsage.MainInventory;
+        return this;
     }
 
-    protected void addPlayerHotBarSlots(final int x, final int y) {
+    public ContainerFactory addPlayerHotBarSlots(final int x, final int y) {
 
         this.addSlotsRow(0, ModContainer.INVENTORYNAME_PLAYER_INVENTORY, SlotTemplate.TEMPLATE_PLAYERHOTBAR, x, y, 9, 18);
         this._playPlayerInventoryUsage = PlayerInventoryUsage.HotBar;
+        return this;
     }
 
-    protected void addStandardPlayerInventorySlots(final int x, final int y) {
+    public ContainerFactory addStandardPlayerInventorySlots(final int x, final int y) {
 
         this.addPlayerHotBarSlots(x, y + 58*0);
         this.addPlayerMainInventorySlots(x, y);
         this._playPlayerInventoryUsage = PlayerInventoryUsage.Both;
+        return this;
     }
 
     //region internals
