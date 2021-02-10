@@ -806,7 +806,7 @@ public final class CodeHelper {
         }
 
         int decimals = 2;
-        final String format = String.format("%%%1$d.0f %%2$s%%3$s", decimals);
+        final String format = String.format("%%.%1$df %%2$s%%3$s", decimals);
 
         return String.format(format, value, s_siPrefixes.get(order), unit);
     }
