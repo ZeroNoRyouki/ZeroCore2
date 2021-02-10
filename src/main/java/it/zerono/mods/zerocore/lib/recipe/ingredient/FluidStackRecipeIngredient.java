@@ -175,6 +175,11 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
+        public boolean isEmpty() {
+            return this._ingredient.isEmpty();
+        }
+
+        @Override
         public void serializeTo(final PacketBuffer buffer) {
 
             buffer.writeByte(1);
@@ -259,6 +264,11 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
+        public boolean isEmpty() {
+            return this._ingredients.stream().anyMatch(IRecipeIngredient::isEmpty);
+        }
+
+        @Override
         public boolean test(final FluidStack stack) {
             return this._ingredients.stream().anyMatch(ingredient -> ingredient.test(stack));
         }
@@ -336,6 +346,11 @@ public abstract class FluidStackRecipeIngredient
             }
 
             return this._cachedMatchingElements;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
         }
 
         @Override

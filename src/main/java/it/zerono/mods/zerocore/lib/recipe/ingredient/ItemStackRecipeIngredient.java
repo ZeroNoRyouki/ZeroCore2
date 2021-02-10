@@ -176,6 +176,11 @@ public abstract class ItemStackRecipeIngredient
         }
 
         @Override
+        public boolean isEmpty() {
+            return this._ingredient.hasNoMatchingItems();
+        }
+
+        @Override
         public void serializeTo(final PacketBuffer buffer) {
 
             buffer.writeVarInt(1);
@@ -264,6 +269,11 @@ public abstract class ItemStackRecipeIngredient
             }
 
             return this._cachedMatchingElements;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return this._ingredients.stream().anyMatch(IRecipeIngredient::isEmpty);
         }
 
         @Override

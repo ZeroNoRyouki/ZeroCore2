@@ -33,4 +33,6 @@ public interface IRecipeIngredient<T>
     long getAmount(T ingredient);
 
     List<T> getMatchingElements();
+
+    boolean isEmpty();
 }
