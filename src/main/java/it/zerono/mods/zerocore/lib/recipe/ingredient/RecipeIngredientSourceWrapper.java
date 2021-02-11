@@ -21,6 +21,8 @@ package it.zerono.mods.zerocore.lib.recipe.ingredient;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.item.inventory.IInventorySlot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public final class RecipeIngredientSourceWrapper {
@@ -80,6 +82,36 @@ public final class RecipeIngredientSourceWrapper {
 
                 if (!ingredient.isEmpty()) {
                     inventory.extractItem(slot, ingredient.getCount(), false);
+                }
+            }
+        };
+    }
+
+    public static IRecipeIngredientSource<FluidStack> wrap(final IFluidHandler handler, final int tank) {
+        return new IRecipeIngredientSource<FluidStack>() {
+
+            @Override
+            public FluidStack getIngredient() {
+                return handler.getFluidInTank(tank);
+            }
+
+            @Override
+            public FluidStack getMatchFrom(final IRecipeIngredient<FluidStack> ingredient) {
+
+                final FluidStack current = this.getIngredient();
+
+                if (current.isEmpty()) {
+                    return FluidStack.EMPTY;
+                }
+
+                return ingredient.getMatchFrom(current);
+            }
+
+            @Override
+            public void consumeIngredient(final FluidStack ingredient) {
+
+                if (!ingredient.isEmpty()) {
+                    handler.drain(ingredient, IFluidHandler.FluidAction.EXECUTE);
                 }
             }
         };
