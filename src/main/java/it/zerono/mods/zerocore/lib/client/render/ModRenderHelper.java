@@ -34,9 +34,11 @@ import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -56,7 +58,6 @@ import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -1084,148 +1085,36 @@ public final class ModRenderHelper {
 
     //endregion
     //endregion
-
-
-
-
-
-
-
-
-
-
     //region common paint tasks
 
-    private static final Colour ITEMSTACK_HIGHLIGHT = Colour.fromARGB(0x80ffffff);
+    public static boolean paintItemStack(final MatrixStack matrix, final ItemStack stack, final int x, final int y,
+                                         final String text, final boolean highlight) {
 
-    public static boolean renderItemStack(final MatrixStack matrix, /*final IRenderTypeBuffer buffer,*/
-                                          final ItemStack stack, int x, int y, final String text, boolean highlight) {
+        if (stack.isEmpty()) {
+            return false;
+        }
 
-        boolean rc = false;
+        final Minecraft mc = Minecraft.getInstance();
+        final ItemRenderer itemRenderer = mc.getItemRenderer();
+        float saveZ = itemRenderer.zLevel;
 
         if (highlight) {
-
-//            RenderSystem.disableLighting();
-            paintVerticalGradientRect(matrix, x, y, x + 16, y + 16, 0, ITEMSTACK_HIGHLIGHT, Colour.WHITE);
+            fill(matrix.getLast().getMatrix(), x, y, x + 16, y + 16, 300, -2130706433);
         }
 
-        if (!stack.isEmpty()) {
+        itemRenderer.zLevel = 300.0F;
+        RenderSystem.enableDepthTest();
+        itemRenderer.renderItemAndEffectIntoGUI(mc.player, stack, x, y);
+        itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, stack, x + 4, y, text);
+        itemRenderer.zLevel = saveZ;
 
-            stack.getItem();
-            rc = true;
-
-            RenderSystem.color4f(1F, 1F, 1F, 1F);
-            RenderSystem.enableRescaleNormal();
-            RenderSystem.enableLighting();
-            RenderHelper.enableStandardItemLighting();
-
-            matrix.push();
-            RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, (float) 240, (float) 240);
-
-            ItemRenderer render = Minecraft.getInstance().getItemRenderer();
-            float renderZ = render.zLevel;
-
-            render.zLevel = 300;
-            render.renderItemAndEffectIntoGUI(stack, x, y);
-            render.zLevel = renderZ;
-
-            renderItemOverlayIntoGUI(matrix, Minecraft.getInstance().fontRenderer, stack, x, y, text, text.length() - 2);
-
-            matrix.pop();
-
-            net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
-            RenderSystem.disableLighting();
-            RenderSystem.disableRescaleNormal();
-        }
-
-        return rc;
+        return true;
     }
 
-    public static boolean renderItemStackWithCount(final MatrixStack matrix, ItemStack stack, int x, int y, boolean highlight) {
-        return renderItemStack(matrix, stack, x, y, CodeHelper.formatAsHumanReadableNumber(stack.getCount(), ""), highlight);
-    }
-
-    private static void renderItemOverlayIntoGUI(final MatrixStack matrix, /*final IRenderTypeBuffer buffer,*/
-                                                 final FontRenderer fr, final ItemStack stack, int xPosition, int yPosition,
-                                                 @Nullable String text, int scaled) {
-
-        if (!stack.isEmpty()) {
-
-            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-
-            if (stack.getCount() != 1 || text != null) {
-
-                String s = text == null ? String.valueOf(stack.getCount()) : text;
-
-                matrix.translate(0.0D, 0.0D, (itemRenderer.zLevel + 200.0F));
-
-                IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-
-                if (scaled >= 2) {
-
-                    matrix.push();
-                    matrix.scale(0.5f, 0.5f, 0.5f);
-                    fr.drawStringWithShadow(matrix, s, ((xPosition + 19 - 2) * 2 - 1 - fr.getStringWidth(s)), yPosition * 2 + 24, 16777215);
-                    matrix.pop();
-
-                } else if (scaled == 1) {
-
-                    matrix.push();
-                    matrix.scale(0.75f, 0.75f, 0.75f);
-                    fr.drawStringWithShadow(matrix, s, ((xPosition - 2) * 1.34f + 24 - fr.getStringWidth(s)), yPosition * 1.34f + 14, 16777215);
-                    matrix.pop();
-
-                } else {
-                    fr.drawStringWithShadow(matrix, s, (xPosition + 19 - 2 - fr.getStringWidth(s)), (float)(yPosition + 6 + 3), 16777215);
-                }
-
-//                buffer.finish();
-            }
-
-            if (stack.getItem().showDurabilityBar(stack)) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.disableAlphaTest();
-                RenderSystem.disableBlend();
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder bufferbuilder = tessellator.getBuffer();
-                double health = stack.getItem().getDurabilityForDisplay(stack);
-                int i = Math.round(13.0F - (float)health * 13.0F);
-                int j = stack.getItem().getRGBDurabilityForDisplay(stack);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
-                RenderSystem.enableBlend();
-                RenderSystem.enableAlphaTest();
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
-
-            ClientPlayerEntity clientplayerentity = Minecraft.getInstance().player;
-            float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldownTracker().getCooldown(stack.getItem(), Minecraft.getInstance().getRenderPartialTicks());
-            if (f3 > 0.0F) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                Tessellator tessellator1 = Tessellator.getInstance();
-                BufferBuilder bufferbuilder1 = tessellator1.getBuffer();
-                draw(bufferbuilder1, xPosition, yPosition + MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 255, 255, 255, 127);
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
-
-        }
-    }
-    /**
-     * Draw with the WorldRenderer
-     */
-    private static void draw(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue, int alpha) {
-        renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
-        renderer.pos((x + 0), (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.pos((x + 0), (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.pos((x + width), (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.pos((x + width), (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        Tessellator.getInstance().draw();
+    public static boolean paintItemStackWithCount(final MatrixStack matrix, final ItemStack stack,
+                                                  final int x, final int y, final boolean highlight) {
+        return !stack.isEmpty() &&
+                paintItemStack(matrix, stack, x, y, CodeHelper.formatAsHumanReadableNumber(stack.getCount(), ""), highlight);
     }
 
     /**

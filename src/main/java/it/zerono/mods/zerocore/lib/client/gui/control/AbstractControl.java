@@ -969,7 +969,18 @@ public abstract class AbstractControl
 
         final Point screenXY = this.controlToScreen(x, y);
 
-        ModRenderHelper.renderItemStack(matrix, stack, screenXY.X, screenXY.Y, "", highlight);
+        ModRenderHelper.paintItemStack(matrix, stack, screenXY.X, screenXY.Y, "", highlight);
+    }
+
+    protected void paintItemStackWithCount(final MatrixStack matrix, final ItemStack stack, final boolean highlight) {
+        this.paintItemStackWithCount(matrix, stack, 0, 0, highlight);
+    }
+
+    protected void paintItemStackWithCount(final MatrixStack matrix, final ItemStack stack, final int x, final int y, final boolean highlight) {
+
+        final Point screenXY = this.controlToScreen(x, y);
+
+        ModRenderHelper.paintItemStackWithCount(matrix, stack, screenXY.X, screenXY.Y, highlight);
     }
 
     //endregion

@@ -133,12 +133,12 @@ public class RichText
 
     private static void paintItemStack(final RichText richText, final ItemStack chunk,
                                        final MatrixStack matrix, final int x, final int y) {
-        ModRenderHelper.renderItemStackWithCount(matrix, chunk, x, y, false);
+        ModRenderHelper.paintItemStackWithCount(matrix, chunk, x, y, false);
     }
 
     private static void paintItemStackNoCount(final RichText richText, final ItemStack chunk,
                                               final MatrixStack matrix, final int x, final int y) {
-        ModRenderHelper.renderItemStack(matrix, chunk, x, y, "", false);
+        ModRenderHelper.paintItemStack(matrix, chunk, x, y, "", false);
     }
 
     private static void paintSprite(final RichText richText, final ISprite chunk,
