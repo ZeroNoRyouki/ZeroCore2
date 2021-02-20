@@ -76,11 +76,11 @@ public class Rectangle {
     }
 
     public int getX2() {
-        return this.Origin.X + this.Width - 1;
+        return this.Origin.X + this.Width;
     }
 
     public int getY2() {
-        return this.Origin.Y + this.Height - 1;
+        return this.Origin.Y + this.Height;
     }
 
     public Direction.Plane getLayout() {
@@ -200,14 +200,79 @@ public class Rectangle {
     }
 
     public boolean contains(final int x, final int y) {
-        return this.getX1() <= x && x <= this.getX2() && this.getY1() <= y && y <= this.getY2();
+
+        int tw = this.Width;
+        int th = this.Height;
+        int tx = this.Origin.X;
+        int ty = this.Origin.Y;
+
+        if (x < tx || y < ty) {
+            return false;
+        }
+
+        tw += tx;
+        th += ty;
+
+        //    overflow || intersect
+        return ((tw < tx || tw > x) &&
+                (th < ty || th > y));
     }
 
     public boolean contains(final Point p) {
-        return p.collinear(Direction.Axis.X, this.getX1(), this.getX2()) &&
-                p.collinear(Direction.Axis.Y, this.getY1(), this.getY2());
+        return this.contains(p.X, p.Y);
     }
 
+    public boolean contains(int x, int y, int width, int height) {
+        
+        int tw = this.Width;
+        int th = this.Height;
+        
+        if ((tw | th | width | height) < 0) {
+            // At least one of the dimensions is negative...
+            return false;
+        }
+        
+        // Note: if any dimension is zero, tests below must return false...
+        int tx = this.Origin.X;
+        int ty = this.Origin.Y;
+        
+        if (x < tx || y < ty) {
+            return false;
+        }
+        
+        tw += tx;
+        width += x;
+        
+        if (width <= x) {
+
+            if (tw >= tx || width > tw) {
+                return false;
+            }
+            
+        } else {
+
+            if (tw >= tx && width > tw) {
+                return false;
+            }
+        }
+        
+        th += ty;
+        height += y;
+        
+        if (height <= y) {
+
+            return th < ty && height <= th;
+            
+        } else {
+
+            return th < ty || height <= th;
+        }
+    }
+    
+    public boolean contains(final Rectangle r) {
+        return this.contains(r.Origin.X, r.Origin.Y, r.Width, r.Height);
+    }
+        
     public boolean intersects(final Rectangle other) {
         return other.Origin.X + other.Width > this.Origin.X && other.Origin.X < this.Origin.X + this.Width &&
                 other.Origin.Y + other.Height > this.Origin.Y && other.Origin.Y < this.Origin.Y + this.Height;
