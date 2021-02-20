@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore;
 
 import it.zerono.mods.zerocore.internal.Lib;
+import it.zerono.mods.zerocore.internal.command.ZeroCoreCommand;
 import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.internal.proxy.ClientProxy;
@@ -26,6 +27,8 @@ import it.zerono.mods.zerocore.internal.proxy.IProxy;
 import it.zerono.mods.zerocore.internal.proxy.ServerProxy;
 import it.zerono.mods.zerocore.lib.init.IModInitializationHandler;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -53,6 +56,7 @@ public final class ZeroCore implements IModInitializationHandler {
         s_instance = this;
         s_proxy = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonInit);
+        MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
         Lib.initialize();
         Content.initialize();
     }
@@ -71,6 +75,10 @@ public final class ZeroCore implements IModInitializationHandler {
 
     //endregion
     //region internals
+
+    private void onRegisterCommands(final RegisterCommandsEvent event) {
+        ZeroCoreCommand.register(event.getDispatcher());
+    }
 
     private static ZeroCore s_instance;
     private static IProxy s_proxy;
