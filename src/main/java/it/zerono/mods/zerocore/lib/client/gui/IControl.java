@@ -238,4 +238,7 @@ public interface IControl {
     void onPaintOverlay(MatrixStack matrix, float partialTicks, int mouseX, int mouseY);
 
     void enablePaintBlending(boolean blend);
+
+    default void onPaintDebugFrame(MatrixStack matrix, Colour colour) {
+    }
 }

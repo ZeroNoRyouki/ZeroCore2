@@ -464,6 +464,11 @@ public abstract class AbstractControl
         this._flags.set(ControlFlags.BlendWhenPainting, blend);
     }
 
+    @Override
+    public void onPaintDebugFrame(final MatrixStack matrix, final Colour colour) {
+        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
+    }
+
     //endregion
     //region Object
 

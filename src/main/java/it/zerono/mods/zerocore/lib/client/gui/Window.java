@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.client.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
+import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -197,6 +198,13 @@ public class Window<C extends ModContainer>
 
         if (this.isVisible()) {
             this._topLevelContainer.onPaintOverlay(matrix, partialTicks, mouseX, mouseY);
+        }
+    }
+
+    void onPaintDebugFrame(final MatrixStack matrix, final Colour colour) {
+
+        if (null != this._mouseOver) {
+            this._mouseOver.onPaintDebugFrame(matrix, colour);
         }
     }
 
