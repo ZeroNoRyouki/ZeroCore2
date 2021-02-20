@@ -18,11 +18,14 @@
 
 package it.zerono.mods.zerocore.internal.proxy;
 
+import it.zerono.mods.zerocore.internal.InternalCommand;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
@@ -51,4 +54,8 @@ public interface IProxy {
 
     @Nullable
     RecipeManager getRecipeManager();
+
+    default void handleInternalCommand(final InternalCommand command, final CompoundNBT data, final NetworkDirection direction) {
+        // handle commands that are common to both distributions here
+    }
 }
