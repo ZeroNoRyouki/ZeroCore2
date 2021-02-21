@@ -46,6 +46,10 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
     protected void onDataUpdated() {
     }
 
+    protected boolean isDataUpdateInProgress() {
+        return this._dataUpdateInProgress;
+    }
+
     //region Tile commands
 
     /**
@@ -127,11 +131,14 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
 
     private void raiseDataUpdated() {
 
+        this._dataUpdateInProgress = true;
         this.onDataUpdated();
         this.DataUpdated.raise(Runnable::run);
+        this._dataUpdateInProgress = false;
     }
 
     private final Runnable raiseDataUpdatedHandler;
+    private boolean _dataUpdateInProgress;
 
     //endregion
 }
