@@ -36,6 +36,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Util;
 import net.minecraft.util.concurrent.ThreadTaskExecutor;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -66,6 +67,8 @@ public final class CodeHelper {
     public static final ITextComponent TEXT_EMPTY_LINE = new StringTextComponent("");
 
     public static final Direction[] DIRECTIONS = Direction.values();
+
+    public static final AxisAlignedBB EMPTY_AABB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 
     public static final BooleanSupplier TRUE_SUPPLIER = () -> true;
     public static final BooleanSupplier FALSE_SUPPLIER = () -> false;
