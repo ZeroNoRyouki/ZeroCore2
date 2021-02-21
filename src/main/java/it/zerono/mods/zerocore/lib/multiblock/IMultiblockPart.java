@@ -41,9 +41,15 @@
 
 package it.zerono.mods.zerocore.lib.multiblock;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.item.ItemTier;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ToolType;
 
 import java.util.List;
 import java.util.Optional;
@@ -312,4 +318,20 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
      * Subscribe to be notified by a controller data update.
      */
     void listenForControllerDataUpdates();
+
+    /**
+     * @return a set of default block properties for a multiblock part
+     */
+    static Block.Properties getDefaultBlockProperties() {
+        return Block.Properties.create(Material.IRON, MaterialColor.IRON)
+                .sound(SoundType.METAL)
+                .hardnessAndResistance(5.0F, 6.0F)
+                .harvestLevel(ItemTier.IRON.getHarvestLevel())
+                .harvestTool(ToolType.PICKAXE)
+                .setRequiresTool()
+                .setLightLevel(blockState -> 0)
+                .setAllowsSpawn((blockState, blockReader, pos, entity) -> false)
+                .setOpaque((blockState, blockReader, pos) -> true)
+                .setBlocksVision((blockState, blockReader, pos) -> true);
+    }
 }

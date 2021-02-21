@@ -41,12 +41,8 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.variant;
 
+import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
-import net.minecraft.item.ItemTier;
-import net.minecraftforge.common.ToolType;
 
 public interface IMultiblockVariant {
 
@@ -59,15 +55,6 @@ public interface IMultiblockVariant {
     Block.Properties getBlockProperties();
 
     default Block.Properties getDefaultBlockProperties() {
-        return Block.Properties.create(Material.IRON, MaterialColor.IRON)
-                .sound(SoundType.METAL)
-                .hardnessAndResistance(5.0F, 6.0F)
-                .harvestLevel(ItemTier.IRON.getHarvestLevel())
-                .harvestTool(ToolType.PICKAXE)
-                .setRequiresTool()
-                .setLightLevel(blockState -> 0)
-                .setAllowsSpawn((blockState, blockReader, pos, entity) -> false)
-                .setOpaque((blockState, blockReader, pos) -> true)
-                .setBlocksVision((blockState, blockReader, pos) -> true);
+        return IMultiblockPart.getDefaultBlockProperties();
     }
 }
