@@ -19,6 +19,8 @@
 package it.zerono.mods.zerocore.internal.network;
 
 import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.InternalCommand;
+import it.zerono.mods.zerocore.lib.data.nbt.NBTBuilder;
 import it.zerono.mods.zerocore.lib.network.IModMessage;
 import it.zerono.mods.zerocore.lib.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
@@ -33,7 +35,7 @@ public final class Network {
         HANDLER.registerMessage(TileCommandMessage.class, TileCommandMessage::new);
         HANDLER.registerMessage(ModSyncableTileMessage.class, ModSyncableTileMessage::new);
         HANDLER.registerMessage(ErrorReportMessage.class, ErrorReportMessage::new);
-        HANDLER.registerMessage(ClearRecipesMessage.class, ClearRecipesMessage::new);
+        HANDLER.registerMessage(InternalCommandMessage.class, InternalCommandMessage::new);
     }
 
     public static <Message extends IModMessage> void sendToAllPlayers(final Message message) {
@@ -41,6 +43,15 @@ public final class Network {
         if (null != ServerLifecycleHooks.getCurrentServer()) {
             HANDLER.sendToAllPlayers(message);
         }
+    }
+
+    public static void sendClearRecipeCommand() {
+        sendToAllPlayers(new InternalCommandMessage(InternalCommand.ClearRecipes));
+    }
+
+    public static void sendDebugGuiFrameCommand(final boolean enable) {
+        sendToAllPlayers(new InternalCommandMessage(InternalCommand.DebugGuiFrame,
+                new NBTBuilder().addBoolean("enable", enable).build()));
     }
 
     static {

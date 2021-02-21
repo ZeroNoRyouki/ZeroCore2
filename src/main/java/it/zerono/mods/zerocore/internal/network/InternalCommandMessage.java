@@ -1,6 +1,6 @@
 /*
  *
- * ClearRecipesMessage.java
+ * InternalCommandMessage.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,18 +18,32 @@
 
 package it.zerono.mods.zerocore.internal.network;
 
+import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
-import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
-public class ClearRecipesMessage
+public class InternalCommandMessage
         extends AbstractModMessage {
 
     /**
      * Construct the local message to be sent over the network.
      */
-    public ClearRecipesMessage() {
+    public InternalCommandMessage(final InternalCommand command, final CompoundNBT data) {
+
+        this._command = command;
+        this._data = data;
+    }
+
+    /**
+     * Construct the local message to be sent over the network.
+     */
+    public InternalCommandMessage(final InternalCommand command) {
+
+        this._command = command;
+        this._data = null;
     }
 
     /**
@@ -38,8 +52,11 @@ public class ClearRecipesMessage
      *
      * @param buffer the {@link PacketBuffer} containing the data received from the network.
      */
-    public ClearRecipesMessage(PacketBuffer buffer) {
+    public InternalCommandMessage(final PacketBuffer buffer) {
+
         super(buffer);
+        this._command = buffer.readEnumValue(InternalCommand.class);
+        this._data = buffer.readBoolean() ? buffer.readCompoundTag() : new CompoundNBT();
     }
 
     //region AbstractModMessage
@@ -50,7 +67,19 @@ public class ClearRecipesMessage
      * @param buffer the {@link PacketBuffer} to encode your data into
      */
     @Override
-    public void encodeTo(PacketBuffer buffer) {
+    public void encodeTo(final PacketBuffer buffer) {
+
+        buffer.writeEnumValue(this._command);
+
+        if (null != this._data) {
+
+            buffer.writeBoolean(true);
+            buffer.writeCompoundTag(this._data);
+
+        } else {
+
+            buffer.writeBoolean(false);
+        }
     }
 
     /**
@@ -61,9 +90,15 @@ public class ClearRecipesMessage
     @Override
     public void processMessage(final NetworkEvent.Context messageContext) {
 
-        messageContext.enqueueWork(ModRecipeType::invalidate);
+        messageContext.enqueueWork(() -> ZeroCore.getProxy().handleInternalCommand(this._command, this._data, messageContext.getDirection()));
         messageContext.setPacketHandled(true);
     }
+
+    //endregion
+    //region internals
+
+    private final InternalCommand _command;
+    private final CompoundNBT _data;
 
     //endregion
 }

@@ -18,9 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import net.minecraft.nbt.CompoundNBT;
 
+import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
@@ -29,18 +29,11 @@ public class Polygon {
     public static final Polygon EMPTY = new Polygon();
 
     public Polygon() {
-        this(MIN_COORDINATES);
+        this(new int[MIN_COORDINATES], new int[MIN_COORDINATES]);
     }
 
     public Polygon(int pointCount) {
-
-        if (pointCount < MIN_COORDINATES) {
-            pointCount = MIN_COORDINATES;
-        }
-
-        this._xs = new IntArrayList(pointCount);
-        this._ys = new IntArrayList(pointCount);
-        this._pointsCount = 0;
+        this(new int[pointCount], new int[pointCount]);
     }
 
     public Polygon(final int... points) {
@@ -49,20 +42,27 @@ public class Polygon {
             throw new IllegalArgumentException("Not enough coordinates");
         }
 
-        this._xs = new IntArrayList(points.length / 2);
-        this._ys = new IntArrayList(points.length / 2);
+        final int length = points.length / 2;
+        final int[] xs = new int[length];
+        final int[] ys = new int[length];
 
-        for (int idx = 0; idx < points.length; idx += 2) {
+        for (int pointsIdx = 0, targetIdx = 0; pointsIdx < points.length; pointsIdx += 2, ++targetIdx) {
 
-            this._xs.add(points[idx]);
-            this._ys.add(points[idx + 1]);
+            xs[targetIdx] = points[pointsIdx];
+            ys[targetIdx] = points[pointsIdx + 1];
         }
 
-        this._pointsCount = this._xs.size();
+        this._xs = xs;
+        this._ys = ys;
+        this._pointsCount = length;
+
+        this._constants = new int[length];
+        this._multipliers = new int[length];
+        this.computeConstants();
     }
 
     public Polygon(final Polygon other) {
-        this(other._xs.elements(), other._ys.elements());
+        this(other._xs, other._ys);
     }
 
     public static Polygon syncDataFrom(CompoundNBT data) {
@@ -82,8 +82,8 @@ public class Polygon {
 
     public CompoundNBT syncDataTo(CompoundNBT data) {
 
-        data.putIntArray("xs", this._xs.elements());
-        data.putIntArray("ys", this._ys.elements());
+        data.putIntArray("xs", this._xs);
+        data.putIntArray("ys", this._ys);
         return data;
     }
 
@@ -92,8 +92,8 @@ public class Polygon {
         final int[] xs = new int[this._pointsCount + 1];
         final int[] ys = new int[this._pointsCount + 1];
 
-        System.arraycopy(this._xs.elements(), 0, xs, 0, this._pointsCount);
-        System.arraycopy(this._ys.elements(), 0, ys, 0, this._pointsCount);
+        System.arraycopy(this._xs, 0, xs, 0, this._pointsCount);
+        System.arraycopy(this._ys, 0, ys, 0, this._pointsCount);
 
         xs[this._pointsCount] = x;
         ys[this._pointsCount] = y;
@@ -102,11 +102,11 @@ public class Polygon {
     }
 
     public int getX(final int vertexIndex) {
-        return this._xs.getInt(vertexIndex);
+        return this._xs[vertexIndex];
     }
 
     public int getY(final int vertexIndex) {
-        return this._ys.getInt(vertexIndex);
+        return this._ys[vertexIndex];
     }
 
     /**
@@ -117,7 +117,7 @@ public class Polygon {
     }
 
     public boolean isEmpty() {
-        return 0 == this._pointsCount;
+        return this == EMPTY;
     }
 
     public Rectangle getBounds() {
@@ -143,8 +143,8 @@ public class Polygon {
 
         for (int idx = 0; idx < polygon.count(); ++idx) {
 
-            polygon.x(idx, polygon.getX(idx) + offsetX);
-            polygon.y(idx, polygon.getY(idx) + offsetY);
+            polygon._xs[idx] = polygon._xs[idx] + offsetX;
+            polygon._ys[idx] = polygon._ys[idx] + offsetY;
         }
 
         return polygon;
@@ -190,6 +190,7 @@ public class Polygon {
 
         return new Polygon(xs, ys);
     }
+
     public Polygon transform(final BiFunction<Integer, Integer, Point> mapper) {
 
         if (this.isEmpty()) {
@@ -210,28 +211,32 @@ public class Polygon {
         return new Polygon(xs, ys);
     }
 
+    /**
+     * Return true if the provided point is inside the polygon
+     *
+     * @implNote the result is undefined if the point lay on a edge
+     *
+     * @param x the x coordinate of the point
+     * @param y the y coordinate of the point
+     * @return true if the point is inside the polygon, false otherwise
+     */
     public boolean contains(final int x, final int y) {
 
-        if (!this.getBounds().contains(x, y)) {
-            return false;
-        }
+        boolean oddNodes = false;
+        boolean current = this._ys[this._pointsCount - 1] > y;
+        boolean previous;
 
-        boolean result = false;
-        int i;
-        int j;
+        for (int i = 0; i < this._pointsCount; ++i) {
 
-        for (i = 0, j = this.count() - 1; i < this.count(); j = i++) {
+            previous = current;
+            current = this._ys[i] > y;
 
-            final int yi = this.getY(i);
-            final int yj = this.getY(j);
-            final int xi = this.getX(i);
-
-            if ((yi > y) != (yj > y) && (x < (this.getX(j) - xi) * (y - yi) / (yj - yi) + xi)) {
-                result = !result;
+            if (current != previous) {
+                oddNodes ^= y * this._multipliers[i] + this._constants[i] < x;
             }
         }
 
-        return result;
+        return oddNodes;
     }
 
     //region Object
@@ -243,7 +248,9 @@ public class Polygon {
 
             final Polygon polygon = (Polygon)other;
 
-            return this._pointsCount == polygon._pointsCount && this._xs.equals(polygon._xs) && this._ys.equals(polygon._ys);
+            return this._pointsCount == polygon._pointsCount &&
+                    Arrays.equals(this._xs, polygon._xs) &&
+                    Arrays.equals(this._ys, polygon._ys);
         }
 
         return false;
@@ -263,17 +270,38 @@ public class Polygon {
             throw new IllegalArgumentException("Invalid coordinates");
         }
 
-        this._xs = new IntArrayList(xs);
-        this._ys = new IntArrayList(ys);
-        this._pointsCount = this._xs.size();
+        final int length = xs.length;
+
+        this._xs = Arrays.copyOf(xs, length);
+        this._ys = Arrays.copyOf(ys, length);
+        this._pointsCount = length;
+
+        this._constants = new int[length];
+        this._multipliers = new int[length];
+        this.computeConstants();
     }
 
-    private void x(final int index, final int value) {
-        this._xs.set(index, value);
-    }
+    private void computeConstants() {
 
-    private void y(final int index, final int value) {
-        this._ys.set(index, value);
+        final int[] xs = this._xs;
+        final int[] ys = this._ys;
+        int i, j = this._pointsCount - 1;
+
+        for (i = 0; i < this._pointsCount; i++) {
+
+            if (ys[j] == ys[i]) {
+
+                this._constants[i] = xs[i];
+                this._multipliers[i] = 0;
+
+            } else {
+
+                this._constants[i] = xs[i] - (ys[i] * xs[j]) / (ys[j] - ys[i]) + (ys[i] * xs[i]) / (ys[j] - ys[i]);
+                this._multipliers[i] = (xs[j] - xs[i]) / (ys[j] - ys[i]);
+            }
+
+            j = i;
+        }
     }
 
     private Rectangle computeBounds() {
@@ -294,13 +322,15 @@ public class Polygon {
             maxY = Math.max(maxY, y);
         }
 
-        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
     private static final int MIN_COORDINATES = 3;
 
-    private final IntArrayList _xs;
-    private final IntArrayList _ys;
+    private final int[] _xs;
+    private final int[] _ys;
+    private final int[] _constants;
+    private final int[] _multipliers;
     private final int _pointsCount;
 
     private Rectangle _bounds;

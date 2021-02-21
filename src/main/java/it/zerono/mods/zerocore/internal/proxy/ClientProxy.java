@@ -19,17 +19,21 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.client.gui.GuiHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
 import it.zerono.mods.zerocore.lib.client.model.BakedModelSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -51,6 +55,7 @@ import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import javax.annotation.Nullable;
@@ -152,6 +157,25 @@ public class ClientProxy
             final MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
 
             return null != server ? server.getRecipeManager() : null;
+        }
+    }
+
+    @Override
+    public void handleInternalCommand(final InternalCommand command, final CompoundNBT data, final NetworkDirection direction) {
+
+        switch (command) {
+
+            case ClearRecipes:
+                ModRecipeType.invalidate();
+                break;
+
+            case DebugGuiFrame:
+                GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
+                break;
+
+            default:
+                IProxy.super.handleInternalCommand(command, data, direction);
+                break;
         }
     }
 

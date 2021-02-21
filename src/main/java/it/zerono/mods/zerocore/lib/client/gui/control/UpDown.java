@@ -59,15 +59,12 @@ public class UpDown
         final int w = bound.Width - 1;
         final int h = bound.Height - 1;
 
-        this._upArrow = new Polygon(0, 0,
-                                    w - 1, 0,
-                                    0, h - 1);
-        this._downArrow = new Polygon(w, 1,
-                                      w, h,
-                                      1, h);
+        // expand the edge by one (so outside the control) to always detect the edge
+        this._upArrow = new Polygon(-1, -1, w, -1, -1, h);
+        this._downArrow = new Polygon(w + 1, 0, w + 1, h + 1, 0, h + 1);
 
-        this._upArrowPaint = this._upArrow.transform(this::controlToScreen);
-        this._downArrowPaint = this._downArrow.transform(this::controlToScreen);
+        this._upArrowPaint = new Polygon(0, 0, w - 1, 0, 0, h - 1).transform(this::controlToScreen);
+        this._downArrowPaint = new Polygon(w, 1, w, h, 1, h).transform(this::controlToScreen);
     }
 
     /**
@@ -196,12 +193,6 @@ public class UpDown
 
             case Active:
             case ActiveHighlighted:
-//                this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
-//                        /*Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT*/ new Colour(0xaa, 0x9c, 0xbb),
-//                        /*Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK*/ new Colour(0xd3, 0xc5, 0xe4),
-//                        Theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
-//                        Theme.BUTTON_ACTIVE_3D_BORDER_DARK);
-
                 this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
                         Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
                         Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
@@ -211,12 +202,6 @@ public class UpDown
                 break;
 
             case DefaultHighlighted:
-//                this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT*/ new Colour(0xaa, 0x9c, 0xbb),
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK*/ new Colour(0xd3, 0xc5, 0xe4),
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT*/ Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK*/ Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
-
                 this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
                         Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
                         Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
@@ -251,12 +236,6 @@ public class UpDown
 
             case Active:
             case ActiveHighlighted:
-//                this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
-//                        /*Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT*/ new Colour(0xaa, 0x9c, 0xbb),
-//                        /*Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK*/ new Colour(0xd3, 0xc5, 0xe4),
-//                        Theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
-//                        Theme.BUTTON_ACTIVE_3D_BORDER_DARK);
-
                 this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
                         Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
                         Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
@@ -266,12 +245,6 @@ public class UpDown
                 break;
 
             case DefaultHighlighted:
-//                this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT*/ new Colour(0xaa, 0x9c, 0xbb),
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK*/ new Colour(0xd3, 0xc5, 0xe4),
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT*/ Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
-//                        /*Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK*/ Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
-
                 this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
                         Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
                         Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,

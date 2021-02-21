@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.internal;
 
-import it.zerono.mods.zerocore.internal.network.ClearRecipesMessage;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -78,7 +77,7 @@ public final class Lib {
                     s_resourceReloaded = true;
 
                     ModRecipeType.invalidate();
-                    Network.sendToAllPlayers(new ClearRecipesMessage());
+                    Network.sendClearRecipeCommand();
 
                 }, gameExecutor).thenCompose(stage::markCompleteAwaitingOthers));
     }

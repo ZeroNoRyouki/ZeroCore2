@@ -1,6 +1,6 @@
 /*
  *
- * BakedModelSupplier.java
+ * ModBakedModelSupplier.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -26,38 +26,43 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@Deprecated // use ModBakedModelSupplier
-public class BakedModelSupplier {
+public class ModBakedModelSupplier {
 
-    public static final BakedModelSupplier INSTANCE = new BakedModelSupplier();
+    public ModBakedModelSupplier() {
 
-    public static Supplier<IBakedModel> create(final ResourceLocation name) {
-        return create(name, false);
+        this._toBeRegistered = Lists.newArrayList();
+        this._wrappers = Maps.newHashMap();
+
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().register(this);
     }
 
-    public static Supplier<IBakedModel> create(final ResourceLocation name, final boolean register) {
+    public void addModel(final ResourceLocation name) {
 
-        if (register) {
-            INSTANCE.addToLoadingList(name);
+        if (!this._toBeRegistered.contains(name)) {
+            this._toBeRegistered.add(name);
         }
+    }
 
-        return INSTANCE.getOrCreate(name);
+    public Supplier<IBakedModel> getOrCreate(final ResourceLocation name) {
+        return this._wrappers.computeIfAbsent(name, resourceLocation -> new Wrapper());
     }
 
     //region event handlers
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRegisterModels(final ModelRegistryEvent event) {
         this._toBeRegistered.forEach(ModelLoader::addSpecialModel);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onModelBake(final ModelBakeEvent event) {
 
         final Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
@@ -67,12 +72,14 @@ public class BakedModelSupplier {
     }
 
     //endregion
+
     //region internals
     //region SpriteSupplier
 
-    private static class BakedModelWrapper implements Supplier<IBakedModel> {
+    private static class Wrapper
+            implements Supplier<IBakedModel> {
 
-        protected BakedModelWrapper() {
+        protected Wrapper() {
             this._cachedModel = null;
         }
 
@@ -91,25 +98,8 @@ public class BakedModelSupplier {
         //endregion
     }
 
-    private BakedModelSupplier() {
-
-        this._toBeRegistered = Lists.newArrayList();
-        this._wrappers = Maps.newHashMap();
-    }
-
-    private void addToLoadingList(final ResourceLocation name) {
-
-        if (!this._toBeRegistered.contains(name)) {
-            this._toBeRegistered.add(name);
-        }
-    }
-
-    private Supplier<IBakedModel> getOrCreate(final ResourceLocation name) {
-        return INSTANCE._wrappers.computeIfAbsent(name, resourceLocation -> new BakedModelWrapper());
-    }
-
     private final List<ResourceLocation> _toBeRegistered;
-    private final Map<ResourceLocation, BakedModelWrapper> _wrappers;
+    private final Map<ResourceLocation, Wrapper> _wrappers;
 
     //endregion
 }

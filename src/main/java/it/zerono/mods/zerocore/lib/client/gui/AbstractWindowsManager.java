@@ -22,9 +22,12 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
+import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -129,6 +132,16 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
     //region AbstractWindowsManager
 
+    public static void enableDebugFrame(final boolean enable) {
+
+        s_debugFrame = CodeHelper.isDevEnv() && enable;
+
+        if (null != Minecraft.getInstance().player) {
+            CodeHelper.sendStatusMessage(Minecraft.getInstance().player,
+                    new StringTextComponent(String.format("GUI debug hover-frame is now %s", s_debugFrame ? "enabled" : "disabled")));
+        }
+    }
+
     protected abstract void addWindow(Window<C> wnd, boolean isModal);
     protected abstract void showWindow(IWindow window, boolean show);
     protected abstract void forEachWindow(Consumer<Window<C>> action);
@@ -198,6 +211,10 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
         if (this.isDragging()) {
             this._dragData.paint(matrix, mouseX, mouseY, this.getGuiScreen().getZLevel());
+        }
+
+        if (s_debugFrame) {
+            this.forEachInteractiveWindow(window -> window.onPaintDebugFrame(matrix, Colour.WHITE));
         }
 
         // translate the GL matrix back to make the MC code happy
@@ -406,6 +423,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this._dragData.clear();
         this._dragData = null;
     }
+
+    private static boolean s_debugFrame = false;
 
     private final ModContainerScreen<C> _guiContainer;
     private final Runnable onGuiContainerCreateHandler;

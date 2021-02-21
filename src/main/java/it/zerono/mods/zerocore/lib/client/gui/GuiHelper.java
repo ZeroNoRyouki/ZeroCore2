@@ -35,8 +35,14 @@ public final  class GuiHelper {
         return Minecraft.getInstance().keyboardListener;
     }
 
+    public static void enableGuiDebugFrame(final boolean enable) {
+        AbstractWindowsManager.enableDebugFrame(enable);
+    }
+
     //region internals
 
     private GuiHelper() {
     }
+
+    //endregion
 }
