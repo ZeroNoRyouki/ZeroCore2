@@ -777,7 +777,7 @@ public final class ModRenderHelper {
         final int spriteHeight = sprite.getHeight();
         final int filledHeight = (int)(areaHeight * progress);
         final int y1 = y;
-        final int y2 = y + (areaHeight - filledHeight);
+        final int y2 = y + filledHeight;
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
