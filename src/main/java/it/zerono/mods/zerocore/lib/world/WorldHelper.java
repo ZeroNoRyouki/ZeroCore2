@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.world;
 
 import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
@@ -38,7 +39,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -68,25 +72,20 @@ public final class WorldHelper {
         return null != server ? Optional.ofNullable(server.getWorld(worldKey)) : Optional.empty();
     }
 
-//    public static Optional<ServerWorld> getServerWorld(World world, DimensionType type) {
-//        return CodeHelper.getMinecraftServer()
-//                .map(server -> DimensionManager.getWorld(server, type, false, false));
-//    }
-
-//    /**
-//     * An MC-Version independent way to getValue the dimension Id from a World
-//     * @param world the world
-//     * @return the dimension Id
-//     */
-//    public static int getDimensionId(final IWorld world) {
-//        return world.getDimension().getType().getId();
-//    }
-
     //region Positions helpers
 
     public static Stream<BlockPos> getNeighboringPositions(BlockPos origin) {
         return Stream.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST)
                 .map(origin::offset);
+    }
+
+    public static BlockPos[] getNeighboringPositionsList(final BlockPos origin, final BlockPos[] storage) {
+
+        for (int i = 0; i < CodeHelper.DIRECTIONS.length; ++i) {
+            storage[i] = origin.offset(CodeHelper.DIRECTIONS[i]);
+        }
+
+        return storage;
     }
 
     //endregion
@@ -149,8 +148,22 @@ public final class WorldHelper {
     }
 
     //endregion
-
     //region Tile Entities
+
+    @Nullable
+    public static TileEntity getLoadedTile(final IWorldReader world, final BlockPos position) {
+        return World.isValid(position) ?
+                getLoadedTile((Chunk)world.getChunk(position.getX() >> 4, position.getZ() >> 4, ChunkStatus.FULL, false), position) : null;
+    }
+    @Nullable
+    public static TileEntity getLoadedTile(final ChunkCache chunkCache, final BlockPos position) {
+        return World.isValid(position) ? getLoadedTile(chunkCache.get(position), position) : null;
+    }
+
+    @Nullable
+    private static TileEntity getLoadedTile(final @Nullable Chunk chunk, final BlockPos position) {
+        return null != chunk ? chunk.getTileEntity(position, Chunk.CreateEntityType.CHECK) : null;
+    }
 
     /**
      * Get a TileEntity from the given position if that position is currently loaded and within the world border
@@ -214,27 +227,6 @@ public final class WorldHelper {
                 .map(te -> (IMultiblockPart<Controller>)te);
     }
 
-    /*
-    @SuppressWarnings("unchecked")
-    @Nullable
-    public static <T extends TileEntity> T getTile(final IBlockReader reader, final BlockPos position) {
-        return (T)(reader.getTileEntity(position));
-    }
-
-    @Nullable
-    public static <T extends TileEntity> T getTile(final IBlockReader access, final BlockPos position, final Direction facing) {
-        return getTile(access, position.offset(facing));
-    }
-
-    @Nullable
-    public static <T extends TileEntity> T getTile(final TileEntity origin, final Direction direction) {
-
-        final World world = origin.getWorld();
-
-        return null != world ? getTile(world, origin.getPos().offset(direction)) : null;
-    }
-    */
-
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("unchecked")
     public static <T extends TileEntity> Optional<T> getClientTile(final BlockPos position) {
@@ -247,7 +239,6 @@ public final class WorldHelper {
     }
 
     //endregion
-
     //region Chunk helpers
 
     public static int getChunkXFromBlock(int blockX) {
