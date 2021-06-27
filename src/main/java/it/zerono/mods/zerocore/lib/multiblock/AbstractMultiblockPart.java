@@ -41,7 +41,8 @@
 
 package it.zerono.mods.zerocore.lib.multiblock;
 
-import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.IActivableMachine;
@@ -51,6 +52,7 @@ import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -62,7 +64,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * Base logic class for Multiblock-connected tile entities. Most multiblock machines
@@ -79,8 +81,10 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
 		super(type);
 		this._controller = null;
-        this._visited = this._saveMultiblockData = false;
+        this._unvisited = true;
+        this._saveMultiblockData = false;
         this._cachedMultiblockData = null;
+        this._positionHash = this.pos.toLong();
 	}
 
 	public World getPartWorldOrFail() {
@@ -93,38 +97,6 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
 	    return world;
     }
-
-	/*
-	public boolean checkAndSendLastValidationError(final PlayerEntity player) {
-
-		final IMultiblockController controller = this.getMultiblockController();
-		ITextComponent message = null;
-
-		if (null != controller) {
-
-			ValidationError error = controller.getLastError();
-
-			if (null != error) {
-
-				message = error.getChatMessage();
-
-				if (player instanceof ServerPlayerEntity && controller.isClientValidationRequested())
-					controller.beginClientValidation((ServerPlayerEntity)player);
-			}
-
-		} else {
-
-			message = new TranslationTextComponent("zerocore:api.multiblock.validation.block_not_connected");
-		}
-
-		if (null != message) {
-
-			CodeHelper.sendChatMessage(player, message);
-			return true;
-		}
-
-		return false;
-	}*/
 
 	//endregion
     //region IMultiblockPart
@@ -178,6 +150,11 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
+    public boolean testOnController(Predicate<Controller> test) {
+        return null != this._controller && test.test(this._controller);
+    }
+
+    @Override
     public Optional<World> getPartWorld() {
         return Optional.ofNullable(this.getWorld());
     }
@@ -206,6 +183,11 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
+    public long getWorldPositionHash() {
+        return this._positionHash;
+    }
+
+    @Override
     public boolean isPartInvalid() {
         return this.isRemoved();
     }
@@ -224,7 +206,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     public void onOrphaned(Controller controller, int oldSize, int newSize) {
 
         this.markDirty();
-        this.forPartWorld(w -> w.markChunkDirty(this.getWorldPosition(), this));
+//        this.forPartWorld(w -> w.markChunkDirty(this.getWorldPosition(), this));
     }
 
     @Override
@@ -236,17 +218,22 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
     @Override
     public void setVisited() {
-        this._visited = true;
+        this._unvisited = false;
     }
 
     @Override
     public void setUnvisited() {
-        this._visited = false;
+        this._unvisited = true;
     }
 
     @Override
     public boolean isVisited() {
-        return this._visited;
+        return !this._unvisited;
+    }
+
+    @Override
+    public boolean isNotVisited() {
+        return this._unvisited;
     }
 
     @Override
@@ -264,46 +251,54 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	    return this._saveMultiblockData;
 	}
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<IMultiblockPart<Controller>> getNeighboringParts() {
 
-        return this.mapPartWorld(w -> WorldHelper.getTilesFrom(w, WorldHelper.getNeighboringPositions(this.getWorldPosition()))
-                        .filter(tile -> tile instanceof IMultiblockPart)
-                        .map(tile -> (IMultiblockPart<Controller>)tile)
-                        .collect(Collectors.toList()),
-                Collections.emptyList()
-        );
-    }
+        final World world = this.getWorld();
 
-    @Override
-    public Set<Controller> attachToNeighbors() {
+        if (null == world) {
+            return Collections.emptyList();
+        }
 
-	    final Class<? extends IMultiblockController<Controller>> myControllerType = this.getControllerType();
-        final Set<Controller> controllers = Sets.newHashSet();
-        Controller bestController = null;
+        final List<IMultiblockPart<Controller>> parts = new ReferenceArrayList<>(6);
+        final BlockPos[] positions = WorldHelper.getNeighboringPositionsList(this.getWorldPosition(), new BlockPos[6]);
 
-        // Look for a compatible controller in our neighboring parts.
+        for (BlockPos position : positions) {
 
-        for (final IMultiblockPart<? extends IMultiblockController<Controller>> neighborPart : this.getNeighboringParts()) {
+            final TileEntity te = WorldHelper.getLoadedTile(world, position);
 
-            final Optional<Controller> candidateController = CodeHelper.optionalCast(neighborPart.getMultiblockController()
-                    .filter(controller -> myControllerType.equals(controller.getClass()))
-                    .filter(controller -> controller.isPartCompatible(this)));
-
-            if (candidateController.isPresent()) {
-
-                final Controller controller = candidateController.get();
-
-                if (null == bestController || (!controllers.contains(controller) && controller.shouldConsumeController(bestController))) {
-                    bestController = controller;
-                }
-
-                controllers.add(controller);
+            if (te instanceof IMultiblockPart) {
+                //noinspection unchecked
+                parts.add((IMultiblockPart<Controller>) te);
             }
         }
 
+        return parts;
+    }
+
+    @Override
+    public Set<Controller> attachToNeighbors(final Function<IMultiblockPart<Controller>, Set<Controller>> controllersLookup) {
+
+        final Set<Controller> foundControllers = controllersLookup.apply(this);
+
+        if (foundControllers.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        final Set<Controller> candidateControllers = new ReferenceArraySet<>(6);
+        Controller bestController = null;
+
+        for (final Controller controller : foundControllers) {
+
+            if (null == bestController || (!candidateControllers.contains(controller) && controller.shouldConsumeController(bestController))) {
+                bestController = controller;
+            }
+
+            candidateControllers.add(controller);
+        }
+
         // If we've located a valid neighboring controller, attach to it.
+
         if (null != bestController) {
 
             // attachPart will call onAttached, which will set the controller.
@@ -311,7 +306,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
             bestController.attachPart(this);
         }
 
-        return controllers;
+        return foundControllers;
     }
 
     @Override
@@ -321,6 +316,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
             final BlockPos coord = this.getWorldPosition();
 
+            //noinspection AutoBoxing
             Log.LOGGER.info(Log.MULTIBLOCK, "[assert] Part @ ({}, {}, {}) should be detached already, but detected that it was not. This is not a fatal error, and will be repaired, but is unusual.",
                     coord.getX(), coord.getY(), coord.getZ());
             this._controller = null;
@@ -384,6 +380,8 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	@Override
 	public void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
 
+        this._positionHash = this.pos.toLong();
+
         if (data.contains("multiblockData")) {
 
             final CompoundNBT multiblockData = data.getCompound("multiblockData");
@@ -399,7 +397,6 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
                 case NetworkUpdate:
                     CodeHelper.optionalIfPresentOrElse(this.getMultiblockController(),
                             // This part is connected to a machine, sync it
-                            //c -> c.syncDataFrom(multiblockData, syncReason),
                             c -> c.syncFromSaveDelegate(multiblockData, syncReason),
                             // This part hasn't been added to a machine yet, so cache the data
                             () -> this._cachedMultiblockData = multiblockData);
@@ -434,9 +431,13 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     private void getControllerDebugMessages(final LogicalSide side, final Controller controller, final IDebugMessages messages) {
 
         messages.addUnlocalized("Multiblock controller class: %1$s", controller.getClass().getSimpleName());
+        //noinspection AutoBoxing
         messages.addUnlocalized("Attached parts: %1$d; Assembled: %2$s", controller.getPartsCount(), controller.isAssembled());
 
+        controller.getReferenceCoord().ifPresent(position -> messages.addUnlocalized("Reference coordinates %s", position.toString()));
+
         if (controller instanceof IActivableMachine) {
+            //noinspection AutoBoxing
             messages.addUnlocalized("Active: %1$s", ((IActivableMachine)controller).isMachineActive());
         }
 
@@ -473,12 +474,22 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         this.detachSelf(true);
     }
 
+    @Override
+    public void setWorldAndPos(final World world, final BlockPos pos) {
+
+        super.setWorldAndPos(world, pos);
+        this._positionHash = this.pos.toLong();
+    }
+
+    @Override
+    public void setPos(final BlockPos posIn) {
+
+        super.setPos(posIn);
+        this._positionHash = this.pos.toLong();
+    }
+
     //endregion
     //region internals
-
-	protected void notifyNeighborsOfBlockChange() {
-        this.forPartWorld(w -> WorldHelper.notifyNeighborsOfStateChange(w, this.getWorldPosition(), this.getBlockType()));
-	}
 
 	@Deprecated // not implemented yet
 	protected void notifyNeighborsOfTileChange() {
@@ -504,28 +515,16 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         this.getRegistry().onPartRemovedFromWorld(this);
 	}
 
-    /*
-    /**
-     * IF the part is connected to a multiblock controller, marks the whole multiblock for a render update on the client.
-     * On the server, this does nothing
-     * /
-	protected void markMultiblockForRenderUpdate() {
-
-		IMultiblockController controller = this.getMultiblockController();
-
-		if (null != controller)
-			controller.markMultiblockForRenderUpdate();
-	}*/
-
     @SuppressWarnings("unchecked")
     private IMultiblockRegistry<Controller> getRegistry() {
         return (IMultiblockRegistry<Controller>) MultiblockRegistry.INSTANCE;
     }
 
     private Controller _controller;
-    private boolean _visited;
+    private boolean _unvisited;
     private boolean _saveMultiblockData;
     private CompoundNBT _cachedMultiblockData;
+    private long _positionHash;
 
     //endregion
 }

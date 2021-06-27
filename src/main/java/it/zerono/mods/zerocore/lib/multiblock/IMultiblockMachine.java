@@ -41,6 +41,7 @@
 
 package it.zerono.mods.zerocore.lib.multiblock;
 
+import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -66,19 +67,31 @@ public interface IMultiblockMachine {
     /**
      * @return The minimum bounding-box coordinate containing this machine's blocks.
      */
+    @Deprecated // use getBoundingBox()
     Optional<BlockPos> getMinimumCoord();
 
     /**
      * @return The maximum bounding-box coordinate containing this machine's blocks.
      */
+    @Deprecated // use getBoundingBox()
     Optional<BlockPos> getMaximumCoord();
 
+    /**
+     * @return The bounding-box encompassing this machine's blocks.
+     */
+    default CuboidBoundingBox getBoundingBox() {
+        return CuboidBoundingBox.EMPTY;
+    }
+
+    @Deprecated // use getBoundingBox()
     default boolean hasValidBoundingBoxCoordinates() {
         return true;
     }
 
+    @Deprecated // use getBoundingBox()
     <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, T defaultValue);
 
+    @Deprecated // use getBoundingBox()
     <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, T defaultValue,
                                     Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
 
@@ -86,8 +99,10 @@ public interface IMultiblockMachine {
         return this.getReferenceCoord().map(mapper).orElse(defaultValue);
     }
 
+    @Deprecated // use getBoundingBox()
     void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer);
 
+    @Deprecated // use getBoundingBox()
     void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer,
                                    Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
 

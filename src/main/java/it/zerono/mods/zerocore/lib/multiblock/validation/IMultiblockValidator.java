@@ -51,6 +51,10 @@ public interface IMultiblockValidator {
         return this.getLastError().isPresent();
     }
 
+    default boolean isLastErrorEmpty() {
+        return !this.hasLastError();
+    }
+
     /**
      * @return the last validation error encountered when trying to assemble the multiblock, or null if there is no error.
      */

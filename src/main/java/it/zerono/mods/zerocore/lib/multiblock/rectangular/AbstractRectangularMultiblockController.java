@@ -46,6 +46,7 @@ import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
@@ -53,7 +54,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.function.BiFunction;
 
 public abstract class AbstractRectangularMultiblockController<Controller extends AbstractRectangularMultiblockController<Controller>>
@@ -206,9 +206,13 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
     }
 
     private boolean validateBlock(final BlockPos blockPosition, final IMultiblockValidator validatorCallback) {
-        return this.getPartFromWorld(blockPosition)
-                .map(part -> this.validatePart(part, blockPosition, validatorCallback))
-                .orElse(this.validateGenericBlock(blockPosition, validatorCallback));
+
+        final TileEntity te = WorldHelper.getLoadedTile(this.getWorld(), blockPosition);
+        //noinspection unchecked
+        final AbstractRectangularMultiblockPart<Controller> part = te instanceof AbstractRectangularMultiblockPart ?
+                (AbstractRectangularMultiblockPart<Controller>)te : null;
+
+        return null != part ? this.validatePart(part, blockPosition, validatorCallback) : this.validateGenericBlock(blockPosition, validatorCallback);
     }
 
     private boolean validatePart(final AbstractRectangularMultiblockPart<Controller> part, final BlockPos blockPosition,
@@ -298,11 +302,13 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
         return false;
     }
 
-    private Optional<AbstractRectangularMultiblockPart<Controller>> getPartFromWorld(BlockPos position) {
+    @Nullable
+    private AbstractRectangularMultiblockPart<Controller> getPartFromWorld(BlockPos position) {
+
+        final TileEntity te = WorldHelper.getLoadedTile(this.getWorld(), position);
+
         //noinspection unchecked
-        return WorldHelper.getTile(this.getWorld(), position)
-                .filter(te -> te instanceof AbstractRectangularMultiblockPart)
-                .map(te -> (AbstractRectangularMultiblockPart<Controller>)te);
+        return te instanceof AbstractRectangularMultiblockPart ? (AbstractRectangularMultiblockPart<Controller>)te : null;
     }
 
     private static void forceStructureUpdate(final World world, final BlockPos minCoord, final BlockPos maxCoord) {
