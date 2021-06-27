@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.render.builder;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.Shape;
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
 public class CuboidBuilder extends AbstractShapeBuilder {
 
     public final static int VERTICES_COUNT = 8;
-    public final static int FACES_COUNT = Direction.values().length;
+    public final static int FACES_COUNT = CodeHelper.DIRECTIONS.length;
 
     public static CuboidBuilder getDefaultBuilder() {
 
@@ -72,14 +73,13 @@ public class CuboidBuilder extends AbstractShapeBuilder {
         final VertexBuilder vertexBuilder = new VertexBuilder(true);
         int vidx = 0;
 
-        for (final Direction facing : Direction.values()) {
+        for (final Direction facing : CodeHelper.DIRECTIONS) {
 
             if (this._facesToBeRendered.isSet(facing)) {
 
                 final PolygonalFaceData data = this._cuboidData[facing.getIndex()];
 
                 for (int vertexIndex = data.VERTICES_COUNT - 1; vertexIndex >= 0; --vertexIndex) {
-//                for (int vertexIndex = 0; vertexIndex < data.VERTICES_COUNT; ++vertexIndex) {
                     shape.addVertex(QuadBuilder.buildSingleVertex(vidx++, vertexIndex, vertexBuilder, this._cuboid.getFace(facing), data));
                 }
             }
@@ -373,7 +373,6 @@ public class CuboidBuilder extends AbstractShapeBuilder {
     public CuboidBuilder setOverlayMapCombined(final Direction facing, final int vertexIndex, final int combined) {
         return this.setOverlayMap(facing, vertexIndex, new LightMap(combined));
     }
-
 
     //region internals
 

@@ -36,7 +36,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Util;
 import net.minecraft.util.concurrent.ThreadTaskExecutor;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -66,6 +68,12 @@ public final class CodeHelper {
     public static final ITextComponent TEXT_EMPTY_LINE = new StringTextComponent("");
 
     public static final Direction[] DIRECTIONS = Direction.values();
+    public static final Direction[] POSITIVE_DIRECTIONS;
+    public static final Direction[] NEGATIVE_DIRECTIONS;
+
+    public static final AxisAlignedBB EMPTY_BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    public static final BlockPos MIN_BLOCKPOS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    public static final BlockPos MAX_BLOCKPOS = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     public static final BooleanSupplier TRUE_SUPPLIER = () -> true;
     public static final BooleanSupplier FALSE_SUPPLIER = () -> false;
@@ -479,6 +487,48 @@ public final class CodeHelper {
         ZeroCore.getProxy().addResourceReloadListener(Objects.requireNonNull(listener));
     }
 
+    public static Runnable delayedRunnable(final Runnable code, final int tickDelay) {
+        return new Runnable() {
+
+            @Override
+            public void run() {
+
+                ++this._ticks;
+
+                if (this._ticks >= this._delay) {
+
+                    this._ticks = 0;
+                    this._code.run();
+                }
+            }
+
+            private final Runnable _code = code;
+            private final int _delay = tickDelay;
+            private int _ticks = 0;
+        };
+    }
+
+    public static BooleanSupplier tickCountdown(final int tickCountdown) {
+        return new BooleanSupplier() {
+
+            @Override
+            public boolean getAsBoolean() {
+
+                --this._countdown;
+
+                if (this._countdown <= 0) {
+
+                    this._countdown = tickCountdown;
+                    return true;
+                }
+
+                return false;
+            }
+
+            private int _countdown = tickCountdown;
+        };
+    }
+
     //endregion
     //region error reporting helpers
 
@@ -783,6 +833,10 @@ public final class CodeHelper {
         return Ints.saturatedCast(value);
     }
 
+    public static int commonVertices(final Vector3i a, final Vector3i b) {
+        return (a.getX() == b.getX() ? 1 : 0) + (a.getY() == b.getY() ? 1 : 0) + (a.getZ() == b.getZ() ? 1 : 0);
+    }
+
     //endregion
     //region format string
 
@@ -912,6 +966,11 @@ public final class CodeHelper {
         s_perpendicularDirections.put(Direction.SOUTH, zPerpendicularsDirections);
         s_perpendicularDirections.put(Direction.EAST, xPerpendicularsDirections);
         s_perpendicularDirections.put(Direction.WEST, xPerpendicularsDirections);
+
+        // positive & negative directions
+
+        POSITIVE_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(d -> d.getAxisDirection() == Direction.AxisDirection.POSITIVE).toArray(Direction[]::new);
+        NEGATIVE_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(d -> d.getAxisDirection() == Direction.AxisDirection.NEGATIVE).toArray(Direction[]::new);
     }
 
     //endregion

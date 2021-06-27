@@ -300,7 +300,7 @@ public final class ModRenderHelper {
     public static void renderModel(final IBakedModel model, final IModelData data, final MatrixStack matrix,
                                    final IVertexBuilder builder, final int combinedLight, final int combinedOverlay) {
 
-        for (final Direction direction : Direction.values()) {
+        for (final Direction direction : CodeHelper.DIRECTIONS) {
             renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data),
                     combinedLight, combinedOverlay);
         }
@@ -324,7 +324,7 @@ public final class ModRenderHelper {
                                    final IVertexBuilder builder, final int combinedLight, final int combinedOverlay,
                                    final Function<Integer, Colour> quadTintGetter) {
 
-        for (final Direction direction : Direction.values()) {
+        for (final Direction direction : CodeHelper.DIRECTIONS) {
             renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data),
                     combinedLight, combinedOverlay, quadTintGetter);
         }
