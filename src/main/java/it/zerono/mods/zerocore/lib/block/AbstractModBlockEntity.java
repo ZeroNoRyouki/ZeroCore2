@@ -61,6 +61,7 @@ public abstract class AbstractModBlockEntity
         extends TileEntity
         implements IBlockStateUpdater, ISyncableEntity, IDebuggable {
 
+    @Deprecated
     public final IEvent<Runnable> DataUpdate;
 
     public AbstractModBlockEntity(final TileEntityType<?> type) {
