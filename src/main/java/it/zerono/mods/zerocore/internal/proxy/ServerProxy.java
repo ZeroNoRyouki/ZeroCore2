@@ -112,4 +112,8 @@ public class ServerProxy implements IProxy {
                 break;
         }
     }
+
+    @Override
+    public void debugUngrabMouse() {
+    }
 }

@@ -58,4 +58,6 @@ public interface IProxy {
     default void handleInternalCommand(final InternalCommand command, final CompoundNBT data, final NetworkDirection direction) {
         // handle commands that are common to both distributions here
     }
+
+    void debugUngrabMouse();
 }

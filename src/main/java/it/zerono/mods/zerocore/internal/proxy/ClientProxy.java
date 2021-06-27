@@ -179,6 +179,11 @@ public class ClientProxy
         }
     }
 
+    @Override
+    public void debugUngrabMouse() {
+        Minecraft.getInstance().mouseHelper.ungrabMouse();
+    }
+
     //region internals
 
     private void onRenderTick(final TickEvent.RenderTickEvent event) {
