@@ -272,11 +272,12 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             throw new IllegalArgumentException("The controller with the lowest minimum-coord value must consume the one with the higher coords");
         }
 
-        final int otherPartsCount = other._connectedParts.size();
+        final IPartStorage<Controller> otherParts = other._connectedParts;
+        final int otherPartsCount = otherParts.size();
 
         if (1 == otherPartsCount) {
 
-            final IMultiblockPart<Controller> acquiredPart = Objects.requireNonNull(other._connectedParts.getFirst());
+            final IMultiblockPart<Controller> acquiredPart = Objects.requireNonNull(otherParts.getFirst());
 
             other.prepareAssimilation(this);
             this._connectedParts.put(acquiredPart);
@@ -288,28 +289,25 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             // save a reference to them and then releases all blocks and references gently so they can be incorporated
             // into another multiblock (prepareAssimilation() will invalidate _connectedParts)
 
-            final boolean export = this._connectedParts.size() < otherPartsCount;
-            final IPartStorage<Controller> sourceStorage, targetStorage;
             final Controller mySelf = this.castSelf();
-
-            if (export) {
-
-                sourceStorage = this._connectedParts;
-                this._connectedParts = targetStorage = other._connectedParts;
-
-            } else {
-
-                sourceStorage = other._connectedParts;
-                targetStorage = this._connectedParts;
-            }
+            final boolean export = this._connectedParts.size() < otherPartsCount;
 
             other.prepareAssimilation(this);
-            sourceStorage.forEachValidPart(acquiredPart -> {
+            otherParts.forEachValidPart(acquiredPart -> {
 
-                targetStorage.put(acquiredPart);
                 acquiredPart.onAssimilated(mySelf);
                 this.onPartAdded(acquiredPart);
             });
+
+            if (export) {
+
+                otherParts.addAll(this._connectedParts);
+                this._connectedParts = otherParts;
+
+            } else {
+
+                this._connectedParts.addAll(otherParts);
+            }
         }
 
         this.onAssimilate(other);
@@ -813,6 +811,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * Called when a machine is assembled from a disassembled state.
 	 */
 	protected void onMachineAssembled() {
+        Log.LOGGER.debug(Log.MULTIBLOCK, "Multiblock assembled at {}", System.nanoTime());
     }
 	
 	/**
