@@ -173,9 +173,7 @@ public final class WorldHelper {
      * @return an Optional holding the TileEntity if it exists and it was already loaded and within the world border
      */
     public static Optional<TileEntity> getTile(World world, BlockPos position) {
-        return world.isBlockPresent(position) && world.getWorldBorder().contains(position) ?
-                Optional.ofNullable(world.getTileEntity(position)) :
-                Optional.empty();
+        return world.getWorldBorder().contains(position) ? Optional.ofNullable(getLoadedTile(world, position)) : Optional.empty();
     }
 
     /**
@@ -185,7 +183,13 @@ public final class WorldHelper {
      * @param position the TileEntity position
      * @return an Optional holding the TileEntity if it exists
      */
+    @Deprecated
     public static Optional<TileEntity> getTile(IBlockReader world, BlockPos position) {
+
+        if (world instanceof IWorldReader) {
+            return Optional.ofNullable(getLoadedTile((IWorldReader)world, position));
+        }
+
         return Optional.ofNullable(world.getTileEntity(position));
     }
 
@@ -230,7 +234,7 @@ public final class WorldHelper {
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("unchecked")
     public static <T extends TileEntity> Optional<T> getClientTile(final BlockPos position) {
-        return getClientWorld().map(w -> (T)w.getTileEntity(position));
+        return getClientWorld().map(w -> (T)getLoadedTile(w, position));
     }
 
     @OnlyIn(Dist.CLIENT)
