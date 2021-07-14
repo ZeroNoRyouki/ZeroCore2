@@ -229,7 +229,7 @@ public class ModBlock
 
         if (this instanceof INeighborChangeListener.Notifier && this.hasTileEntity(state)) {
 
-            final TileEntity te = world.getTileEntity(blockPosition);
+            final TileEntity te = WorldHelper.getLoadedTile(world, blockPosition);
 
             if (te instanceof INeighborChangeListener) {
                 ((INeighborChangeListener)te).onNeighborTileChanged(state, neighborPosition);
