@@ -155,13 +155,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         final Controller mySelf = this.castSelf();
 
-        if (null != this._connectedParts.put(part)) {
-
-            //noinspection AutoBoxing
-            Log.LOGGER.warn(Log.MULTIBLOCK, "[{}] Controller {} is double-adding part {} @ {}. This is unusual. If you encounter odd behavior, please tear down the machine and rebuild it.",
-                    CodeHelper.getWorldSideName(this.getWorld()), this.hashCode(), part.hashCode(), part.getWorldPosition());
-        }
-
+        this._connectedParts.addOrReplace(part);
         part.onAttached(mySelf);
         this.onPartAdded(part);
 
@@ -202,15 +196,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         // Strip out this part
 
         this.onDetachPart(part);
-
-        if (null == this._connectedParts.remove(part)) {
-
-            final BlockPos position = part.getWorldPosition();
-
-            //noinspection AutoBoxing
-            Log.LOGGER.warn(Log.MULTIBLOCK, "[{}] Double-removing part ({}) @ {}, {}, {}, this is unexpected and may cause problems. If you encounter anomalies, please tear down the machine and rebuild it.",
-                    CodeHelper.getWorldSideName(this.getWorld()), part.hashCode(), position.getX(), position.getY(), position.getZ());
-        }
+        this._connectedParts.remove(part);
 
         if (this._connectedParts.isEmpty()) {
 
@@ -223,7 +209,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             this._detachedParts = this.createPartStorage();
         }
 
-        this._detachedParts.put(part);
+        this._detachedParts.addOrReplace(part);
 
         this.getRegistry().addDirtyController(mySelf);
 
@@ -280,7 +266,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             final IMultiblockPart<Controller> acquiredPart = Objects.requireNonNull(otherParts.getFirst());
 
             other.prepareAssimilation(this);
-            this._connectedParts.put(acquiredPart);
+            this._connectedParts.addOrReplace(acquiredPart);
             acquiredPart.onAssimilated(this.castSelf());
             this.onPartAdded(acquiredPart);
 
@@ -430,12 +416,14 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             deadParts.add(orphanCandidate);
             orphanCandidate.onOrphaned(mySelf, /*originalSize*/0, /*visitedParts*/0);
             this.onDetachPart(orphanCandidate);
-            removedParts.put(orphanCandidate);
+            removedParts.addOrReplace(orphanCandidate);
         });
 
         // Trim any blocks that were invalid, or were removed.
 
-        this._connectedParts.removeAll(deadParts);
+        if (!deadParts.isEmpty()) {
+            this._connectedParts.removeAll(deadParts);
+        }
 
         // Juuuust in case.
 
@@ -777,6 +765,15 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     //endregion
+    //region Object
+
+    @Override
+    public String toString() {
+        //noinspection AutoBoxing
+        return String.format("%d parts", this._connectedParts.size());
+    }
+
+    //endregion
     //region AbstractMultiblockController
 
 	protected AbstractMultiblockController(final World world) {
@@ -811,6 +808,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * Called when a machine is assembled from a disassembled state.
 	 */
 	protected void onMachineAssembled() {
+        //noinspection AutoBoxing
         Log.LOGGER.debug(Log.MULTIBLOCK, "Multiblock assembled at {}", System.nanoTime());
     }
 	

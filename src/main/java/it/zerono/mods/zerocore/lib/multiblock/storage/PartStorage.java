@@ -91,7 +91,7 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
         final long lastHash = this._parts.lastLongKey();
         final long positionHash = part.getWorldPositionHash();
 
-        return (positionHash >= firstHash) && (positionHash <= lastHash) && this._parts.containsKey(part.getWorldPositionHash());
+        return (positionHash >= firstHash) && (positionHash <= lastHash) && this._parts.containsKey(positionHash);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
 
             final long positionHash = position.toLong();
 
-            if ((positionHash >= firstHash) && (positionHash <= lastHash) && this._parts.containsKey(position.toLong())) {
+            if ((positionHash >= firstHash) && (positionHash <= lastHash) && this._parts.containsKey(positionHash)) {
                 return true;
             }
         }
@@ -198,10 +198,9 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
         return this.isEmpty() ? null : this._parts.get(this._parts.firstLongKey());
     }
 
-    @Nullable
     @Override
-    public IMultiblockPart<Controller> put(final IMultiblockPart<Controller> part) {
-        return this._parts.put(part.getWorldPositionHash(), part);
+    public void addOrReplace(final IMultiblockPart<Controller> part) {
+        this._parts.put(part.getWorldPositionHash(), part);
     }
 
     @Override
@@ -214,10 +213,14 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
         }
     }
 
-    @Nullable
     @Override
-    public IMultiblockPart<Controller> remove(final IMultiblockPart<Controller> part) {
-        return this._parts.remove(part.getWorldPositionHash());
+    public void remove(final IMultiblockPart<Controller> part) {
+
+        final long positionHash = part.getWorldPositionHash();
+
+        if (this.get(positionHash) == part) {
+            this._parts.remove(positionHash);
+        }
     }
 
     @Override

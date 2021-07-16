@@ -80,15 +80,14 @@ public interface IPartStorage<Controller extends IMultiblockController<Controlle
     @Nullable
     IMultiblockPart<Controller> getFirst();
 
-    @Nullable
-    IMultiblockPart<Controller> put(IMultiblockPart<Controller> part);
+    void addOrReplace(IMultiblockPart<Controller> part);
 
     default void addAll(IPartStorage<Controller> parts) {
-        parts.stream().forEach(this::put);
+        parts.stream().forEach(this::addOrReplace);
     }
 
     @Nullable
-    IMultiblockPart<Controller> remove(IMultiblockPart<Controller> part);
+    void remove(IMultiblockPart<Controller> part);
 
     default void removeAll(Collection<IMultiblockPart<Controller>> parts) {
         parts.forEach(this::remove);

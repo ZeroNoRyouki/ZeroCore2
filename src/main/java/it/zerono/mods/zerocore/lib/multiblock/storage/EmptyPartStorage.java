@@ -116,16 +116,12 @@ public final class EmptyPartStorage<Controller extends IMultiblockController<Con
         return null;
     }
 
-    @Nullable
     @Override
-    public IMultiblockPart<Controller> put(IMultiblockPart<Controller> part) {
-        return null;
+    public void addOrReplace(IMultiblockPart<Controller> part) {
     }
 
-    @Nullable
     @Override
-    public IMultiblockPart<Controller> remove(IMultiblockPart<Controller> part) {
-        return null;
+    public void remove(IMultiblockPart<Controller> part) {
     }
 
     @Override
