@@ -88,6 +88,9 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
         this._detachedParts = this.createPartStorage();
         this._neighborsIterator = new NeighboringPositions();
         this._multiblockChangesDelay = CodeHelper.tickCountdown(20);
+
+        //noinspection AutoBoxing
+        Log.LOGGER.debug(Log.MULTIBLOCK, "MultiblockWorldRegistry created at {}", System.nanoTime());
     }
 
     /**
@@ -157,55 +160,43 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
                 // Try to attach to a neighbor's master controller
 
                 final Set<Controller> compatibleControllers = orphan.attachToNeighbors(this::findControllersFor);
+                final int compatibleControllersSize = compatibleControllers.size();
 
-                if (compatibleControllers.isEmpty()) {
+                switch (compatibleControllersSize) {
 
-                    // FOREVER ALONE! Create and register a new controller.
-                    // THIS IS THE ONLY PLACE WHERE NEW CONTROLLERS ARE CREATED.
+                    case 1:
 
-                    final Controller newController = orphan.createController();
+                        // only 1 controller found in the neighborhood, and the part had already attached itself to it in attachToNeighbors()
+                        break;
 
-                    newController.attachPart(orphan);
-                    this._controllers.add(newController);
+                    case 0:
 
-                } else if (compatibleControllers.size() > 1) {
+                        // FOREVER ALONE! Create and register a new controller.
+                        // THIS IS THE ONLY PLACE WHERE NEW CONTROLLERS ARE CREATED.
 
-                    // THIS IS THE ONLY PLACE WHERE MERGES ARE DETECTED
-                    // Multiple compatible controllers indicates an impending merge.
-                    // Locate the appropriate merge pool(s)
+                        final Controller newController = orphan.createController();
 
-                    if (null == mergePools) {
+                        newController.attachPart(orphan);
+                        this._controllers.add(newController);
+                        break;
 
-                        // No pools nearby, create a new merge pool
-                        mergePools = new ReferenceArrayList<>(16);
-                        mergePools.add(compatibleControllers);
+                    default:
 
-                    } else {
+                        // THIS IS THE ONLY PLACE WHERE MERGES ARE DETECTED
+                        // Multiple compatible controllers indicates an impending merge.
+                        // Locate the appropriate merge pool(s)
 
-                        if (1 == mergePools.size()) {
-
-                            final Set<Controller> pool = mergePools.get(0);
-
-                            for (final Controller controller : compatibleControllers) {
-
-                                if (pool.contains(controller)) {
-
-                                    // At least one compatible controller is in this merge pool, so that means they
-                                    // will all touch after the merge
-
-                                    pool.addAll(compatibleControllers);
-                                    continue orphans;
-                                }
-                            }
+                        if (null == mergePools) {
 
                             // No pools nearby, create a new merge pool
+                            mergePools = new ReferenceArrayList<>(16);
                             mergePools.add(compatibleControllers);
 
                         } else {
 
-                            final List<Set<Controller>> candidatePools = new ReferenceArrayList<>(16);
+                            if (1 == mergePools.size()) {
 
-                            for (final Set<Controller> pool : mergePools) {
+                                final Set<Controller> pool = mergePools.get(0);
 
                                 for (final Controller controller : compatibleControllers) {
 
@@ -213,42 +204,62 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
                                         // At least one compatible controller is in this merge pool, so that means they
                                         // will all touch after the merge
-                                        candidatePools.add(pool);
-                                        break;
+
+                                        pool.addAll(compatibleControllers);
+                                        continue orphans;
                                     }
                                 }
-                            }
-
-                            if (candidatePools.isEmpty()) {
 
                                 // No pools nearby, create a new merge pool
                                 mergePools.add(compatibleControllers);
 
-                            } else if (1 == candidatePools.size()) {
-
-                                // Only one pool nearby, simply add to that one
-                                candidatePools.get(0).addAll(compatibleControllers);
-
                             } else {
 
-                                // Multiple pools - merge into one, then add the compatible controllers
+                                final List<Set<Controller>> candidatePools = new ReferenceArrayList<>(16);
 
-                                final Set<Controller> masterPool = candidatePools.get(0);
-                                Set<Controller> consumedPool;
+                                for (final Set<Controller> pool : mergePools) {
 
-                                for (int i = 1; i < candidatePools.size(); ++i) {
+                                    for (final Controller controller : compatibleControllers) {
 
-                                    consumedPool = candidatePools.get(i);
-                                    masterPool.addAll(consumedPool);
-                                    mergePools.remove(consumedPool);
+                                        if (pool.contains(controller)) {
+
+                                            // At least one compatible controller is in this merge pool, so that means they
+                                            // will all touch after the merge
+                                            candidatePools.add(pool);
+                                            break;
+                                        }
+                                    }
                                 }
 
-                                masterPool.addAll(compatibleControllers);
+                                if (candidatePools.isEmpty()) {
+
+                                    // No pools nearby, create a new merge pool
+                                    mergePools.add(compatibleControllers);
+
+                                } else if (1 == candidatePools.size()) {
+
+                                    // Only one pool nearby, simply add to that one
+                                    candidatePools.get(0).addAll(compatibleControllers);
+
+                                } else {
+
+                                    // Multiple pools - merge into one, then add the compatible controllers
+
+                                    final Set<Controller> masterPool = candidatePools.get(0);
+                                    Set<Controller> consumedPool;
+
+                                    for (int i = 1; i < candidatePools.size(); ++i) {
+
+                                        consumedPool = candidatePools.get(i);
+                                        masterPool.addAll(consumedPool);
+                                        mergePools.remove(consumedPool);
+                                    }
+
+                                    masterPool.addAll(compatibleControllers);
+                                }
                             }
                         }
-                    }
                 }
-                // else: only 1 controller found in the neighborhood, and the part had already attached itself to it in attachToNeighbors()
             }
 
             // Orphan parts processed. Process merge pools...
@@ -369,14 +380,17 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
         // Any blocks which have been detached this tick should be moved to the orphaned
         // list, and will be checked next tick to see if their chunk is still loaded.
 
-        this._detachedParts.forEach(p -> {
+        if (!this._detachedParts.isEmpty()) {
 
-            // Ensure parts know they're detached
-            p.assertDetached();
-            this._orphanedParts.put(p);
-        });
+            this._detachedParts.forEach(p -> {
 
-        this._detachedParts = this.createPartStorage();
+                // Ensure parts know they're detached
+                p.assertDetached();
+                this._orphanedParts.addOrReplace(p);
+            });
+
+            this._detachedParts = this.createPartStorage();
+        }
 
         profiler.endSection();
     }
@@ -392,7 +406,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
         final IProfiler profiler = this._world.getProfiler();
 
         profiler.startSection("Zero CORE|Multiblock|World|PartAdded");
-        this._orphanedParts.put(part);
+        this._orphanedParts.addOrReplace(part);
         profiler.endSection();
     }
 
@@ -437,20 +451,6 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         profiler.endSection();
     }
-
-//    /**
-//     * Called when a chunk is about to be unloaded.
-//     *
-//     * @param chunk the chunk
-//     */
-//    void onChunkUnload(final IChunk chunk) {
-//
-//        final IProfiler profiler = this._world.getProfiler();
-//
-//        profiler.startSection("Zero CORE|Multiblock|World|ChunkUnloaded");
-//        this._chunksCache.remove(chunk.getPos().asLong());
-//        profiler.endSection();
-//    }
 
     /**
      * Registers a controller as dead. It will be cleaned up at the end of the next world tick.
