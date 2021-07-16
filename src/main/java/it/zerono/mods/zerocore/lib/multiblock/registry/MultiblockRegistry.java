@@ -141,7 +141,6 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
 
         this._registries = new Reference2ObjectArrayMap<>(2 * 8);
         MinecraftForge.EVENT_BUS.addListener(this::onWorldUnload);
-//        MinecraftForge.EVENT_BUS.addListener(this::onChunkUnload);
         MinecraftForge.EVENT_BUS.addListener(this::onWorldTick);
     }
 
@@ -167,26 +166,6 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
     }
 
     //region event handlers
-
-//    @SubscribeEvent(priority = EventPriority.NORMAL)
-//    public void onChunkUnload(final ChunkEvent.Unload event) {
-//
-//        final IChunk chunk = event.getChunk();
-//        final IWorld world = chunk.getWorldForge();
-//
-//        if (world instanceof World) {
-//
-//            final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
-//
-//            if (null != registry) {
-//                registry.onChunkUnload(chunk);
-//            }
-//
-//        } else {
-//
-//            Log.LOGGER.error(Log.MULTIBLOCK, "Trying to unload a chunk ({}) without a World!", chunk.getPos());
-//        }
-//    }
 
     /**
      * Called whenever a world is unloaded. Unload the relevant registry, if we have one.
