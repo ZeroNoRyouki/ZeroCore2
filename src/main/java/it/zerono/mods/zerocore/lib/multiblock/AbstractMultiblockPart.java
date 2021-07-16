@@ -281,32 +281,43 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
         final Set<Controller> foundControllers = controllersLookup.apply(this);
 
-        if (foundControllers.isEmpty()) {
-            return Collections.emptySet();
+        switch (foundControllers.size()) {
+
+            case 0:
+                return Collections.emptySet();
+
+            case 1:
+
+                // attachPart will call onAttached, which will set the controller.
+                this._controller = foundControllers.iterator().next();
+                this._controller.attachPart(this);
+                return foundControllers;
+
+            default:
+
+                final Set<Controller> candidateControllers = new ReferenceArraySet<>(6);
+                Controller bestController = null;
+
+                for (final Controller controller : foundControllers) {
+
+                    if (null == bestController || (!candidateControllers.contains(controller) && controller.shouldConsumeController(bestController))) {
+                        bestController = controller;
+                    }
+
+                    candidateControllers.add(controller);
+                }
+
+                // If we've located a valid neighboring controller, attach to it.
+
+                if (null != bestController) {
+
+                    // attachPart will call onAttached, which will set the controller.
+                    this._controller = bestController;
+                    bestController.attachPart(this);
+                }
+
+                return candidateControllers;
         }
-
-        final Set<Controller> candidateControllers = new ReferenceArraySet<>(6);
-        Controller bestController = null;
-
-        for (final Controller controller : foundControllers) {
-
-            if (null == bestController || (!candidateControllers.contains(controller) && controller.shouldConsumeController(bestController))) {
-                bestController = controller;
-            }
-
-            candidateControllers.add(controller);
-        }
-
-        // If we've located a valid neighboring controller, attach to it.
-
-        if (null != bestController) {
-
-            // attachPart will call onAttached, which will set the controller.
-            this._controller = bestController;
-            bestController.attachPart(this);
-        }
-
-        return foundControllers;
     }
 
     @Override
