@@ -168,7 +168,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             });
         }
 
-        this._reference.accept(part);
+        this.getReferenceTracker().accept(part);
         this._boundingBox = this._boundingBox.add(part.getWorldPosition());
         this.getRegistry().addDirtyController(mySelf);
 
@@ -212,12 +212,6 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         this._detachedParts.addOrReplace(part);
 
         this.getRegistry().addDirtyController(mySelf);
-
-        // Find new save delegate if we need to.
-
-        if (this._reference.isInvalid()) {
-            this.selectNewReferenceCoord();
-        }
 
         this.callOnLogicalClient(CodeHelper::clearErrorReport);
     }
@@ -376,19 +370,21 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         // Invalidate our reference coordinate, we'll recalculate it shortly
 
-        this._reference.invalidate();
+        final ReferencePartTracker<Controller> reference = this.getReferenceTracker();
+
+        reference.invalidate();
 
         // Reset visitations and find the reference coordinate
 
         this._connectedParts.forEach(part -> {
 
             part.setUnvisited();
-            this._reference.accept(part);
+            reference.accept(part);
         });
 
         final Controller mySelf = this.castSelf();
 
-        if (this._reference.isInvalid() || this.isEmpty()) {
+        if (reference.isInvalid() || this.isEmpty()) {
 
             // There are no valid parts remaining. The entire multiblock was unloaded during a chunk unload. Halt.
 
@@ -423,12 +419,6 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         if (!deadParts.isEmpty()) {
             this._connectedParts.removeAll(deadParts);
-        }
-
-        // Juuuust in case.
-
-        if (this._reference.isInvalid()) {
-            this.selectNewReferenceCoord();
         }
 
         // We've run the checks from here on out.
@@ -573,7 +563,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      */
     @Override
     public Optional<BlockPos> getReferenceCoord() {
-        return this._reference.getPosition();
+        return this.getReferenceTracker().getPosition();
     }
 
     /**
@@ -990,7 +980,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      */
     protected void markReferenceCoordDirty() {
 
-        this.callOnLogicalServer(() -> this._reference.consume((part, position) -> {
+        this.callOnLogicalServer(() -> this.getReferenceTracker().consume((part, position) -> {
 
             this.getWorld().markChunkDirty(position, (TileEntity)part);
             WorldHelper.notifyBlockUpdate(this.getWorld(), position);
@@ -1110,11 +1100,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         if (this._connectedParts.size() < 32 * 32 * 64) {
 
-            this.visitLoadedNeighboringParts(Objects.requireNonNull(this._reference.get()));
+            this.visitLoadedNeighboringParts(Objects.requireNonNull(this.getReferenceTracker().get()));
             return;
         }
 
-        final IMultiblockPart<Controller> firstPart = Objects.requireNonNull(this._reference.get());
+        final IMultiblockPart<Controller> firstPart = Objects.requireNonNull(this.getReferenceTracker().get());
         final NeighboringPositions positions = this.getNeighboringPositionsToVisit();
         final List<IMultiblockPart<Controller>> nearbyParts = new ReferenceArrayList<>(positions.size());
 
@@ -1158,6 +1148,18 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             nearbyParts.clear();
 
         } while (!partsToCheck.isEmpty());
+    }
+
+    /**
+     * @return the ReferencePartTracker of this Controller
+     */
+    protected ReferencePartTracker<Controller> getReferenceTracker() {
+
+        if (this._reference.isInvalid()) {
+            this._reference.accept(this._connectedParts);
+        }
+
+        return this._reference;
     }
 
     //region Logical sides and deferred execution helpers
@@ -1302,10 +1304,6 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 //        this.onUpdateBlockState();
     }
 
-    private void selectNewReferenceCoord() {
-        this._reference.accept(this._connectedParts);
-    }
-
     /**
      * Callback whenever a part is removed (or will very shortly be removed) from a controller.
      * Do housekeeping/callbacks, also nulls min/max coords.
@@ -1320,6 +1318,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this._boundingBox = CuboidBoundingBox.EMPTY;
 
+        // access the reference tracker directly to avoid updating it every time a part is detached
         if (this._reference.test(part)) {
             this._reference.invalidate();
         }
@@ -1335,8 +1334,10 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     @SuppressWarnings({"unused"})
     protected void prepareAssimilation(IMultiblockController<Controller> otherController) {
 
-        this._reference.forfeitSaveDelegate();
-        this._reference.invalidate();
+        final ReferencePartTracker<Controller> reference = this.getReferenceTracker();
+
+        reference.forfeitSaveDelegate();
+        reference.invalidate();
 
         // abandon the current set of connected parts - avoid the need to copy it in assimilateController()
         this._connectedParts = this.createPartStorage();
@@ -1433,7 +1434,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * i.e. If something has a lower X but higher Y/Z coordinates, it will still be the reference.
      * If something has the same X but a lower Y coordinate, it will be the reference. Etc.
      */
-    protected final ReferencePartTracker<Controller> _reference;
+    private final ReferencePartTracker<Controller> _reference;
 
     private CuboidBoundingBox _boundingBox;
 
