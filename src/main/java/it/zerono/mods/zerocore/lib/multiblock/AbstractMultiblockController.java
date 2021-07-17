@@ -774,7 +774,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         this._lastValidationError = null;
         this._reference = new ReferencePartTracker<>();
         this._boundingBox = CuboidBoundingBox.EMPTY;
-        this._shouldCheckForDisconnections = true;
+        this._shouldCheckForDisconnections = false;
         this._syncProvider = NetworkTileEntitySyncProvider.create(
                 () -> this.getReferenceCoord().orElseGet(() -> new BlockPos(0, 0, 0)), this);
         this._requestDataUpdateNotification = false;
