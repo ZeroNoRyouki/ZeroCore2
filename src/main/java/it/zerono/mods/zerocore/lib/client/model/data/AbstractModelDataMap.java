@@ -29,7 +29,11 @@ import java.util.Map;
 public abstract class AbstractModelDataMap implements IModelData {
 
     protected AbstractModelDataMap() {
-        this._map = new IdentityHashMap<>(8);
+        this(8);
+    }
+
+    protected AbstractModelDataMap(final int expectedMaxSize) {
+        this._map = new IdentityHashMap<>(expectedMaxSize);
     }
 
     protected void addProperty(ModelProperty<?> property) {
