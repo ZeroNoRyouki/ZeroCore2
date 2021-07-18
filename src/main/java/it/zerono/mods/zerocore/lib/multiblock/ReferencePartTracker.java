@@ -79,7 +79,7 @@ public class ReferencePartTracker<Controller extends IMultiblockController<Contr
 
     public void accept(final IMultiblockPart<Controller> part) {
 
-        if (part.isPartInvalid()) {
+        if (part.isPartInvalid() || part == this._part) {
             return;
         }
 
@@ -115,6 +115,7 @@ public class ReferencePartTracker<Controller extends IMultiblockController<Contr
 
             partPosition = part.getWorldPosition();
 
+            //noinspection ConstantConditions
             if (null == this._part || partPosition.compareTo(referencePosition) < 0) {
 
                 this._part = part;
