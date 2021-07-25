@@ -25,8 +25,10 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * A general purpose class to track the state of all 6 faces of a block
@@ -258,6 +260,11 @@ public final class BlockFacings {
         }
 
         return Optional.empty();
+    }
+
+    public Stream<Direction> stream() {
+        return Arrays.stream(CodeHelper.DIRECTIONS)
+                .filter(this::isSet);
     }
 
     /**
