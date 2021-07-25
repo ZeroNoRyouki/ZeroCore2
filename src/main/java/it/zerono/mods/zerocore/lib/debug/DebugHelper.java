@@ -92,7 +92,7 @@ public class DebugHelper {
                 .getOrDefault(position, VoxelShapeType.None);
     }
 
-    public void ungrabMouse() {
+    public static void ungrabMouse() {
         ZeroCore.getProxy().debugUngrabMouse();
     }
 
