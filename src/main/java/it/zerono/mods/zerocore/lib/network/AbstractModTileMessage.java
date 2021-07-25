@@ -35,7 +35,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.Optional;
 
 /**
- * A generic network message to send data from a TileEntity on one side to it's corrective on the other side
+ * A generic network message to send data from a TileEntity on one side to it's corresponding TileEntity on the other side
  */
 @SuppressWarnings({"WeakerAccess"})
 public abstract class AbstractModTileMessage
