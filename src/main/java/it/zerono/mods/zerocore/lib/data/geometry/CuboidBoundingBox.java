@@ -111,6 +111,10 @@ public class CuboidBoundingBox {
         return this._max.getZ() - this._min.getZ();
     }
 
+    public BlockPos getCenter() {
+        return this._min.add(this.getLengthX() / 2, this.getLengthY() / 2, this.getLengthZ() / 2);
+    }
+
     public int commonVertices(final Vector3i position) {
         return CodeHelper.commonVertices(position, this._min) + CodeHelper.commonVertices(position, this._max);
     }
