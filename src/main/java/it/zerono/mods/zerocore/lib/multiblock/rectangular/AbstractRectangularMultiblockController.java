@@ -78,8 +78,7 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
 
         final int partsCount = this.getPartsCount();
 
-        if (partsCount < this.getMinimumNumberOfPartsForAssembledMachine() ||
-                !this.hasValidBoundingBoxCoordinates()) {
+        if (partsCount < this.getMinimumNumberOfPartsForAssembledMachine() || this.getBoundingBox().isEmpty()) {
 
             validatorCallback.setLastError(ValidationError.VALIDATION_ERROR_TOO_FEW_PARTS);
             return false;

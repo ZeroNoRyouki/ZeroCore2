@@ -111,6 +111,10 @@ public class CuboidBoundingBox {
         return this._max.getZ() - this._min.getZ();
     }
 
+    public int getVolume() {
+        return this.isEmpty() ? 0 : CodeHelper.mathVolume(this._min, this._max);
+    }
+
     public BlockPos getCenter() {
         return this._min.add(this.getLengthX() / 2, this.getLengthY() / 2, this.getLengthZ() / 2);
     }

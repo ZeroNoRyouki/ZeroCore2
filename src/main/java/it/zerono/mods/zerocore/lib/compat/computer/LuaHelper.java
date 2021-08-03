@@ -20,6 +20,8 @@ package it.zerono.mods.zerocore.lib.compat.computer;
 
 //import li.cil.oc.api.machine.Arguments;
 
+import net.minecraft.util.math.BlockPos;
+
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class LuaHelper {
 
@@ -158,6 +160,10 @@ public final class LuaHelper {
 
     public static void raiseIllegalArgumentRange(int index, int minValue, int maxValue) {
         throw new IllegalArgumentException(String.format("Invalid argument %d, valid range is %d : %d", index, minValue, maxValue));
+    }
+
+    public static Object[] blockPosToArray(final BlockPos position) {
+        return new Object[]{position.getX(), position.getY(), position.getZ()};
     }
 
     //region internals

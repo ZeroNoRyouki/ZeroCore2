@@ -89,8 +89,10 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
         this._neighborsIterator = new NeighboringPositions();
         this._multiblockChangesDelay = CodeHelper.tickCountdown(20);
 
-        //noinspection AutoBoxing
-        Log.LOGGER.debug(Log.MULTIBLOCK, "MultiblockWorldRegistry created at {}", System.nanoTime());
+        if (CodeHelper.isDevEnv()) {
+            //noinspection AutoBoxing
+            Log.LOGGER.info(Log.MULTIBLOCK, "MultiblockWorldRegistry created at {}", System.nanoTime());
+        }
     }
 
     /**

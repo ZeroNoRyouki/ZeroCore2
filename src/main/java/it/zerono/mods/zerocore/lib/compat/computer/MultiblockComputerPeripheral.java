@@ -79,10 +79,10 @@ public abstract class MultiblockComputerPeripheral<Controller extends IMultibloc
         methodConsumer.accept(new ComputerMethod<>("mbGetMultiblockControllerTypeName", this.wrapPartValue(p -> p.getControllerType().getName())));
 
         methodConsumer.accept(new ComputerMethod<>("mbGetMinimumCoordinate", this.wrapControllerValue(c ->
-                c.getMinimumCoord().map(coords -> new Object[]{coords.getX(), coords.getY(), coords.getZ()}).orElse(null))));
+                LuaHelper.blockPosToArray(c.getBoundingBox().getMin()))));
 
         methodConsumer.accept(new ComputerMethod<>("mbGetMaximumCoordinate", this.wrapControllerValue(c ->
-                c.getMaximumCoord().map(coords -> new Object[]{coords.getX(), coords.getY(), coords.getZ()}).orElse(null))));
+                LuaHelper.blockPosToArray(c.getBoundingBox().getMax()))));
     }
 
     //endregion

@@ -595,26 +595,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     /**
-     * @return The maximum bounding-box coordinate containing this machine's blocks.
-     */
-    @Override
-    @Deprecated // use getBoundingBox()
-    public Optional<BlockPos> getMaximumCoord() {
-        return Optional.of(this._boundingBox.getMax());
-    }
-
-    /**
      * @return The bounding-box encompassing this machine's blocks.
      */
     @Override
     public CuboidBoundingBox getBoundingBox() {
         return this._boundingBox;
-    }
-
-    @Override
-    @Deprecated // use getBoundingBox()
-    public boolean hasValidBoundingBoxCoordinates() {
-        return true;
     }
 
     @Override
@@ -798,8 +783,11 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * Called when a machine is assembled from a disassembled state.
 	 */
 	protected void onMachineAssembled() {
-        //noinspection AutoBoxing
-        Log.LOGGER.debug(Log.MULTIBLOCK, "Multiblock assembled at {}", System.nanoTime());
+
+        if (CodeHelper.isDevEnv()) {
+            //noinspection AutoBoxing
+            Log.LOGGER.info(Log.MULTIBLOCK, "Multiblock assembled at {}", System.nanoTime());
+        }
     }
 	
 	/**
@@ -1081,15 +1069,16 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @return The number of blocks connected to this controller that match the given Predicate
      */
     protected int getPartsCount(final Predicate<IMultiblockPart<Controller>> test) {
-        return (int)this.getConnectedParts(test).count();
+        return (int)this._connectedParts.stream()
+                .filter(test)
+                .count();
     }
 
     /**
      * @return True if there is at least one connected part that match the given Predicate
      */
     protected boolean isAnyPartConnected(final Predicate<IMultiblockPart<Controller>> test) {
-        return this.getConnectedParts().stream()
-                .anyMatch(test);
+        return this._connectedParts.stream().anyMatch(test);
     }
 
     protected NeighboringPositions getNeighboringPositionsToVisit() {
@@ -1255,11 +1244,13 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     //region internals
 
     private int shouldConsume(IMultiblockController<Controller> other) {
-        // Always consume other controllers if their reference coordinate is null - this means they're empty and can be assimilated on the cheap
-        return other.getReferenceCoord()
-                .map(theirCoord -> this.getReferenceCoord().map(myCoord -> myCoord.compareTo((theirCoord)))
-                        .orElse(1))
-                .orElse(-1);
+        return Integer.compare(other.getPartsCount(), this.getPartsCount());
+
+//        // Always consume other controllers if their reference coordinate is null - this means they're empty and can be assimilated on the cheap
+//        return other.getReferenceCoord()
+//                .map(theirCoord -> this.getReferenceCoord().map(myCoord -> myCoord.compareTo((theirCoord)))
+//                        .orElse(1))
+//                .orElse(-1);
     }
 
     /**

@@ -71,21 +71,10 @@ public interface IMultiblockMachine {
     Optional<BlockPos> getMinimumCoord();
 
     /**
-     * @return The maximum bounding-box coordinate containing this machine's blocks.
-     */
-    @Deprecated // use getBoundingBox()
-    Optional<BlockPos> getMaximumCoord();
-
-    /**
      * @return The bounding-box encompassing this machine's blocks.
      */
     default CuboidBoundingBox getBoundingBox() {
         return CuboidBoundingBox.EMPTY;
-    }
-
-    @Deprecated // use getBoundingBox()
-    default boolean hasValidBoundingBoxCoordinates() {
-        return true;
     }
 
     @Deprecated // use getBoundingBox()
@@ -94,10 +83,6 @@ public interface IMultiblockMachine {
     @Deprecated // use getBoundingBox()
     <T> T mapBoundingBoxCoordinates(BiFunction<BlockPos, BlockPos, T> minMaxCoordMapper, T defaultValue,
                                     Function<BlockPos, BlockPos> minRemapper, Function<BlockPos, BlockPos> maxRemapper);
-
-    default <T> T mapReferenceCoordinates(Function<BlockPos, T> mapper, T defaultValue) {
-        return this.getReferenceCoord().map(mapper).orElse(defaultValue);
-    }
 
     @Deprecated // use getBoundingBox()
     void forBoundingBoxCoordinates(BiConsumer<BlockPos, BlockPos> minMaxCoordConsumer);
