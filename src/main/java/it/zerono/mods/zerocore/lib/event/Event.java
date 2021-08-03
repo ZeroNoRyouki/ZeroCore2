@@ -18,7 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.event;
 
-import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,26 +27,36 @@ import java.util.function.Consumer;
 public class Event<Handler> implements IEvent<Handler> {
 
     public Event() {
-        this._handlers = Lists.newArrayList();
+        this._handlers = ObjectLists.emptyList();
     }
 
     //region IEvent
 
     @Override
-    public Handler subscribe(Handler handler) {
+    public Handler subscribe(final Handler handler) {
+
+        if (ObjectLists.emptyList() == this._handlers) {
+            this._handlers = new ObjectArrayList<>(4);
+        }
 
         this._handlers.add(handler);
         return handler;
     }
 
     @Override
-    public void unsubscribe(Handler handler) {
-        this._handlers.remove(handler);
+    public void unsubscribe(final Handler handler) {
+
+        if (ObjectLists.emptyList() != this._handlers) {
+            this._handlers.remove(handler);
+        }
     }
 
     @Override
     public void unsubscribeAll() {
-        this._handlers.clear();
+
+        if (ObjectLists.emptyList() != this._handlers) {
+            this._handlers.clear();
+        }
     }
 
     @Override
@@ -56,7 +67,7 @@ public class Event<Handler> implements IEvent<Handler> {
     //endregion
     //region internals
 
-    protected final List<Handler> _handlers;
+    protected List<Handler> _handlers;
 
     //endregion
 }
