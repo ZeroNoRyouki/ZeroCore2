@@ -30,6 +30,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.*;
 import net.minecraft.world.IWorldReader;
@@ -90,8 +91,11 @@ public class DebugToolItem
 
         if (CodeHelper.isDevEnv() && null != s_testCallback && !stack.isEmpty() && stack.getCount() > 1) {
 
-            s_testCallback.runTest(stack.getCount(), player, world, pos);
-            return ActionResultType.SUCCESS;
+            if (context.getHand() == Hand.MAIN_HAND) {
+
+                s_testCallback.runTest(stack.getCount(), player, world, pos);
+                return ActionResultType.SUCCESS;
+            }
         }
 
         if (null == player ||
