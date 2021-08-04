@@ -53,7 +53,7 @@ import java.util.Collections;
 import java.util.Set;
 
 public interface IMultiblockController<Controller extends IMultiblockController<Controller>>
-        extends IMultiblockMachine, IMultiblockValidator, ISyncableEntity {
+        extends IMultiblockMachine, IMultiblockValidator, ISyncableEntity, Comparable<Controller> {
 
     //region Multiblock Parts management
 
