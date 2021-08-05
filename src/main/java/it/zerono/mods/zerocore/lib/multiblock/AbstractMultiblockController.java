@@ -1111,6 +1111,10 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
                 .filter(test);
     }
 
+    protected void forEachConnectedParts(final Consumer<IMultiblockPart<Controller>> action) {
+        this._connectedParts.forEach(action);
+    }
+
     /**
      * @return The number of blocks connected to this controller that match the given Predicate
      */
