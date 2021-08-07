@@ -77,8 +77,8 @@ public class Window<C extends ModContainer>
 
         if (null != this._mouseOver) {
 
-            final int mouseX = MathHelper.fastFloor(GuiHelper.getMouse().getMouseX() / this.getGuiScreen().getGuiScaleFactor());
-            final int mouseY = MathHelper.fastFloor(GuiHelper.getMouse().getMouseY() / this.getGuiScreen().getGuiScaleFactor());
+            final int mouseX = MathHelper.fastFloor(GuiHelper.getMouse().xpos() / this.getGuiScreen().getGuiScaleFactor());
+            final int mouseY = MathHelper.fastFloor(GuiHelper.getMouse().ypos() / this.getGuiScreen().getGuiScaleFactor());
 
             this._mouseOver.paintToolTips(matrix, mouseX, mouseY);
         }
@@ -164,8 +164,8 @@ public class Window<C extends ModContainer>
         this._flags.set(WindowFlags.ContentVisible, this._topLevelContainer.getVisible());
 
         final ModContainerScreen<C> gui = this.getGuiScreen();
-        final int mouseX = MathHelper.fastFloor(GuiHelper.getMouse().getMouseX() / gui.getGuiScaleFactor());
-        final int mouseY = MathHelper.fastFloor(GuiHelper.getMouse().getMouseY() / gui.getGuiScaleFactor());
+        final int mouseX = MathHelper.fastFloor(GuiHelper.getMouse().xpos() / gui.getGuiScaleFactor());
+        final int mouseY = MathHelper.fastFloor(GuiHelper.getMouse().ypos() / gui.getGuiScaleFactor());
 
         this.updateMouseOverControl(mouseX, mouseY);
     }

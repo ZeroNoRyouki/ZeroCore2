@@ -126,7 +126,7 @@ public final class CodeHelper {
      * Return a reference time for the system
      */
     public static long getSystemTime() {
-        return Util.nanoTime();
+        return Util.getNanos();
     }
 
     public static Random fakeRandom() {
@@ -320,7 +320,7 @@ public final class CodeHelper {
      * @param world A valid world instance
      */
     public static boolean calledByLogicalServer(final World world) {
-        return !world.isRemote;
+        return !world.isClientSide;
     }
 
     /**
@@ -329,7 +329,7 @@ public final class CodeHelper {
      * @param world A valid world instance
      */
     public static boolean calledByLogicalClient(final World world) {
-        return world.isRemote;
+        return world.isClientSide;
     }
 
     public static void callOnLogicalSide(final World world, final Runnable serverCode, final Runnable clientCode) {
@@ -468,9 +468,9 @@ public final class CodeHelper {
         // Must check ourselves as Minecraft will sometimes delay tasks even when they are received on the client thread
         // Same logic as ThreadTaskExecutor#runImmediately without the join
 
-        if (!executor.isOnExecutionThread()) {
+        if (!executor.isSameThread()) {
 
-            return executor.deferTask(runnable); // Use the internal method so thread check isn't done twice
+            return executor.submitAsync(runnable); // Use the internal method so thread check isn't done twice
 
         } else {
 
@@ -762,14 +762,14 @@ public final class CodeHelper {
 
     @OnlyIn(Dist.CLIENT)
     public static ITextComponent i18nFormatComponent(final String translateKey, Object... parameters) {
-        return new StringTextComponent(I18n.format(translateKey, parameters));
+        return new StringTextComponent(I18n.get(translateKey, parameters));
     }
 
     /**
      * MC-Version independent wrapper around PlayerEntity::addChatMessage()
      */
     public static void sendChatMessage(final PlayerEntity sender, final ITextComponent component) {
-        sender.sendMessage(component, sender.getUniqueID());
+        sender.sendMessage(component, sender.getUUID());
     }
 
     /**

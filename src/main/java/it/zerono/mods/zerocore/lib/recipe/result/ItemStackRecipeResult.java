@@ -35,7 +35,7 @@ public class ItemStackRecipeResult
     }
 
     public static ItemStackRecipeResult from(final PacketBuffer buffer) {
-        return new ItemStackRecipeResult(buffer.readItemStack());
+        return new ItemStackRecipeResult(buffer.readItem());
     }
 
     public static ItemStackRecipeResult from(final JsonElement jsonElement) {
@@ -83,7 +83,7 @@ public class ItemStackRecipeResult
 
     @Override
     public void serializeTo(final PacketBuffer buffer) {
-        buffer.writeItemStack(this._result);
+        buffer.writeItem(this._result);
     }
 
     @Override

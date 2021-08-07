@@ -68,7 +68,7 @@
 //        for(int l1 = k; l1 <= k + j1; ++l1) {
 //            for(int i2 = i1; i2 <= i1 + j1; ++i2) {
 //                if (l <= world.getHeight(Heightmap.Type.OCEAN_FLOOR_WG, l1, i2)) {
-//                    return func_207803_a(world, random, config, d0, d1, d2, d3, d4, d5, k, l, i1, j1, k1);
+//                    return doPlace(world, random, config, d0, d1, d2, d3, d4, d5, k, l, i1, j1, k1);
 //                }
 //            }
 //        }
@@ -76,7 +76,7 @@
 //        return false;
 //    }
 //
-//    private static boolean func_207803_a(IWorld world, Random random, OreWhitelistedConfig config,
+//    private static boolean doPlace(IWorld world, Random random, OreWhitelistedConfig config,
 //                                         double p_207803_4_, double p_207803_6_, double p_207803_8_,
 //                                         double p_207803_10_, double p_207803_12_, double p_207803_14_,
 //                                         int p_207803_16_, int p_207803_17_, int p_207803_18_,

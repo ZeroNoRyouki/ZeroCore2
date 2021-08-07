@@ -79,11 +79,11 @@ public class CuboidBoundingBox {
     public CuboidBoundingBox combine(final CuboidBoundingBox other) {
 
         if (other._min.compareTo(this._min) < 0) {
-            this._min.setPos(other._min);
+            this._min.set(other._min);
         }
 
         if (other._max.compareTo(this._max) > 0) {
-            this._max.setPos(other._max);
+            this._max.set(other._max);
         }
 
         return this;
@@ -116,7 +116,7 @@ public class CuboidBoundingBox {
     }
 
     public BlockPos getCenter() {
-        return this._min.add(this.getLengthX() / 2, this.getLengthY() / 2, this.getLengthZ() / 2);
+        return this._min.offset(this.getLengthX() / 2, this.getLengthY() / 2, this.getLengthZ() / 2);
     }
 
     public int commonVertices(final Vector3i position) {
@@ -167,7 +167,7 @@ public class CuboidBoundingBox {
 
         if ((newX != curX) || (newY != curY) || (newZ != curZ)) {
 
-            currentPosition.setPos(newX, newY, newZ);
+            currentPosition.set(newX, newY, newZ);
             return true;
         }
 

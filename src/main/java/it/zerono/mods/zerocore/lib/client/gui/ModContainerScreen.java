@@ -62,8 +62,8 @@ public class ModContainerScreen<C extends ModContainer>
                                  final int guiWidth, final int guiHeight, boolean singleWindow) {
 
         super(container, inventory, title);
-        this.xSize = guiWidth;
-        this.ySize = guiHeight;
+        this.imageWidth = guiWidth;
+        this.imageHeight = guiHeight;
         this._tickHandlers = Lists.newArrayListWithCapacity(2);
         this._deferred = Lists.newLinkedList();
         this._originalMouseX = this._originalMouseY = 0;
@@ -80,7 +80,7 @@ public class ModContainerScreen<C extends ModContainer>
 
     protected void close() {
         if (null != Minecraft.getInstance().player) {
-            Minecraft.getInstance().player.closeScreen();
+            Minecraft.getInstance().player.closeContainer();
         }
     }
 
@@ -130,27 +130,27 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     public int getGuiX() {
-        return this.guiLeft;
+        return this.leftPos;
     }
 
     public int getGuiY() {
-        return this.guiTop;
+        return this.topPos;
     }
 
     public int getGuiWidth() {
-        return this.xSize;
+        return this.imageWidth;
     }
 
     public int getGuiHeight() {
-        return this.ySize;
+        return this.imageHeight;
     }
 
     public int getMinecraftWindowWidth() {
-        return this.getMinecraft().getMainWindow().getFramebufferWidth();
+        return this.getMinecraft().getWindow().getWidth();
     }
 
     public int getMinecraftWindowHeight() {
-        return this.getMinecraft().getMainWindow().getFramebufferHeight();
+        return this.getMinecraft().getWindow().getHeight();
     }
 
     public float getZLevel() {
@@ -158,19 +158,19 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     public double getGuiScaleFactor() {
-        return this.getMinecraft().getMainWindow().getGuiScaleFactor();
+        return this.getMinecraft().getWindow().getGuiScale();
     }
 
     public int getClippedMouseX() {
-        return MathHelper.ceil(GuiHelper.getMouse().getMouseX() - this.getGuiX());
+        return MathHelper.ceil(GuiHelper.getMouse().xpos() - this.getGuiX());
     }
 
     public int getClippedMouseY() {
-        return MathHelper.ceil(GuiHelper.getMouse().getMouseY() - this.getGuiY());
+        return MathHelper.ceil(GuiHelper.getMouse().ypos() - this.getGuiY());
     }
 
     public void renderHoveredSlotToolTip(final MatrixStack matrix) {
-        this.renderHoveredTooltip(matrix, this.getOriginalMouseX(), this.getOriginalMouseY());
+        this.renderTooltip(matrix, this.getOriginalMouseX(), this.getOriginalMouseY());
     }
 
     public int getOriginalMouseX() {
@@ -182,8 +182,8 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     public Rectangle getScreenRect() {
-        return new Rectangle(0, 0, Minecraft.getInstance().getMainWindow().getScaledWidth(),
-                Minecraft.getInstance().getMainWindow().getScaledHeight());
+        return new Rectangle(0, 0, Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                Minecraft.getInstance().getWindow().getGuiScaledHeight());
     }
 
     public Rectangle getScreenRectPadded() {
@@ -278,10 +278,10 @@ public class ModContainerScreen<C extends ModContainer>
      * Called when the screen is unloaded. Used to disable keyboard repeat events
      */
     @Override
-    public final void onClose() {
+    public final void removed() {
 
-        super.onClose();
-        GuiHelper.getKeyboard().enableRepeatEvents(false);
+        super.removed();
+        GuiHelper.getKeyboard().setSendRepeatsToGui(false);
         this.raiseScreenClose();
         this.Create.unsubscribeAll();
         this.Created.unsubscribeAll();
@@ -310,7 +310,7 @@ public class ModContainerScreen<C extends ModContainer>
      * Draws the background layer of this container (behind the items).
      */
     @Override
-    protected final void drawGuiContainerBackgroundLayer(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    protected final void renderBg(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         this.renderBackground(matrix);
 
@@ -320,7 +320,7 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     @Override
-    protected final void drawGuiContainerForegroundLayer(final MatrixStack matrix, final int mouseX, final int mouseY) {
+    protected final void renderLabels(final MatrixStack matrix, final int mouseX, final int mouseY) {
 
         this._originalMouseX = mouseX;
         this._originalMouseY = mouseY;
@@ -395,7 +395,7 @@ public class ModContainerScreen<C extends ModContainer>
 
     private boolean checkIgnoreCloseOnInventoryKey(final int keyCode, final int scanCode) {
         return this.ignoreCloseOnInventoryKey() &&
-                this.getMinecraft().gameSettings.keyBindInventory.isActiveAndMatches(InputMappings.getInputByCode(keyCode, scanCode));
+                this.getMinecraft().options.keyInventory.isActiveAndMatches(InputMappings.getKey(keyCode, scanCode));
     }
 
     @Override
@@ -405,7 +405,7 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     @Override
-    protected boolean isPointInRegion(final int regionX, final int regionY, final int regionWidth, final int regionHeight,
+    protected boolean isHovering(final int regionX, final int regionY, final int regionWidth, final int regionHeight,
                                       double pointX, double pointY) {
 
         pointX -= this.getGuiLeft();

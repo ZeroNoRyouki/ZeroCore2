@@ -106,7 +106,7 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
 
         for (final BlockPos position : positions) {
 
-            final long positionHash = position.toLong();
+            final long positionHash = position.asLong();
 
             if ((positionHash >= firstHash) && (positionHash <= lastHash) && this._parts.containsKey(positionHash)) {
                 return true;
@@ -160,7 +160,7 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
     @Nullable
     @Override
     public IMultiblockPart<Controller> get(final BlockPos position) {
-        return this.get(position.toLong());
+        return this.get(position.asLong());
     }
 
     @Nullable
@@ -321,7 +321,7 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
 
     @Override
     public CuboidBoundingBox boundingBox() {
-        return new CuboidBoundingBox(BlockPos.fromLong(this._parts.firstLongKey()), BlockPos.fromLong(this._parts.lastLongKey()));
+        return new CuboidBoundingBox(BlockPos.of(this._parts.firstLongKey()), BlockPos.of(this._parts.lastLongKey()));
     }
 
     //endregion

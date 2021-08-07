@@ -58,7 +58,7 @@ public class ServerProxy implements IProxy {
     public void sendPlayerStatusMessage(final PlayerEntity player, final ITextComponent message) {
 
         if (player instanceof ServerPlayerEntity) {
-            ((ServerPlayerEntity) player).connection.sendPacket(new SChatPacket(message, ChatType.GAME_INFO, player.getUniqueID()));
+            ((ServerPlayerEntity) player).connection.send(new SChatPacket(message, ChatType.GAME_INFO, player.getUUID()));
         }
     }
 
@@ -68,7 +68,7 @@ public class ServerProxy implements IProxy {
                 .map(MinecraftServer::getDataPackRegistries/*getResourceManager*/)
                 .filter(o -> o instanceof IReloadableResourceManager)
                 .map(o -> (IReloadableResourceManager)o)
-                .ifPresent(rrm -> rrm.addReloadListener(listener));
+                .ifPresent(rrm -> rrm.registerReloadListener(listener));
     }
 
     @Override

@@ -140,7 +140,7 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
 	BlockPos getWorldPosition();
 
 	default long getWorldPositionHash() {
-	    return this.getWorldPosition().toLong();
+	    return this.getWorldPosition().asLong();
     }
 
 	boolean isPartInvalid();

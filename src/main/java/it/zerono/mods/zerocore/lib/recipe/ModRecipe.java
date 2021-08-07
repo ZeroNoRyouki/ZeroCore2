@@ -47,7 +47,7 @@ public class ModRecipe
      * @param inv the inventory
      */
     @Override
-    public ItemStack getCraftingResult(final EmptyVanillaInventory inv) {
+    public ItemStack assemble(final EmptyVanillaInventory inv) {
         return ItemStack.EMPTY;
     }
 
@@ -58,7 +58,7 @@ public class ModRecipe
      * @param height grid height
      */
     @Override
-    public boolean canFit(final int width, final int height) {
+    public boolean canCraftInDimensions(final int width, final int height) {
         return true;
     }
 
@@ -67,7 +67,7 @@ public class ModRecipe
      * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
      */
     @Override
-    public ItemStack getRecipeOutput() {
+    public ItemStack getResultItem() {
         return ItemStack.EMPTY;
     }
 
@@ -81,7 +81,7 @@ public class ModRecipe
      * doLimitedCrafting gamerule)
      */
     @Override
-    public boolean isDynamic() {
+    public boolean isSpecial() {
         return true;
     }
 

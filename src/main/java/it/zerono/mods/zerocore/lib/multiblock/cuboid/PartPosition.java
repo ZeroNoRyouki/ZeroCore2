@@ -255,7 +255,7 @@ public enum PartPosition
 	//region IStringSerializable
 
 	@Override
-	public String getString() {
+	public String getSerializedName() {
 		return this.toString();
 	}
 

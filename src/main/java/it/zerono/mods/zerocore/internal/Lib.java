@@ -88,7 +88,7 @@ public final class Lib {
                     ModRecipeType.invalidate();
                     Network.sendClearRecipeCommand();
 
-                }, gameExecutor).thenCompose(stage::markCompleteAwaitingOthers));
+                }, gameExecutor).thenCompose(stage::wait));
     }
 
     @SubscribeEvent

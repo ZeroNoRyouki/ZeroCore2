@@ -26,18 +26,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class Font {
 
-    public static final Font MINECRAFT_STANDARD_FONT = new Font(Minecraft.getInstance().fontRenderer);
+    public static final Font MINECRAFT_STANDARD_FONT = new Font(Minecraft.getInstance().font);
 
     public Font(final FontRenderer renderer) {
         this._renderer = renderer;
     }
 
     public int getTextWidth(final String text) {
-        return this._renderer.getStringWidth(text);
+        return this._renderer.width(text);
     }
 
     public int getTextHeight() {
-        return this._renderer.FONT_HEIGHT - 1;
+        return this._renderer.lineHeight - 1;
     }
 
     private final FontRenderer _renderer;

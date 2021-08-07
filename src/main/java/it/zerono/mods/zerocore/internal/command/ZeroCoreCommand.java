@@ -31,7 +31,7 @@ public final class ZeroCoreCommand {
     public static void register(final CommandDispatcher<CommandSource> dispatcher) {
 
         final LiteralCommandNode<CommandSource> mainCmd = dispatcher.register(Commands.literal(ZeroCore.MOD_ID)
-                .requires(cs -> cs.hasPermissionLevel(2))
+                .requires(cs -> cs.hasPermission(2))
                 .then(Commands.literal("debug")
                         .then(Commands.literal("gui")
                                 .then(Commands.literal("hoverFrame")

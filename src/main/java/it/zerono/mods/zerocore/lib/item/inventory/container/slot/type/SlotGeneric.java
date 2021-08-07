@@ -64,7 +64,7 @@ public class SlotGeneric
      * @param stack the stack to validate
      */
     @Override
-    public boolean isItemValid(final ItemStack stack) {
+    public boolean mayPlace(final ItemStack stack) {
         return this.getTemplate().match(this.getSlotIndex(), stack);
     }
 
@@ -74,14 +74,14 @@ public class SlotGeneric
      * @param stack the stack
      */
     @Override
-    public void putStack(final ItemStack stack) {
+    public void set(final ItemStack stack) {
 
         final IItemHandler itemHandler = this.getItemHandler();
 
         if (itemHandler instanceof IItemHandlerModifiable) {
 
             ((IItemHandlerModifiable)itemHandler).setStackInSlot(this.getSlotIndex(), stack);
-            this.onSlotChanged();
+            this.setChanged();
 
             if (itemHandler instanceof ISlotNotify) {
                 ((ISlotNotify)itemHandler).onSlotChanged(itemHandler, this.getSlotIndex(), stack);
@@ -118,7 +118,7 @@ public class SlotGeneric
      **/
     @Override
     public ItemStack getStackInSlot() {
-        return this.getStack();
+        return this.getItem();
     }
 
     /**
@@ -128,7 +128,7 @@ public class SlotGeneric
      */
     @Override
     public void setStackInSlot(final ItemStack stack) {
-        this.putStack(stack);
+        this.set(stack);
     }
 
     /**
@@ -168,7 +168,7 @@ public class SlotGeneric
      */
     @Override
     public int getSlotLimit(final ItemStack stack) {
-        return stack.isEmpty() ? this.getSlotStackLimit() : Math.min(this.getSlotStackLimit(), stack.getMaxStackSize());
+        return stack.isEmpty() ? this.getMaxStackSize() : Math.min(this.getMaxStackSize(), stack.getMaxStackSize());
     }
 
     //endregion
@@ -197,8 +197,8 @@ public class SlotGeneric
 
     static {
 
-        s_xPosField = getPosField("field_75223_e"); // xPos
-        s_yPosField = getPosField("field_75221_f"); // yPos
+        s_xPosField = getPosField("x"); // xPos
+        s_yPosField = getPosField("y"); // yPos
     }
 
     @Nullable

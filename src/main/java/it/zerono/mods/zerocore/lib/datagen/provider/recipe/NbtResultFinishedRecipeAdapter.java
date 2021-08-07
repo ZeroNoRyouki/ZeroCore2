@@ -46,12 +46,12 @@ public class NbtResultFinishedRecipeAdapter
     //region IFinishedRecipe
 
     @Override
-    public void serialize(final JsonObject json) {
+    public void serializeRecipeData(final JsonObject json) {
 
-        super.serialize(json);
+        super.serializeRecipeData(json);
 
         if (null != this._data) {
-            JSONUtils.getJsonObject(json, "result").addProperty("nbt", this._data.toString());
+            JSONUtils.getAsJsonObject(json, "result").addProperty("nbt", this._data.toString());
         }
     }
 

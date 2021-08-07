@@ -157,7 +157,7 @@ public abstract class AbstractDynamicBakedModel
     //region IDynamicBakedModel
 
     @Override
-    public boolean isAmbientOcclusion() {
+    public boolean useAmbientOcclusion() {
         return this._flags.contains(SupportFlags.AmbientOcclusion);
     }
 
@@ -167,17 +167,17 @@ public abstract class AbstractDynamicBakedModel
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
+    public boolean isCustomRenderer() {
         return this._flags.contains(SupportFlags.BuiltInRenderer);
     }
 
     @Override
-    public boolean isSideLit() {
+    public boolean usesBlockLight() {
         return false;
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public TextureAtlasSprite getParticleIcon() {
         return ModRenderHelper.getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractDynamicBakedModel
 
         final BakedQuadBuilder builder = builder(sprite);
 
-        builder.setQuadOrientation(Direction.getFacingFromVector(normal.X, normal.Y, normal.Z));
+        builder.setQuadOrientation(Direction.getNearest(normal.X, normal.Y, normal.Z));
         builder.setQuadTint(tintIndex);
         return builder;
     }
@@ -211,7 +211,7 @@ public abstract class AbstractDynamicBakedModel
     }
 
     private static Vector3d normal(final Direction direction) {
-        return Vector3d.from(direction.getDirectionVec());
+        return Vector3d.from(direction.getNormal());
     }
 
     private enum SupportFlags {

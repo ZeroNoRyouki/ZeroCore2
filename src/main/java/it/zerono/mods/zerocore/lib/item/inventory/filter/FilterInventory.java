@@ -225,7 +225,7 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
 
                     final ItemStack existing = filter.getFilterStack();
 
-                    if (null == existing || !ItemStack.areItemStacksEqual(existing, stack)) {
+                    if (null == existing || !ItemStack.matches(existing, stack)) {
                         filter.setFilterStack(stack);
                     }
                 },

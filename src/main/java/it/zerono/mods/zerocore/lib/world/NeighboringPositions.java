@@ -59,7 +59,7 @@ public class NeighboringPositions {
             final BlockPos.Mutable position = new BlockPos.Mutable(x, y, z).move(this._directions[i]);
 
             this._neighbors[i] = position;
-            this._neighborHashes[i] = position.toLong();
+            this._neighborHashes[i] = position.asLong();
         }
     }
 
@@ -71,9 +71,9 @@ public class NeighboringPositions {
 
         for (int i = 0; i < this._neighbors.length; ++i) {
 
-            final BlockPos.Mutable position = this._neighbors[i].setPos(x, y, z).move(this._directions[i], 1);
+            final BlockPos.Mutable position = this._neighbors[i].set(x, y, z).move(this._directions[i], 1);
 
-            this._neighborHashes[i] = position.toLong();
+            this._neighborHashes[i] = position.asLong();
         }
     }
 

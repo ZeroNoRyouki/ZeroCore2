@@ -44,7 +44,7 @@ public class SlotCraftingResult extends SlotGeneric {
      * @param stack
      */
     @Override
-    public boolean isItemValid(ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return false;
     }
 

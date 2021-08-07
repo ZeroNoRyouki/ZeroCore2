@@ -111,7 +111,7 @@ public final class EnergyStack
 
     public void serializeTo(final PacketBuffer buffer) {
 
-        buffer.writeEnumValue(this._system);
+        buffer.writeEnum(this._system);
         buffer.writeDouble(this._amount);
     }
 
@@ -119,7 +119,7 @@ public final class EnergyStack
 
         try {
 
-            return new EnergyStack(buffer.readEnumValue(EnergySystem.class), buffer.readDouble());
+            return new EnergyStack(buffer.readEnum(EnergySystem.class), buffer.readDouble());
 
         } catch (RuntimeException ex) {
 

@@ -33,7 +33,7 @@ public class EmptyVanillaInventory
      * Returns the number of slots in the inventory.
      */
     @Override
-    public int getSizeInventory() {
+    public int getContainerSize() {
         return 0;
     }
 
@@ -46,7 +46,7 @@ public class EmptyVanillaInventory
      * Returns the stack in the given slot.
      */
     @Override
-    public ItemStack getStackInSlot(int index) {
+    public ItemStack getItem(int index) {
         return ItemStack.EMPTY;
     }
 
@@ -54,7 +54,7 @@ public class EmptyVanillaInventory
      * Removes up to a specified number of items from an inventory slot and returns them in a new stack.
      */
     @Override
-    public ItemStack decrStackSize(int index, int count) {
+    public ItemStack removeItem(int index, int count) {
         return ItemStack.EMPTY;
     }
 
@@ -62,7 +62,7 @@ public class EmptyVanillaInventory
      * Removes a stack from the given slot and returns it.
      */
     @Override
-    public ItemStack removeStackFromSlot(int index) {
+    public ItemStack removeItemNoUpdate(int index) {
         return ItemStack.EMPTY;
     }
 
@@ -70,7 +70,7 @@ public class EmptyVanillaInventory
      * Sets the given item stack to the specified slot in the inventory (can be crafting or armor sections).
      */
     @Override
-    public void setInventorySlotContents(int index, ItemStack stack) {
+    public void setItem(int index, ItemStack stack) {
     }
 
     /**
@@ -78,16 +78,16 @@ public class EmptyVanillaInventory
      * hasn't changed and skip it.
      */
     @Override
-    public void markDirty() {
+    public void setChanged() {
     }
 
     @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         return false;
     }
 
     @Override
-    public void clear() {
+    public void clearContent() {
     }
 
     //endregion

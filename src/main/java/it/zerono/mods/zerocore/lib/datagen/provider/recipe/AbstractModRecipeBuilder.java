@@ -45,7 +45,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
     protected AbstractModRecipeBuilder(final ResourceLocation serializerId) {
 
         this._serializerId = serializerId;
-        this._advancementBuilder = Advancement.Builder.builder();
+        this._advancementBuilder = Advancement.Builder.advancement();
         this._conditions = Lists.newArrayList();
     }
 
@@ -55,10 +55,10 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
 
         if (this.hasCriteria()) {
             this._advancementBuilder
-                    .withParentId(new ResourceLocation("recipes/root"))
-                    .withCriterion("has_the_recipe", RecipeUnlockedTrigger.create(id))
-                    .withRewards(AdvancementRewards.Builder.recipe(id))
-                    .withRequirementsStrategy(IRequirementsStrategy.OR);
+                    .parent(new ResourceLocation("recipes/root"))
+                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+                    .rewards(AdvancementRewards.Builder.recipe(id))
+                    .requirements(IRequirementsStrategy.OR);
         }
 
         consumer.accept(this.getFinishedRecipe(id));
@@ -66,7 +66,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
 
     public Builder addCriterion(final String name, final ICriterionInstance criterionIn) {
 
-        this._advancementBuilder.withCriterion(name, criterionIn);
+        this._advancementBuilder.addCriterion(name, criterionIn);
         return this.self();
     }
 
@@ -95,7 +95,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
          * Gets the JSON for the recipe.
          */
         @Override
-        public JsonObject getRecipeJson() {
+        public JsonObject serializeRecipe() {
 
             final JsonObject json = new JsonObject();
 
@@ -107,7 +107,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
                         .collect(JsonArray::new, JsonArray::add, JsonArray::addAll));
             }
 
-            this.serialize(json);
+            this.serializeRecipeData(json);
             return json;
         }
 
@@ -115,12 +115,12 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
          * Gets the ID for the recipe.
          */
         @Override
-        public ResourceLocation getID() {
+        public ResourceLocation getId() {
             return this._id;
         }
 
         @Override
-        public IRecipeSerializer<?> getSerializer() {
+        public IRecipeSerializer<?> getType() {
             return Objects.requireNonNull(ForgeRegistries.RECIPE_SERIALIZERS.getValue(_serializerId),
                     () -> "Unknown recipe serializer: " + _serializerId);
         }
@@ -130,8 +130,8 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
          */
         @Nullable
         @Override
-        public JsonObject getAdvancementJson() {
-            return hasCriteria() ? _advancementBuilder.serialize() : null;
+        public JsonObject serializeAdvancement() {
+            return hasCriteria() ? _advancementBuilder.serializeToJson() : null;
         }
 
         /**
@@ -140,7 +140,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
          */
         @Nullable
         @Override
-        public ResourceLocation getAdvancementID() {
+        public ResourceLocation getAdvancementId() {
             return new ResourceLocation(_id.getNamespace(), "recipes/" + _id.getPath());
         }
 

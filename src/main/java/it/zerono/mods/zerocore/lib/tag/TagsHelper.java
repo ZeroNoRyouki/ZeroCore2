@@ -50,7 +50,7 @@ public final class TagsHelper<T>
             rl -> ForgeTagHandler.createOptionalTag(ForgeRegistries.FLUIDS, rl));
 
     public static <T> T getTagFirstElement(final ITag<T> tag) {
-        return Iterables.get(tag.getAllElements(), 0);
+        return Iterables.get(tag.getValues(), 0);
     }
 
     public ITag.INamedTag<T> createTag(final ResourceLocation tagId) {
@@ -90,23 +90,23 @@ public final class TagsHelper<T>
     }
 
     public boolean tagExistWithContent(final ResourceLocation tagId) {
-        return this.getTag(tagId).filter(tag -> tag.getAllElements().size() > 0).isPresent();
+        return this.getTag(tagId).filter(tag -> tag.getValues().size() > 0).isPresent();
     }
 
     public Optional<T> getFirstElement(final ITag<T> tag) {
-        return tag.getAllElements().isEmpty() ? Optional.empty() : Optional.of(getTagFirstElement(tag));
+        return tag.getValues().isEmpty() ? Optional.empty() : Optional.of(getTagFirstElement(tag));
     }
 
     public Optional<T> getFirstElement(final ResourceLocation tagId) {
         return this.getTag(tagId)
-                .filter(tag -> !tag.getAllElements().isEmpty())
+                .filter(tag -> !tag.getValues().isEmpty())
                 .map(TagsHelper::getTagFirstElement);
     }
 
     public List<T> getMatchingElements(final ITag<T> tag) {
 
         try {
-            return tag.getAllElements();
+            return tag.getValues();
         } catch (IllegalStateException e) {
             return Collections.emptyList();
         }

@@ -79,7 +79,7 @@ public class GenericAdapter implements ISourceAdapter {
             final Vector3d original = source.getPos();
             final Vector4f v = new Vector4f((float)original.X, (float)original.Y, (float)original.Y, 1.0f);
 
-            v.transform(this._matrix.getLast().getMatrix());
+            v.transform(this._matrix.last().pose());
             return Vector3d.from(v);
 
         } else {
@@ -98,7 +98,7 @@ public class GenericAdapter implements ISourceAdapter {
 
             Vector3f v = original.copy();
 
-            v.transform(this._matrix.getLast().getNormal());
+            v.transform(this._matrix.last().normal());
             return v;
 
         } else {

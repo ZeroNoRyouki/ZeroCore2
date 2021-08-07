@@ -389,7 +389,7 @@ public class TextInput
 
 //                visibleTextWidth -= font.getCharWidth(text.charAt(this._displayCharIndex));
                 // ugly as hell...
-                visibleTextWidth -= font.getStringWidth(text.substring(this._displayCharIndex, this._displayCharIndex + 1));
+                visibleTextWidth -= font.width(text.substring(this._displayCharIndex, this._displayCharIndex + 1));
 
                 ++this._displayCharIndex;
             }

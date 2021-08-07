@@ -244,7 +244,7 @@ public final class JSONHelper {
      */
     public static CompoundNBT jsonGetNBT(final JsonObject json, final String elementName) {
         try {
-            return JsonToNBT.getTagFromJson(jsonGetString(json, elementName));
+            return JsonToNBT.parseTag(jsonGetString(json, elementName));
         } catch (CommandSyntaxException ex) {
             throw new JsonSyntaxException("JSON element is not a valid CompoundNBT tag: " + elementName);
         }
@@ -261,7 +261,7 @@ public final class JSONHelper {
      */
     public static CompoundNBT jsonGetNBT(final JsonObject json, final String elementName, final CompoundNBT defaultValue) {
         try {
-            return json.has(elementName) ? JsonToNBT.getTagFromJson(jsonGetString(json.get(elementName), elementName)) : defaultValue;
+            return json.has(elementName) ? JsonToNBT.parseTag(jsonGetString(json.get(elementName), elementName)) : defaultValue;
         } catch (CommandSyntaxException ex) {
             throw new JsonSyntaxException("JSON element is not a valid CompoundNBT tag: " + elementName);
         }
@@ -344,7 +344,7 @@ public final class JSONHelper {
      * @return the Ingredient
      */
     public static Ingredient jsonGetIngredient(final JsonObject json, final String elementName) {
-        return Ingredient.deserialize(jsonGetMandatoryElement(json, elementName));
+        return Ingredient.fromJson(jsonGetMandatoryElement(json, elementName));
     }
 
     /**
@@ -355,7 +355,7 @@ public final class JSONHelper {
      * @param value the value
      */
     public static void jsonSetIngredient(final JsonObject json, final String elementName, final Ingredient value) {
-        json.add(elementName, value.serialize());
+        json.add(elementName, value.toJson());
     }
 
     public static JsonElement jsonGetMandatoryElement(final JsonObject json, final String elementName) {

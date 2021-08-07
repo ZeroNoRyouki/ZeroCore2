@@ -37,7 +37,7 @@ public class TagSource<T> {
     }
 
     public Optional<ITag<T>> getTag(final ResourceLocation tagId) {
-        return Optional.ofNullable(this.getCollection().get(tagId));
+        return Optional.ofNullable(this.getCollection().getTag(tagId));
     }
 
     //region internals

@@ -288,13 +288,13 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
 
         if (maxSize > 0 && size > maxSize) {
 
-            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_large", maxSize, axis.getString());
+            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_large", maxSize, axis.getSerializedName());
             return true;
         }
 
         if (size < minSize) {
 
-            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_small", minSize, axis.getString());
+            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_small", minSize, axis.getSerializedName());
             return true;
         }
 
@@ -326,7 +326,7 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
                     final BlockPos pos = new BlockPos(x, y, z);
                     final BlockState state = world.getBlockState(pos);
 
-                    world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.DEFAULT);
+                    world.sendBlockUpdated(pos, state, state, Constants.BlockFlags.DEFAULT);
                 }
             }
         }

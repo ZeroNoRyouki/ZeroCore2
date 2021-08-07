@@ -57,45 +57,45 @@ public class BaseBlockLootTableProvider
 
     protected void addDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> drop,
                            final int count) {
-        this.addDrop(block.get(), ItemLootEntry.builder(drop.get())
-                .acceptCondition(SurvivesExplosion.builder())
-                .acceptFunction(SetCount.builder(ConstantRange.of(count))));
+        this.addDrop(block.get(), ItemLootEntry.lootTableItem(drop.get())
+                .when(SurvivesExplosion.survivesExplosion())
+                .apply(SetCount.setCount(ConstantRange.exactly(count))));
     }
 
     protected void addSilkDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> standardDrop,
                                final int count, final Supplier<? extends IItemProvider> silkDrop) {
-        this.addDrop(block.get(), AlternativesLootEntry.builder(
+        this.addDrop(block.get(), AlternativesLootEntry.alternatives(
                 // with silk touch ...
-                ItemLootEntry.builder(silkDrop.get())
-                        .acceptCondition(MatchTool.builder(ItemPredicate.Builder.create()
-                                .enchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1))))),
+                ItemLootEntry.lootTableItem(silkDrop.get())
+                        .when(MatchTool.toolMatches(ItemPredicate.Builder.item()
+                                .hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1))))),
                 // without ...
-                ItemLootEntry.builder(standardDrop.get())
-                        .acceptCondition(SurvivesExplosion.builder())
-                        .acceptFunction(SetCount.builder(ConstantRange.of(count)))));
+                ItemLootEntry.lootTableItem(standardDrop.get())
+                        .when(SurvivesExplosion.survivesExplosion())
+                        .apply(SetCount.setCount(ConstantRange.exactly(count)))));
     }
 
     protected void addDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> drop,
                            final int min, final int max) {
-        this.addDrop(block.get(), ItemLootEntry.builder(drop.get())
-                .acceptCondition(SurvivesExplosion.builder())
-                .acceptFunction(ApplyBonus.uniformBonusCount(Enchantments.FORTUNE, 1))
-                .acceptFunction(SetCount.builder(RandomValueRange.of(min, max))));
+        this.addDrop(block.get(), ItemLootEntry.lootTableItem(drop.get())
+                .when(SurvivesExplosion.survivesExplosion())
+                .apply(ApplyBonus.addUniformBonusCount(Enchantments.BLOCK_FORTUNE, 1))
+                .apply(SetCount.setCount(RandomValueRange.between(min, max))));
     }
 
     protected void addSilkDrop(final Supplier<? extends Block> block, final Supplier<? extends IItemProvider> standardDrop,
                                final int min, final int max, final Supplier<? extends IItemProvider> silkDrop) {
 
-        this.addDrop(block.get(), AlternativesLootEntry.builder(
+        this.addDrop(block.get(), AlternativesLootEntry.alternatives(
                 // with silk touch ...
-                ItemLootEntry.builder(silkDrop.get())
-                        .acceptCondition(MatchTool.builder(ItemPredicate.Builder.create()
-                                .enchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1))))),
+                ItemLootEntry.lootTableItem(silkDrop.get())
+                        .when(MatchTool.toolMatches(ItemPredicate.Builder.item()
+                                .hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1))))),
                 // without ...
-                ItemLootEntry.builder(standardDrop.get())
-                        .acceptCondition(SurvivesExplosion.builder())
-                        .acceptFunction(ApplyBonus.uniformBonusCount(Enchantments.FORTUNE, 1))
-                        .acceptFunction(SetCount.builder(new RandomValueRange(min, max)))));
+                ItemLootEntry.lootTableItem(standardDrop.get())
+                        .when(SurvivesExplosion.survivesExplosion())
+                        .apply(ApplyBonus.addUniformBonusCount(Enchantments.BLOCK_FORTUNE, 1))
+                        .apply(SetCount.setCount(new RandomValueRange(min, max)))));
     }
 
     //region internals
@@ -104,11 +104,11 @@ public class BaseBlockLootTableProvider
 
         final ResourceLocation id = Objects.requireNonNull(block.getRegistryName());
 
-        this.add(id, LootTable.builder()
-                .addLootPool(LootPool.builder()
+        this.add(id, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
                         .name(id.getPath())
-                        .rolls(ConstantRange.of(1))
-                        .addEntry(entry)
+                        .setRolls(ConstantRange.exactly(1))
+                        .add(entry)
                 ));
     }
 

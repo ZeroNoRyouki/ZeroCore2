@@ -57,7 +57,7 @@ public class ModRecipeType<Recipe extends ModRecipe>
             final RecipeManager manager = CodeHelper.getRecipeManager();
 
             if (null != manager) {
-                this._cache = manager.getRecipesForType(this);
+                this._cache = manager.getAllRecipesFor(this);
             }
         }
 

@@ -71,7 +71,7 @@ public final class BlockFacings {
      * @return true if the face is "set", false otherwise
      */
     public boolean isSet(final Direction facing) {
-        return 0 != (this._value & (1 << facing.getIndex()));
+        return 0 != (this._value & (1 << facing.get3DDataValue()));
     }
 
     /**
@@ -158,12 +158,12 @@ public final class BlockFacings {
 
     public BlockState toBlockState(final BlockState state) {
         //noinspection AutoBoxing
-        return state.with(FACING_DOWN, this.isSet(Direction.DOWN))
-                .with(FACING_UP, this.isSet(Direction.UP))
-                .with(FACING_WEST, this.isSet(Direction.WEST))
-                .with(FACING_EAST, this.isSet(Direction.EAST))
-                .with(FACING_NORTH, this.isSet(Direction.NORTH))
-                .with(FACING_SOUTH, this.isSet(Direction.SOUTH));
+        return state.setValue(FACING_DOWN, this.isSet(Direction.DOWN))
+                .setValue(FACING_UP, this.isSet(Direction.UP))
+                .setValue(FACING_WEST, this.isSet(Direction.WEST))
+                .setValue(FACING_EAST, this.isSet(Direction.EAST))
+                .setValue(FACING_NORTH, this.isSet(Direction.NORTH))
+                .setValue(FACING_SOUTH, this.isSet(Direction.SOUTH));
     }
 
     /**
@@ -178,9 +178,9 @@ public final class BlockFacings {
         byte newHash = this._value;
 
         if (value) {
-            newHash |= (1 << facing.getIndex());
+            newHash |= (1 << facing.get3DDataValue());
         } else {
-            newHash &= ~(1 << facing.getIndex());
+            newHash &= ~(1 << facing.get3DDataValue());
         }
 
         return BlockFacings.from(newHash);
@@ -236,13 +236,13 @@ public final class BlockFacings {
         for (Direction facing : CodeHelper.DIRECTIONS) {
             if (this.isSet(facing)) {
 
-                x += facing.getXOffset();
-                y += facing.getYOffset();
-                z += facing.getZOffset();
+                x += facing.getStepX();
+                y += facing.getStepY();
+                z += facing.getStepZ();
             }
         }
 
-        return originalPosition.add(x, y, z);
+        return originalPosition.offset(x, y, z);
     }
 
     /**
@@ -356,27 +356,27 @@ public final class BlockFacings {
         byte hash = 0;
 
         if (down) {
-            hash |= (1 << Direction.DOWN.getIndex());
+            hash |= (1 << Direction.DOWN.get3DDataValue());
         }
 
         if (up) {
-            hash |= (1 << Direction.UP.getIndex());
+            hash |= (1 << Direction.UP.get3DDataValue());
         }
 
         if (north) {
-            hash |= (1 << Direction.NORTH.getIndex());
+            hash |= (1 << Direction.NORTH.get3DDataValue());
         }
 
         if (south) {
-            hash |= (1 << Direction.SOUTH.getIndex());
+            hash |= (1 << Direction.SOUTH.get3DDataValue());
         }
 
         if (west) {
-            hash |= (1 << Direction.WEST.getIndex());
+            hash |= (1 << Direction.WEST.get3DDataValue());
         }
 
         if (east) {
-            hash |= (1 << Direction.EAST.getIndex());
+            hash |= (1 << Direction.EAST.get3DDataValue());
         }
 
         return hash;

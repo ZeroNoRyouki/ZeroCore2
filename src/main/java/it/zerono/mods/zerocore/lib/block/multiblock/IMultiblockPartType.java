@@ -53,6 +53,6 @@ public interface IMultiblockPartType
     }
 
     default String getNameForId() {
-        return CodeHelper.neutralLowercase(this.getString());
+        return CodeHelper.neutralLowercase(this.getSerializedName());
     }
 }

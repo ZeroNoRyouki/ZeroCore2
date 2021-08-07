@@ -50,7 +50,7 @@ public abstract class AbstractModTileMessage
     protected AbstractModTileMessage(final PacketBuffer buffer) {
 
         if (buffer.readBoolean()) {
-            this._dimension = RegistryKey.getOrCreateKey(Registry.WORLD_KEY, new ResourceLocation(buffer.readString(4096)));
+            this._dimension = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(buffer.readUtf(4096)));
         } else {
             this._dimension = null;
         }
@@ -95,7 +95,7 @@ public abstract class AbstractModTileMessage
         if (null != this._dimension) {
 
             buffer.writeBoolean(true);
-            buffer.writeResourceLocation(this._dimension.getLocation());
+            buffer.writeResourceLocation(this._dimension.location());
 
         } else {
 
@@ -163,7 +163,7 @@ public abstract class AbstractModTileMessage
                     if (null != this._dimension) {
                         return WorldHelper.getServerWorld(this._dimension).map(sw -> sw);
                     } else {
-                        return Optional.of(player.getEntityWorld());
+                        return Optional.of(player.getCommandSenderWorld());
                     }
                 }
 

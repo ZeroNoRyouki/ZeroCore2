@@ -95,18 +95,18 @@ public class ClientProxy
 
     @Override
     public Optional<World> getClientWorld() {
-        return Optional.ofNullable(Minecraft.getInstance().world);
+        return Optional.ofNullable(Minecraft.getInstance().level);
     }
 
     @Override
     public void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
-        Minecraft.getInstance().worldRenderer.markBlockRangeForRenderUpdate(min.getX(), min.getY(), min.getZ(),
+        Minecraft.getInstance().levelRenderer.setBlocksDirty(min.getX(), min.getY(), min.getZ(),
                 max.getX(), max.getY(), max.getZ());
     }
 
     @Override
     public void sendPlayerStatusMessage(final PlayerEntity player, final ITextComponent message) {
-            Minecraft.getInstance().ingameGUI.setOverlayMessage(message, false);
+            Minecraft.getInstance().gui.setOverlayMessage(message, false);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class ClientProxy
         // always check for a null here, there is not MC instance while running the datagens
         //noinspection ConstantConditions
         if (null != mc && mc.getResourceManager() instanceof IReloadableResourceManager) {
-            ((IReloadableResourceManager)Minecraft.getInstance().getResourceManager()).addReloadListener(listener);
+            ((IReloadableResourceManager)Minecraft.getInstance().getResourceManager()).registerReloadListener(listener);
         }
     }
 
@@ -181,7 +181,7 @@ public class ClientProxy
 
     @Override
     public void debugUngrabMouse() {
-        Minecraft.getInstance().mouseHelper.ungrabMouse();
+        Minecraft.getInstance().mouseHandler.releaseMouse();
     }
 
     //region internals
@@ -212,22 +212,22 @@ public class ClientProxy
     private void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
 
         final BlockRayTraceResult result = event.getTarget();
-        final BlockPos position = result.getPos();
+        final BlockPos position = result.getBlockPos();
 
         if (RayTraceResult.Type.BLOCK == result.getType() && this._guiErrorData.test(position)) {
 
-            final Vector3d projectedView = event.getInfo().getProjectedView();
+            final Vector3d projectedView = event.getInfo().getPosition();
 
-            ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.fullCube(),
+            ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.block(),
                     event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
-                    position.getX() - projectedView.getX(), position.getY() - projectedView.getY(),
-                    position.getZ() - projectedView.getZ(), ERROR_HIGHLIGHT1_COLOUR);
+                    position.getX() - projectedView.x(), position.getY() - projectedView.y(),
+                    position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
         }
     }
 
     private void paintErrorMessage(final MatrixStack matrix) {
 
-        final IRichText texts = this._guiErrorData.apply(Minecraft.getInstance().getMainWindow().getScaledWidth() / 2);
+        final IRichText texts = this._guiErrorData.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2);
 
         if (texts.isEmpty()) {
             return;
@@ -238,7 +238,7 @@ public class ClientProxy
     }
 
     private static boolean isGuiOpen() {
-        return null != Minecraft.getInstance().currentScreen;
+        return null != Minecraft.getInstance().screen;
     }
 
     private static final Colour ERROR_BACKGROUND_COLOUR = Colour.fromARGB(0x5f5e5e5e);

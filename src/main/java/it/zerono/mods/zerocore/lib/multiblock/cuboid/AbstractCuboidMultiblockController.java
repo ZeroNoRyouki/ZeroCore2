@@ -189,9 +189,9 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 
                     // Okay, figure out what sort of block this should be.
 
-                    partLocation.setPos(x, y, z);
+                    partLocation.set(x, y, z);
 
-                    final IMultiblockPart<Controller> part = this._connectedParts.get(BlockPos.pack(x, y, z));
+                    final IMultiblockPart<Controller> part = this._connectedParts.get(BlockPos.asLong(x, y, z));
                     int extremes = 0;
                     boolean downFacing = false;
                     boolean upFacing = false;
@@ -382,9 +382,9 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
             for (int y = minY; y <= maxY; ++y) {
                 for (int z = minZ; z <= maxZ; ++z) {
 
-                    final BlockState state = world.getBlockState(pos.setPos(x, y ,z));
+                    final BlockState state = world.getBlockState(pos.set(x, y ,z));
 
-                    world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.DEFAULT);
+                    world.sendBlockUpdated(pos, state, state, Constants.BlockFlags.DEFAULT);
                 }
             }
         }
@@ -403,14 +403,14 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
         if (maxSize > 0 && size > maxSize) {
 
             //noinspection AutoBoxing
-            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_large", maxSize, axis.getString());
+            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_large", maxSize, axis.getSerializedName());
             return true;
         }
 
         if (size < minSize) {
 
             //noinspection AutoBoxing
-            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_small", minSize, axis.getString());
+            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_small", minSize, axis.getSerializedName());
             return true;
         }
 

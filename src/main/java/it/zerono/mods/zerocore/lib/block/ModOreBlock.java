@@ -24,6 +24,8 @@ import net.minecraft.util.math.MathHelper;
 
 import java.util.Random;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public class ModOreBlock
     extends ModBlock {
 

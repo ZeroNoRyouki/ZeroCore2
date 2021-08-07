@@ -49,15 +49,15 @@ public class Vector3i {
     }
 
     public static Vector3i from(final Vector4f data) {
-        return new Vector3i((int)data.getX(), (int)data.getY(), (int)data.getZ());
+        return new Vector3i((int)data.x(), (int)data.y(), (int)data.z());
     }
 
     public static Vector3i from(final Entity data) {
-        return new Vector3i((int)data.getPosX(), (int)data.getPosY(), (int)data.getPosZ());
+        return new Vector3i((int)data.getX(), (int)data.getY(), (int)data.getZ());
     }
 
     public static Vector3i from(final TileEntity data) {
-        return from(data.getPos());
+        return from(data.getBlockPos());
     }
 
     public static Vector3i syncDataFrom(CompoundNBT data) {

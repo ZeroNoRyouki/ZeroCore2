@@ -90,7 +90,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
             registry.onPartRemovedFromWorld(part);
         } else {
             Log.LOGGER.error(Log.MULTIBLOCK, "Trying to remove a part from a world ({}) that is not tracked! Skipping.",
-                    part.getCurrentWorld().getDimensionKey());
+                    part.getCurrentWorld().dimension());
         }
     }
 
@@ -112,7 +112,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
         } else {
             //noinspection AutoBoxing
             Log.LOGGER.error(Log.MULTIBLOCK, "Controller {} in world ({}) marked as dead, but that world is not tracked! Controller is being ignored.",
-                    controller.hashCode(), controller.getWorld().getDimensionKey());
+                    controller.hashCode(), controller.getWorld().dimension());
         }
     }
 
@@ -130,7 +130,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
             registry.addDirtyController(controller);
         } else {
             Log.LOGGER.error(Log.MULTIBLOCK, "Adding a dirty controller to a world ({}) that has no registered controllers!",
-                    controller.getWorld().getDimensionKey());
+                    controller.getWorld().dimension());
         }
     }
 
@@ -152,7 +152,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
 
         final IProfiler profiler = world.getProfiler();
 
-        profiler.startSection("Zero CORE|Multiblock|Tick");
+        profiler.push("Zero CORE|Multiblock|Tick");
 
         final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
 
@@ -162,7 +162,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
             registry.tickStart();
         }
 
-        profiler.endSection();
+        profiler.pop();
     }
 
     //region event handlers

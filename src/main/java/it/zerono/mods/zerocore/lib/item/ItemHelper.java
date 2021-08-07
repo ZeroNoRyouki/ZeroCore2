@@ -103,7 +103,7 @@ public final class ItemHelper {
         }
 
         if (result && options.contains(MatchOption.Damage)) {
-            result = stackA.getDamage() == stackB.getDamage();
+            result = stackA.getDamageValue() == stackB.getDamageValue();
         }
 
         if (result && options.contains(MatchOption.NBT)) {
@@ -111,7 +111,7 @@ public final class ItemHelper {
             final CompoundNBT nbtA = stackA.getTag();
             final CompoundNBT nbtB = stackB.getTag();
 
-            result = (nbtA == nbtB) || (null != nbtA && null != nbtB && NBTUtil.areNBTEquals(nbtA, nbtB, true));
+            result = (nbtA == nbtB) || (null != nbtA && null != nbtB && NBTUtil.compareNbt(nbtA, nbtB, true));
         }
 
         if (result && options.contains(MatchOption.Capabilities)) {
@@ -119,7 +119,7 @@ public final class ItemHelper {
         }
 
         if (result && options.contains(MatchOption.Tags)) {
-            result = ItemStack.areItemStackTagsEqual(stackA, stackB);
+            result = ItemStack.tagMatches(stackA, stackB);
         }
 
         return result;
@@ -179,7 +179,7 @@ public final class ItemHelper {
 
         final ItemStack stack = ItemHelper.stackFrom(provider, amount);
 
-        stack.setDamage(damage);
+        stack.setDamageValue(damage);
         return stack;
     }
 
@@ -196,7 +196,7 @@ public final class ItemHelper {
         final ItemStack stack = ItemHelper.stackFrom(supplier, amount);
 
         if (!stack.isEmpty()) {
-            stack.setDamage(damage);
+            stack.setDamageValue(damage);
         }
 
         return stack;
@@ -247,7 +247,7 @@ public final class ItemHelper {
      * @return the newly create stack
      */
     public static ItemStack stackFrom(final CompoundNBT nbt) {
-        return ItemStack.read(nbt);
+        return ItemStack.of(nbt);
     }
 
     /**
@@ -257,7 +257,7 @@ public final class ItemHelper {
      * @return the serialized NBT data
      */
     public static CompoundNBT stackToNBT(final ItemStack stack) {
-        return stack.write(new CompoundNBT());
+        return stack.save(new CompoundNBT());
     }
 
     /**
@@ -412,7 +412,7 @@ public final class ItemHelper {
         IntStream.range(0, inventory.getSlots())
                 .mapToObj(slot -> ItemHelper.removeStackFromSlot(inventory, slot))
                 .filter(stack -> !stack.isEmpty())
-                .forEach(stack -> InventoryHelper.spawnItemStack(world, x, y, z, stack));
+                .forEach(stack -> InventoryHelper.dropItemStack(world, x, y, z, stack));
     }
 
     //region internals

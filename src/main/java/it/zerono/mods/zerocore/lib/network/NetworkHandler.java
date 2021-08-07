@@ -81,7 +81,7 @@ public class NetworkHandler {
     public <T extends IModMessage> void sendToPlayer(final T message, final ServerPlayerEntity player) {
 
         if (!(player instanceof FakePlayer)) {
-            this._channel.sendTo(message, player.connection.netManager, NetworkDirection.PLAY_TO_CLIENT);
+            this._channel.sendTo(message, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
         }
     }
 

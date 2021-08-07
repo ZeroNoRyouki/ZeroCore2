@@ -24,6 +24,8 @@ import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.LogicalSide;
 
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
+
 @SuppressWarnings({"unused", "WeakerAccess", "UnusedReturnValue"})
 public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebuggable {
 

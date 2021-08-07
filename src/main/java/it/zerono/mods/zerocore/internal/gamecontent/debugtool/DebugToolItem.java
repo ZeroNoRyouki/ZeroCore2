@@ -44,6 +44,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import net.minecraft.item.Item.Properties;
+
 public class DebugToolItem
         extends ModItem {
 
@@ -54,7 +56,7 @@ public class DebugToolItem
     }
 
     public DebugToolItem() {
-        super(new Properties().maxStackSize(64).group(ItemGroup.TOOLS));
+        super(new Properties().stacksTo(64).tab(ItemGroup.TAB_TOOLS));
     }
 
     public static void setTestCallback(@Nullable ITestCallback callback) {
@@ -68,7 +70,7 @@ public class DebugToolItem
      */
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
 
         tooltip.add(new TranslationTextComponent("zerocore:debugTool.block.tooltip1"));
         tooltip.add(new TranslationTextComponent("zerocore:debugTool.block.tooltip2", TextFormatting.ITALIC.toString()));
@@ -85,8 +87,8 @@ public class DebugToolItem
     public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
 
         final PlayerEntity player = context.getPlayer();
-        final World world = context.getWorld();
-        final BlockPos pos = context.getPos();
+        final World world = context.getLevel();
+        final BlockPos pos = context.getClickedPos();
         final LogicalSide side = CodeHelper.getWorldLogicalSide(world);
 
         if (CodeHelper.isDevEnv() && null != s_testCallback && !stack.isEmpty() && stack.getCount() > 1) {
@@ -100,8 +102,8 @@ public class DebugToolItem
 
         if (null == player ||
                 /*player.isSneaking() != WorldHelper.calledByLogicalClient(world)*/
-                player.isSneaking() != side.isClient() ||
-                world.isAirBlock(pos)) {
+                player.isShiftKeyDown() != side.isClient() ||
+                world.isEmptyBlock(pos)) {
             return ActionResultType.PASS;
         }
 
@@ -255,7 +257,7 @@ public class DebugToolItem
 
             if (1 == other._messages.size()) {
 
-                this.add(new StringTextComponent("").append(label).appendString(" ").append(other._messages.get(0)));
+                this.add(new StringTextComponent("").append(label).append(" ").append(other._messages.get(0)));
 
             } else {
 

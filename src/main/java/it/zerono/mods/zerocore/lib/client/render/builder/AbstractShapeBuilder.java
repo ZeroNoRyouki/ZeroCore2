@@ -145,10 +145,10 @@ public abstract class AbstractShapeBuilder implements IPrimitiveBuilder<Shape> {
                 throw new IllegalArgumentException("This polygonal face does not have 4 vertices");
             }
 
-            this.setTexture(0, sprite.getMinU(), sprite.getMinV());
-            this.setTexture(1, sprite.getMinU(), sprite.getMaxV());
-            this.setTexture(2, sprite.getMaxU(), sprite.getMaxV());
-            this.setTexture(3, sprite.getMaxU(), sprite.getMinV());
+            this.setTexture(0, sprite.getU0(), sprite.getV0());
+            this.setTexture(1, sprite.getU0(), sprite.getV1());
+            this.setTexture(2, sprite.getU1(), sprite.getV1());
+            this.setTexture(3, sprite.getU1(), sprite.getV0());
             return this;
         }
 

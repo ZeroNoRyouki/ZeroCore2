@@ -96,7 +96,7 @@ public class VertexBuilder implements IPrimitiveBuilder<Vertex> {
     }
 
     public VertexBuilder setTexture(final TextureAtlasSprite sprite) {
-        return this.setTexture(new UV(sprite.getMinU(), sprite.getMinV()));
+        return this.setTexture(new UV(sprite.getU0(), sprite.getV0()));
     }
 
     public VertexBuilder setTexture(final ISprite sprite) {

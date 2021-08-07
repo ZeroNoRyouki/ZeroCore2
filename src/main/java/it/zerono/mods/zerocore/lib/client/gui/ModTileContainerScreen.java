@@ -36,7 +36,7 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
     public final IEvent<Runnable> DataUpdated;
 
     public T getTileEntity() {
-        return this.getContainer().getTileEntity();
+        return this.getMenu().getTileEntity();
     }
 
     /**
@@ -121,7 +121,7 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
     @Override
     protected void onScreenClose() {
 
-        this.getContainer().getTileEntity().DataUpdate.unsubscribe(this.raiseDataUpdatedHandler);
+        this.getMenu().getTileEntity().DataUpdate.unsubscribe(this.raiseDataUpdatedHandler);
         super.onScreenClose();
     }
 

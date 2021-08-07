@@ -62,10 +62,10 @@ public abstract class AbstractStandardPageComponent<PageType extends BookPage>
 
         if (this.x > 0 || this.y > 0) {
 
-            stack.push();
+            stack.pushPose();
             stack.translate(this.x, this.y, 0);
             this.renderPage(stack, mouseX, mouseY, partialTicks);
-            stack.pop();
+            stack.popPose();
 
         } else {
 

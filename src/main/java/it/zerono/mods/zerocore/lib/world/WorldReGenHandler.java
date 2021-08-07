@@ -82,19 +82,19 @@ public class WorldReGenHandler
     }
 
     public static Predicate<Biome> onlyNether() {
-        return biome -> Biome.Category.NETHER == biome.getCategory();
+        return biome -> Biome.Category.NETHER == biome.getBiomeCategory();
     }
 
     public static Predicate<Biome> exceptNether() {
-        return biome -> Biome.Category.NETHER != biome.getCategory();
+        return biome -> Biome.Category.NETHER != biome.getBiomeCategory();
     }
 
     public static Predicate<Biome> onlyTheEnd() {
-        return biome -> Biome.Category.THEEND == biome.getCategory();
+        return biome -> Biome.Category.THEEND == biome.getBiomeCategory();
     }
 
     public static Predicate<Biome> exceptTheEnd() {
-        return biome -> Biome.Category.THEEND != biome.getCategory();
+        return biome -> Biome.Category.THEEND != biome.getBiomeCategory();
     }
 
     public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
@@ -140,16 +140,16 @@ public class WorldReGenHandler
 
         final IWorld world = event.getWorld();
 
-        if (this.enabled() && world instanceof World && !world.isRemote() &&
+        if (this.enabled() && world instanceof World && !world.isClientSide() &&
                 (!event.getData().contains(this.getWorldGenVersionTagName()) ||
                 event.getData().getInt(this.getWorldGenVersionTagName()) < this._worldGenCurrentVersion.getAsInt())) {
-            this.addChunkToRegen(((World) world).getDimensionKey(), event.getChunk().getPos());
+            this.addChunkToRegen(((World) world).dimension(), event.getChunk().getPos());
         }
     }
 
     private void onChunkDataSave(final ChunkDataEvent.Save event) {
 
-        if (this.enabled() && null != event.getWorld() && !event.getWorld().isRemote()) {
+        if (this.enabled() && null != event.getWorld() && !event.getWorld().isClientSide()) {
             event.getData().putInt(this.getWorldGenVersionTagName(), this._worldGenCurrentVersion.getAsInt());
         }
     }
@@ -174,7 +174,7 @@ public class WorldReGenHandler
             this._chunksToRegen = new Object2ObjectArrayMap<>();
         }
 
-        final Queue<ChunkPos> positions = this._chunksToRegen.computeIfAbsent(dimension.getLocation(), k -> new LinkedList<>());
+        final Queue<ChunkPos> positions = this._chunksToRegen.computeIfAbsent(dimension.location(), k -> new LinkedList<>());
 
         if (!positions.contains(chunkPosition)) {
             positions.add(chunkPosition);
@@ -183,9 +183,9 @@ public class WorldReGenHandler
 
     private void processChunks(final ServerWorld world) {
 
-        if (!world.isRemote && null != this._chunksToRegen) {
+        if (!world.isClientSide && null != this._chunksToRegen) {
 
-            final ResourceLocation dimensionId = world.getDimensionKey().getLocation();
+            final ResourceLocation dimensionId = world.dimension().location();
 
             if (this._chunksToRegen.containsKey(dimensionId)) {
 
@@ -218,11 +218,11 @@ public class WorldReGenHandler
 
     private void regenerateChunk(final ServerWorld world, final Random random, final int chunkX, final int chunkZ) {
 
-        if (!world.chunkExists(chunkX, chunkZ)) {
+        if (!world.hasChunk(chunkX, chunkZ)) {
             return;
         }
 
-        final ChunkGenerator chunkGenerator = world.getChunkProvider().getChunkGenerator();
+        final ChunkGenerator chunkGenerator = world.getChunkSource().getGenerator();
         final BlockPos position = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         final Biome biome = world.getBiome(position);
 
@@ -233,7 +233,7 @@ public class WorldReGenHandler
             for (Pair<Predicate<Biome>, ConfiguredFeature<?, ?>> pair : this._entries.get(stage)) {
 
                 if (pair.getKey().test(biome)) {
-                    processed |= pair.getValue().generate(world, chunkGenerator, random, position);
+                    processed |= pair.getValue().place(world, chunkGenerator, random, position);
                 }
             }
 

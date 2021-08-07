@@ -28,6 +28,8 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 
 import javax.annotation.Nullable;
 
+import it.zerono.mods.zerocore.lib.client.gui.IDraggable.PaintState;
+
 @SuppressWarnings("unused")
 public class DraggableSprite
         extends Sprite

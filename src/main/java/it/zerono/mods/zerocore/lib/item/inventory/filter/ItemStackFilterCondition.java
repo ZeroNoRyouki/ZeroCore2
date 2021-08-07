@@ -73,7 +73,7 @@ public class ItemStackFilterCondition implements IFilterCondition {
         final CompoundNBT nbt = new CompoundNBT();
 
         if (null != this._filterStack) {
-            nbt.put(NBT_KEY, this._filterStack.write(new CompoundNBT()));
+            nbt.put(NBT_KEY, this._filterStack.save(new CompoundNBT()));
         }
 
         return nbt;

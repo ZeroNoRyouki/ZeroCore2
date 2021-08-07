@@ -69,20 +69,20 @@ public final class WorldHelper {
 
         final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
-        return null != server ? Optional.ofNullable(server.getWorld(worldKey)) : Optional.empty();
+        return null != server ? Optional.ofNullable(server.getLevel(worldKey)) : Optional.empty();
     }
 
     //region Positions helpers
 
     public static Stream<BlockPos> getNeighboringPositions(BlockPos origin) {
         return Stream.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST)
-                .map(origin::offset);
+                .map(origin::relative);
     }
 
     public static BlockPos[] getNeighboringPositionsList(final BlockPos origin, final BlockPos[] storage) {
 
         for (int i = 0; i < CodeHelper.DIRECTIONS.length; ++i) {
-            storage[i] = origin.offset(CodeHelper.DIRECTIONS[i]);
+            storage[i] = origin.relative(CodeHelper.DIRECTIONS[i]);
         }
 
         return storage;
@@ -92,7 +92,7 @@ public final class WorldHelper {
     //region Block / BlockState helpers
 
     public static Optional<BlockState> getBlockState(World world, BlockPos position) {
-        return world.isBlockPresent(position) ? Optional.of(world.getBlockState(position)) : Optional.empty();
+        return world.isLoaded(position) ? Optional.of(world.getBlockState(position)) : Optional.empty();
     }
 
     public static Stream<BlockState> getBlockStatesFrom(World world, Stream<BlockPos> positions) {
@@ -133,7 +133,7 @@ public final class WorldHelper {
             newState = oldState;
         }
 
-        world.notifyBlockUpdate(position, oldState, newState, 3);
+        world.sendBlockUpdated(position, oldState, newState, 3);
     }
 
     public static void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
@@ -144,7 +144,7 @@ public final class WorldHelper {
      * MC-Version independent wrapper around World::notifyNeighborsOfStateChange()
      */
     public static void notifyNeighborsOfStateChange(final World world, final BlockPos pos, final Block blockType) {
-        world.notifyNeighborsOfStateChange(pos, blockType);
+        world.updateNeighborsAt(pos, blockType);
     }
 
     //endregion
@@ -152,17 +152,17 @@ public final class WorldHelper {
 
     @Nullable
     public static TileEntity getLoadedTile(final IWorldReader world, final BlockPos position) {
-        return World.isValid(position) ?
+        return World.isInWorldBounds(position) ?
                 getLoadedTile((Chunk)world.getChunk(position.getX() >> 4, position.getZ() >> 4, ChunkStatus.FULL, false), position) : null;
     }
     @Nullable
     public static TileEntity getLoadedTile(final ChunkCache chunkCache, final BlockPos position) {
-        return World.isValid(position) ? getLoadedTile(chunkCache.get(position), position) : null;
+        return World.isInWorldBounds(position) ? getLoadedTile(chunkCache.get(position), position) : null;
     }
 
     @Nullable
     private static TileEntity getLoadedTile(final @Nullable Chunk chunk, final BlockPos position) {
-        return null != chunk ? chunk.getTileEntity(position, Chunk.CreateEntityType.CHECK) : null;
+        return null != chunk ? chunk.getBlockEntity(position, Chunk.CreateEntityType.CHECK) : null;
     }
 
     /**
@@ -173,7 +173,7 @@ public final class WorldHelper {
      * @return an Optional holding the TileEntity if it exists and it was already loaded and within the world border
      */
     public static Optional<TileEntity> getTile(World world, BlockPos position) {
-        return world.getWorldBorder().contains(position) ? Optional.ofNullable(getLoadedTile(world, position)) : Optional.empty();
+        return world.getWorldBorder().isWithinBounds(position) ? Optional.ofNullable(getLoadedTile(world, position)) : Optional.empty();
     }
 
     /**
@@ -190,7 +190,7 @@ public final class WorldHelper {
             return Optional.ofNullable(getLoadedTile((IWorldReader)world, position));
         }
 
-        return Optional.ofNullable(world.getTileEntity(position));
+        return Optional.ofNullable(world.getBlockEntity(position));
     }
 
     /**
@@ -202,7 +202,7 @@ public final class WorldHelper {
      * @return an Optional holding the TileEntity if it exists and it was already loaded and within the world border
      */
     public static Optional<TileEntity> getTile(World world, BlockPos origin, Direction direction) {
-        return getTile(world, origin.offset(direction));
+        return getTile(world, origin.relative(direction));
     }
 
     /**
@@ -214,9 +214,9 @@ public final class WorldHelper {
      */
     public static Optional<TileEntity> getTile(TileEntity origin, Direction direction) {
 
-        final World world = origin.getWorld();
+        final World world = origin.getLevel();
 
-        return null != world ? getTile(world, origin.getPos().offset(direction)) : Optional.empty();
+        return null != world ? getTile(world, origin.getBlockPos().relative(direction)) : Optional.empty();
     }
 
     public static Stream<TileEntity> getTilesFrom(World world, Stream<BlockPos> positions) {
@@ -239,7 +239,7 @@ public final class WorldHelper {
 
     @OnlyIn(Dist.CLIENT)
     public static <T extends TileEntity> Optional<T> getClientTile(final BlockPos position, final Direction direction) {
-        return getClientTile(position.offset(direction));
+        return getClientTile(position.relative(direction));
     }
 
     //endregion
@@ -270,17 +270,17 @@ public final class WorldHelper {
     }
 
     public static boolean chunkExists(World world, BlockPos position) {
-        return world.chunkExists(getChunkXFromBlock(position), getChunkZFromBlock(position));
+        return world.hasChunk(getChunkXFromBlock(position), getChunkZFromBlock(position));
     }
 
     //endregion
 
     public static boolean isEntityInRange(Entity entity, double x, double y, double z, double range) {
-        return entity.getDistanceSq(x + 0.5, y + 0.5, z + 0.5) < (range * range);
+        return entity.distanceToSqr(x + 0.5, y + 0.5, z + 0.5) < (range * range);
     }
 
     public static boolean isEntityInRange(Entity entity, BlockPos position, double range) {
-        return entity.getDistanceSq(position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5) < (range * range);
+        return entity.distanceToSqr(position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5) < (range * range);
     }
 
     public static <T extends IParticleData> void spawnVanillaParticles(final World world, final T particle,
@@ -288,7 +288,7 @@ public final class WorldHelper {
                                                                        int x, int y, int z,
                                                                        int offsetX, int offsetY, int offsetZ) {
 
-        final Random rand = world.rand;
+        final Random rand = world.random;
         int howMany = MathHelper.nextInt(rand, minCount, maxCount);
         double motionX, motionY, motionZ, pX, pY, pZ, px1, px2, py1, py2, pz1, pz2;
 
@@ -311,7 +311,7 @@ public final class WorldHelper {
             pY = MathHelper.nextDouble(rand, py1, py2);
             pZ = MathHelper.nextDouble(rand, pz1, pz2);
 
-            ws.spawnParticle(particle, pX, pY, pZ, howMany, motionX, motionY, motionZ, rand.nextGaussian() * 0.02D);
+            ws.sendParticles(particle, pX, pY, pZ, howMany, motionX, motionY, motionZ, rand.nextGaussian() * 0.02D);
 
         } else {
 
@@ -347,9 +347,9 @@ public final class WorldHelper {
 
         if (withMomentum) {
 
-            x2 = world.rand.nextFloat() * 0.8F + 0.1F;
-            y2 = world.rand.nextFloat() * 0.8F + 0.1F;
-            z2 = world.rand.nextFloat() * 0.8F + 0.1F;
+            x2 = world.random.nextFloat() * 0.8F + 0.1F;
+            y2 = world.random.nextFloat() * 0.8F + 0.1F;
+            z2 = world.random.nextFloat() * 0.8F + 0.1F;
 
         } else {
 
@@ -361,22 +361,22 @@ public final class WorldHelper {
         final ItemEntity entity = new ItemEntity(world, x + x2, y + y2, z + z2, ItemHelper.stackFrom(stack));
 
         if (withMomentum) {
-            entity.setMotion(world.rand.nextGaussian() * 0.05F,
-                    world.rand.nextGaussian() * 0.05F + 0.2F,
-                    world.rand.nextGaussian() * 0.05F);
+            entity.setDeltaMovement(world.random.nextGaussian() * 0.05F,
+                    world.random.nextGaussian() * 0.05F + 0.2F,
+                    world.random.nextGaussian() * 0.05F);
         } else {
-            entity.setMotion(0.0, -0.05F, 0.0);
+            entity.setDeltaMovement(0.0, -0.05F, 0.0);
         }
 
-        world.addEntity(entity);
+        world.addFreshEntity(entity);
     }
 
     public static boolean isFluidStateTagged(IBlockReader access, BlockPos position, ITag.INamedTag<Fluid> tag) {
-        return access.getFluidState(position).isTagged(tag);
+        return access.getFluidState(position).is(tag);
     }
 
     public static boolean isFluidStateTagged(BlockState blockState, ITag.INamedTag<Fluid> tag) {
-        return blockState.getFluidState().isTagged(tag);
+        return blockState.getFluidState().is(tag);
     }
 
     //region internals

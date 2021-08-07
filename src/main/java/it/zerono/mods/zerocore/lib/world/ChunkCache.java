@@ -53,7 +53,7 @@ public class ChunkCache {
     @Nullable
     public Chunk get(final BlockPos position) {
 
-        if (!World.isValid(position)) {
+        if (!World.isInWorldBounds(position)) {
             return null;
         }
 
@@ -75,7 +75,7 @@ public class ChunkCache {
     }
 
     public void remove(final Chunk chunk) {
-        this._chunks.remove(chunk.getPos().asLong());
+        this._chunks.remove(chunk.getPos().toLong());
     }
 
     public void clear() {

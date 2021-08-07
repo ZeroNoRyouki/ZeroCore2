@@ -38,7 +38,7 @@ public class ModOreFeature
         super(p_i231976_1_);
     }
 
-    public boolean generate(ISeedReader reader, ChunkGenerator generator, Random rand, BlockPos pos, ModOreFeatureConfig config) {
+    public boolean place(ISeedReader reader, ChunkGenerator generator, Random rand, BlockPos pos, ModOreFeatureConfig config) {
         float f = rand.nextFloat() * (float)Math.PI;
         float f1 = (float)config.size / 8.0F;
         int i = MathHelper.ceil(((float)config.size / 16.0F * 2.0F + 1.0F) / 2.0F);
@@ -58,7 +58,7 @@ public class ModOreFeature
         for(int l1 = k; l1 <= k + j1; ++l1) {
             for(int i2 = i1; i2 <= i1 + j1; ++i2) {
                 if (l <= reader.getHeight(this.getHeightmapType(), l1, i2)) {
-                    return this.func_207803_a(reader, rand, config, d0, d1, d2, d3, d4, d5, k, l, i1, j1, k1);
+                    return this.doPlace(reader, rand, config, d0, d1, d2, d3, d4, d5, k, l, i1, j1, k1);
                 }
             }
         }
@@ -70,7 +70,7 @@ public class ModOreFeature
         return Heightmap.Type.OCEAN_FLOOR_WG;
     }
 
-    protected boolean func_207803_a(IWorld worldIn, Random random, ModOreFeatureConfig config, double p_207803_4_, double p_207803_6_, double p_207803_8_, double p_207803_10_, double p_207803_12_, double p_207803_14_, int p_207803_16_, int p_207803_17_, int p_207803_18_, int p_207803_19_, int p_207803_20_) {
+    protected boolean doPlace(IWorld worldIn, Random random, ModOreFeatureConfig config, double p_207803_4_, double p_207803_6_, double p_207803_8_, double p_207803_10_, double p_207803_12_, double p_207803_14_, int p_207803_16_, int p_207803_17_, int p_207803_18_, int p_207803_19_, int p_207803_20_) {
         int i = 0;
         BitSet bitset = new BitSet(p_207803_19_ * p_207803_20_ * p_207803_19_);
         BlockPos.Mutable blockpos$mutable = new BlockPos.Mutable();
@@ -135,9 +135,9 @@ public class ModOreFeature
                                         int l2 = i2 - p_207803_16_ + (j2 - p_207803_17_) * p_207803_19_ + (k2 - p_207803_18_) * p_207803_19_ * p_207803_20_;
                                         if (!bitset.get(l2)) {
                                             bitset.set(l2);
-                                            blockpos$mutable.setPos(i2, j2, k2);
+                                            blockpos$mutable.set(i2, j2, k2);
                                             if (config.target.test(worldIn.getBlockState(blockpos$mutable), random)) {
-                                                worldIn.setBlockState(blockpos$mutable, config.state, 2);
+                                                worldIn.setBlock(blockpos$mutable, config.state, 2);
                                                 ++i;
                                             }
                                         }

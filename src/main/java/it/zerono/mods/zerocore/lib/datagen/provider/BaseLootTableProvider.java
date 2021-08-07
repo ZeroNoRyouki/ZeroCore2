@@ -60,7 +60,7 @@ public class BaseLootTableProvider
     }
 
     protected void addEmpty(final ResourceLocation id) {
-        this.add(id, LootTable.builder());
+        this.add(id, LootTable.lootTable());
     }
 
     //region IDataProvider
@@ -71,11 +71,11 @@ public class BaseLootTableProvider
      * @param cache
      */
     @Override
-    public void act(DirectoryCache cache) {
+    public void run(DirectoryCache cache) {
 
         this.generateTables();
         this._tables.forEach((id, builder) -> this.writeTable(cache, id,
-                builder.setParameterSet(this.getType().getParameters()).build()));
+                builder.setParamSet(this.getType().getParameters()).build()));
     }
 
     /**
@@ -99,8 +99,8 @@ public class BaseLootTableProvider
                         .acceptFunction(CopyNbt.builder(CopyNbt.Source.BLOCK_ENTITY)
                                 .addOperation("inv", "BlockEntityTag.inv", CopyNbt.Action.REPLACE)
                                 .addOperation("energy", "BlockEntityTag.energy", CopyNbt.Action.REPLACE))
-                        .acceptFunction(SetContents.func_215920_b()
-                                .func_216075_a(DynamicLootEntry.func_216162_a(new ResourceLocation("minecraft", "contents"))))
+                        .acceptFunction(SetContents.setContents()
+                                .withEntry(DynamicLootEntry.dynamicEntry(new ResourceLocation("minecraft", "contents"))))
                 );
 
         return LootTable.builder().addLootPool(builder);
@@ -112,7 +112,7 @@ public class BaseLootTableProvider
                 "/loot_tables/" + this.getType().getSubFolderName() + "/" + id.getPath() + ".json");
 
         try {
-            IDataProvider.save(GSON, cache, LootTableManager.toJson(table), path);
+            IDataProvider.save(GSON, cache, LootTableManager.serialize(table), path);
         } catch (IOException ex) {
             Log.LOGGER.error(Log.CORE, "Loot table provider - couldn't write tables at {}", path, ex);
         }

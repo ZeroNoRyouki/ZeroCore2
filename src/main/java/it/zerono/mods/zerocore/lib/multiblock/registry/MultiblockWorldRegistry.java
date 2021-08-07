@@ -102,7 +102,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         final IProfiler profiler = this._world.getProfiler();
 
-        profiler.startSection("Zero CORE|Multiblock|World|Tick");
+        profiler.push("Zero CORE|Multiblock|World|Tick");
 
         for (final Controller controller : this._controllers) {
 
@@ -119,7 +119,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
             }
         }
 
-        profiler.endSection();
+        profiler.pop();
     }
 
     /**
@@ -139,7 +139,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         // Merge pools - sets of adjacent machines which should be merged later on in processing
 
-        profiler.startSection("Zero CORE|Multiblock|World|Merge");
+        profiler.push("Zero CORE|Multiblock|World|Merge");
 
         if (!this._orphanedParts.isEmpty()) {
 
@@ -307,7 +307,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
             }
         } // orphaned parts / merge processing complete
 
-        profiler.endStartSection("Zero CORE|Multiblock|World|Split&Assembly");
+        profiler.popPush("Zero CORE|Multiblock|World|Split&Assembly");
 
         // Process splits and assembly
         // Any controllers which have had parts removed (by the player or by chunk-unloading) must be checked to see if
@@ -353,7 +353,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         // Unregister dead controllers
 
-        profiler.endStartSection("Zero CORE|Multiblock|World|DeadControllers");
+        profiler.popPush("Zero CORE|Multiblock|World|DeadControllers");
 
         if (!this._deadControllers.isEmpty()) {
 
@@ -377,7 +377,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         // Process detached blocks
 
-        profiler.endStartSection("Zero CORE|Multiblock|World|DetachedParts");
+        profiler.popPush("Zero CORE|Multiblock|World|DetachedParts");
 
         // Any blocks which have been detached this tick should be moved to the orphaned
         // list, and will be checked next tick to see if their chunk is still loaded.
@@ -394,7 +394,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
             this._detachedParts = this.createPartStorage();
         }
 
-        profiler.endSection();
+        profiler.pop();
     }
 
     /**
@@ -407,9 +407,9 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         final IProfiler profiler = this._world.getProfiler();
 
-        profiler.startSection("Zero CORE|Multiblock|World|PartAdded");
+        profiler.push("Zero CORE|Multiblock|World|PartAdded");
         this._orphanedParts.addOrReplace(part);
-        profiler.endSection();
+        profiler.pop();
     }
 
     /**
@@ -421,7 +421,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         final IProfiler profiler = this._world.getProfiler();
 
-        profiler.startSection("Zero CORE|Multiblock|World|PartRemoved");
+        profiler.push("Zero CORE|Multiblock|World|PartRemoved");
 
         this._detachedParts.remove(part);
 
@@ -431,7 +431,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         part.assertDetached();
 
-        profiler.endSection();
+        profiler.pop();
     }
 
     /**
@@ -442,7 +442,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
         final IProfiler profiler = this._world.getProfiler();
 
-        profiler.startSection("Zero CORE|Multiblock|World|WorldUnloaded");
+        profiler.push("Zero CORE|Multiblock|World|WorldUnloaded");
 
         this._controllers.clear();
         this._deadControllers.clear();
@@ -451,7 +451,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
         this._detachedParts = null;
         this._world = null;
 
-        profiler.endSection();
+        profiler.pop();
     }
 
     /**

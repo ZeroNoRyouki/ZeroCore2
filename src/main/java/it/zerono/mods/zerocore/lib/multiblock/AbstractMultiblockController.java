@@ -73,6 +73,8 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
 
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
+
 /**
  * This class contains the base logic for "multiblock controllers". Conceptually, they are
  * meta-TileEntities. They govern the logic for an associated group of TileEntities.
@@ -227,7 +229,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         final IPartStorage<Controller> detachedParts = this._connectedParts;
 
-        this._connectedParts.forEach(this::onDetachPart, part -> this.getWorld().isBlockLoaded(part.getWorldPosition()));
+        this._connectedParts.forEach(this::onDetachPart, part -> this.getWorld().hasChunkAt(part.getWorldPosition()));
         this._connectedParts = this.createPartStorage();
         return detachedParts;
     }
@@ -540,7 +542,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             final BlockPos min = this._boundingBox.getMin();
             final BlockPos max = this._boundingBox.getMax();
 
-            if (myWorld.isAreaLoaded(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ())) {
+            if (myWorld.hasChunksAt(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ())) {
 
                 final int minChunkX = WorldHelper.getChunkXFromBlock(min);
                 final int minChunkZ = WorldHelper.getChunkZFromBlock(min);
@@ -550,7 +552,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
                 for (int x = minChunkX; x <= maxChunkX; ++x) {
                     for(int z = minChunkZ; z <= maxChunkZ; ++z) {
                         // Ensure that we save our data, even if our save delegate has no TEs.
-                        myWorld.getChunk(x, z).markDirty();
+                        myWorld.getChunk(x, z).markUnsaved();
                     }
                 }
             }
@@ -1016,7 +1018,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this.callOnLogicalServer(() -> this.getReferenceTracker().consume((part, position) -> {
 
-            this.getWorld().markChunkDirty(position, (TileEntity)part);
+            this.getWorld().blockEntityChanged(position, (TileEntity)part);
             WorldHelper.notifyBlockUpdate(this.getWorld(), position);
         }));
     }
@@ -1207,14 +1209,14 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * Test if we were called by the Server thread or by another thread in a server environment
      */
     public boolean calledByLogicalServer() {
-        return !this._world.isRemote;
+        return !this._world.isClientSide;
     }
 
     /**
      * Test if we were called by the Client thread or by another thread in a client-only or combined environment
      */
     public boolean calledByLogicalClient() {
-        return this._world.isRemote;
+        return this._world.isClientSide;
     }
 
     public void callOnLogicalSide(final Runnable serverCode, final Runnable clientCode) {

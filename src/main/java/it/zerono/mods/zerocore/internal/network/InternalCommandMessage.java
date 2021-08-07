@@ -55,8 +55,8 @@ public class InternalCommandMessage
     public InternalCommandMessage(final PacketBuffer buffer) {
 
         super(buffer);
-        this._command = buffer.readEnumValue(InternalCommand.class);
-        this._data = buffer.readBoolean() ? buffer.readCompoundTag() : new CompoundNBT();
+        this._command = buffer.readEnum(InternalCommand.class);
+        this._data = buffer.readBoolean() ? buffer.readNbt() : new CompoundNBT();
     }
 
     //region AbstractModMessage
@@ -69,12 +69,12 @@ public class InternalCommandMessage
     @Override
     public void encodeTo(final PacketBuffer buffer) {
 
-        buffer.writeEnumValue(this._command);
+        buffer.writeEnum(this._command);
 
         if (null != this._data) {
 
             buffer.writeBoolean(true);
-            buffer.writeCompoundTag(this._data);
+            buffer.writeNbt(this._data);
 
         } else {
 

@@ -31,20 +31,20 @@ public abstract class AbstractFinishedRecipeAdapter
     //region IFinishedRecipe
 
     @Override
-    public void serialize(final JsonObject json) {
-        this._originalRecipe.serialize(json);
+    public void serializeRecipeData(final JsonObject json) {
+        this._originalRecipe.serializeRecipeData(json);
     }
 
     /**
      * Gets the ID for the recipe.
      */
     @Override
-    public ResourceLocation getID() {
-        return this._originalRecipe.getID();
+    public ResourceLocation getId() {
+        return this._originalRecipe.getId();
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public IRecipeSerializer<?> getType() {
         return this._serializer;
     }
 
@@ -53,8 +53,8 @@ public abstract class AbstractFinishedRecipeAdapter
      */
     @Nullable
     @Override
-    public JsonObject getAdvancementJson() {
-        return this._originalRecipe.getAdvancementJson();
+    public JsonObject serializeAdvancement() {
+        return this._originalRecipe.serializeAdvancement();
     }
 
     /**
@@ -63,8 +63,8 @@ public abstract class AbstractFinishedRecipeAdapter
      */
     @Nullable
     @Override
-    public ResourceLocation getAdvancementID() {
-        return this._originalRecipe.getAdvancementID();
+    public ResourceLocation getAdvancementId() {
+        return this._originalRecipe.getAdvancementId();
     }
 
     //endregion

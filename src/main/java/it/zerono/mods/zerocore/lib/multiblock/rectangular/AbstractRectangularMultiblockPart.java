@@ -91,12 +91,12 @@ public abstract class AbstractRectangularMultiblockPart<Controller extends Abstr
         final Block blockType = this.getBlockType();
         final BlockFacings facings = this.getOutwardFacings();
         final BlockPos position = this.getWorldPosition();
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
             for (final Direction facing : CodeHelper.DIRECTIONS) {
                 if (facings.isSet(facing)) {
-                    WorldHelper.notifyNeighborsOfStateChange(world, position.offset(facing), blockType);
+                    WorldHelper.notifyNeighborsOfStateChange(world, position.relative(facing), blockType);
                 }
             }
         }

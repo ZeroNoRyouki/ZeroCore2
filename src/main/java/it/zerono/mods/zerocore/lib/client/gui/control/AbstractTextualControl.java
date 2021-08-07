@@ -37,7 +37,7 @@ public abstract class AbstractTextualControl
     public AbstractTextualControl(ModContainerScreen<? extends ModContainer> gui, String name, final String text) {
 
         super(gui, name);
-        this._fontRender = Minecraft.getInstance().fontRenderer;
+        this._fontRender = Minecraft.getInstance().font;
         this.setHorizontalAlignment(HorizontalAlignment.Left);
         this.setVerticalAlignment(VerticalAlignment.Center);
         this.setText(text);
@@ -98,7 +98,7 @@ public abstract class AbstractTextualControl
     }
 
     public int getTextHeight() {
-        return this.getFontRender().FONT_HEIGHT - 1;
+        return this.getFontRender().lineHeight - 1;
     }
 
     protected void paintTextLine(final MatrixStack matrix, String line, int x, int y, int lineAreaWidth,
@@ -106,7 +106,7 @@ public abstract class AbstractTextualControl
 
         final FontRenderer font = this.getFontRender();
 
-        line = font./*trimStringToWidth*/func_238412_a_(line, lineAreaWidth);
+        line = font./*trimStringToWidth*/plainSubstrByWidth(line, lineAreaWidth);
 
         if (line.isEmpty()) {
             return;
@@ -123,7 +123,7 @@ public abstract class AbstractTextualControl
 
             final Point screenXY = this.controlToScreen(x, y);
 
-            render.drawString(matrix, text, screenXY.X, screenXY.Y, colour.toARGB());
+            render.draw(matrix, text, screenXY.X, screenXY.Y, colour.toARGB());
         }
     }
 
@@ -148,7 +148,7 @@ public abstract class AbstractTextualControl
     }
 
     protected int getLineWidth(final String line) {
-        return this.getFontRender().getStringWidth(line);
+        return this.getFontRender().width(line);
     }
 
     protected int getLineHeight(@SuppressWarnings("unused") final String line) {

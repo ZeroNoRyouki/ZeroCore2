@@ -205,7 +205,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         // ... and the tool tips ...
 
         this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
-        net.minecraft.client.renderer.RenderHelper.setupGuiFlatDiffuseLighting();
+        net.minecraft.client.renderer.RenderHelper.setupForFlatItems();
 
         // ... and the dragged object
 

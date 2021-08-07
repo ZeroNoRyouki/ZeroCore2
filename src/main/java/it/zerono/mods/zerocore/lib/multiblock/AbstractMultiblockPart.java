@@ -66,6 +66,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
+
 /**
  * Base logic class for Multiblock-connected tile entities. Most multiblock machines
  * should derive from this and implement their game logic in certain abstract methods.
@@ -84,12 +86,12 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         this._unvisited = true;
         this._saveMultiblockData = false;
         this._cachedMultiblockData = null;
-        this._positionHash = this.pos.toLong();
+        this._positionHash = this.worldPosition.asLong();
 	}
 
 	public World getPartWorldOrFail() {
 
-	    final World world = this.getWorld();
+	    final World world = this.getLevel();
 
 	    if (null == world) {
 	        throw new IllegalStateException("Found a multiblock part without a world!");
@@ -156,13 +158,13 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
     @Override
     public Optional<World> getPartWorld() {
-        return Optional.ofNullable(this.getWorld());
+        return Optional.ofNullable(this.getLevel());
     }
 
     @Override
     public <T> T mapPartWorld(Function<World, T> mapper, T defaultValue) {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         return null != world ? mapper.apply(world) : defaultValue;
     }
@@ -170,7 +172,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public void forPartWorld(Consumer<World> consumer) {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
             consumer.accept(world);
@@ -179,7 +181,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
     @Override
     public BlockPos getWorldPosition() {
-        return this.getPos();
+        return this.getBlockPos();
     }
 
     @Override
@@ -205,7 +207,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public void onOrphaned(Controller controller, int oldSize, int newSize) {
 
-        this.markDirty();
+        this.setChanged();
 //        this.forPartWorld(w -> w.markChunkDirty(this.getWorldPosition(), this));
     }
 
@@ -254,7 +256,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public List<IMultiblockPart<Controller>> getNeighboringParts() {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null == world) {
             return Collections.emptyList();
@@ -391,7 +393,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	@Override
 	public void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
 
-        this._positionHash = this.pos.toLong();
+        this._positionHash = this.worldPosition.asLong();
 
         if (data.contains("multiblockData")) {
 
@@ -462,9 +464,9 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	 * validates a tile entity
 	 */
 	@Override
-	public void validate() {
+	public void clearRemoved() {
 
-		super.validate();
+		super.clearRemoved();
         this.getRegistry().onPartAdded(this);
 	}
 
@@ -472,9 +474,9 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
      * invalidates a tile entity
      */
     @Override
-    public void remove() {
+    public void setRemoved() {
 
-        super.remove();
+        super.setRemoved();
         this.detachSelf(false);
     }
 
@@ -486,17 +488,17 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
-    public void setWorldAndPos(final World world, final BlockPos pos) {
+    public void setLevelAndPosition(final World world, final BlockPos pos) {
 
-        super.setWorldAndPos(world, pos);
-        this._positionHash = this.pos.toLong();
+        super.setLevelAndPosition(world, pos);
+        this._positionHash = this.worldPosition.asLong();
     }
 
     @Override
-    public void setPos(final BlockPos posIn) {
+    public void setPosition(final BlockPos posIn) {
 
-        super.setPos(posIn);
-        this._positionHash = this.pos.toLong();
+        super.setPosition(posIn);
+        this._positionHash = this.worldPosition.asLong();
     }
 
     //endregion

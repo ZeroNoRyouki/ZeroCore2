@@ -31,11 +31,11 @@ public final class DebuggableHelper {
             messages.addUnlocalized("ItemStack: EMPTY");
         } else {
             messages.add(new StringTextComponent("ItemStack: [")
-                    .append(stack.getDisplayName())
-                    .appendString("] ")
-                    .appendString(Integer.toString(stack.getCount()))
-                    .appendString(" / ")
-                    .appendString(Integer.toString(stack.getMaxStackSize())));
+                    .append(stack.getHoverName())
+                    .append("] ")
+                    .append(Integer.toString(stack.getCount()))
+                    .append(" / ")
+                    .append(Integer.toString(stack.getMaxStackSize())));
         }
     }
 
@@ -46,8 +46,8 @@ public final class DebuggableHelper {
         } else {
             messages.add(new StringTextComponent("FluidStack: [")
                     .append(stack.getDisplayName())
-                    .appendString("] ")
-                    .appendString(Integer.toString(stack.getAmount())));
+                    .append("] ")
+                    .append(Integer.toString(stack.getAmount())));
         }
     }
 

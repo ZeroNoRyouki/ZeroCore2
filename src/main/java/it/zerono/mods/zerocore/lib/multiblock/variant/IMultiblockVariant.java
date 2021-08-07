@@ -59,15 +59,15 @@ public interface IMultiblockVariant {
     Block.Properties getBlockProperties();
 
     default Block.Properties getDefaultBlockProperties() {
-        return Block.Properties.create(Material.IRON, MaterialColor.IRON)
+        return Block.Properties.of(Material.METAL, MaterialColor.METAL)
                 .sound(SoundType.METAL)
-                .hardnessAndResistance(5.0F, 6.0F)
-                .harvestLevel(ItemTier.IRON.getHarvestLevel())
+                .strength(5.0F, 6.0F)
+                .harvestLevel(ItemTier.IRON.getLevel())
                 .harvestTool(ToolType.PICKAXE)
-                .setRequiresTool()
-                .setLightLevel(blockState -> 0)
-                .setAllowsSpawn((blockState, blockReader, pos, entity) -> false)
-                .setOpaque((blockState, blockReader, pos) -> true)
-                .setBlocksVision((blockState, blockReader, pos) -> true);
+                .requiresCorrectToolForDrops()
+                .lightLevel(blockState -> 0)
+                .isValidSpawn((blockState, blockReader, pos, entity) -> false)
+                .isRedstoneConductor((blockState, blockReader, pos) -> true)
+                .isViewBlocking((blockState, blockReader, pos) -> true);
     }
 }

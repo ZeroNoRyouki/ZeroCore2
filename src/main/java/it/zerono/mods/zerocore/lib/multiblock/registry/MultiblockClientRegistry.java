@@ -58,7 +58,7 @@ public class MultiblockClientRegistry<Controller extends IMultiblockController<C
     @SubscribeEvent
     public void onClientTick(final TickEvent.ClientTickEvent event) {
 
-        final World world = Minecraft.getInstance().world;
+        final World world = Minecraft.getInstance().level;
 
         if (TickEvent.Phase.START == event.phase && null != world) {
             this.tickStart(world);

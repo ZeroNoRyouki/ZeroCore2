@@ -61,7 +61,7 @@ public class TwoToOneRecipeBuilder<RecipeIngredient1, RecipeIngredient2, RecipeR
         }
 
         @Override
-        public void serialize(final JsonObject json) {
+        public void serializeRecipeData(final JsonObject json) {
 
             json.add(_jsonIngredientsLabelsSupplier.apply(0), _ingredient1.serializeTo());
             json.add(_jsonIngredientsLabelsSupplier.apply(1), _ingredient2.serializeTo());

@@ -140,7 +140,7 @@ public class TagList<T>
 
         for (final ResourceLocation id : this._ids) {
 
-            final ITag<T> tag = collection.get(id);
+            final ITag<T> tag = collection.getTag(id);
 
             if (null != tag) {
                 this._tags.put(id, tag);

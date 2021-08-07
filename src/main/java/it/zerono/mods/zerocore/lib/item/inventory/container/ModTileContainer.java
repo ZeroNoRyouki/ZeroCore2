@@ -71,7 +71,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
                                                                                   final int windowId, final T tile) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile) {
             @Override
-            public void putStackInSlot(int slotID, ItemStack stack) {
+            public void setItem(int slotID, ItemStack stack) {
             }
         };
     }
@@ -81,7 +81,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
                                                                                   final ServerPlayerEntity player) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile, player) {
             @Override
-            public void putStackInSlot(int slotID, ItemStack stack) {
+            public void setItem(int slotID, ItemStack stack) {
             }
         };
     }
@@ -103,10 +103,10 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param player the player
      */
     @Override
-    public boolean canInteractWith(final PlayerEntity player) {
+    public boolean stillValid(final PlayerEntity player) {
 
-        return isWithinUsableDistance(IWorldPosCallable.of(Objects.requireNonNull(this._tile.getWorld()),
-                this._tile.getPos()), player, this._tile.getBlockType());
+        return stillValid(IWorldPosCallable.create(Objects.requireNonNull(this._tile.getLevel()),
+                this._tile.getBlockPos()), player, this._tile.getBlockType());
     }
 
     /**
@@ -115,9 +115,9 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param player
      */
     @Override
-    public void onContainerClosed(PlayerEntity player) {
+    public void removed(PlayerEntity player) {
 
-        super.onContainerClosed(player);
+        super.removed(player);
 
         if (this._tile instanceof INetworkTileEntitySyncProvider && player instanceof ServerPlayerEntity) {
             ((INetworkTileEntitySyncProvider)this._tile).delistFromUpdates((ServerPlayerEntity)player);
