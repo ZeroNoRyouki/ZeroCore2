@@ -44,8 +44,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import net.minecraft.item.Item.Properties;
-
 public class DebugToolItem
         extends ModItem {
 

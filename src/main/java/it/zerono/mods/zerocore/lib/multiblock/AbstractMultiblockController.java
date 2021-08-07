@@ -73,8 +73,6 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
 
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
-
 /**
  * This class contains the base logic for "multiblock controllers". Conceptually, they are
  * meta-TileEntities. They govern the logic for an associated group of TileEntities.

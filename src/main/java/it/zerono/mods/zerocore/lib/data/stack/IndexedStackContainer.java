@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.*;
 
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
-
 @SuppressWarnings({"WeakerAccess"})
 public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
         implements ISyncableEntity, IMergeableEntity, IDebuggable {

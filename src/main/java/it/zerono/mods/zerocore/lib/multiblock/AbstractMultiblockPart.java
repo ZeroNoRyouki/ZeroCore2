@@ -66,8 +66,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
-
 /**
  * Base logic class for Multiblock-connected tile entities. Most multiblock machines
  * should derive from this and implement their game logic in certain abstract methods.

@@ -54,8 +54,6 @@ import java.util.Objects;
 import java.util.function.*;
 import java.util.stream.Stream;
 
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
-
 /**
  * A base class for modded tile entities
  */
