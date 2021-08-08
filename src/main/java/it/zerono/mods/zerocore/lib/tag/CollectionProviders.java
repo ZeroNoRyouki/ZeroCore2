@@ -18,19 +18,19 @@
 
 package it.zerono.mods.zerocore.lib.tag;
 
-import net.minecraft.block.Block;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.Item;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITagCollection;
+import net.minecraft.tags.TagCollection;
 import net.minecraft.tags.ItemTags;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 @SuppressWarnings({"WeakerAccess"})
 public final class CollectionProviders {
 
-    public static final NonNullSupplier<ITagCollection<Block>> BLOCKS_PROVIDER = BlockTags::getAllTags;
-    public static final NonNullSupplier<ITagCollection<Item>> ITEMS_PROVIDER = ItemTags::getAllTags;
-    public static final NonNullSupplier<ITagCollection<Fluid>> FLUIDS_PROVIDER = FluidTags::getAllTags;
+    public static final NonNullSupplier<TagCollection<Block>> BLOCKS_PROVIDER = BlockTags::getAllTags;
+    public static final NonNullSupplier<TagCollection<Item>> ITEMS_PROVIDER = ItemTags::getAllTags;
+    public static final NonNullSupplier<TagCollection<Fluid>> FLUIDS_PROVIDER = FluidTags::getAllTags;
 }

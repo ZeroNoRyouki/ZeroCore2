@@ -21,9 +21,9 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -296,7 +296,7 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
             }
 
             @Override
-            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId, CompoundNBT nbt) {
+            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId, CompoundTag nbt) {
                 return Optional.empty();
             }
         });

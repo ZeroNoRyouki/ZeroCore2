@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.lib.client.gui.sprite;
 import it.zerono.mods.zerocore.internal.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -33,7 +33,7 @@ import java.util.Optional;
 public class AtlasSpriteTextureMap
         implements ISpriteTextureMap {
 
-    public static final AtlasSpriteTextureMap BLOCKS = new AtlasSpriteTextureMap(PlayerContainer.BLOCK_ATLAS);
+    public static final AtlasSpriteTextureMap BLOCKS = new AtlasSpriteTextureMap(InventoryMenu.BLOCK_ATLAS);
 
     public static AtlasSpriteTextureMap from(final TextureAtlasSprite sprite) {
 

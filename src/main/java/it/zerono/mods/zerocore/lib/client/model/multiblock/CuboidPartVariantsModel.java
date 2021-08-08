@@ -20,10 +20,10 @@ package it.zerono.mods.zerocore.lib.client.model.multiblock;
 
 import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModel;
 import it.zerono.mods.zerocore.lib.client.model.data.multiblock.PartProperties;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nullable;
@@ -33,7 +33,7 @@ import java.util.Random;
 @SuppressWarnings("unused")
 public class CuboidPartVariantsModel extends BlockVariantsModel {
 
-    public CuboidPartVariantsModel(final IBakedModel template, final int blocksCount, final boolean ambientOcclusion) {
+    public CuboidPartVariantsModel(final BakedModel template, final int blocksCount, final boolean ambientOcclusion) {
 
         super(blocksCount, ambientOcclusion, true, false);
         this._template = template;
@@ -55,7 +55,7 @@ public class CuboidPartVariantsModel extends BlockVariantsModel {
     //endregion
     //region internals
 
-    private final IBakedModel _template;
+    private final BakedModel _template;
 
     //endregion
 }

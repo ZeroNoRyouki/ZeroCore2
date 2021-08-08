@@ -23,27 +23,27 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.IParticleData;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.ITag;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -61,11 +61,11 @@ public final class WorldHelper {
     public static final int DIMENSION_ID_NETHER = -1;
     public static final int DIMENSION_ID_THEEND = 1;
 
-    public static Optional<World> getClientWorld() {
+    public static Optional<Level> getClientWorld() {
         return ZeroCore.getProxy().getClientWorld();
     }
 
-    public static Optional<ServerWorld> getServerWorld(final RegistryKey<World> worldKey) {
+    public static Optional<ServerLevel> getServerWorld(final ResourceKey<Level> worldKey) {
 
         final MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
@@ -91,15 +91,15 @@ public final class WorldHelper {
     //endregion
     //region Block / BlockState helpers
 
-    public static Optional<BlockState> getBlockState(World world, BlockPos position) {
+    public static Optional<BlockState> getBlockState(Level world, BlockPos position) {
         return world.isLoaded(position) ? Optional.of(world.getBlockState(position)) : Optional.empty();
     }
 
-    public static Stream<BlockState> getBlockStatesFrom(World world, Stream<BlockPos> positions) {
+    public static Stream<BlockState> getBlockStatesFrom(Level world, Stream<BlockPos> positions) {
         return getFromWorld(world, positions, WorldHelper::getBlockState);
     }
 
-    public static Stream<Block> getBlocksFrom(World world, Stream<BlockPos> positions) {
+    public static Stream<Block> getBlocksFrom(Level world, Stream<BlockPos> positions) {
         return getBlockStatesFrom(world, positions)
                 .map(BlockState::getBlock);
     }
@@ -110,7 +110,7 @@ public final class WorldHelper {
      * @param world the world to update
      * @param position the position of the block begin updated
      */
-    public static void notifyBlockUpdate(World world, BlockPos position) {
+    public static void notifyBlockUpdate(Level world, BlockPos position) {
         notifyBlockUpdate(world, position, null, null);
     }
 
@@ -122,7 +122,7 @@ public final class WorldHelper {
      * @param oldState the old state of the block begin updated. if null, the current state will be retrieved from the world
      * @param newState the new state for the block begin updated. if null, the final value of oldState will be used
      */
-    public static void notifyBlockUpdate(World world, BlockPos position, @Nullable BlockState oldState,
+    public static void notifyBlockUpdate(Level world, BlockPos position, @Nullable BlockState oldState,
                                          @Nullable BlockState newState) {
 
         if (null == oldState) {
@@ -143,7 +143,7 @@ public final class WorldHelper {
     /**
      * MC-Version independent wrapper around World::notifyNeighborsOfStateChange()
      */
-    public static void notifyNeighborsOfStateChange(final World world, final BlockPos pos, final Block blockType) {
+    public static void notifyNeighborsOfStateChange(final Level world, final BlockPos pos, final Block blockType) {
         world.updateNeighborsAt(pos, blockType);
     }
 
@@ -151,18 +151,18 @@ public final class WorldHelper {
     //region Tile Entities
 
     @Nullable
-    public static TileEntity getLoadedTile(final IWorldReader world, final BlockPos position) {
-        return World.isInWorldBounds(position) ?
-                getLoadedTile((Chunk)world.getChunk(position.getX() >> 4, position.getZ() >> 4, ChunkStatus.FULL, false), position) : null;
+    public static BlockEntity getLoadedTile(final LevelReader world, final BlockPos position) {
+        return Level.isInWorldBounds(position) ?
+                getLoadedTile((LevelChunk)world.getChunk(position.getX() >> 4, position.getZ() >> 4, ChunkStatus.FULL, false), position) : null;
     }
     @Nullable
-    public static TileEntity getLoadedTile(final ChunkCache chunkCache, final BlockPos position) {
-        return World.isInWorldBounds(position) ? getLoadedTile(chunkCache.get(position), position) : null;
+    public static BlockEntity getLoadedTile(final ChunkCache chunkCache, final BlockPos position) {
+        return Level.isInWorldBounds(position) ? getLoadedTile(chunkCache.get(position), position) : null;
     }
 
     @Nullable
-    private static TileEntity getLoadedTile(final @Nullable Chunk chunk, final BlockPos position) {
-        return null != chunk ? chunk.getBlockEntity(position, Chunk.CreateEntityType.CHECK) : null;
+    private static BlockEntity getLoadedTile(final @Nullable LevelChunk chunk, final BlockPos position) {
+        return null != chunk ? chunk.getBlockEntity(position, LevelChunk.EntityCreationType.CHECK) : null;
     }
 
     /**
@@ -172,7 +172,7 @@ public final class WorldHelper {
      * @param position the TileEntity position
      * @return an Optional holding the TileEntity if it exists and it was already loaded and within the world border
      */
-    public static Optional<TileEntity> getTile(World world, BlockPos position) {
+    public static Optional<BlockEntity> getTile(Level world, BlockPos position) {
         return world.getWorldBorder().isWithinBounds(position) ? Optional.ofNullable(getLoadedTile(world, position)) : Optional.empty();
     }
 
@@ -184,10 +184,10 @@ public final class WorldHelper {
      * @return an Optional holding the TileEntity if it exists
      */
     @Deprecated
-    public static Optional<TileEntity> getTile(IBlockReader world, BlockPos position) {
+    public static Optional<BlockEntity> getTile(BlockGetter world, BlockPos position) {
 
-        if (world instanceof IWorldReader) {
-            return Optional.ofNullable(getLoadedTile((IWorldReader)world, position));
+        if (world instanceof LevelReader) {
+            return Optional.ofNullable(getLoadedTile((LevelReader)world, position));
         }
 
         return Optional.ofNullable(world.getBlockEntity(position));
@@ -201,7 +201,7 @@ public final class WorldHelper {
      * @param direction the direction used to offset the starting position
      * @return an Optional holding the TileEntity if it exists and it was already loaded and within the world border
      */
-    public static Optional<TileEntity> getTile(World world, BlockPos origin, Direction direction) {
+    public static Optional<BlockEntity> getTile(Level world, BlockPos origin, Direction direction) {
         return getTile(world, origin.relative(direction));
     }
 
@@ -212,20 +212,20 @@ public final class WorldHelper {
      * @param direction the direction used to offset the starting position
      * @return an Optional holding the TileEntity if it exists and it was already loaded and within the world border
      */
-    public static Optional<TileEntity> getTile(TileEntity origin, Direction direction) {
+    public static Optional<BlockEntity> getTile(BlockEntity origin, Direction direction) {
 
-        final World world = origin.getLevel();
+        final Level world = origin.getLevel();
 
         return null != world ? getTile(world, origin.getBlockPos().relative(direction)) : Optional.empty();
     }
 
-    public static Stream<TileEntity> getTilesFrom(World world, Stream<BlockPos> positions) {
+    public static Stream<BlockEntity> getTilesFrom(Level world, Stream<BlockPos> positions) {
         return getFromWorld(world, positions, WorldHelper::getTile);
     }
 
     @SuppressWarnings("unchecked")
     public static <Controller extends IMultiblockController<Controller>>
-        Optional<IMultiblockPart<Controller>> getMultiblockPartFrom(World world, BlockPos position) {
+        Optional<IMultiblockPart<Controller>> getMultiblockPartFrom(Level world, BlockPos position) {
         return WorldHelper.getTile(world, position)
                 .filter(te -> te instanceof IMultiblockPart)
                 .map(te -> (IMultiblockPart<Controller>)te);
@@ -233,12 +233,12 @@ public final class WorldHelper {
 
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("unchecked")
-    public static <T extends TileEntity> Optional<T> getClientTile(final BlockPos position) {
+    public static <T extends BlockEntity> Optional<T> getClientTile(final BlockPos position) {
         return getClientWorld().map(w -> (T)getLoadedTile(w, position));
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static <T extends TileEntity> Optional<T> getClientTile(final BlockPos position, final Direction direction) {
+    public static <T extends BlockEntity> Optional<T> getClientTile(final BlockPos position, final Direction direction) {
         return getClientTile(position.relative(direction));
     }
 
@@ -269,7 +269,7 @@ public final class WorldHelper {
         return ChunkPos.asLong(WorldHelper.getChunkXFromBlock(position), WorldHelper.getChunkZFromBlock(position));
     }
 
-    public static boolean chunkExists(World world, BlockPos position) {
+    public static boolean chunkExists(Level world, BlockPos position) {
         return world.hasChunk(getChunkXFromBlock(position), getChunkZFromBlock(position));
     }
 
@@ -283,13 +283,13 @@ public final class WorldHelper {
         return entity.distanceToSqr(position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5) < (range * range);
     }
 
-    public static <T extends IParticleData> void spawnVanillaParticles(final World world, final T particle,
+    public static <T extends ParticleOptions> void spawnVanillaParticles(final Level world, final T particle,
                                                                        int minCount, int maxCount,
                                                                        int x, int y, int z,
                                                                        int offsetX, int offsetY, int offsetZ) {
 
         final Random rand = world.random;
-        int howMany = MathHelper.nextInt(rand, minCount, maxCount);
+        int howMany = Mth.nextInt(rand, minCount, maxCount);
         double motionX, motionY, motionZ, pX, pY, pZ, px1, px2, py1, py2, pz1, pz2;
 
         px1 = x - offsetX + 0.5D;
@@ -299,17 +299,17 @@ public final class WorldHelper {
         pz1 = z - offsetZ + 0.5D;
         pz2 = z + offsetZ + 0.5D;
 
-        if (world instanceof ServerWorld) {
+        if (world instanceof ServerLevel) {
 
-            final ServerWorld ws = (ServerWorld)world;
+            final ServerLevel ws = (ServerLevel)world;
 
             motionX = rand.nextGaussian() * 0.02D;
             motionY = rand.nextGaussian() * 0.02D;
             motionZ = rand.nextGaussian() * 0.02D;
 
-            pX = MathHelper.nextDouble(rand, px1, px2);
-            pY = MathHelper.nextDouble(rand, py1, py2);
-            pZ = MathHelper.nextDouble(rand, pz1, pz2);
+            pX = Mth.nextDouble(rand, px1, px2);
+            pY = Mth.nextDouble(rand, py1, py2);
+            pZ = Mth.nextDouble(rand, pz1, pz2);
 
             ws.sendParticles(particle, pX, pY, pZ, howMany, motionX, motionY, motionZ, rand.nextGaussian() * 0.02D);
 
@@ -321,9 +321,9 @@ public final class WorldHelper {
                 motionY = rand.nextGaussian() * 0.02D;
                 motionZ = rand.nextGaussian() * 0.02D;
 
-                pX = MathHelper.nextDouble(rand, px1, px2);
-                pY = MathHelper.nextDouble(rand, py1, py2);
-                pZ = MathHelper.nextDouble(rand, pz1, pz2);
+                pX = Mth.nextDouble(rand, px1, px2);
+                pY = Mth.nextDouble(rand, py1, py2);
+                pZ = Mth.nextDouble(rand, pz1, pz2);
 
                 world.addParticle(particle, pX, pY, pZ, motionX, motionY, motionZ);
             }
@@ -341,7 +341,7 @@ public final class WorldHelper {
      * @param z spawn coordinates
      * @param withMomentum if true, add momentum to the stack
      */
-    public static void spawnItemStack(ItemStack stack, World world, double x, double y, double z, boolean withMomentum) {
+    public static void spawnItemStack(ItemStack stack, Level world, double x, double y, double z, boolean withMomentum) {
 
         float x2, y2, z2;
 
@@ -371,18 +371,18 @@ public final class WorldHelper {
         world.addFreshEntity(entity);
     }
 
-    public static boolean isFluidStateTagged(IBlockReader access, BlockPos position, ITag.INamedTag<Fluid> tag) {
+    public static boolean isFluidStateTagged(BlockGetter access, BlockPos position, Tag.Named<Fluid> tag) {
         return access.getFluidState(position).is(tag);
     }
 
-    public static boolean isFluidStateTagged(BlockState blockState, ITag.INamedTag<Fluid> tag) {
+    public static boolean isFluidStateTagged(BlockState blockState, Tag.Named<Fluid> tag) {
         return blockState.getFluidState().is(tag);
     }
 
     //region internals
 
-    private static <T> Stream<T> getFromWorld(World world, Stream<BlockPos> positions,
-                                              BiFunction<World, BlockPos, Optional<T>> getter) {
+    private static <T> Stream<T> getFromWorld(Level world, Stream<BlockPos> positions,
+                                              BiFunction<Level, BlockPos, Optional<T>> getter) {
         return positions
                 .map(position -> getter.apply(world, position))
                 .filter(Optional::isPresent)

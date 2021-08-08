@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
@@ -28,9 +28,9 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
@@ -120,7 +120,7 @@ public abstract class NumberInput<Type>
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
         this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, Theme.DARK_OUTLINE_COLOR);
@@ -203,21 +203,21 @@ public abstract class NumberInput<Type>
 
         public void setValue(final int value) {
 
-            this._value = MathHelper.clamp(value, this._min, this._max);
+            this._value = Mth.clamp(value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMinValue(final int min) {
 
             this._min = min;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMaxValue(final int max) {
 
             this._max = max;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
@@ -332,21 +332,21 @@ public abstract class NumberInput<Type>
 
         public void setValue(final long value) {
 
-            this._value = MathHelper.clamp(value, this._min, this._max);
+            this._value = Mth.clamp(value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMinValue(final long min) {
 
             this._min = min;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMaxValue(final long max) {
 
             this._max = max;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
@@ -461,21 +461,21 @@ public abstract class NumberInput<Type>
 
         public void setValue(final float value) {
 
-            this._value = MathHelper.clamp(value, this._min, this._max);
+            this._value = Mth.clamp(value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMinValue(final float min) {
 
             this._min = min;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMaxValue(final float max) {
 
             this._max = max;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
@@ -590,21 +590,21 @@ public abstract class NumberInput<Type>
 
         public void setValue(final double value) {
 
-            this._value = MathHelper.clamp(value, this._min, this._max);
+            this._value = Mth.clamp(value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMinValue(final double min) {
 
             this._min = min;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMaxValue(final double max) {
 
             this._max = max;
-            this._value = MathHelper.clamp(this._value, this._min, this._max);
+            this._value = Mth.clamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 

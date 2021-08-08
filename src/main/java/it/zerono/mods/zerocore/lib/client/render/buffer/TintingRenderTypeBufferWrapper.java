@@ -18,27 +18,27 @@
 
 package it.zerono.mods.zerocore.lib.client.render.buffer;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import java.util.Objects;
 
 public class TintingRenderTypeBufferWrapper
-        implements IRenderTypeBuffer {
+        implements MultiBufferSource {
 
-    public TintingRenderTypeBufferWrapper(final IRenderTypeBuffer originalBuffer, final int alpha,
+    public TintingRenderTypeBufferWrapper(final MultiBufferSource originalBuffer, final int alpha,
                                           final int redTint, final int greenTint, final int blueTint) {
 
         this._buffer = Objects.requireNonNull(originalBuffer);
-        this._alpha = MathHelper.clamp(alpha, 0, 255);
-        this._red = MathHelper.clamp(redTint, 0, 255);
-        this._green = MathHelper.clamp(greenTint, 0, 255);
-        this._blue = MathHelper.clamp(blueTint, 0, 255);
+        this._alpha = Mth.clamp(alpha, 0, 255);
+        this._red = Mth.clamp(redTint, 0, 255);
+        this._green = Mth.clamp(greenTint, 0, 255);
+        this._blue = Mth.clamp(blueTint, 0, 255);
     }
 
-    public TintingRenderTypeBufferWrapper(final IRenderTypeBuffer originalBuffer, final float alpha,
+    public TintingRenderTypeBufferWrapper(final MultiBufferSource originalBuffer, final float alpha,
                                           final float redTint, final float greenTint, final float blueTint) {
         this(originalBuffer, (int)(alpha * 255.0F), (int)(redTint * 255.0F), (int)(greenTint * 255.0F), (int)(blueTint * 255.0F));
     }
@@ -46,20 +46,20 @@ public class TintingRenderTypeBufferWrapper
     //region IRenderTypeBuffer
 
     @Override
-    public IVertexBuilder getBuffer(final RenderType type) {
+    public VertexConsumer getBuffer(final RenderType type) {
         return new TintingVertexBuilder(this._buffer.getBuffer(type), this._alpha, this._red, this._green, this._blue);
     }
 
     //endregion
     //region internals
 
-    private final IRenderTypeBuffer _buffer;
+    private final MultiBufferSource _buffer;
     private final int _alpha, _red, _green, _blue;
 
     private static class TintingVertexBuilder
             extends VertexBuilderWrapper {
 
-        TintingVertexBuilder(final IVertexBuilder originalBuilder, final int alpha,
+        TintingVertexBuilder(final VertexConsumer originalBuilder, final int alpha,
                              final int red, final int green, final int blue) {
 
             super(originalBuilder);
@@ -72,7 +72,7 @@ public class TintingRenderTypeBufferWrapper
         //region VertexBuilderWrapper
 
         @Override
-        public IVertexBuilder color(final int red, final int green, final int blue, final int alpha) {
+        public VertexConsumer color(final int red, final int green, final int blue, final int alpha) {
             return this._builder.color((red * this._red) / 0xFF, (green * this._green) / 0xFF,
                     (blue * this._blue) / 0xFF, (alpha * this._alpha) / 0xFF);
         }

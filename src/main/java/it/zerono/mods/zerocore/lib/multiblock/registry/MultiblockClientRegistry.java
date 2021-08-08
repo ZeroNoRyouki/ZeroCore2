@@ -43,7 +43,7 @@ package it.zerono.mods.zerocore.lib.multiblock.registry;
 
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -58,7 +58,7 @@ public class MultiblockClientRegistry<Controller extends IMultiblockController<C
     @SubscribeEvent
     public void onClientTick(final TickEvent.ClientTickEvent event) {
 
-        final World world = Minecraft.getInstance().level;
+        final Level world = Minecraft.getInstance().level;
 
         if (TickEvent.Phase.START == event.phase && null != world) {
             this.tickStart(world);

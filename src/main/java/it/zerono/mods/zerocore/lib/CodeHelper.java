@@ -29,19 +29,19 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import joptsimple.internal.Strings;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Util;
-import net.minecraft.util.concurrent.ThreadTaskExecutor;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.Util;
+import net.minecraft.util.thread.BlockableEventLoop;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -65,13 +65,13 @@ public final class CodeHelper {
 
     public static final Object[] EMPTY_GENERIC_ARRAY = new Object[0];
 
-    public static final ITextComponent TEXT_EMPTY_LINE = new StringTextComponent("");
+    public static final Component TEXT_EMPTY_LINE = new TextComponent("");
 
     public static final Direction[] DIRECTIONS = Direction.values();
     public static final Direction[] POSITIVE_DIRECTIONS;
     public static final Direction[] NEGATIVE_DIRECTIONS;
 
-    public static final AxisAlignedBB EMPTY_BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    public static final AABB EMPTY_BOUNDING_BOX = new AABB(0, 0, 0, 0, 0, 0);
     public static final BlockPos MIN_BLOCKPOS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     public static final BlockPos MAX_BLOCKPOS = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
@@ -144,7 +144,7 @@ public final class CodeHelper {
         return ZeroCore.getProxy().getRecipeManager();
     }
 
-    public static RecipeManager getRecipeManager(final World world) {
+    public static RecipeManager getRecipeManager(final Level world) {
         return world.getRecipeManager();
     }
 
@@ -319,7 +319,7 @@ public final class CodeHelper {
      *
      * @param world A valid world instance
      */
-    public static boolean calledByLogicalServer(final World world) {
+    public static boolean calledByLogicalServer(final Level world) {
         return !world.isClientSide;
     }
 
@@ -328,11 +328,11 @@ public final class CodeHelper {
      *
      * @param world A valid world instance
      */
-    public static boolean calledByLogicalClient(final World world) {
+    public static boolean calledByLogicalClient(final Level world) {
         return world.isClientSide;
     }
 
-    public static void callOnLogicalSide(final World world, final Runnable serverCode, final Runnable clientCode) {
+    public static void callOnLogicalSide(final Level world, final Runnable serverCode, final Runnable clientCode) {
 
         if (calledByLogicalServer(world)) {
             serverCode.run();
@@ -341,7 +341,7 @@ public final class CodeHelper {
         }
     }
 
-    public static <T> T callOnLogicalSide(final World world, final Supplier<T> serverCode, final Supplier<T> clientCode) {
+    public static <T> T callOnLogicalSide(final Level world, final Supplier<T> serverCode, final Supplier<T> clientCode) {
 
         if (calledByLogicalServer(world)) {
             return serverCode.get();
@@ -350,7 +350,7 @@ public final class CodeHelper {
         }
     }
 
-    public static boolean callOnLogicalSide(final World world, final BooleanSupplier serverCode, final BooleanSupplier clientCode) {
+    public static boolean callOnLogicalSide(final Level world, final BooleanSupplier serverCode, final BooleanSupplier clientCode) {
 
         if (calledByLogicalServer(world)) {
             return serverCode.getAsBoolean();
@@ -359,7 +359,7 @@ public final class CodeHelper {
         }
     }
 
-    public static int callOnLogicalSide(final World world, final IntSupplier serverCode, final IntSupplier clientCode) {
+    public static int callOnLogicalSide(final Level world, final IntSupplier serverCode, final IntSupplier clientCode) {
 
         if (calledByLogicalServer(world)) {
             return serverCode.getAsInt();
@@ -368,7 +368,7 @@ public final class CodeHelper {
         }
     }
 
-    public static long callOnLogicalSide(final World world, final LongSupplier serverCode, final LongSupplier clientCode) {
+    public static long callOnLogicalSide(final Level world, final LongSupplier serverCode, final LongSupplier clientCode) {
 
         if (calledByLogicalServer(world)) {
             return serverCode.getAsLong();
@@ -377,7 +377,7 @@ public final class CodeHelper {
         }
     }
 
-    public static double callOnLogicalSide(final World world, final DoubleSupplier serverCode, final DoubleSupplier clientCode) {
+    public static double callOnLogicalSide(final Level world, final DoubleSupplier serverCode, final DoubleSupplier clientCode) {
 
         if (calledByLogicalServer(world)) {
             return serverCode.getAsDouble();
@@ -386,84 +386,84 @@ public final class CodeHelper {
         }
     }
 
-    public static void callOnLogicalServer(final World world, final Runnable code) {
+    public static void callOnLogicalServer(final Level world, final Runnable code) {
 
         if (calledByLogicalServer(world)) {
             code.run();
         }
     }
 
-    public static <T> T callOnLogicalServer(final World world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
+    public static <T> T callOnLogicalServer(final Level world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
         return calledByLogicalServer(world) ? code.get() : invalidSideReturnValue.get();
     }
 
-    public static boolean callOnLogicalServer(final World world, final BooleanSupplier code) {
+    public static boolean callOnLogicalServer(final Level world, final BooleanSupplier code) {
         return calledByLogicalServer(world) && code.getAsBoolean();
     }
 
-    public static int callOnLogicalServer(final World world, final IntSupplier code, final int invalidSideReturnValue) {
+    public static int callOnLogicalServer(final Level world, final IntSupplier code, final int invalidSideReturnValue) {
         return calledByLogicalServer(world) ? code.getAsInt() : invalidSideReturnValue;
     }
 
-    public static long callOnLogicalServer(final World world, final LongSupplier code, final long invalidSideReturnValue) {
+    public static long callOnLogicalServer(final Level world, final LongSupplier code, final long invalidSideReturnValue) {
         return calledByLogicalServer(world) ? code.getAsLong() : invalidSideReturnValue;
     }
 
-    public static double callOnLogicalServer(final World world, final DoubleSupplier code, final double invalidSideReturnValue) {
+    public static double callOnLogicalServer(final Level world, final DoubleSupplier code, final double invalidSideReturnValue) {
         return calledByLogicalServer(world) ? code.getAsDouble() : invalidSideReturnValue;
     }
 
-    public static void callOnLogicalClient(final World world, final Runnable code) {
+    public static void callOnLogicalClient(final Level world, final Runnable code) {
 
         if (calledByLogicalClient(world)) {
             code.run();
         }
     }
 
-    public static <T> T callOnLogicalClient(final World world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
+    public static <T> T callOnLogicalClient(final Level world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
         return calledByLogicalClient(world) ? code.get() : invalidSideReturnValue.get();
     }
 
-    public static boolean callOnLogicalClient(final World world, final BooleanSupplier code) {
+    public static boolean callOnLogicalClient(final Level world, final BooleanSupplier code) {
         return calledByLogicalClient(world) && code.getAsBoolean();
     }
 
-    public static int callOnLogicalClient(final World world, final IntSupplier code, final int invalidSideReturnValue) {
+    public static int callOnLogicalClient(final Level world, final IntSupplier code, final int invalidSideReturnValue) {
         return calledByLogicalClient(world) ? code.getAsInt() : invalidSideReturnValue;
     }
 
-    public static long callOnLogicalClient(final World world, final LongSupplier code, final long invalidSideReturnValue) {
+    public static long callOnLogicalClient(final Level world, final LongSupplier code, final long invalidSideReturnValue) {
         return calledByLogicalClient(world) ? code.getAsLong() : invalidSideReturnValue;
     }
 
-    public static double callOnLogicalClient(final World world, final DoubleSupplier code, final double invalidSideReturnValue) {
+    public static double callOnLogicalClient(final Level world, final DoubleSupplier code, final double invalidSideReturnValue) {
         return calledByLogicalClient(world) ? code.getAsDouble() : invalidSideReturnValue;
     }
 
-    public static LogicalSide getWorldLogicalSide(final World world) {
+    public static LogicalSide getWorldLogicalSide(final Level world) {
         return CodeHelper.calledByLogicalClient(world) ? LogicalSide.CLIENT : LogicalSide.SERVER;
     }
 
-    public static String getWorldSideName(World world) {
+    public static String getWorldSideName(Level world) {
         return CodeHelper.calledByLogicalClient(world) ? "CLIENT" : "SERVER";
     }
 
-    public static ThreadTaskExecutor<?> getThreadTaskExecutor(final LogicalSide side) {
+    public static BlockableEventLoop<?> getThreadTaskExecutor(final LogicalSide side) {
         return LogicalSidedProvider.WORKQUEUE.get(side);
     }
 
-    public static ThreadTaskExecutor<?> getClientThreadTaskExecutor() {
+    public static BlockableEventLoop<?> getClientThreadTaskExecutor() {
         return getThreadTaskExecutor(LogicalSide.CLIENT);
     }
 
-    public static ThreadTaskExecutor<?> getServerThreadTaskExecutor() {
+    public static BlockableEventLoop<?> getServerThreadTaskExecutor() {
         return getThreadTaskExecutor(LogicalSide.SERVER);
     }
 
     @SuppressWarnings("UnusedReturnValue")
     public static CompletableFuture<Void> enqueueTask(final LogicalSide side, final Runnable runnable) {
 
-        final ThreadTaskExecutor<?> executor = getThreadTaskExecutor(side);
+        final BlockableEventLoop<?> executor = getThreadTaskExecutor(side);
 
         // Must check ourselves as Minecraft will sometimes delay tasks even when they are received on the client thread
         // Same logic as ThreadTaskExecutor#runImmediately without the join
@@ -532,17 +532,17 @@ public final class CodeHelper {
     //endregion
     //region error reporting helpers
 
-    public static void reportErrorToPlayer(final PlayerEntity player, final ValidationError error) {
+    public static void reportErrorToPlayer(final Player player, final ValidationError error) {
         reportErrorToPlayer(player, error.getPosition(), error.getChatMessage());
     }
 
-    public static void reportErrorToPlayer(final PlayerEntity player, final @Nullable BlockPos position,
-                                           final ITextComponent... errors) {
+    public static void reportErrorToPlayer(final Player player, final @Nullable BlockPos position,
+                                           final Component... errors) {
         ZeroCore.getProxy().reportErrorToPlayer(player, position, errors);
     }
 
-    public static void reportErrorToPlayer(final PlayerEntity player, final @Nullable BlockPos position,
-                                           final List<ITextComponent> errors) {
+    public static void reportErrorToPlayer(final Player player, final @Nullable BlockPos position,
+                                           final List<Component> errors) {
         ZeroCore.getProxy().reportErrorToPlayer(player, position, errors);
     }
 
@@ -761,21 +761,21 @@ public final class CodeHelper {
      */
 
     @OnlyIn(Dist.CLIENT)
-    public static ITextComponent i18nFormatComponent(final String translateKey, Object... parameters) {
-        return new StringTextComponent(I18n.get(translateKey, parameters));
+    public static Component i18nFormatComponent(final String translateKey, Object... parameters) {
+        return new TextComponent(I18n.get(translateKey, parameters));
     }
 
     /**
      * MC-Version independent wrapper around PlayerEntity::addChatMessage()
      */
-    public static void sendChatMessage(final PlayerEntity sender, final ITextComponent component) {
+    public static void sendChatMessage(final Player sender, final Component component) {
         sender.sendMessage(component, sender.getUUID());
     }
 
     /**
      * MC-Version independent wrapper around PlayerEntity::sendStatusMessage() [backported to MC 1.10.2]
      */
-    public static void sendStatusMessage(final PlayerEntity player, final ITextComponent message) {
+    public static void sendStatusMessage(final Player player, final Component message) {
         ZeroCore.getProxy().sendPlayerStatusMessage(player, message);
     }
 
@@ -833,7 +833,7 @@ public final class CodeHelper {
         return Ints.saturatedCast(value);
     }
 
-    public static int commonVertices(final Vector3i a, final Vector3i b) {
+    public static int commonVertices(final Vec3i a, final Vec3i b) {
         return (a.getX() == b.getX() ? 1 : 0) + (a.getY() == b.getY() ? 1 : 0) + (a.getZ() == b.getZ() ? 1 : 0);
     }
 

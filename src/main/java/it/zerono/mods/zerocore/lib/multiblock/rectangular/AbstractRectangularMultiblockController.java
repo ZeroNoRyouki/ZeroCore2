@@ -45,12 +45,12 @@ import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
@@ -90,7 +90,7 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
     private boolean isMachineWhole(final IMultiblockValidator validatorCallback, final int partsCount,
                                    final BlockPos minimumCoord, final BlockPos maximumCoord) {
 
-        final Vector3i translation = maximumCoord.subtract(minimumCoord);
+        final Vec3i translation = maximumCoord.subtract(minimumCoord);
         final Direction.Axis sizeOneAxis = getZeroAxis(translation);
 
         // is the size of one (and only one) dimension equal to 1?
@@ -178,19 +178,19 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
     }
 
     @Override
-    public void forceStructureUpdate(final World world) {
+    public void forceStructureUpdate(final Level world) {
         this.forBoundingBoxCoordinates((min, max) -> forceStructureUpdate(world, min, max));
     }
 
     //endregion
     //region internals
 
-    protected AbstractRectangularMultiblockController(World world) {
+    protected AbstractRectangularMultiblockController(Level world) {
         super(world);
     }
 
     @Nullable
-    private static Direction.Axis getZeroAxis(final Vector3i vector) {
+    private static Direction.Axis getZeroAxis(final Vec3i vector) {
 
         final boolean x = 0 == vector.getX();
         final boolean y = 0 == vector.getY();
@@ -206,7 +206,7 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
 
     private boolean validateBlock(final BlockPos blockPosition, final IMultiblockValidator validatorCallback) {
 
-        final TileEntity te = WorldHelper.getLoadedTile(this.getWorld(), blockPosition);
+        final BlockEntity te = WorldHelper.getLoadedTile(this.getWorld(), blockPosition);
         //noinspection unchecked
         final AbstractRectangularMultiblockPart<Controller> part = te instanceof AbstractRectangularMultiblockPart ?
                 (AbstractRectangularMultiblockPart<Controller>)te : null;
@@ -304,13 +304,13 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
     @Nullable
     private AbstractRectangularMultiblockPart<Controller> getPartFromWorld(BlockPos position) {
 
-        final TileEntity te = WorldHelper.getLoadedTile(this.getWorld(), position);
+        final BlockEntity te = WorldHelper.getLoadedTile(this.getWorld(), position);
 
         //noinspection unchecked
         return te instanceof AbstractRectangularMultiblockPart ? (AbstractRectangularMultiblockPart<Controller>)te : null;
     }
 
-    private static void forceStructureUpdate(final World world, final BlockPos minCoord, final BlockPos maxCoord) {
+    private static void forceStructureUpdate(final Level world, final BlockPos minCoord, final BlockPos maxCoord) {
 
         final int minX = minCoord.getX();
         final int minY = minCoord.getY();

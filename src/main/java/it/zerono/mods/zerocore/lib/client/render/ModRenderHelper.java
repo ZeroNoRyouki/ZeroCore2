@@ -19,10 +19,10 @@
 package it.zerono.mods.zerocore.lib.client.render;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
@@ -32,23 +32,23 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import com.mojang.math.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ModelLoader;
@@ -63,13 +63,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.UnbakedModel;
+
 @OnlyIn(Dist.CLIENT)
 @SuppressWarnings("WeakerAccess")
 public final class ModRenderHelper {
 
     public static final float ONE_PIXEL = 1.0f / 16.0f;
 
-    public static final NonNullSupplier<FontRenderer> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().font;
+    public static final NonNullSupplier<Font> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().font;
 
     public static long getLastRenderTime() {
         return ZeroCore.getProxy().getLastRenderTime();
@@ -80,19 +91,19 @@ public final class ModRenderHelper {
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static IUnbakedModel getModel(final ResourceLocation location) {
+    public static UnbakedModel getModel(final ResourceLocation location) {
         return ModelLoader.instance().getModelOrMissing(location);
     }
 
-    public static IBakedModel getModel(final BlockState state) {
+    public static BakedModel getModel(final BlockState state) {
         return Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state);
     }
 
-    public static IBakedModel getModel(final ModelResourceLocation modelLocation) {
+    public static BakedModel getModel(final ModelResourceLocation modelLocation) {
         return getModelManager().getModel(modelLocation);
     }
 
-    public static IBakedModel getMissingModel() {
+    public static BakedModel getMissingModel() {
         return getModelManager().getMissingModel();
     }
 
@@ -105,11 +116,11 @@ public final class ModRenderHelper {
     }
 
     public static void bindBlocksTexture() {
-        ModRenderHelper.bindTexture(PlayerContainer.BLOCK_ATLAS);
+        ModRenderHelper.bindTexture(InventoryMenu.BLOCK_ATLAS);
     }
 
     public static TextureAtlasSprite getTextureSprite(final ResourceLocation location) {
-        return getTextureSprite(PlayerContainer.BLOCK_ATLAS, location);
+        return getTextureSprite(InventoryMenu.BLOCK_ATLAS, location);
     }
 
     public static TextureAtlasSprite getTextureSprite(final ResourceLocation atlasName, final ResourceLocation spriteName) {
@@ -133,11 +144,11 @@ public final class ModRenderHelper {
     }
 
     public static TextureAtlasSprite getMissingTexture(final ResourceLocation atlasName) {
-        return getTextureSprite(atlasName, MissingTextureSprite.getLocation());
+        return getTextureSprite(atlasName, MissingTextureAtlasSprite.getLocation());
     }
 
     public static TextureAtlasSprite getMissingTexture() {
-        return getTextureSprite(MissingTextureSprite.getLocation());
+        return getTextureSprite(MissingTextureAtlasSprite.getLocation());
     }
 
     @Nullable
@@ -183,7 +194,7 @@ public final class ModRenderHelper {
         }
     }
 
-    public static List<String> wrapLines(final String text, final int maxLineWidth, final FontRenderer font) {
+    public static List<String> wrapLines(final String text, final int maxLineWidth, final Font font) {
 
         final List<String> lines = Lists.newLinkedList();
         final int spaceWidth = font.width(" ");
@@ -237,10 +248,10 @@ public final class ModRenderHelper {
      * @param combinedLight
      * @param combinedOverlay
      */
-    public static void renderQuads(final MatrixStack matrix, final IVertexBuilder builder, final List<BakedQuad> quads,
+    public static void renderQuads(final PoseStack matrix, final VertexConsumer builder, final List<BakedQuad> quads,
                                    final int combinedLight, final int combinedOverlay) {
 
-        final MatrixStack.Entry entry = matrix.last();
+        final PoseStack.Pose entry = matrix.last();
 
         for (final BakedQuad quad : quads) {
             builder.addVertexData(entry, quad, 1, 1, 1, combinedLight, combinedOverlay, true);
@@ -257,11 +268,11 @@ public final class ModRenderHelper {
      * @param combinedOverlay
      * @param quadTintGetter get a Colour to use as a tint for the quad tint index
      */
-    public static void renderQuads(final MatrixStack matrix, final IVertexBuilder builder, final List<BakedQuad> quads,
+    public static void renderQuads(final PoseStack matrix, final VertexConsumer builder, final List<BakedQuad> quads,
                                    final int combinedLight, final int combinedOverlay,
                                    final Function<Integer, Colour> quadTintGetter) {
 
-        final MatrixStack.Entry entry = matrix.last();
+        final PoseStack.Pose entry = matrix.last();
 
         for (final BakedQuad quad : quads) {
 
@@ -297,8 +308,8 @@ public final class ModRenderHelper {
      * @param combinedLight
      * @param combinedOverlay
      */
-    public static void renderModel(final IBakedModel model, final IModelData data, final MatrixStack matrix,
-                                   final IVertexBuilder builder, final int combinedLight, final int combinedOverlay) {
+    public static void renderModel(final BakedModel model, final IModelData data, final PoseStack matrix,
+                                   final VertexConsumer builder, final int combinedLight, final int combinedOverlay) {
 
         for (final Direction direction : CodeHelper.DIRECTIONS) {
             renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data),
@@ -320,8 +331,8 @@ public final class ModRenderHelper {
      * @param combinedOverlay
      * @param quadTintGetter get a Colour to use as a tint for the quad tint index
      */
-    public static void renderModel(final IBakedModel model, final IModelData data, final MatrixStack matrix,
-                                   final IVertexBuilder builder, final int combinedLight, final int combinedOverlay,
+    public static void renderModel(final BakedModel model, final IModelData data, final PoseStack matrix,
+                                   final VertexConsumer builder, final int combinedLight, final int combinedOverlay,
                                    final Function<Integer, Colour> quadTintGetter) {
 
         for (final Direction direction : CodeHelper.DIRECTIONS) {
@@ -435,7 +446,7 @@ public final class ModRenderHelper {
     //endregion
     //region voxel shapes helpers
 
-    public static void paintVoxelShape(final MatrixStack matrix, final VoxelShape shape,  final IVertexBuilder vertexBuilder,
+    public static void paintVoxelShape(final PoseStack matrix, final VoxelShape shape,  final VertexConsumer vertexBuilder,
                                        final double originX, final double originY, final double originZ, final Colour colour) {
 
         final Matrix4f m = matrix.last().pose();
@@ -465,7 +476,7 @@ public final class ModRenderHelper {
      * @param width the width of the area to paint
      * @param height the height of the area to paint
      */
-    public static void paintSprite(final MatrixStack matrix, final ISprite sprite, final Point screenXY, final int zLevel,
+    public static void paintSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY, final int zLevel,
                                    final int width, final int height) {
         paintSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel, width, height);
     }
@@ -481,7 +492,7 @@ public final class ModRenderHelper {
      * @param width the width of the area to paint
      * @param height the height of the area to paint
      */
-    public static void paintSprite(final MatrixStack matrix, final ISprite sprite, final int x, final int y,
+    public static void paintSprite(final PoseStack matrix, final ISprite sprite, final int x, final int y,
                                    final int zLevel, final int width, final int height) {
 
         RenderSystem.enableBlend();
@@ -512,7 +523,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
-    public static int paintVerticalProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
+    public static int paintVerticalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                                   final Point screenXY, final int zLevel, final Rectangle area,
                                                   final int skip, final double progress) {
         return paintVerticalProgressSprite(matrix, sprite, tint, screenXY.X, screenXY.Y, zLevel,
@@ -536,7 +547,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
-    public static int paintVerticalProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
+    public static int paintVerticalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                                   final int x, final int y, final int zLevel,
                                                   final int areaWidth, final int areaHeight, final int skip,
                                                   final double progress) {
@@ -566,7 +577,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
-    public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite, final Point screenXY,
+    public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
                                                       final int zLevel, final Rectangle area, final double progress) {
         paintVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
                 area.Width, area.Height, progress, Colour.WHITE);
@@ -586,7 +597,7 @@ public final class ModRenderHelper {
      * @param tint the colour to tint the sprite with
      * @return the height of the painted sprite
      */
-    public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite, final Point screenXY,
+    public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
                                                       final int zLevel, final Rectangle area, final double progress,
                                                       final Colour tint) {
         paintVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
@@ -608,7 +619,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
-    public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite,
+    public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
                                                       final int x, final int y, final int zLevel,
                                                       final int areaWidth, final int areaHeight,
                                                       final double progress) {
@@ -631,7 +642,7 @@ public final class ModRenderHelper {
      * @param tint the colour to tint the sprite with
      * @return the height of the painted sprite
      */
-    public static void paintVerticalProgressBarSprite(final MatrixStack matrix, final ISprite sprite,
+    public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
                                                       final int x, final int y, final int zLevel,
                                                       final int areaWidth, final int areaHeight,
                                                       final double progress, final Colour tint) {
@@ -701,7 +712,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
-    public static int paintHorizontalProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
+    public static int paintHorizontalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                                     final Point screenXY, final int zLevel, final Rectangle area,
                                                     final int skip, final double progress) {
         return paintHorizontalProgressSprite(matrix, sprite, tint, screenXY.X, screenXY.Y, zLevel,
@@ -725,7 +736,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the width of the painted sprite
      */
-    public static int paintHorizontalProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
+    public static int paintHorizontalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                                     final int x, final int y, final int zLevel,
                                                     final int areaWidth, final int areaHeight, final int skip,
                                                     final double progress) {
@@ -742,7 +753,7 @@ public final class ModRenderHelper {
         return filledWidth;
     }
 
-    private static void paintProgressSprite(final MatrixStack matrix, final ISprite sprite, final Colour tint,
+    private static void paintProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                             final int x1, final int y1, final int x2, final int y2, final int zLevel) {
 
         bindTexture(sprite);
@@ -764,7 +775,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for the rectangle
      * @param colour    the colour to be used to fill the rectangle
      */
-    public static void paintSolidRect(final MatrixStack matrix, final Point screenXY1, final Point screenXY2,
+    public static void paintSolidRect(final PoseStack matrix, final Point screenXY1, final Point screenXY2,
                                       final int zLevel, final Colour colour) {
         fill(matrix.last().pose(), screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, zLevel, colour.toARGB());
     }
@@ -781,7 +792,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for the rectangle
      * @param colour the colour to be used to fill the rectangle
      */
-    public static void paintSolidRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2,
+    public static void paintSolidRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2,
                                       final int zLevel, final Colour colour) {
         fill(matrix.last().pose(), x1, y1, x2, y2, zLevel, colour.toARGB());
     }
@@ -797,7 +808,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for all the rectangles
      * @param colour the colour to be used to paint the perimeter
      */
-    public static void paintHollowRect(final MatrixStack matrix, final Point screenXY, final int width, final int height,
+    public static void paintHollowRect(final PoseStack matrix, final Point screenXY, final int width, final int height,
                                        final int zLevel, final Colour colour) {
         paintHollowRect(matrix, screenXY.X, screenXY.Y, width, height, zLevel, colour);
     }
@@ -814,7 +825,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for all the rectangles
      * @param colour the colour to be used to paint the perimeter
      */
-    public static void paintHollowRect(final MatrixStack matrix, final int x1, final int y1,
+    public static void paintHollowRect(final PoseStack matrix, final int x1, final int y1,
                                        final int width, final int height, final int zLevel, final Colour colour) {
 
         paintHorizontalLine(matrix, x1, y1, width, zLevel, colour);
@@ -833,7 +844,7 @@ public final class ModRenderHelper {
      * @param lightColour   the light colour to be used for the gradient
      * @param darkColour    the dark colour to be used for the gradient
      */
-    public static void paintTriangularGradientRect(final MatrixStack matrix, final int x, final int y,
+    public static void paintTriangularGradientRect(final PoseStack matrix, final int x, final int y,
                                                    final int width, final int height, final int zLevel,
                                                    final Colour lightColour, final Colour darkColour) {
 
@@ -843,10 +854,10 @@ public final class ModRenderHelper {
         RenderSystem.defaultBlendFunc();
         RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-        Tessellator tessellator = Tessellator.getInstance();
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder builder = tessellator.getBuilder();
 
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         final float startAlpha = lightColour.glAlpha();
         final float startRed = lightColour.glRed();
@@ -886,7 +897,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for the line
      * @param colour the colour to be used to paint the line
      */
-    public static void paintHorizontalLine(final MatrixStack matrix, final Point screenXY, final int length,
+    public static void paintHorizontalLine(final PoseStack matrix, final Point screenXY, final int length,
                                            final int zLevel, final Colour colour) {
         fill(matrix.last().pose(), screenXY.X, screenXY.Y, screenXY.X + length + 1, screenXY.Y + 1,
                 zLevel, colour.toARGB());
@@ -904,7 +915,7 @@ public final class ModRenderHelper {
      * @param zLevel the position on the Z axis for the line
      * @param colour the colour to be used to paint the line
      */
-    public static void paintHorizontalLine(final MatrixStack matrix, final int x, final int y, final int length,
+    public static void paintHorizontalLine(final PoseStack matrix, final int x, final int y, final int length,
                                            final int zLevel, final Colour colour) {
         fill(matrix.last().pose(), x, y, x + length, y + 1, zLevel, colour.toARGB());
     }
@@ -921,7 +932,7 @@ public final class ModRenderHelper {
      * @param colour the colour to be used to paint the line
      */
 
-    public static void paintVerticalLine(final MatrixStack matrix, final Point screenXY, final int length,
+    public static void paintVerticalLine(final PoseStack matrix, final Point screenXY, final int length,
                                          final int zLevel, final Colour colour) {
         fill(matrix.last().pose(), screenXY.X, screenXY.Y, screenXY.X + 1, screenXY.Y + length + 1,
                 zLevel, colour.toARGB());
@@ -940,7 +951,7 @@ public final class ModRenderHelper {
      * @param colour    the colour to be used to paint the line
      */
 
-    public static void paintVerticalLine(final MatrixStack matrix, final int x, final int y, final int length,
+    public static void paintVerticalLine(final PoseStack matrix, final int x, final int y, final int length,
                                          final int zLevel, final Colour colour) {
         fill(matrix.last().pose(), x, y, x + 1, y + length, zLevel, colour.toARGB());
     }
@@ -948,7 +959,7 @@ public final class ModRenderHelper {
     //endregion
     //region buttons
 
-    public static void paintButton3D(final MatrixStack matrix, final Point screenXY, final int width, final int height,
+    public static void paintButton3D(final PoseStack matrix, final Point screenXY, final int width, final int height,
                                      final int zLevel, final Colour darkOutlineColour, final Colour gradientLightColour,
                                      final Colour gradientDarkColour, final Colour borderLightColour,
                                      final Colour borderDarkColour) {
@@ -956,7 +967,7 @@ public final class ModRenderHelper {
                 gradientDarkColour, borderLightColour, borderDarkColour);
     }
 
-    public static void paintButton3D(final MatrixStack matrix, final int x, final int y, final int width, final int height,
+    public static void paintButton3D(final PoseStack matrix, final int x, final int y, final int width, final int height,
                                      final int zLevel, final Colour darkOutlineColour, final Colour gradientLightColour,
                                      final Colour gradientDarkColour, final Colour borderLightColour,
                                      final Colour borderDarkColour) {
@@ -973,7 +984,7 @@ public final class ModRenderHelper {
     //endregion
     //region message box
 
-    public static void paintMessage(final MatrixStack matrix, final IRichText message, final int x, final int y,
+    public static void paintMessage(final PoseStack matrix, final IRichText message, final int x, final int y,
                                     final int zLevel, final int margin, final Colour background,
                                     final Colour highlight1, final Colour highlight2) {
 
@@ -1000,36 +1011,36 @@ public final class ModRenderHelper {
     private static void blitSprite(final Matrix4f matrix, final int x1, final int x2, final int y1, final int y2,
                                    final int blitOffset, final float minU, final float maxU, final float minV, final float maxV) {
 
-        final BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+        final BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferbuilder.vertex(matrix, (float)x1, (float)y2, (float)blitOffset).uv(minU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y2, (float)blitOffset).uv(maxU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y1, (float)blitOffset).uv(maxU, minV).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)blitOffset).uv(minU, minV).endVertex();
         bufferbuilder.end();
         RenderSystem.enableAlphaTest();
-        WorldVertexBufferUploader.end(bufferbuilder);
+        BufferUploader.end(bufferbuilder);
     }
 
     private static void blitSprite(final Matrix4f matrix, final int x1, final int x2, final int y1, final int y2,
                                    final int blitOffset, final float minU, final float maxU, final float minV, final float maxV,
                                    final Colour tint) {
 
-        final BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+        final BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
         bufferbuilder.vertex(matrix, (float)x1, (float)y2, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(minU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y2, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(maxU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y1, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(maxU, minV).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(minU, minV).endVertex();
         bufferbuilder.end();
         RenderSystem.enableAlphaTest();
-        WorldVertexBufferUploader.end(bufferbuilder);
+        BufferUploader.end(bufferbuilder);
     }
 
     // copied from AbstractGui::innerBlit(MatrixStack matrixStack, int x1, int x2, int y1, int y2, int blitOffset, int uWidth, int vHeight, float uOffset, float vOffset, int textureWidth, int textureHeight)
-    private static void blitSprite(final MatrixStack matrix, final int x1, final int x2, final int y1, final int y2, final int blitOffset,
+    private static void blitSprite(final PoseStack matrix, final int x1, final int x2, final int y1, final int y2, final int blitOffset,
                                    final int spriteWidth, final int spriteHeight, final float u, final float v,
                                    final int textureWidth, final int textureHeight) {
         blitSprite(matrix.last().pose(), x1, x2, y1, y2, blitOffset,
@@ -1037,7 +1048,7 @@ public final class ModRenderHelper {
                 (v + 0.0F) / (float)textureHeight, (v + (float)spriteHeight) / (float)textureHeight);
     }
 
-    private static void blitSprite(final MatrixStack matrix, final int x1, final int x2, final int y1, final int y2, final int blitOffset,
+    private static void blitSprite(final PoseStack matrix, final int x1, final int x2, final int y1, final int y2, final int blitOffset,
                                    final int spriteWidth, final int spriteHeight, final float u, final float v,
                                    final int textureWidth, final int textureHeight, final Colour tint) {
         blitSprite(matrix.last().pose(), x1, x2, y1, y2, blitOffset,
@@ -1066,18 +1077,18 @@ public final class ModRenderHelper {
         final float r = (float)(color >> 16 & 255) / 255.0F;
         final float g = (float)(color >> 8 & 255) / 255.0F;
         final float b = (float)(color & 255) / 255.0F;
-        final BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+        final BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_COLOR);
         bufferbuilder.vertex(matrix, (float)minX, (float)maxY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.vertex(matrix, (float)maxX, (float)maxY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.vertex(matrix, (float)maxX, (float)minY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.vertex(matrix, (float)minX, (float)minY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.end();
-        WorldVertexBufferUploader.end(bufferbuilder);
+        BufferUploader.end(bufferbuilder);
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
     }
@@ -1098,7 +1109,7 @@ public final class ModRenderHelper {
 
     private static final Colour ITEMSTACK_HIGHLIGHT = Colour.fromARGB(0x80ffffff);
 
-    public static boolean renderItemStack(final MatrixStack matrix, /*final IRenderTypeBuffer buffer,*/
+    public static boolean renderItemStack(final PoseStack matrix, /*final IRenderTypeBuffer buffer,*/
                                           final ItemStack stack, int x, int y, final String text, boolean highlight) {
 
         boolean rc = false;
@@ -1117,7 +1128,7 @@ public final class ModRenderHelper {
             RenderSystem.color4f(1F, 1F, 1F, 1F);
             RenderSystem.enableRescaleNormal();
             RenderSystem.enableLighting();
-            RenderHelper.turnBackOn();
+            Lighting.turnBackOn();
 
             matrix.pushPose();
             RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, (float) 240, (float) 240);
@@ -1133,7 +1144,7 @@ public final class ModRenderHelper {
 
             matrix.popPose();
 
-            net.minecraft.client.renderer.RenderHelper.turnOff();
+            com.mojang.blaze3d.platform.Lighting.turnOff();
             RenderSystem.disableLighting();
             RenderSystem.disableRescaleNormal();
         }
@@ -1141,12 +1152,12 @@ public final class ModRenderHelper {
         return rc;
     }
 
-    public static boolean renderItemStackWithCount(final MatrixStack matrix, ItemStack stack, int x, int y, boolean highlight) {
+    public static boolean renderItemStackWithCount(final PoseStack matrix, ItemStack stack, int x, int y, boolean highlight) {
         return renderItemStack(matrix, stack, x, y, CodeHelper.formatAsHumanReadableNumber(stack.getCount(), ""), highlight);
     }
 
-    private static void renderItemOverlayIntoGUI(final MatrixStack matrix, /*final IRenderTypeBuffer buffer,*/
-                                                 final FontRenderer fr, final ItemStack stack, int xPosition, int yPosition,
+    private static void renderItemOverlayIntoGUI(final PoseStack matrix, /*final IRenderTypeBuffer buffer,*/
+                                                 final Font fr, final ItemStack stack, int xPosition, int yPosition,
                                                  @Nullable String text, int scaled) {
 
         if (!stack.isEmpty()) {
@@ -1159,7 +1170,7 @@ public final class ModRenderHelper {
 
                 matrix.translate(0.0D, 0.0D, (itemRenderer.blitOffset + 200.0F));
 
-                IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+                MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
 
                 if (scaled >= 2) {
 
@@ -1187,7 +1198,7 @@ public final class ModRenderHelper {
                 RenderSystem.disableTexture();
                 RenderSystem.disableAlphaTest();
                 RenderSystem.disableBlend();
-                Tessellator tessellator = Tessellator.getInstance();
+                Tesselator tessellator = Tesselator.getInstance();
                 BufferBuilder bufferbuilder = tessellator.getBuilder();
                 double health = stack.getItem().getDurabilityForDisplay(stack);
                 int i = Math.round(13.0F - (float)health * 13.0F);
@@ -1200,16 +1211,16 @@ public final class ModRenderHelper {
                 RenderSystem.enableDepthTest();
             }
 
-            ClientPlayerEntity clientplayerentity = Minecraft.getInstance().player;
+            LocalPlayer clientplayerentity = Minecraft.getInstance().player;
             float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldowns().getCooldownPercent(stack.getItem(), Minecraft.getInstance().getFrameTime());
             if (f3 > 0.0F) {
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableTexture();
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
-                Tessellator tessellator1 = Tessellator.getInstance();
+                Tesselator tessellator1 = Tesselator.getInstance();
                 BufferBuilder bufferbuilder1 = tessellator1.getBuilder();
-                draw(bufferbuilder1, xPosition, yPosition + MathHelper.floor(16.0F * (1.0F - f3)), 16, MathHelper.ceil(16.0F * f3), 255, 255, 255, 127);
+                draw(bufferbuilder1, xPosition, yPosition + Mth.floor(16.0F * (1.0F - f3)), 16, Mth.ceil(16.0F * f3), 255, 255, 255, 127);
                 RenderSystem.enableTexture();
                 RenderSystem.enableDepthTest();
             }
@@ -1220,12 +1231,12 @@ public final class ModRenderHelper {
      * Draw with the WorldRenderer
      */
     private static void draw(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue, int alpha) {
-        renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        renderer.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
         renderer.vertex((x + 0), (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
         renderer.vertex((x + 0), (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
         renderer.vertex((x + width), (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
         renderer.vertex((x + width), (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        Tessellator.getInstance().end();
+        Tesselator.getInstance().end();
     }
 
     /**
@@ -1242,7 +1253,7 @@ public final class ModRenderHelper {
      * @param vertices  the vertices of the lines
      *
      */
-    public static void paintSolidLines(final MatrixStack matrix, final Colour colour, final double thickness, final double zLevel, final double... vertices) {
+    public static void paintSolidLines(final PoseStack matrix, final Colour colour, final double thickness, final double zLevel, final double... vertices) {
 
         GlStateManager._enableBlend();
         GlStateManager._disableTexture();
@@ -1252,10 +1263,10 @@ public final class ModRenderHelper {
         GlStateManager._lineWidth((float)thickness);
 
         final int verticesCount = vertices.length;
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
 
-        builder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
         for (int i = 0; i < verticesCount; i += 2) {
             builder.vertex(vertices[i], vertices[i + 1], zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
@@ -1279,9 +1290,9 @@ public final class ModRenderHelper {
      * @param zLevel    the position on the Z axis for all the rectangles
      * @param vertices  the vertices of the rectangles
      */
-    public static void paintSolidRects(final MatrixStack matrix, final Colour colour, final double zLevel, final int... vertices) {
+    public static void paintSolidRects(final PoseStack matrix, final Colour colour, final double zLevel, final int... vertices) {
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
 
         GlStateManager._enableBlend();
@@ -1291,7 +1302,7 @@ public final class ModRenderHelper {
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
         ModRenderHelper.glSetColour(colour);
 
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION);
 
         final int verticesCount = vertices.length;
 
@@ -1326,9 +1337,9 @@ public final class ModRenderHelper {
      * @param zLevel    the position on the Z axis for all the rectangles
      * @param vertices  the vertices of the rectangles
      */
-    public static void paintSolidTriangles(final MatrixStack matrix, final Colour colour, final double zLevel, final int... vertices) {
+    public static void paintSolidTriangles(final PoseStack matrix, final Colour colour, final double zLevel, final int... vertices) {
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
 
         GlStateManager._enableBlend();
@@ -1338,7 +1349,7 @@ public final class ModRenderHelper {
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
         ModRenderHelper.glSetColour(colour);
 
-        builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION);
+        builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormat.POSITION);
 
         final int verticesCount = vertices.length;
 
@@ -1375,7 +1386,7 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintHorizontalGradientLine(final MatrixStack matrix, final int x, final int y, final int length, final double zLevel,
+    public static void paintHorizontalGradientLine(final PoseStack matrix, final int x, final int y, final int length, final double zLevel,
                                                    final Colour startColour, final Colour endColour) {
         ModRenderHelper.paintHorizontalGradientRect(matrix, x, y, x + length, y + 1, zLevel, startColour, endColour);
     }
@@ -1393,7 +1404,7 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintVerticalGradientLine(final MatrixStack matrix, final int x, final int y, final int length, final double zLevel,
+    public static void paintVerticalGradientLine(final PoseStack matrix, final int x, final int y, final int length, final double zLevel,
                                                  final Colour startColour, final Colour endColour) {
         ModRenderHelper.paintVerticalGradientRect(matrix, x, y, x + 1, y + length, zLevel, startColour, endColour);
     }
@@ -1411,10 +1422,10 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintVerticalGradientRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
+    public static void paintVerticalGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                                  final Colour startColour, final Colour endColour) {
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
         final float startAlpha = startColour.glAlpha();
         final float startRed = startColour.glRed();
@@ -1432,7 +1443,7 @@ public final class ModRenderHelper {
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
         RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         builder.vertex(x2, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
@@ -1460,10 +1471,10 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintHorizontalGradientRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
+    public static void paintHorizontalGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                            final Colour startColour, final Colour endColour) {
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
         final float startAlpha = startColour.glAlpha();
         final float startRed = startColour.glRed();
@@ -1481,7 +1492,7 @@ public final class ModRenderHelper {
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
         RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(x1, y2, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
@@ -1509,7 +1520,7 @@ public final class ModRenderHelper {
      * @param lightColour   the light colour to be used for the gradient
      * @param darkColour    the dark colour to be used for the gradient
      */
-    public static void paint3DGradientRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
+    public static void paint3DGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                            final Colour lightColour, final Colour darkColour) {
 
         RenderSystem.disableTexture();
@@ -1520,7 +1531,7 @@ public final class ModRenderHelper {
                 GlStateManager.DestFactor.ZERO.value);
         RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
         final float startAlpha = lightColour.glAlpha();
         final float startRed = lightColour.glRed();
@@ -1531,7 +1542,7 @@ public final class ModRenderHelper {
         final float endGreen = darkColour.glGreen();
         final float endBlue = darkColour.glBlue();
 
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         builder.vertex(x2, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
@@ -1559,7 +1570,7 @@ public final class ModRenderHelper {
      * @param lightColour   the light colour to be used for the gradient
      * @param darkColour    the dark colour to be used for the gradient
      */
-    public static void paint3DGradientTriangle(final MatrixStack matrix, final double x1, final double y1, final double x2, final double y2,
+    public static void paint3DGradientTriangle(final PoseStack matrix, final double x1, final double y1, final double x2, final double y2,
                                                final double x3, final double y3, final double zLevel,
                                                final Colour lightColour, final Colour darkColour) {
 
@@ -1571,7 +1582,7 @@ public final class ModRenderHelper {
                 GlStateManager.DestFactor.ZERO.value);
         RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
         final float startAlpha = lightColour.glAlpha();
         final float startRed = lightColour.glRed();
@@ -1582,7 +1593,7 @@ public final class ModRenderHelper {
         final float endGreen = darkColour.glGreen();
         final float endBlue = darkColour.glBlue();
 
-        builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
 
         builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
@@ -1609,14 +1620,14 @@ public final class ModRenderHelper {
      * @param minU      the starting U coordinates of the texture
      * @param minV      the starting V coordinates of the texture
      */
-    public static void paintTexturedRect(final MatrixStack matrix, final int x, final int y, final double zLevel, final int width, final int height,
+    public static void paintTexturedRect(final PoseStack matrix, final int x, final int y, final double zLevel, final int width, final int height,
                                          final int minU, final int minV) {
 
-        final Tessellator tessellator = Tessellator.getInstance();
+        final Tesselator tessellator = Tesselator.getInstance();
         final BufferBuilder builder = tessellator.getBuilder();
         final float textureScale = 1.0f / (16 * 16);
 
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
 
         builder.vertex(x        , y + height, zLevel).uv(textureScale * minU          , textureScale * (minV + height)).endVertex();
         builder.vertex(x + width, y + height, zLevel).uv(textureScale * (minU + width), textureScale * (minV + height)).endVertex();
@@ -1626,7 +1637,7 @@ public final class ModRenderHelper {
         tessellator.end();
     }
 
-    public static void paint3DSunkenBox(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
+    public static void paint3DSunkenBox(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                         final Colour gradientLightColour, final Colour gradientDarkColour,
                                         final Colour borderLightColour, final Colour borderDarkColour) {
 
@@ -1653,7 +1664,7 @@ public final class ModRenderHelper {
     }
 
     public static void glSetViewport(final double x, final double y, final double width, final double height) {
-        RenderSystem.viewport(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(width), MathHelper.floor(height));
+        RenderSystem.viewport(Mth.floor(x), Mth.floor(y), Mth.floor(width), Mth.floor(height));
     }
 
     public static void glSetDefaultViewport() {

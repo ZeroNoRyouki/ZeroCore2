@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.Vec3i;
 
 public class BoundingSphere {
 
@@ -43,7 +43,7 @@ public class BoundingSphere {
         return of(min.X, min.Y, min.Z, max.X, max.Y, max.Z);
     }
 
-    public static BoundingSphere of(final Vector3i min, final Vector3i max) {
+    public static BoundingSphere of(final Vec3i min, final Vec3i max) {
         return of(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
     }
 

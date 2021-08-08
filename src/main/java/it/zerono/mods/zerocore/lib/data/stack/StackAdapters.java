@@ -23,10 +23,10 @@ import com.google.common.collect.Sets;
 import it.zerono.mods.zerocore.lib.energy.EnergyStack;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
@@ -139,12 +139,12 @@ public final class StackAdapters {
             }
 
             @Override
-            public ItemStack readFrom(CompoundNBT data) {
+            public ItemStack readFrom(CompoundTag data) {
                 return ItemHelper.stackFrom(data);
             }
 
             @Override
-            public CompoundNBT writeTo(ItemStack stack, CompoundNBT data) {
+            public CompoundTag writeTo(ItemStack stack, CompoundTag data) {
                 return stack.save(data);
             }
 
@@ -272,12 +272,12 @@ public final class StackAdapters {
             }
 
             @Override
-            public FluidStack readFrom(CompoundNBT data) {
+            public FluidStack readFrom(CompoundTag data) {
                 return FluidStack.loadFluidStackFromNBT(data);
             }
 
             @Override
-            public CompoundNBT writeTo(FluidStack stack, CompoundNBT data) {
+            public CompoundTag writeTo(FluidStack stack, CompoundTag data) {
                 return stack.writeToNBT(data);
             }
 
@@ -405,12 +405,12 @@ public final class StackAdapters {
             }
 
             @Override
-            public EnergyStack readFrom(CompoundNBT data) {
+            public EnergyStack readFrom(CompoundTag data) {
                 return EnergyStack.from(data);
             }
 
             @Override
-            public CompoundNBT writeTo(EnergyStack stack, CompoundNBT data) {
+            public CompoundTag writeTo(EnergyStack stack, CompoundTag data) {
                 return stack.serializeTo(data);
             }
 

@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.data;
 import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.LogicalSide;
 
 public enum IoDirection
@@ -47,7 +47,7 @@ public enum IoDirection
     }
 
     //TODO check "data" owner; for write too
-    public static IoDirection read(final CompoundNBT data, final String key, final IoDirection defaultValue) {
+    public static IoDirection read(final CompoundTag data, final String key, final IoDirection defaultValue) {
 
         if (data.contains(key)) {
 
@@ -61,7 +61,7 @@ public enum IoDirection
         return defaultValue;
     }
 
-    public static void write(final CompoundNBT data, final String key, final IoDirection value) {
+    public static void write(final CompoundTag data, final String key, final IoDirection value) {
         data.putString(key, value.name());
     }
 

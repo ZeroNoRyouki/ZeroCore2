@@ -24,17 +24,17 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
@@ -49,7 +49,7 @@ public final class ItemHelper {
 
     public static final String INVENTORY = "inventory";
 
-    public static ResourceLocation getItemId(final IItemProvider item) {
+    public static ResourceLocation getItemId(final ItemLike item) {
         return Objects.requireNonNull(item.asItem().getRegistryName());
     }
 
@@ -108,10 +108,10 @@ public final class ItemHelper {
 
         if (result && options.contains(MatchOption.NBT)) {
 
-            final CompoundNBT nbtA = stackA.getTag();
-            final CompoundNBT nbtB = stackB.getTag();
+            final CompoundTag nbtA = stackA.getTag();
+            final CompoundTag nbtB = stackB.getTag();
 
-            result = (nbtA == nbtB) || (null != nbtA && null != nbtB && NBTUtil.compareNbt(nbtA, nbtB, true));
+            result = (nbtA == nbtB) || (null != nbtA && null != nbtB && NbtUtils.compareNbt(nbtA, nbtB, true));
         }
 
         if (result && options.contains(MatchOption.Capabilities)) {
@@ -131,7 +131,7 @@ public final class ItemHelper {
      * @param provider the item provider
      * @return the newly create stack
      */
-    public static ItemStack stackFrom(final IItemProvider provider) {
+    public static ItemStack stackFrom(final ItemLike provider) {
         return ItemHelper.stackFrom(provider, 1, null);
     }
 
@@ -141,7 +141,7 @@ public final class ItemHelper {
      * @param supplier a supplier of an item provider
      * @return the newly create stack or an empty stack if the supplier return null
      */
-    public static <T extends IItemProvider> ItemStack stackFrom(final Supplier<T> supplier) {
+    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier) {
         return ItemHelper.stackFrom(supplier, 1, null);
     }
 
@@ -152,7 +152,7 @@ public final class ItemHelper {
      * @param amount the number of items to put into the stack
      * @return the newly create stack
      */
-    public static ItemStack stackFrom(final IItemProvider provider, final int amount) {
+    public static ItemStack stackFrom(final ItemLike provider, final int amount) {
         return ItemHelper.stackFrom(provider, amount, null);
     }
 
@@ -163,7 +163,7 @@ public final class ItemHelper {
      * @param amount the number of items to put into the stack
      * @return the newly create stack or an empty stack if the supplier return null
      */
-    public static <T extends IItemProvider> ItemStack stackFrom(final Supplier<T> supplier, final int amount) {
+    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier, final int amount) {
         return ItemHelper.stackFrom(supplier, amount, null);
     }
 
@@ -175,7 +175,7 @@ public final class ItemHelper {
      * @param damage the stack damage value
      * @return the newly create stack
      */
-    public static ItemStack stackFrom(final IItemProvider provider, final int amount, final int damage) {
+    public static ItemStack stackFrom(final ItemLike provider, final int amount, final int damage) {
 
         final ItemStack stack = ItemHelper.stackFrom(provider, amount);
 
@@ -191,7 +191,7 @@ public final class ItemHelper {
      * @param damage the stack damage value
      * @return the newly create stack or an empty stack if the supplier return null
      */
-    public static <T extends IItemProvider> ItemStack stackFrom(final Supplier<T> supplier, final int amount, final int damage) {
+    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier, final int amount, final int damage) {
 
         final ItemStack stack = ItemHelper.stackFrom(supplier, amount);
 
@@ -210,7 +210,7 @@ public final class ItemHelper {
      * @param nbt the capabilities data to be associated with the stack
      * @return the newly create stack
      */
-    public static ItemStack stackFrom(final IItemProvider provider, final int amount, @Nullable final CompoundNBT nbt) {
+    public static ItemStack stackFrom(final ItemLike provider, final int amount, @Nullable final CompoundTag nbt) {
         return new ItemStack(provider, amount, nbt);
     }
 
@@ -222,9 +222,9 @@ public final class ItemHelper {
      * @param nbt the capabilities data to be associated with the stack
      * @return the newly create stack
      */
-    public static <T extends IItemProvider> ItemStack stackFrom(final Supplier<T> supplier, final int amount, @Nullable final CompoundNBT nbt) {
+    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier, final int amount, @Nullable final CompoundTag nbt) {
 
-        final IItemProvider provider = supplier.get();
+        final ItemLike provider = supplier.get();
 
         return null != provider ? new ItemStack(provider, amount, nbt) : ItemHelper.stackEmpty();
     }
@@ -246,7 +246,7 @@ public final class ItemHelper {
      * @param nbt an NBT Tag Compound containing the data of the stack to create
      * @return the newly create stack
      */
-    public static ItemStack stackFrom(final CompoundNBT nbt) {
+    public static ItemStack stackFrom(final CompoundTag nbt) {
         return ItemStack.of(nbt);
     }
 
@@ -256,8 +256,8 @@ public final class ItemHelper {
      * @param stack the stack to serialize
      * @return the serialized NBT data
      */
-    public static CompoundNBT stackToNBT(final ItemStack stack) {
-        return stack.save(new CompoundNBT());
+    public static CompoundTag stackToNBT(final ItemStack stack) {
+        return stack.save(new CompoundTag());
     }
 
     /**
@@ -366,7 +366,7 @@ public final class ItemHelper {
         return ItemStack.EMPTY;
     }
 
-    public static Optional<CompoundNBT> stackGetTag(final ItemStack stack) {
+    public static Optional<CompoundTag> stackGetTag(final ItemStack stack) {
         return Optional.ofNullable(stack.getTag());
     }
 
@@ -377,11 +377,11 @@ public final class ItemHelper {
         return ItemHelper.stackGetTag(stack).map(tag -> tag.contains(key)).orElse(false);
     }
 
-    public static Optional<INBT> stackGetData(ItemStack stack, String key) {
+    public static Optional<Tag> stackGetData(ItemStack stack, String key) {
         return ItemHelper.stackGetTag(stack).map(tag -> tag.get(key));
     }
 
-    public static void stackSetData(ItemStack stack, String key, INBT value) {
+    public static void stackSetData(ItemStack stack, String key, Tag value) {
 
         Preconditions.checkArgument(!key.isEmpty(), "'key' must not be empty");
 
@@ -389,7 +389,7 @@ public final class ItemHelper {
                 tag -> tag.put(key, value),
                 () -> {
 
-                    final CompoundNBT newTag = new CompoundNBT();
+                    final CompoundTag newTag = new CompoundTag();
 
                     newTag.put(key, value);
                     stack.setTag(newTag);
@@ -404,7 +404,7 @@ public final class ItemHelper {
         return stack;
     }
 
-    public static void inventoryDropItems(final IItemHandlerModifiable inventory, final World world,
+    public static void inventoryDropItems(final IItemHandlerModifiable inventory, final Level world,
                                           final BlockPos position/*, final boolean withMomentum*/) {
 
         final double x = position.getX(), y = position.getY(), z = position.getZ();
@@ -412,7 +412,7 @@ public final class ItemHelper {
         IntStream.range(0, inventory.getSlots())
                 .mapToObj(slot -> ItemHelper.removeStackFromSlot(inventory, slot))
                 .filter(stack -> !stack.isEmpty())
-                .forEach(stack -> InventoryHelper.dropItemStack(world, x, y, z, stack));
+                .forEach(stack -> Containers.dropItemStack(world, x, y, z, stack));
     }
 
     //region internals

@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.data.nbt;
 
 import com.google.common.base.Strings;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,10 +28,10 @@ import java.util.function.Consumer;
 public class NBTBuilder {
 
     public NBTBuilder() {
-        this._root = new CompoundNBT();
+        this._root = new CompoundTag();
     }
 
-    public CompoundNBT build() {
+    public CompoundTag build() {
         return this._root;
     }
 
@@ -41,7 +41,7 @@ public class NBTBuilder {
         return this;
     }
 
-    public NBTBuilder merge(final CompoundNBT compound) {
+    public NBTBuilder merge(final CompoundTag compound) {
 
         this._root.merge(compound);
         return this;
@@ -50,7 +50,7 @@ public class NBTBuilder {
     public NBTBuilder addEntity(final String name, final ISyncableEntity entity, final ISyncableEntity.SyncReason syncReason) {
 
         validateName(name);
-        this._root.put(name, entity.syncDataTo(new CompoundNBT(), syncReason));
+        this._root.put(name, entity.syncDataTo(new CompoundTag(), syncReason));
         return this;
     }
 
@@ -172,7 +172,7 @@ public class NBTBuilder {
         }
     }
 
-    private final CompoundNBT _root;
+    private final CompoundTag _root;
 
     //endregion
 }

@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.validator.IControlValidator;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
@@ -47,5 +47,5 @@ public interface IControlContainer
 
     void setValidator(IControlValidator validator);
 
-    void validate(Consumer<ITextComponent> errorReport);
+    void validate(Consumer<Component> errorReport);
 }

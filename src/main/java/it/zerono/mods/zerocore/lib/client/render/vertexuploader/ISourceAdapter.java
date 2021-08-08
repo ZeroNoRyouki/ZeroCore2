@@ -23,7 +23,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.data.gfx.LightMap;
 import it.zerono.mods.zerocore.lib.data.gfx.UV;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Vector3f;
 
 import javax.annotation.Nullable;
 

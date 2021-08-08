@@ -20,12 +20,12 @@ package it.zerono.mods.zerocore.lib.item.inventory.container;
 
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.network.INetworkTileEntitySyncProvider;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IWorldPosCallable;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 
 import java.util.Objects;
 
@@ -40,7 +40,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param windowId
      * @param tile      the TileEntity to link with
      */
-    public ModTileContainer(final ContainerFactory factory, final ContainerType<? extends ModTileContainer<T>> type,
+    public ModTileContainer(final ContainerFactory factory, final MenuType<? extends ModTileContainer<T>> type,
                             final int windowId, final T tile) {
 
         super(factory, type, windowId);
@@ -57,8 +57,8 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param tile      the TileEntity to link with
      * @param player    the player
      */
-    public ModTileContainer(final ContainerFactory factory, final ContainerType<? extends ModTileContainer<T>> type,
-                            final int windowId, final T tile, final ServerPlayerEntity player) {
+    public ModTileContainer(final ContainerFactory factory, final MenuType<? extends ModTileContainer<T>> type,
+                            final int windowId, final T tile, final ServerPlayer player) {
 
         this(factory, type, windowId, tile);
 
@@ -67,7 +67,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
         }
     }
 
-    public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final ContainerType<? extends ModTileContainer<T>> type,
+    public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
                                                                                   final int windowId, final T tile) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile) {
             @Override
@@ -76,9 +76,9 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
         };
     }
 
-    public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final ContainerType<? extends ModTileContainer<T>> type,
+    public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
                                                                                   final int windowId, final T tile,
-                                                                                  final ServerPlayerEntity player) {
+                                                                                  final ServerPlayer player) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile, player) {
             @Override
             public void setItem(int slotID, ItemStack stack) {
@@ -86,8 +86,8 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
         };
     }
 
-    public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final ContainerType<? extends ModTileContainer<T>> type,
-                                                                                  final int windowId, final PacketBuffer data) {
+    public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
+                                                                                  final int windowId, final FriendlyByteBuf data) {
         return empty(type, windowId, AbstractModBlockEntity.getGuiClientBlockEntity(data));
     }
 
@@ -103,9 +103,9 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param player the player
      */
     @Override
-    public boolean stillValid(final PlayerEntity player) {
+    public boolean stillValid(final Player player) {
 
-        return stillValid(IWorldPosCallable.create(Objects.requireNonNull(this._tile.getLevel()),
+        return stillValid(ContainerLevelAccess.create(Objects.requireNonNull(this._tile.getLevel()),
                 this._tile.getBlockPos()), player, this._tile.getBlockType());
     }
 
@@ -115,12 +115,12 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param player
      */
     @Override
-    public void removed(PlayerEntity player) {
+    public void removed(Player player) {
 
         super.removed(player);
 
-        if (this._tile instanceof INetworkTileEntitySyncProvider && player instanceof ServerPlayerEntity) {
-            ((INetworkTileEntitySyncProvider)this._tile).delistFromUpdates((ServerPlayerEntity)player);
+        if (this._tile instanceof INetworkTileEntitySyncProvider && player instanceof ServerPlayer) {
+            ((INetworkTileEntitySyncProvider)this._tile).delistFromUpdates((ServerPlayer)player);
         }
     }
 

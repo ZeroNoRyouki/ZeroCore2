@@ -22,9 +22,9 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.DebuggableHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.NonNullList;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -34,15 +34,15 @@ import java.util.function.IntConsumer;
 
 public class TileEntityItemStackHandler extends ItemStackHandler implements IDebuggable {
 
-    public TileEntityItemStackHandler(final TileEntity linkedTileEntity) {
+    public TileEntityItemStackHandler(final BlockEntity linkedTileEntity) {
         this(linkedTileEntity, 1);
     }
 
-    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final int size) {
+    public TileEntityItemStackHandler(final BlockEntity linkedTileEntity, final int size) {
         this(linkedTileEntity, size, TileEntityItemStackHandler::defaultValidator);
     }
 
-    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final int size,
+    public TileEntityItemStackHandler(final BlockEntity linkedTileEntity, final int size,
                                       final BiPredicate<Integer, ItemStack> itemValidator) {
 
         super(size);
@@ -51,11 +51,11 @@ public class TileEntityItemStackHandler extends ItemStackHandler implements IDeb
         this._slotChanged = CodeHelper.VOID_INT_CONSUMER;
     }
 
-    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final NonNullList<ItemStack> stacks) {
+    public TileEntityItemStackHandler(final BlockEntity linkedTileEntity, final NonNullList<ItemStack> stacks) {
         this(linkedTileEntity, stacks, TileEntityItemStackHandler::defaultValidator);
     }
 
-    public TileEntityItemStackHandler(final TileEntity linkedTileEntity, final NonNullList<ItemStack> stacks,
+    public TileEntityItemStackHandler(final BlockEntity linkedTileEntity, final NonNullList<ItemStack> stacks,
                                       final BiPredicate<Integer, ItemStack> itemValidator) {
 
         super(stacks);
@@ -99,7 +99,7 @@ public class TileEntityItemStackHandler extends ItemStackHandler implements IDeb
         return true;
     }
 
-    private final TileEntity _linkedTE;
+    private final BlockEntity _linkedTE;
     private final BiPredicate<Integer, ItemStack> _itemValidator;
     private IntConsumer _slotChanged;
 

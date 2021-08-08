@@ -22,18 +22,18 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.template.RuleTest;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -82,19 +82,19 @@ public class WorldReGenHandler
     }
 
     public static Predicate<Biome> onlyNether() {
-        return biome -> Biome.Category.NETHER == biome.getBiomeCategory();
+        return biome -> Biome.BiomeCategory.NETHER == biome.getBiomeCategory();
     }
 
     public static Predicate<Biome> exceptNether() {
-        return biome -> Biome.Category.NETHER != biome.getBiomeCategory();
+        return biome -> Biome.BiomeCategory.NETHER != biome.getBiomeCategory();
     }
 
     public static Predicate<Biome> onlyTheEnd() {
-        return biome -> Biome.Category.THEEND == biome.getBiomeCategory();
+        return biome -> Biome.BiomeCategory.THEEND == biome.getBiomeCategory();
     }
 
     public static Predicate<Biome> exceptTheEnd() {
-        return biome -> Biome.Category.THEEND != biome.getBiomeCategory();
+        return biome -> Biome.BiomeCategory.THEEND != biome.getBiomeCategory();
     }
 
     public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
@@ -138,12 +138,12 @@ public class WorldReGenHandler
 
     private synchronized void onChunkDataLoad(final ChunkDataEvent.Load event) {
 
-        final IWorld world = event.getWorld();
+        final LevelAccessor world = event.getWorld();
 
-        if (this.enabled() && world instanceof World && !world.isClientSide() &&
+        if (this.enabled() && world instanceof Level && !world.isClientSide() &&
                 (!event.getData().contains(this.getWorldGenVersionTagName()) ||
                 event.getData().getInt(this.getWorldGenVersionTagName()) < this._worldGenCurrentVersion.getAsInt())) {
-            this.addChunkToRegen(((World) world).dimension(), event.getChunk().getPos());
+            this.addChunkToRegen(((Level) world).dimension(), event.getChunk().getPos());
         }
     }
 
@@ -164,11 +164,11 @@ public class WorldReGenHandler
     private void onWorldTick(final TickEvent.WorldTickEvent event) {
 
         if (this.enabled() && event.side.isServer() && TickEvent.Phase.END == event.phase) {
-            this.processChunks((ServerWorld)event.world);
+            this.processChunks((ServerLevel)event.world);
         }
     }
 
-    private void addChunkToRegen(final RegistryKey<World> dimension, final ChunkPos chunkPosition) {
+    private void addChunkToRegen(final ResourceKey<Level> dimension, final ChunkPos chunkPosition) {
 
         if (null == this._chunksToRegen) {
             this._chunksToRegen = new Object2ObjectArrayMap<>();
@@ -181,7 +181,7 @@ public class WorldReGenHandler
         }
     }
 
-    private void processChunks(final ServerWorld world) {
+    private void processChunks(final ServerLevel world) {
 
         if (!world.isClientSide && null != this._chunksToRegen) {
 
@@ -216,7 +216,7 @@ public class WorldReGenHandler
         }
     }
 
-    private void regenerateChunk(final ServerWorld world, final Random random, final int chunkX, final int chunkZ) {
+    private void regenerateChunk(final ServerLevel world, final Random random, final int chunkX, final int chunkZ) {
 
         if (!world.hasChunk(chunkX, chunkZ)) {
             return;
@@ -226,7 +226,7 @@ public class WorldReGenHandler
         final BlockPos position = new BlockPos(chunkX * 16, 0, chunkZ * 16);
         final Biome biome = world.getBiome(position);
 
-        for (final GenerationStage.Decoration stage : this._entries.keySet()) {
+        for (final GenerationStep.Decoration stage : this._entries.keySet()) {
 
             boolean processed = false;
 

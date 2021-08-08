@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.compat.computer;
 
 //import li.cil.oc.api.machine.Arguments;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class LuaHelper {

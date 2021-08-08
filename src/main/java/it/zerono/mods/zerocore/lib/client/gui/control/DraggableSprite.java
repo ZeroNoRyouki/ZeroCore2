@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IDraggable;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteTextureMap;
@@ -27,6 +27,8 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 
 import javax.annotation.Nullable;
+
+import it.zerono.mods.zerocore.lib.client.gui.IDraggable.PaintState;
 
 @SuppressWarnings("unused")
 public class DraggableSprite
@@ -62,7 +64,7 @@ public class DraggableSprite
     //region IDraggable
 
     @Override
-    public void onPaint(final MatrixStack matrix, final int x, final int y, final float zLevel, final PaintState paintState) {
+    public void onPaint(final PoseStack matrix, final int x, final int y, final float zLevel, final PaintState paintState) {
 //        ModRenderHelper.paintSprite(this, x, y, zLevel, true, false);//
         ModRenderHelper.paintSprite(matrix, this, new Point(x, y), (int)zLevel, this.getWidth(), this.getHeight()); //TODO new Point arg!!
     }

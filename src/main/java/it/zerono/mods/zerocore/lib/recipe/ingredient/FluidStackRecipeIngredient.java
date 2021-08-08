@@ -26,12 +26,12 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.tag.TagsHelper;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Collections;
@@ -49,7 +49,7 @@ public abstract class FluidStackRecipeIngredient
         return new FluidStackRecipeIngredient.Impl(stack);
     }
 
-    public static FluidStackRecipeIngredient from(final ITag<Fluid> tag, final int amount) {
+    public static FluidStackRecipeIngredient from(final Tag<Fluid> tag, final int amount) {
         return new FluidStackRecipeIngredient.TaggedImpl(tag, amount);
     }
 
@@ -57,7 +57,7 @@ public abstract class FluidStackRecipeIngredient
         return new FluidStackRecipeIngredient.CompositeImpl(ingredients);
     }
 
-    public static FluidStackRecipeIngredient from(final PacketBuffer buffer) {
+    public static FluidStackRecipeIngredient from(final FriendlyByteBuf buffer) {
 
         final byte type = buffer.readByte();
 
@@ -129,7 +129,7 @@ public abstract class FluidStackRecipeIngredient
                 }
 
                 final ResourceLocation tagId = JSONHelper.jsonGetResourceLocation(json, Lib.NAME_TAG);
-                final ITag<Fluid> tag = TagCollectionManager.getInstance().getFluids().getTag(tagId);
+                final Tag<Fluid> tag = SerializationTags.getInstance().getFluids().getTag(tagId);
 
                 if (null == tag) {
                     throw new JsonSyntaxException("Unknown fluid ingredient Tag: " + tagId);
@@ -180,7 +180,7 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
-        public void serializeTo(final PacketBuffer buffer) {
+        public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeByte(1);
             this._ingredient.writeToPacket(buffer);
@@ -274,7 +274,7 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
-        public void serializeTo(final PacketBuffer buffer) {
+        public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeByte(2);
             buffer.writeVarInt(this._ingredients.size());
@@ -359,10 +359,10 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
-        public void serializeTo(final PacketBuffer buffer) {
+        public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeByte(3);
-            buffer.writeResourceLocation(TagCollectionManager.getInstance().getFluids().getIdOrThrow(this._tag));
+            buffer.writeResourceLocation(SerializationTags.getInstance().getFluids().getIdOrThrow(this._tag));
             buffer.writeVarInt(this._amount);
         }
 
@@ -371,7 +371,7 @@ public abstract class FluidStackRecipeIngredient
 
             final JsonObject json = new JsonObject();
 
-            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, TagCollectionManager.getInstance().getFluids().getIdOrThrow(this._tag));
+            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, SerializationTags.getInstance().getFluids().getIdOrThrow(this._tag));
             JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, this._amount);
             return json;
         }
@@ -387,13 +387,13 @@ public abstract class FluidStackRecipeIngredient
         //endregion
         //region internals
 
-        protected TaggedImpl(final ITag<Fluid> tag, final int amount) {
+        protected TaggedImpl(final Tag<Fluid> tag, final int amount) {
 
             this._tag = tag;
             this._amount = amount;
         }
 
-        private final ITag<Fluid> _tag;
+        private final Tag<Fluid> _tag;
         private final int _amount;
         private List<FluidStack> _cachedMatchingElements;
 

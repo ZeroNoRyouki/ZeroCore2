@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.lib.client.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -37,11 +37,11 @@ public class BakedModelSupplier {
 
     public static final BakedModelSupplier INSTANCE = new BakedModelSupplier();
 
-    public static Supplier<IBakedModel> create(final ResourceLocation name) {
+    public static Supplier<BakedModel> create(final ResourceLocation name) {
         return create(name, false);
     }
 
-    public static Supplier<IBakedModel> create(final ResourceLocation name, final boolean register) {
+    public static Supplier<BakedModel> create(final ResourceLocation name, final boolean register) {
 
         if (register) {
             INSTANCE.addToLoadingList(name);
@@ -60,8 +60,8 @@ public class BakedModelSupplier {
     @SubscribeEvent
     public void onModelBake(final ModelBakeEvent event) {
 
-        final Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
-        final IBakedModel missing = ModRenderHelper.getMissingModel();
+        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModelRegistry();
+        final BakedModel missing = ModRenderHelper.getMissingModel();
 
         this._wrappers.forEach((key, value) -> value._cachedModel = modelRegistry.getOrDefault(key, missing));
     }
@@ -70,7 +70,7 @@ public class BakedModelSupplier {
     //region internals
     //region SpriteSupplier
 
-    private static class BakedModelWrapper implements Supplier<IBakedModel> {
+    private static class BakedModelWrapper implements Supplier<BakedModel> {
 
         protected BakedModelWrapper() {
             this._cachedModel = null;
@@ -79,14 +79,14 @@ public class BakedModelSupplier {
         //region Supplier
 
         @Override
-        public IBakedModel get() {
+        public BakedModel get() {
             return this._cachedModel;
         }
 
         //endregion
         //region internals
 
-        private IBakedModel _cachedModel;
+        private BakedModel _cachedModel;
 
         //endregion
     }
@@ -104,7 +104,7 @@ public class BakedModelSupplier {
         }
     }
 
-    private Supplier<IBakedModel> getOrCreate(final ResourceLocation name) {
+    private Supplier<BakedModel> getOrCreate(final ResourceLocation name) {
         return INSTANCE._wrappers.computeIfAbsent(name, resourceLocation -> new BakedModelWrapper());
     }
 

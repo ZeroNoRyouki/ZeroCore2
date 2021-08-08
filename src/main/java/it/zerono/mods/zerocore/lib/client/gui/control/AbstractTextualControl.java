@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
@@ -27,8 +27,8 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class AbstractTextualControl
@@ -57,7 +57,7 @@ public abstract class AbstractTextualControl
         this.setText(String.format(formatString, parameters));
     }
 
-    public void setText(final ITextComponent text) {
+    public void setText(final Component text) {
         this.setText(text./*getFormattedText*/getString());
     }
 
@@ -101,10 +101,10 @@ public abstract class AbstractTextualControl
         return this.getFontRender().lineHeight - 1;
     }
 
-    protected void paintTextLine(final MatrixStack matrix, String line, int x, int y, int lineAreaWidth,
+    protected void paintTextLine(final PoseStack matrix, String line, int x, int y, int lineAreaWidth,
                                  int lineAreaHeight, final Colour color) {
 
-        final FontRenderer font = this.getFontRender();
+        final Font font = this.getFontRender();
 
         line = font./*trimStringToWidth*/plainSubstrByWidth(line, lineAreaWidth);
 
@@ -117,7 +117,7 @@ public abstract class AbstractTextualControl
                 this.getVerticalAlignment().align(y, this.getLineHeight(line), lineAreaHeight) + this.getPadding().getTop() + this.getTextOffsetY());
     }
 
-    protected void paintText(final MatrixStack matrix, final FontRenderer render, final Colour colour, final String text, final int x, final int y) {
+    protected void paintText(final PoseStack matrix, final Font render, final Colour colour, final String text, final int x, final int y) {
 
         if (!Strings.isNullOrEmpty(text)) {
 
@@ -127,7 +127,7 @@ public abstract class AbstractTextualControl
         }
     }
 
-    protected FontRenderer getFontRender() {
+    protected Font getFontRender() {
         return this._fontRender;
     }
 
@@ -158,7 +158,7 @@ public abstract class AbstractTextualControl
     //region AbstractControl
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this.paintTextLine(matrix, this.getText(), 0, 0, this.getTextAreaWidth(), this.getTextAreaHeight(),
                 this.getEnabled() ? this.getColor() : this.getDisabledColor());
     }
@@ -174,7 +174,7 @@ public abstract class AbstractTextualControl
     //endregion
     //region internals
 
-    private final FontRenderer _fontRender;
+    private final Font _fontRender;
     private String _text;
     private HorizontalAlignment _horizontalAlignment;
     private VerticalAlignment _verticalAlignment;

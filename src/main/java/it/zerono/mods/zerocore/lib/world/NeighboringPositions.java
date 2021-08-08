@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.world;
 
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 
 import java.util.stream.LongStream;
 
@@ -51,12 +51,12 @@ public class NeighboringPositions {
         final int length = directions.length;
 
         this._directions = directions;
-        this._neighbors = new BlockPos.Mutable[length];
+        this._neighbors = new BlockPos.MutableBlockPos[length];
         this._neighborHashes = new long[length];
 
         for (int i = 0; i < length; ++i) {
 
-            final BlockPos.Mutable position = new BlockPos.Mutable(x, y, z).move(this._directions[i]);
+            final BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos(x, y, z).move(this._directions[i]);
 
             this._neighbors[i] = position;
             this._neighborHashes[i] = position.asLong();
@@ -71,7 +71,7 @@ public class NeighboringPositions {
 
         for (int i = 0; i < this._neighbors.length; ++i) {
 
-            final BlockPos.Mutable position = this._neighbors[i].set(x, y, z).move(this._directions[i], 1);
+            final BlockPos.MutableBlockPos position = this._neighbors[i].set(x, y, z).move(this._directions[i], 1);
 
             this._neighborHashes[i] = position.asLong();
         }
@@ -96,7 +96,7 @@ public class NeighboringPositions {
     //region internals
 
     private final Direction[] _directions;
-    private final BlockPos.Mutable[] _neighbors;
+    private final BlockPos.MutableBlockPos[] _neighbors;
     private final long[] _neighborHashes;
 
     //endregion

@@ -41,12 +41,12 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.rectangular;
 
-import net.minecraft.state.EnumProperty;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.core.BlockPos;
 
 public enum PartPosition
-        implements IStringSerializable {
+        implements StringRepresentable {
 
     Unknown,
     FrameCorner,

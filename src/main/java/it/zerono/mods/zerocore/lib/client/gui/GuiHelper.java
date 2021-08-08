@@ -18,20 +18,20 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import net.minecraft.client.KeyboardListener;
+import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.MouseHelper;
+import net.minecraft.client.MouseHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public final  class GuiHelper {
 
-    public static MouseHelper getMouse() {
+    public static MouseHandler getMouse() {
         return Minecraft.getInstance().mouseHandler;
     }
 
-    public static KeyboardListener getKeyboard() {
+    public static KeyboardHandler getKeyboard() {
         return Minecraft.getInstance().keyboardHandler;
     }
 

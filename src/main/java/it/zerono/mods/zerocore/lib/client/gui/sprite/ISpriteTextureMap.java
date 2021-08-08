@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public interface ISpriteTextureMap {
 

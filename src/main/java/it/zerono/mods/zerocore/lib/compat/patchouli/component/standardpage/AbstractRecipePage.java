@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage;
 
 import com.google.gson.annotations.SerializedName;
 import it.zerono.mods.zerocore.internal.Log;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import vazkii.patchouli.api.IVariable;
 import vazkii.patchouli.client.book.page.abstr.PageDoubleRecipe;
 

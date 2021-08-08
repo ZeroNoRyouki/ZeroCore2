@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.item.inventory.filter;
 
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.EnumSet;
 import java.util.Optional;

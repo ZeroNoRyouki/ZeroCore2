@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
@@ -29,7 +29,7 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteSet;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.sounds.SoundEvents;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -106,7 +106,7 @@ public abstract class AbstractButtonControl
     }
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         this.getIconFromState(this.getButtonState()).ifPresent(sprite -> this.paintButtonSprite(matrix, sprite));
         super.onPaint(matrix, partialTicks, mouseX, mouseY);
@@ -165,7 +165,7 @@ public abstract class AbstractButtonControl
         this.playSound(SoundEvents.UI_BUTTON_CLICK);
     }
 
-    protected void paintButton3D(final MatrixStack matrix, final ButtonState state, final int x, final int y,
+    protected void paintButton3D(final PoseStack matrix, final ButtonState state, final int x, final int y,
                                  final int width, final int height) {
 
         switch (state) {
@@ -212,7 +212,7 @@ public abstract class AbstractButtonControl
     //endregion
     //region internals
 
-    private void paintButtonSprite(final MatrixStack matrix, final ISprite sprite) {
+    private void paintButtonSprite(final PoseStack matrix, final ISprite sprite) {
 
         final Rectangle paddedBounds = this.getPaddingRect();
 

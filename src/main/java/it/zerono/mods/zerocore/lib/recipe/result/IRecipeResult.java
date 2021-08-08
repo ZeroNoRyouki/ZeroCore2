@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.recipe.result;
 
 import it.zerono.mods.zerocore.lib.recipe.ISerializableRecipe;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IRecipeResult<T>
     extends ISerializableRecipe {

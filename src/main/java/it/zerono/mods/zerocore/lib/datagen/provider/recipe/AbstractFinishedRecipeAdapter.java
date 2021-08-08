@@ -19,14 +19,14 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.gson.JsonObject;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 
 public abstract class AbstractFinishedRecipeAdapter
-        implements IFinishedRecipe {
+        implements FinishedRecipe {
 
     //region IFinishedRecipe
 
@@ -44,7 +44,7 @@ public abstract class AbstractFinishedRecipeAdapter
     }
 
     @Override
-    public IRecipeSerializer<?> getType() {
+    public RecipeSerializer<?> getType() {
         return this._serializer;
     }
 
@@ -70,14 +70,14 @@ public abstract class AbstractFinishedRecipeAdapter
     //endregion
     //region internals
 
-    protected AbstractFinishedRecipeAdapter(final IFinishedRecipe originalRecipe, final IRecipeSerializer<?> serializer) {
+    protected AbstractFinishedRecipeAdapter(final FinishedRecipe originalRecipe, final RecipeSerializer<?> serializer) {
 
         this._originalRecipe = originalRecipe;
         this._serializer = serializer;
     }
 
-    protected final IFinishedRecipe _originalRecipe;
-    protected final IRecipeSerializer<?> _serializer;
+    protected final FinishedRecipe _originalRecipe;
+    protected final RecipeSerializer<?> _serializer;
 
     //endregion
 }

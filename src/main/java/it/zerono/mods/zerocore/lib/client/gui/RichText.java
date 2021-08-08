@@ -22,19 +22,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.client.gui.Font;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.Collections;
@@ -60,7 +60,7 @@ public class RichText
     //region IRichText
 
     @Override
-    public void paint(final MatrixStack matrix, int x, int y, final int zLevel) {
+    public void paint(final PoseStack matrix, int x, int y, final int zLevel) {
 
         matrix.pushPose();
         matrix.translate(0, 0, zLevel);
@@ -109,7 +109,7 @@ public class RichText
         this(ModRenderHelper.DEFAULT_FONT_RENDERER, Collections.emptyList());
     }
 
-    private RichText(final NonNullSupplier<FontRenderer> font, final List<TextLine> lines) {
+    private RichText(final NonNullSupplier<Font> font, final List<TextLine> lines) {
 
         this._lines = lines;
         this._fontSupplier = font;
@@ -121,28 +121,28 @@ public class RichText
     }
 
     private static void paintString(final RichText richText, final String chunk,
-                                    final MatrixStack matrix, final int x, final int y) {
+                                    final PoseStack matrix, final int x, final int y) {
         richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
-    private static void paintString(final RichText richText, final ITextComponent chunk,
-                                    final MatrixStack matrix, final int x, final int y) {
+    private static void paintString(final RichText richText, final Component chunk,
+                                    final PoseStack matrix, final int x, final int y) {
 //        richText._fontSupplier.get().drawStringWithShadow(matrix, chunk, x, y, richText._textColour.toARGB());
         richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
     private static void paintItemStack(final RichText richText, final ItemStack chunk,
-                                       final MatrixStack matrix, final int x, final int y) {
+                                       final PoseStack matrix, final int x, final int y) {
         ModRenderHelper.renderItemStackWithCount(matrix, chunk, x, y, false);
     }
 
     private static void paintItemStackNoCount(final RichText richText, final ItemStack chunk,
-                                              final MatrixStack matrix, final int x, final int y) {
+                                              final PoseStack matrix, final int x, final int y) {
         ModRenderHelper.renderItemStack(matrix, chunk, x, y, "", false);
     }
 
     private static void paintSprite(final RichText richText, final ISprite chunk,
-                                    final MatrixStack matrix, final int x, final int y) {
+                                    final PoseStack matrix, final int x, final int y) {
         ModRenderHelper.paintSprite(matrix, chunk, new Point(x, y), 0, 16, 16); //TODO new Point arg!!
     }
 
@@ -154,7 +154,7 @@ public class RichText
 
         int getHeight();
 
-        void paint(RichText richText, MatrixStack matrix, int x, int y);
+        void paint(RichText richText, PoseStack matrix, int x, int y);
     }
 
     //endregion
@@ -213,7 +213,7 @@ public class RichText
         }
 
         @Override
-        public void paint(final RichText richText, final MatrixStack matrix, int x, int y) {
+        public void paint(final RichText richText, final PoseStack matrix, int x, int y) {
 
             for (final ITextChunk chunk : this._chunks) {
 
@@ -248,7 +248,7 @@ public class RichText
         @FunctionalInterface
         public interface IChunkPainter<T> {
 
-            void paint(RichText richText, T chunk, MatrixStack matrix, int x, int y);
+            void paint(RichText richText, T chunk, PoseStack matrix, int x, int y);
         }
 
         public TextChunk(final T thing, final int width, final int height, final IChunkPainter<T> painter) {
@@ -272,7 +272,7 @@ public class RichText
         }
 
         @Override
-        public void paint(final RichText richText, final MatrixStack matrix, final int x, final int y) {
+        public void paint(final RichText richText, final PoseStack matrix, final int x, final int y) {
             this._painter.paint(richText, this._thing, matrix, x, y);
         }
 
@@ -301,7 +301,7 @@ public class RichText
     private static class DynamicTextChunk
             extends TextChunk<Supplier<String>> {
 
-        public DynamicTextChunk(final Supplier<String> thing, final NonNullSupplier<FontRenderer> fontSupplier) {
+        public DynamicTextChunk(final Supplier<String> thing, final NonNullSupplier<Font> fontSupplier) {
 
             super(thing, 0, fontSupplier.get().lineHeight, DynamicTextChunk::paintString);
             this._fontSupplier = fontSupplier;
@@ -318,11 +318,11 @@ public class RichText
         //region internals
 
         private static void paintString(final RichText richText, final Supplier<String> chunk,
-                                        final MatrixStack matrix, final int x, final int y) {
+                                        final PoseStack matrix, final int x, final int y) {
             RichText.paintString(richText, chunk.get(), matrix, x, y);
         }
 
-        private final NonNullSupplier<FontRenderer> _fontSupplier;
+        private final NonNullSupplier<Font> _fontSupplier;
 
         //endregion
     }
@@ -331,9 +331,9 @@ public class RichText
     //region DynamicTextChunk
 
     private static class TranslationTextChunk
-            extends TextChunk<NonNullSupplier<ITextComponent>> {
+            extends TextChunk<NonNullSupplier<Component>> {
 
-        public TranslationTextChunk(final NonNullSupplier<ITextComponent> thing, final NonNullSupplier<FontRenderer> fontSupplier) {
+        public TranslationTextChunk(final NonNullSupplier<Component> thing, final NonNullSupplier<Font> fontSupplier) {
 
             super(thing, 0, fontSupplier.get().lineHeight, TranslationTextChunk::paintString);
             this._fontSupplier = fontSupplier;
@@ -350,13 +350,13 @@ public class RichText
         //endregion
         //region internals
 
-        private static void paintString(final RichText richText, final NonNullSupplier<ITextComponent> chunk,
-                                        final MatrixStack matrix, final int x, final int y) {
+        private static void paintString(final RichText richText, final NonNullSupplier<Component> chunk,
+                                        final PoseStack matrix, final int x, final int y) {
 //            RichText.paintString(richText, chunk.get()./*getFormattedText()*/getString(), matrix, x, y);
             RichText.paintString(richText, chunk.get(), matrix, x, y);
         }
 
-        private final NonNullSupplier<FontRenderer> _fontSupplier;
+        private final NonNullSupplier<Font> _fontSupplier;
 
         //endregion
     }
@@ -376,18 +376,18 @@ public class RichText
             return rich;
         }
 
-        public Builder textLines(final List<ITextComponent> lines) {
+        public Builder textLines(final List<Component> lines) {
 
             Preconditions.checkArgument(!lines.isEmpty());
             this._lines = lines;
             return this;
         }
 
-        public Builder textLines(final ITextComponent line) {
+        public Builder textLines(final Component line) {
             return this.textLines(ImmutableList.of(line));
         }
 
-        public Builder textLines(final ITextComponent... lines) {
+        public Builder textLines(final Component... lines) {
             return this.textLines(ImmutableList.copyOf(lines));
         }
 
@@ -403,7 +403,7 @@ public class RichText
          * @param font the new font renderer
          * @return this builder
          */
-        public Builder font(final NonNullSupplier<FontRenderer> font) {
+        public Builder font(final NonNullSupplier<Font> font) {
 
             this._fontSupplier = Objects.requireNonNull(font);
             return this;
@@ -433,7 +433,7 @@ public class RichText
         }
 
         @SuppressWarnings("UnstableApiUsage")
-        protected List<TextLine> buildLines(final List<ITextComponent> lines, final List<Object> objects) {
+        protected List<TextLine> buildLines(final List<Component> lines, final List<Object> objects) {
 
             final List<TextLine> textLines;
 
@@ -454,7 +454,7 @@ public class RichText
             return textLines;
         }
 
-        protected ITextChunk chunk(final ITextComponent text) {
+        protected ITextChunk chunk(final Component text) {
             return new TextChunk<>(text, this._fontSupplier.get().width(text),
                     this._fontSupplier.get().lineHeight, RichText::paintString);
         }
@@ -468,7 +468,7 @@ public class RichText
             return new DynamicTextChunk(text, this._fontSupplier);
         }
 
-        private ITextChunk chunk(final NonNullSupplier<ITextComponent> text) {
+        private ITextChunk chunk(final NonNullSupplier<Component> text) {
             return new TranslationTextChunk(text, this._fontSupplier);
         }
 
@@ -476,7 +476,7 @@ public class RichText
             return new TextChunk<>(stack, 16, 16, RichText::paintItemStack); //TODO fix width (include stack amount)
         }
 
-        private ITextChunk chunk(final IItemProvider item) {
+        private ITextChunk chunk(final ItemLike item) {
             return new TextChunk<>(new ItemStack(item), 16, 16, RichText::paintItemStackNoCount);
         }
 
@@ -493,7 +493,7 @@ public class RichText
                 return this.chunk((Supplier<String>)thing);
             } else if (thing instanceof NonNullSupplier) {
                 //noinspection unchecked
-                return this.chunk((NonNullSupplier<ITextComponent>)thing);
+                return this.chunk((NonNullSupplier<Component>)thing);
             } else if (thing instanceof ItemStack) {
                 return this.chunk((ItemStack)thing);
             } else if (thing instanceof Item) {
@@ -507,11 +507,11 @@ public class RichText
             return this.chunk("");
         }
 
-        private TextLine formattedTextLine(final ITextComponent originalText) {
+        private TextLine formattedTextLine(final Component originalText) {
             return TextLine.from(this.splitFormattedTextLineChunks(originalText));
         }
 
-        protected List<ITextChunk> splitFormattedTextLineChunks(final ITextComponent originalText) {
+        protected List<ITextChunk> splitFormattedTextLineChunks(final Component originalText) {
 
             final String line = originalText.getString();
 
@@ -547,7 +547,7 @@ public class RichText
                         if (sb.length() > 0) {
 
                             // save the line so far
-                            lineChunks.add(this.chunk(new StringTextComponent(sb.toString()).setStyle(originalText.getStyle())));
+                            lineChunks.add(this.chunk(new TextComponent(sb.toString()).setStyle(originalText.getStyle())));
                             sb = new StringBuilder();
                         }
 
@@ -562,15 +562,15 @@ public class RichText
             }
 
             if (sb.length() > 0) {
-                lineChunks.add(this.chunk(new StringTextComponent(sb.toString()).setStyle(originalText.getStyle())));
+                lineChunks.add(this.chunk(new TextComponent(sb.toString()).setStyle(originalText.getStyle())));
             }
 
             return lineChunks;
         }
 
-        protected List<ITextComponent> _lines;
+        protected List<Component> _lines;
         protected List<Object> _objects;
-        protected NonNullSupplier<FontRenderer> _fontSupplier;
+        protected NonNullSupplier<Font> _fontSupplier;
         protected Colour _textColour;
         protected int _interline;
 
@@ -590,9 +590,9 @@ public class RichText
 
         @SuppressWarnings("UnstableApiUsage")
         @Override
-        protected List<TextLine> buildLines(final List<ITextComponent> lines, final List<Object> objects) {
+        protected List<TextLine> buildLines(final List<Component> lines, final List<Object> objects) {
 
-            final Function<ITextComponent, Stream<TextLine>> mapper;
+            final Function<Component, Stream<TextLine>> mapper;
 
             if (this._objects.isEmpty()) {
                 // no objects to insert so ignore any placeholder and convert each line in a single chunk
@@ -607,9 +607,9 @@ public class RichText
                     .collect(ImmutableList.toImmutableList());
         }
 
-        private Stream<TextLine> splitTextOnlyLine(final ITextComponent line) {
+        private Stream<TextLine> splitTextOnlyLine(final Component line) {
 
-            final FontRenderer font = this._fontSupplier.get();
+            final Font font = this._fontSupplier.get();
             final String text = line.getString();
 
             if (this._maxWidth > font.width(text)) {
@@ -621,7 +621,7 @@ public class RichText
             }
         }
 
-        private Stream<TextLine> splitFormattedLine(final ITextComponent line) {
+        private Stream<TextLine> splitFormattedLine(final Component line) {
 
             final List<ITextChunk> chunks = this.splitFormattedTextLineChunks(line);
             final Integer[] chunksWidths = chunks.stream().map(ITextChunk::getWidth).toArray(Integer[]::new);
@@ -660,7 +660,7 @@ public class RichText
     //endregion
 
     final List<TextLine> _lines;
-    final NonNullSupplier<FontRenderer> _fontSupplier;
+    final NonNullSupplier<Font> _fontSupplier;
     private Colour _textColour;
     private int _interline;
     private Rectangle _bounds;

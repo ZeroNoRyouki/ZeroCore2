@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.energy;
 
 import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 public enum EnergySystem {
 
@@ -53,7 +53,7 @@ public enum EnergySystem {
     }
 
     //TODO check "data" owner; for write too
-    public static EnergySystem read(final CompoundNBT data, final String key, final EnergySystem defaultValue) {
+    public static EnergySystem read(final CompoundTag data, final String key, final EnergySystem defaultValue) {
 
         if (data.contains(key)) {
 
@@ -67,7 +67,7 @@ public enum EnergySystem {
         return defaultValue;
     }
 
-    public static void write(final CompoundNBT data, final String key, final EnergySystem value) {
+    public static void write(final CompoundTag data, final String key, final EnergySystem value) {
         data.putString(key, value.name());
     }
 

@@ -22,18 +22,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
 import it.zerono.mods.zerocore.lib.world.feature.ModOreFeatureConfig;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.tags.ITag;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Feature;
-import net.minecraft.world.gen.feature.template.BlockMatchRuleTest;
-import net.minecraft.world.gen.feature.template.BlockStateMatchRuleTest;
-import net.minecraft.world.gen.feature.template.RuleTest;
-import net.minecraft.world.gen.feature.template.TagMatchRuleTest;
-import net.minecraft.world.gen.placement.Placement;
-import net.minecraft.world.gen.placement.TopSolidRangeConfig;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockStateMatchTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
+import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -47,19 +47,19 @@ import java.util.function.Supplier;
 abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
 
     public static RuleTest oreMatch(final Block block) {
-        return new BlockMatchRuleTest(block);
+        return new BlockMatchTest(block);
     }
 
-    public static RuleTest oreMatch(final ITag<Block> tag) {
-        return new TagMatchRuleTest(tag);
+    public static RuleTest oreMatch(final Tag<Block> tag) {
+        return new TagMatchTest(tag);
     }
 
     public static RuleTest oreMatch(final BlockState state) {
-        return new BlockStateMatchRuleTest(state);
+        return new BlockStateMatchTest(state);
     }
 
     public void addOre(final Predicate<PredicateObject> biomeMatcher, final ConfiguredFeature<?, ?> configSupplier) {
-        this.add(GenerationStage.Decoration.UNDERGROUND_ORES, biomeMatcher, configSupplier);
+        this.add(GenerationStep.Decoration.UNDERGROUND_ORES, biomeMatcher, configSupplier);
     }
 
     protected AbstractWorldGenFeaturesMap() {
@@ -68,7 +68,7 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Feature.class, EventPriority.HIGHEST, this::clearItems);
     }
 
-    protected void add(final GenerationStage.Decoration stage, final Predicate<PredicateObject> biomeMatcher,
+    protected void add(final GenerationStep.Decoration stage, final Predicate<PredicateObject> biomeMatcher,
                        final ConfiguredFeature<?, ?> configSupplier) {
         this._entries.computeIfAbsent(stage, s -> Lists.newLinkedList()).add(Pair.of(biomeMatcher, configSupplier));
     }
@@ -79,7 +79,7 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
                                                         final int placementBottomOffset, final int placementTopOffset,
                                                         final int placementMaximum) {
         return oreFeature.get().configured(new ModOreFeatureConfig(matchRule, oreBlock.get().defaultBlockState(), oresPerCluster))
-                .decorated(Placement.RANGE.configured(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
+                .decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(placementBottomOffset, placementTopOffset, placementMaximum))
                         .squared()
                         .count/* repeat */(clustersAmount));
     }
@@ -88,5 +88,5 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
         this._entries.clear();
     }
 
-    protected final Map<GenerationStage.Decoration, List<Pair<Predicate<PredicateObject>, ConfiguredFeature<?, ?>>>> _entries;
+    protected final Map<GenerationStep.Decoration, List<Pair<Predicate<PredicateObject>, ConfiguredFeature<?, ?>>>> _entries;
 }

@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
 
 @Deprecated
 public abstract class Zone implements Comparable<Zone> {
@@ -34,13 +34,13 @@ public abstract class Zone implements Comparable<Zone> {
 
     public abstract boolean contains(BlockPos position);
 
-    public abstract AxisAlignedBB getBoundingBox();
+    public abstract AABB getBoundingBox();
 
     @Override
     public int compareTo(Zone zone) {
 
-        final AxisAlignedBB myBB = this.getBoundingBox();
-        final AxisAlignedBB hisBB = zone.getBoundingBox();
+        final AABB myBB = this.getBoundingBox();
+        final AABB hisBB = zone.getBoundingBox();
         //TODO imp!!
         return 0;
     }
@@ -61,8 +61,8 @@ public abstract class Zone implements Comparable<Zone> {
         }
 
         @Override
-        public AxisAlignedBB getBoundingBox() {
-            return new AxisAlignedBB(this._minCoords, this._maxCoords);
+        public AABB getBoundingBox() {
+            return new AABB(this._minCoords, this._maxCoords);
         }
 
         @Override
@@ -102,13 +102,13 @@ public abstract class Zone implements Comparable<Zone> {
         }
 
         @Override
-        public AxisAlignedBB getBoundingBox() {
+        public AABB getBoundingBox() {
 
             final int centerX = this._center.getX();
             final int centerY = this._center.getY();
             final int centerZ = this._center.getZ();
 
-            return new AxisAlignedBB(centerX - this._radius, centerY - this._radius, centerZ - this._radius,
+            return new AABB(centerX - this._radius, centerY - this._radius, centerZ - this._radius,
                                      centerX + this._radius - 1, centerY + this._radius - 1, centerZ + this._radius - 1);
         }
 

@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.network;
 
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 /**
  * Allow a {@link ISyncableEntity} to be synchronized to multiple remote clients (players).
@@ -32,14 +32,14 @@ public interface INetworkTileEntitySyncProvider {
      * @param player the player to send updates to.
      * @param updateNow if true, send an update to the player immediately.
      */
-    void enlistForUpdates(ServerPlayerEntity player, boolean updateNow);
+    void enlistForUpdates(ServerPlayer player, boolean updateNow);
 
     /**
      * Remove the player for the update queue.
      *
      * @param player the player to be removed from the update queue.
      */
-    void delistFromUpdates(ServerPlayerEntity player);
+    void delistFromUpdates(ServerPlayer player);
 
     /**
      * Send an update to all enlisted players

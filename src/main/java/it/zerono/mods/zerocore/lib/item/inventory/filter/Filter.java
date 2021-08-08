@@ -21,9 +21,9 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.EnumSet;
@@ -101,14 +101,14 @@ public abstract class Filter implements IFilter {
     //region INBTSerializable
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public CompoundTag serializeNBT() {
 
-        final CompoundNBT nbt = new CompoundNBT();
-        final ListNBT conditionsList = new ListNBT();
+        final CompoundTag nbt = new CompoundTag();
+        final ListTag conditionsList = new ListTag();
 
         this._conditions.forEach((name, condition) -> {
 
-            final CompoundNBT nameTag = new CompoundNBT();
+            final CompoundTag nameTag = new CompoundTag();
 
             nameTag.putString("name", name);
             conditionsList.add(nameTag);
@@ -122,16 +122,16 @@ public abstract class Filter implements IFilter {
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
 
         if (nbt.contains(NBT_CONDITIONS_KEY)) {
 
-            final ListNBT conditionsList = nbt.getList(NBT_CONDITIONS_KEY, Constants.NBT.TAG_COMPOUND);
+            final ListTag conditionsList = nbt.getList(NBT_CONDITIONS_KEY, Constants.NBT.TAG_COMPOUND);
 
             this._conditions.clear();
             for (int i = 0; i < conditionsList.size(); i = i + 2) {
 
-                final CompoundNBT nameTag = conditionsList.getCompound(i);
+                final CompoundTag nameTag = conditionsList.getCompound(i);
 
                 if (nameTag.contains("name") && (i + 1) < conditionsList.size()) {
 

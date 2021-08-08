@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.block.multiblock;
 
 import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 
 import java.util.Optional;
 

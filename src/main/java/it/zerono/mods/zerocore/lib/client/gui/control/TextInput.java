@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
@@ -27,8 +27,8 @@ import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
@@ -48,7 +48,7 @@ public class TextInput
         this(gui, name, "");
     }
 
-    public TextInput(final ModContainerScreen<? extends ModContainer> gui, final String name, final ITextComponent text) {
+    public TextInput(final ModContainerScreen<? extends ModContainer> gui, final String name, final Component text) {
         this(gui, name, text./*getFormattedText*/getString());
     }
 
@@ -280,7 +280,7 @@ public class TextInput
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this.paint3DSunkenBox(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height,
                 Theme.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT, Theme.TEXTFIELD_NORMAL_3D_GRADIENT_DARK,
                 Theme.TEXTFIELD_NORMAL_3D_BORDER_LIGHT, Theme.TEXTFIELD_NORMAL_3D_BORDER_DARK
@@ -288,7 +288,7 @@ public class TextInput
     }
 
     @Override
-    public void onPaint(final MatrixStack matrix, float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, float partialTicks, final int mouseX, final int mouseY) {
 
         this.ensureVisible();
         this.paintTextLine(matrix, this.getTextForPainting(), 0, 0, this.getTextAreaWidth(),
@@ -379,7 +379,7 @@ public class TextInput
 
         } else {
 
-            final FontRenderer font = this.getFontRender();
+            final Font font = this.getFontRender();
             final String text = this.getText();
             final int textAreaWidth = this.getTextAreaWidth();
 
@@ -398,7 +398,7 @@ public class TextInput
         this.resetPaintingCache();
     }
 
-    private void paintCaret(final MatrixStack matrix) {
+    private void paintCaret(final PoseStack matrix) {
 
         if (((this._caretBlinkTimer - System.currentTimeMillis()) / 500) % 2 != 0) {
             return;

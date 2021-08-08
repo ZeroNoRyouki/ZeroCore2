@@ -25,8 +25,8 @@ import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Craft
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Multiblock;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Smelting;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Spotlight;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import vazkii.patchouli.api.IMultiblock;

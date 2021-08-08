@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.slot.type;
 
 import it.zerono.mods.zerocore.lib.item.inventory.container.ICrafter;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotCraftingResult extends SlotGeneric {
@@ -49,7 +49,7 @@ public class SlotCraftingResult extends SlotGeneric {
     }
 
     @Override
-    public ItemStack onTake(PlayerEntity playerIn, ItemStack stack) {
+    public ItemStack onTake(Player playerIn, ItemStack stack) {
 
         this.getCrafter().craft();
         return super.onTake(playerIn, stack);

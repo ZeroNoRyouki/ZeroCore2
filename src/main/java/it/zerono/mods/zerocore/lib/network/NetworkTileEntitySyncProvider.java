@@ -22,8 +22,8 @@ import com.google.common.collect.Sets;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.data.nbt.INestedSyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.Optional;
@@ -63,7 +63,7 @@ public class NetworkTileEntitySyncProvider implements INetworkTileEntitySyncProv
      * @param updateNow if true, send an update to the player immediately.
      */
     @Override
-    public void enlistForUpdates(ServerPlayerEntity player, boolean updateNow) {
+    public void enlistForUpdates(ServerPlayer player, boolean updateNow) {
 
         this._players.add(player);
 
@@ -78,7 +78,7 @@ public class NetworkTileEntitySyncProvider implements INetworkTileEntitySyncProv
      * @param player the player to be removed from the update queue.
      */
     @Override
-    public void delistFromUpdates(ServerPlayerEntity player) {
+    public void delistFromUpdates(ServerPlayer player) {
         this._players.remove(player);
     }
 
@@ -104,12 +104,12 @@ public class NetworkTileEntitySyncProvider implements INetworkTileEntitySyncProv
         return Optional.ofNullable(this._messageSupplier.get());
     }
 
-    private void sendUpdate(final IModMessage update, final ServerPlayerEntity player) {
+    private void sendUpdate(final IModMessage update, final ServerPlayer player) {
         Network.HANDLER.sendToPlayer(update, player);
     }
 
     private final Supplier<IModMessage> _messageSupplier;
-    private final Set<ServerPlayerEntity> _players;
+    private final Set<ServerPlayer> _players;
 
     //endregion
 }

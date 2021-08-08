@@ -22,9 +22,9 @@ import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.network.AbstractModTileMessage;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.Objects;
@@ -51,12 +51,12 @@ public class TileCommandMessage
      * @return the new command message
      */
     public static TileCommandMessage create(final AbstractModBlockEntity tile, final String commandName,
-                                                final CompoundNBT parameters) {
+                                                final CompoundTag parameters) {
         //return new TileCommandMessage(tile.getPos(), tile.getWorld().dimensionType(), commandName, parameters);
         return new TileCommandMessage(tile, commandName, parameters);
     }
 
-    public TileCommandMessage(final PacketBuffer buffer) {
+    public TileCommandMessage(final FriendlyByteBuf buffer) {
 
         super(buffer);
         this._name = buffer.readUtf(4096);
@@ -71,7 +71,7 @@ public class TileCommandMessage
     //region AbstractModTileMessage
 
     @Override
-    public void encodeTo(final PacketBuffer buffer) {
+    public void encodeTo(final FriendlyByteBuf buffer) {
 
         super.encodeTo(buffer);
         buffer.writeUtf(this._name);
@@ -93,7 +93,7 @@ public class TileCommandMessage
      * @param tileEntity the TileEntity object on the other side of this message exchange
      */
     @Override
-    protected void processTileEntityMessage(LogicalSide sourceSide, TileEntity tileEntity) {
+    protected void processTileEntityMessage(LogicalSide sourceSide, BlockEntity tileEntity) {
 
         if (tileEntity instanceof AbstractModBlockEntity) {
             ((AbstractModBlockEntity)tileEntity).handleCommand(sourceSide, this._name, this._parameters);
@@ -114,7 +114,7 @@ public class TileCommandMessage
      */
     protected TileCommandMessage(/*final BlockPos tileEntityPosition, final DimensionType dimension,*/
                                  final AbstractModBlockEntity tile,
-                                 final String commandName, final CompoundNBT parameters) {
+                                 final String commandName, final CompoundTag parameters) {
 
         //super(tileEntityPosition);
         super(tile.getBlockPos(), Objects.requireNonNull(tile.getLevel()).dimension());
@@ -123,7 +123,7 @@ public class TileCommandMessage
     }
 
     private final String _name;
-    private final CompoundNBT _parameters;
+    private final CompoundTag _parameters;
 
     //endregion
 }

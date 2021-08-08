@@ -18,13 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.client.render.vertexuploader;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.render.IVertexSource;
 import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.data.gfx.LightMap;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 
 import javax.annotation.Nullable;
 
@@ -37,7 +37,7 @@ public class GenericAdapter implements ISourceAdapter {
         this._light = this._overlay = null;
     }
 
-    public GenericAdapter setMatrix(@Nullable MatrixStack matrix) {
+    public GenericAdapter setMatrix(@Nullable PoseStack matrix) {
 
         this._matrix = matrix;
         return this;
@@ -128,7 +128,7 @@ public class GenericAdapter implements ISourceAdapter {
     //endregion
     //region internals
 
-    private MatrixStack _matrix;
+    private PoseStack _matrix;
     private Colour _colour;
     private LightMap _light;
     private LightMap _overlay;

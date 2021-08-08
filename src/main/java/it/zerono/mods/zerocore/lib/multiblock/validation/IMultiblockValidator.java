@@ -41,7 +41,7 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.validation;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 import java.util.Optional;
 

@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.network;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
@@ -33,7 +33,7 @@ public abstract class AbstractModMessage implements IModMessage {
      *
      * @param buffer the {@link PacketBuffer} containing the data received from the network.
      */
-    public AbstractModMessage(PacketBuffer buffer) {
+    public AbstractModMessage(FriendlyByteBuf buffer) {
     }
 
     /**
@@ -41,7 +41,7 @@ public abstract class AbstractModMessage implements IModMessage {
      *
      * @param buffer the {@link PacketBuffer} to encode your data into
      */
-    public abstract void encodeTo(PacketBuffer buffer);
+    public abstract void encodeTo(FriendlyByteBuf buffer);
 
     /**
      * Process the data received from the network.

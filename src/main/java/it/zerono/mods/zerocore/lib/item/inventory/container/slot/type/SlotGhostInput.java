@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.slot.type;
 
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 public class SlotGhostInput extends SlotGeneric {
@@ -60,7 +60,7 @@ public class SlotGhostInput extends SlotGeneric {
      * @param playerIn
      */
     @Override
-    public boolean mayPickup(PlayerEntity playerIn) {
+    public boolean mayPickup(Player playerIn) {
         return false;
     }
 

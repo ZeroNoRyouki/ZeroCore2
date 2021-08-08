@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.nbt;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Sync a generic entity from/to NBT
@@ -53,7 +53,7 @@ public interface ISyncableEntity {
      * @param data       the {@link CompoundNBT} to read from
      * @param syncReason the reason why the synchronization is necessary
      */
-    default void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
+    default void syncDataFrom(CompoundTag data, SyncReason syncReason) {
     }
 
     /**
@@ -63,7 +63,7 @@ public interface ISyncableEntity {
      * @param syncReason the reason why the synchronization is necessary
      * @return the {@link CompoundNBT} the data was written to (usually {@code data})
      */
-    default CompoundNBT syncDataTo(CompoundNBT data, SyncReason syncReason) {
+    default CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
         return data;
     }
 
@@ -77,7 +77,7 @@ public interface ISyncableEntity {
      * @param syncReason  the reason why the synchronization is necessary
      * @return true if the child data were found and the synchronization started
      */
-    default boolean syncChildDataEntityFrom(ISyncableEntity childEntity, String dataKey, CompoundNBT parentData, SyncReason syncReason) {
+    default boolean syncChildDataEntityFrom(ISyncableEntity childEntity, String dataKey, CompoundTag parentData, SyncReason syncReason) {
 
         if (parentData.contains(dataKey)) {
 
@@ -97,7 +97,7 @@ public interface ISyncableEntity {
      * @param parentData  the parent {@link CompoundNBT} to write to under the provided dataKey
      * @param syncReason  the reason why the synchronization is necessary
      */
-    default void syncChildDataEntityTo(ISyncableEntity childEntity, String dataKey, CompoundNBT parentData, SyncReason syncReason) {
-        parentData.put(dataKey, childEntity.syncDataTo(new CompoundNBT(), syncReason));
+    default void syncChildDataEntityTo(ISyncableEntity childEntity, String dataKey, CompoundTag parentData, SyncReason syncReason) {
+        parentData.put(dataKey, childEntity.syncDataTo(new CompoundTag(), syncReason));
     }
 }

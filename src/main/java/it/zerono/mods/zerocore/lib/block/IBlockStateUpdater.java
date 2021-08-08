@@ -18,19 +18,19 @@
 
 package it.zerono.mods.zerocore.lib.block;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 
 import javax.annotation.Nullable;
 
 public interface IBlockStateUpdater {
 
-    void updateBlockState(BlockState currentState, IWorld world, BlockPos position,
-                          @Nullable TileEntity tileEntity, int updateFlags);
+    void updateBlockState(BlockState currentState, LevelAccessor world, BlockPos position,
+                          @Nullable BlockEntity tileEntity, int updateFlags);
     
-    BlockState buildUpdatedState(BlockState currentState, IBlockReader reader,
-                                 BlockPos position, @Nullable TileEntity tileEntity);
+    BlockState buildUpdatedState(BlockState currentState, BlockGetter reader,
+                                 BlockPos position, @Nullable BlockEntity tileEntity);
 }

@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.filter;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
 
@@ -48,5 +48,5 @@ public interface IFilterComponentFactory<T extends IFilterComponent> {
      * @return  a new component initialized with the provided data or null if the component could not be
      *          created (unknown component id, invalid data, etc)
      */
-    Optional<T> createComponent(ResourceLocation componentId, CompoundNBT nbt);
+    Optional<T> createComponent(ResourceLocation componentId, CompoundTag nbt);
 }

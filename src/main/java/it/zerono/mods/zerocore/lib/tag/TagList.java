@@ -20,9 +20,9 @@ package it.zerono.mods.zerocore.lib.tag;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 public class TagList<T>
         extends TagSource<T> {
 
-    public TagList(final NonNullSupplier<ITagCollection<T>> provider) {
+    public TagList(final NonNullSupplier<TagCollection<T>> provider) {
 
         super(provider);
         this._ids = Lists.newArrayList();
@@ -50,20 +50,20 @@ public class TagList<T>
      * @return the requested Tag if present, null otherwise
      */
     @Override
-    public Optional<ITag<T>> getTag(final ResourceLocation id) {
+    public Optional<Tag<T>> getTag(final ResourceLocation id) {
         return Optional.ofNullable(this._tags.get(id));
     }
 
-    public <R> R mapTag(final ResourceLocation id, final NonNullFunction<ITag<T>, R> mapper, final R defaultValue) {
+    public <R> R mapTag(final ResourceLocation id, final NonNullFunction<Tag<T>, R> mapper, final R defaultValue) {
 
-        final ITag<T> tag = this._tags.get(id);
+        final Tag<T> tag = this._tags.get(id);
 
         return null != tag ? mapper.apply(tag) : defaultValue;
     }
 
-    public void forTag(final ResourceLocation id, final NonNullConsumer<ITag<T>> consumer) {
+    public void forTag(final ResourceLocation id, final NonNullConsumer<Tag<T>> consumer) {
 
-        final ITag<T> tag = this._tags.get(id);
+        final Tag<T> tag = this._tags.get(id);
 
         if (null != tag) {
             consumer.accept(tag);
@@ -94,7 +94,7 @@ public class TagList<T>
      *
      * @param namedTag the Tag to add
      */
-    public void addTag(final ITag.INamedTag<T> namedTag) {
+    public void addTag(final Tag.Named<T> namedTag) {
 
         this._ids.add(namedTag.getName());
         this._tags.put(namedTag.getName(), namedTag);
@@ -116,7 +116,7 @@ public class TagList<T>
      *
      * @param tag the Tag to remove
      */
-    public void removeTag(final ITag.INamedTag<T> tag) {
+    public void removeTag(final Tag.Named<T> tag) {
         this.removeTag(tag.getName());
     }
 
@@ -134,13 +134,13 @@ public class TagList<T>
      */
     public void reloadTags() {
 
-        final ITagCollection<T> collection = this.getCollection();
+        final TagCollection<T> collection = this.getCollection();
 
         this._tags.clear();
 
         for (final ResourceLocation id : this._ids) {
 
-            final ITag<T> tag = collection.getTag(id);
+            final Tag<T> tag = collection.getTag(id);
 
             if (null != tag) {
                 this._tags.put(id, tag);
@@ -154,7 +154,7 @@ public class TagList<T>
      * @param tag the Tag to check
      * @return true if the Tag is found, false otherwise
      */
-    public boolean contains(final ITag.INamedTag<T> tag) {
+    public boolean contains(final Tag.Named<T> tag) {
         return this.contains(tag.getName());
     }
 
@@ -174,7 +174,7 @@ public class TagList<T>
      * @param predicate the predicate to check
      * @return the fist Tag in the list that matches the predicate or null if no such Tag is found
      */
-    public Optional<ITag<T>> find(final Predicate<ITag<T>> predicate) {
+    public Optional<Tag<T>> find(final Predicate<Tag<T>> predicate) {
         return this._tags.values().stream().filter(predicate).findFirst();
     }
 
@@ -182,14 +182,14 @@ public class TagList<T>
         return this._ids.stream();
     }
 
-    public Stream<ITag<T>> tagStream() {
+    public Stream<Tag<T>> tagStream() {
         return this._tags.values().stream();
     }
 
     //region internals
 
     private final List<ResourceLocation> _ids;
-    private final Map<ResourceLocation, ITag<T>> _tags;
+    private final Map<ResourceLocation, Tag<T>> _tags;
 
     //endregion
 }

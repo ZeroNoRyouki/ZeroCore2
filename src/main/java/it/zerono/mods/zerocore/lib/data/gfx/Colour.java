@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.gfx;
 
-import net.minecraft.item.DyeColor;
+import net.minecraft.world.item.DyeColor;
 
 @SuppressWarnings({"WeakerAccess"})
 public class Colour {

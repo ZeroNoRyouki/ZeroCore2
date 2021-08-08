@@ -42,8 +42,8 @@
 package it.zerono.mods.zerocore.lib.multiblock;
 
 import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -56,7 +56,7 @@ public interface IMultiblockMachine {
     /**
      * @return the World associated to this multiblock machine.
      */
-    World getWorld();
+    Level getWorld();
 
     /**
      * @return the reference coordinate for this multiblock machine, the block with the lowest x, y, z coordinates,

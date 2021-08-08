@@ -21,10 +21,10 @@ package it.zerono.mods.zerocore.lib.network;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.nbt.INestedSyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 
 /**
@@ -56,7 +56,7 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
                 .orElseThrow(() -> new UnsupportedOperationException("Unable to create a sync message for an empty nested syncable entity")), true);
     }
 
-    public ModSyncableTileMessage(final PacketBuffer buffer) {
+    public ModSyncableTileMessage(final FriendlyByteBuf buffer) {
 
         super(buffer);
         this._nested = buffer.readBoolean();
@@ -66,7 +66,7 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
     //region AbstractModTileMessage
 
     @Override
-    protected void processTileEntityMessage(final LogicalSide sourceSide, final TileEntity tileEntity) {
+    protected void processTileEntityMessage(final LogicalSide sourceSide, final BlockEntity tileEntity) {
 
         ISyncableEntity entity = null;
 
@@ -85,7 +85,7 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
     }
 
     @Override
-    public void encodeTo(final PacketBuffer buffer) {
+    public void encodeTo(final FriendlyByteBuf buffer) {
 
         super.encodeTo(buffer);
         buffer.writeBoolean(this._nested);
@@ -106,11 +106,11 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
 
         super(tileEntityPosition);
         this._nested = nested;
-        this._payload = new CompoundNBT();
+        this._payload = new CompoundTag();
         entity.syncDataTo(this._payload, ISyncableEntity.SyncReason.NetworkUpdate);
     }
 
-    private final CompoundNBT _payload;
+    private final CompoundTag _payload;
     private final boolean _nested;
 
     //endregion

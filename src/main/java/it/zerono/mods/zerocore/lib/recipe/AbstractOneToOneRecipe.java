@@ -23,8 +23,8 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Predicate;
 
@@ -67,7 +67,7 @@ public abstract class AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredien
     //region ISerializableRecipe
 
     @Override
-    public void serializeTo(final PacketBuffer buffer) {
+    public void serializeTo(final FriendlyByteBuf buffer) {
 
         this._ingredient.serializeTo(buffer);
         this._result.serializeTo(buffer);

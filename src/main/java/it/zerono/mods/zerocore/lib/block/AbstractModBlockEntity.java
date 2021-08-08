@@ -29,20 +29,20 @@ import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -54,17 +54,19 @@ import java.util.Objects;
 import java.util.function.*;
 import java.util.stream.Stream;
 
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
+
 /**
  * A base class for modded tile entities
  */
 public abstract class AbstractModBlockEntity
-        extends TileEntity
+        extends BlockEntity
         implements IBlockStateUpdater, ISyncableEntity, IDebuggable {
 
     @Deprecated
     public final IEvent<Runnable> DataUpdate;
 
-    public AbstractModBlockEntity(final TileEntityType<?> type) {
+    public AbstractModBlockEntity(final BlockEntityType<?> type) {
 
         super(type);
         this._commandDispatcher = (source, name, parameters) -> {};
@@ -132,7 +134,7 @@ public abstract class AbstractModBlockEntity
         }
     }
 
-    public void callOnLogicalServer(final Consumer<World> code) {
+    public void callOnLogicalServer(final Consumer<Level> code) {
 
         if (null != this.level && CodeHelper.calledByLogicalServer(this.level)) {
             code.accept(this.level);
@@ -186,7 +188,7 @@ public abstract class AbstractModBlockEntity
         }
     }
 
-    public void callOnLogicalClient(final Consumer<World> code) {
+    public void callOnLogicalClient(final Consumer<Level> code) {
 
         if (null != this.level && CodeHelper.calledByLogicalClient(this.level)) {
             code.accept(this.level);
@@ -240,7 +242,7 @@ public abstract class AbstractModBlockEntity
      * Check if the tile entity has a GUI or not
      * Override in derived classes to return true if your tile entity got a GUI
      */
-    public boolean canOpenGui(final World world, final BlockPos position, final BlockState state) {
+    public boolean canOpenGui(final Level world, final BlockPos position, final BlockState state) {
         return false;
     }
 
@@ -250,7 +252,7 @@ public abstract class AbstractModBlockEntity
      * @param player The player to open the GUI for
      * @return true if the message was sent, false otherwise
      */
-    public boolean openGui(final ServerPlayerEntity player) {
+    public boolean openGui(final ServerPlayer player) {
         return this.openGuiOnClient(player, buffer -> {});
     }
 
@@ -261,7 +263,7 @@ public abstract class AbstractModBlockEntity
      * @param extraDataWriter Consumer for extra data to be sent to the client
      * @return true if the message was sent, false otherwise
      */
-    public boolean openGui(final ServerPlayerEntity player, final Consumer<PacketBuffer> extraDataWriter) {
+    public boolean openGui(final ServerPlayer player, final Consumer<FriendlyByteBuf> extraDataWriter) {
         return this.openGuiOnClient(player, extraDataWriter);
     }
 
@@ -273,7 +275,7 @@ public abstract class AbstractModBlockEntity
      * @return              The client side AbstractModBlockEntity
      * @throws              NullPointerException if nothing can be retrieved
      */
-    public static <T extends AbstractModBlockEntity> T getGuiClientBlockEntity(final PacketBuffer networkData) {
+    public static <T extends AbstractModBlockEntity> T getGuiClientBlockEntity(final FriendlyByteBuf networkData) {
         return WorldHelper.<T>getClientTile(networkData.readBlockPos()).orElseThrow(NullPointerException::new);
     }
 
@@ -281,14 +283,14 @@ public abstract class AbstractModBlockEntity
     //region TileEntity synchronization
 
     @Override
-    public void load(final BlockState state, final CompoundNBT data) {
+    public void load(final BlockState state, final CompoundTag data) {
 
         super.load(state, data);
         this.syncEntityDataFrom(data, SyncReason.FullSync);
     }
 
     @Override
-    public CompoundNBT save(final CompoundNBT data) {
+    public CompoundTag save(final CompoundTag data) {
         return this.syncEntityDataTo(super.save(data), SyncReason.FullSync);
     }
 
@@ -300,7 +302,7 @@ public abstract class AbstractModBlockEntity
      * @param data The {@link CompoundNBT} sent from {@link #getUpdateTag()}
      */
     @Override
-    public void handleUpdateTag(final BlockState state, final CompoundNBT data) {
+    public void handleUpdateTag(final BlockState state, final CompoundTag data) {
 
         super.load(state, data);
         this.syncEntityDataFrom(data, SyncReason.NetworkUpdate);
@@ -311,7 +313,7 @@ public abstract class AbstractModBlockEntity
      * many blocks change at once. This compound comes back to you clientside in handleUpdateTag
      */
     @Override
-    public CompoundNBT getUpdateTag() {
+    public CompoundTag getUpdateTag() {
         return this.syncEntityDataTo(super.getUpdateTag(), SyncReason.NetworkUpdate);
     }
 
@@ -325,7 +327,7 @@ public abstract class AbstractModBlockEntity
      * @param packet The data packet
      */
     @Override
-    public final void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
 
 //        this.syncDataFrom(packet.getNbtCompound(), ISyncableEntity.SyncReason.NetworkUpdate);
 //        this.onDataUpdate();
@@ -339,28 +341,28 @@ public abstract class AbstractModBlockEntity
      */
     @Nullable
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
 //
 //        final CompoundNBT data = new CompoundNBT();
 //
 //        this.syncDataTo(data, ISyncableEntity.SyncReason.NetworkUpdate);
 //        return new SUpdateTileEntityPacket(this.getPos(), 0, data);
 
-        return new SUpdateTileEntityPacket(this.getBlockPos(), 0,
-                this.syncEntityDataTo(new CompoundNBT(), SyncReason.NetworkUpdate));
+        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0,
+                this.syncEntityDataTo(new CompoundTag(), SyncReason.NetworkUpdate));
     }
 
     protected void onDataUpdate() {
         this.DataUpdate.raise(Runnable::run);
     }
 
-    private void syncEntityDataFrom(CompoundNBT data, SyncReason syncReason) {
+    private void syncEntityDataFrom(CompoundTag data, SyncReason syncReason) {
 
-        CompoundNBT dataToSync = data;
+        CompoundTag dataToSync = data;
 
         if (syncReason.isFullSync() && data.contains("zcvase_version") && data.contains("zcvase_payload")) {
 
-            final CompoundNBT payload = dataToSync = data.getCompound("zcvase_payload");
+            final CompoundTag payload = dataToSync = data.getCompound("zcvase_payload");
 
             if (this instanceof IVersionAwareSyncableEntity) {
 
@@ -377,12 +379,12 @@ public abstract class AbstractModBlockEntity
         this.onDataUpdate();
     }
 
-    private CompoundNBT syncEntityDataTo(CompoundNBT data, SyncReason syncReason) {
+    private CompoundTag syncEntityDataTo(CompoundTag data, SyncReason syncReason) {
 
         if (syncReason.isFullSync()) {
 
             data.putInt("zcvase_version", this.syncGetEntityDataCurrentVersion());
-            data.put("zcvase_payload", this.syncDataTo(new CompoundNBT(), syncReason));
+            data.put("zcvase_payload", this.syncDataTo(new CompoundTag(), syncReason));
             return data;
 
         } else {
@@ -413,7 +415,7 @@ public abstract class AbstractModBlockEntity
      * @param name the command name
      * @param parameters the parameters for the command
      */
-    public void sendCommandToServer(final String name, final CompoundNBT parameters) {
+    public void sendCommandToServer(final String name, final CompoundTag parameters) {
         Network.HANDLER.sendToServer(TileCommandMessage.create(this, name, parameters));
     }
 
@@ -422,7 +424,7 @@ public abstract class AbstractModBlockEntity
      *
      * @param name the command name
      */
-    public void sendCommandToPlayer(final ServerPlayerEntity player, final String name) {
+    public void sendCommandToPlayer(final ServerPlayer player, final String name) {
         this.sendCommandToPlayer(player, name, NBTHelper.EMPTY_COMPOUND);
     }
 
@@ -432,7 +434,7 @@ public abstract class AbstractModBlockEntity
      * @param name the command name
      * @param parameters the parameters for the command
      */
-    public void sendCommandToPlayer(final ServerPlayerEntity player, final String name, final CompoundNBT parameters) {
+    public void sendCommandToPlayer(final ServerPlayer player, final String name, final CompoundTag parameters) {
         Network.HANDLER.sendToPlayer(TileCommandMessage.create(this, name, parameters), player);
     }
 
@@ -443,7 +445,7 @@ public abstract class AbstractModBlockEntity
      * @param name the command name
      * @param parameters the parameters for the command, if any
      */
-    public void handleCommand(final LogicalSide source, final String name, final CompoundNBT parameters) {
+    public void handleCommand(final LogicalSide source, final String name, final CompoundTag parameters) {
         this._commandDispatcher.dispatch(source, name, parameters);
     }
 
@@ -463,7 +465,7 @@ public abstract class AbstractModBlockEntity
 
     public void markChunkDirty() {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
             world.blockEntityChanged(this.getBlockPos(), this);
@@ -472,7 +474,7 @@ public abstract class AbstractModBlockEntity
 
     public void callNeighborBlockChange() {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
             WorldHelper.notifyNeighborsOfStateChange(world, this.getBlockPos(), this.getBlockState().getBlock());
@@ -486,7 +488,7 @@ public abstract class AbstractModBlockEntity
 
     public void notifyBlockUpdate() {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
             WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
@@ -495,7 +497,7 @@ public abstract class AbstractModBlockEntity
 
     public void notifyBlockUpdate(BlockState oldState, BlockState newState) {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
             WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), oldState, newState);
@@ -512,7 +514,7 @@ public abstract class AbstractModBlockEntity
 
     public void notifyTileEntityUpdate() {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
 
@@ -559,8 +561,8 @@ public abstract class AbstractModBlockEntity
     //region IBlockStateUpdater
 
     @Override
-    public void updateBlockState(BlockState currentState, IWorld world, BlockPos position,
-                                 @Nullable TileEntity tileEntity, int updateFlags) {
+    public void updateBlockState(BlockState currentState, LevelAccessor world, BlockPos position,
+                                 @Nullable BlockEntity tileEntity, int updateFlags) {
 
         final Block block = currentState.getBlock();
 
@@ -573,8 +575,8 @@ public abstract class AbstractModBlockEntity
 
     @Nonnull
     @Override
-    public BlockState buildUpdatedState(BlockState currentState, IBlockReader reader, BlockPos position,
-                                        @Nullable TileEntity tileEntity) {
+    public BlockState buildUpdatedState(BlockState currentState, BlockGetter reader, BlockPos position,
+                                        @Nullable BlockEntity tileEntity) {
         return currentState;
     }
 
@@ -596,7 +598,7 @@ public abstract class AbstractModBlockEntity
      * @param extraDataWriter Optional consumer for optional data
      * @return true if the message was sent, false otherwise
      */
-    private boolean openGuiOnClient(final ServerPlayerEntity player, final Consumer<PacketBuffer> extraDataWriter) {
+    private boolean openGuiOnClient(final ServerPlayer player, final Consumer<FriendlyByteBuf> extraDataWriter) {
 
 //        if (this instanceof INamedContainerProvider && !(player instanceof FakePlayer) &&
 //                CodeHelper.calledByLogicalServer(player.getEntityWorld())) {
@@ -611,11 +613,11 @@ public abstract class AbstractModBlockEntity
 
         return this.callOnLogicalServer(() -> {
 
-            if (this instanceof INamedContainerProvider && !(player instanceof FakePlayer)) {
+            if (this instanceof MenuProvider && !(player instanceof FakePlayer)) {
 
-                final Consumer<PacketBuffer> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
+                final Consumer<FriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
 
-                NetworkHooks.openGui(player, (INamedContainerProvider) this, positionWriter.andThen(extraDataWriter));
+                NetworkHooks.openGui(player, (MenuProvider) this, positionWriter.andThen(extraDataWriter));
                 return true;
 
             } else {

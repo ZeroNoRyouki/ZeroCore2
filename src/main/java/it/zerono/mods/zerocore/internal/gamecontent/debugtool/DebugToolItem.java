@@ -24,17 +24,17 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.item.ModItem;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.text.*;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
@@ -44,17 +44,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.Item.Properties;
+
 public class DebugToolItem
         extends ModItem {
 
     @FunctionalInterface
     public interface ITestCallback {
 
-        void runTest(int test, @Nullable PlayerEntity player, World world, BlockPos clickedPos);
+        void runTest(int test, @Nullable Player player, Level world, BlockPos clickedPos);
     }
 
     public DebugToolItem() {
-        super(new Properties().stacksTo(64).tab(ItemGroup.TAB_TOOLS));
+        super(new Properties().stacksTo(64).tab(CreativeModeTab.TAB_TOOLS));
     }
 
     public static void setTestCallback(@Nullable ITestCallback callback) {
@@ -68,12 +75,12 @@ public class DebugToolItem
      */
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
 
-        tooltip.add(new TranslationTextComponent("zerocore:debugTool.block.tooltip1"));
-        tooltip.add(new TranslationTextComponent("zerocore:debugTool.block.tooltip2", TextFormatting.ITALIC.toString()));
-        tooltip.add(new TranslationTextComponent("zerocore:debugTool.block.tooltip3", TextFormatting.GREEN,
-                TextFormatting.GRAY.toString() + TextFormatting.ITALIC.toString()));
+        tooltip.add(new TranslatableComponent("zerocore:debugTool.block.tooltip1"));
+        tooltip.add(new TranslatableComponent("zerocore:debugTool.block.tooltip2", ChatFormatting.ITALIC.toString()));
+        tooltip.add(new TranslatableComponent("zerocore:debugTool.block.tooltip3", ChatFormatting.GREEN,
+                ChatFormatting.GRAY.toString() + ChatFormatting.ITALIC.toString()));
     }
 
     /**
@@ -82,19 +89,19 @@ public class DebugToolItem
      * @return Return PASS to allow vanilla handling, any other to skip normal code.
      */
     @Override
-    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
 
-        final PlayerEntity player = context.getPlayer();
-        final World world = context.getLevel();
+        final Player player = context.getPlayer();
+        final Level world = context.getLevel();
         final BlockPos pos = context.getClickedPos();
         final LogicalSide side = CodeHelper.getWorldLogicalSide(world);
 
         if (CodeHelper.isDevEnv() && null != s_testCallback && !stack.isEmpty() && stack.getCount() > 1) {
 
-            if (context.getHand() == Hand.MAIN_HAND) {
+            if (context.getHand() == InteractionHand.MAIN_HAND) {
 
                 s_testCallback.runTest(stack.getCount(), player, world, pos);
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -102,7 +109,7 @@ public class DebugToolItem
                 /*player.isSneaking() != WorldHelper.calledByLogicalClient(world)*/
                 player.isShiftKeyDown() != side.isClient() ||
                 world.isEmptyBlock(pos)) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
 
         if (WorldHelper.getTile(world, pos)
@@ -110,29 +117,29 @@ public class DebugToolItem
                 .map(te -> (IDebuggable)te)
                 .map(debuggee -> MessagesPool.build(debuggee, side))
                 .map(pool -> this.sendMessages(player,
-                        new StringTextComponent(String.format("%1$s side debug analysis report of Tile Entity at %2$d, %3$d, %4$d",
+                        new TextComponent(String.format("%1$s side debug analysis report of Tile Entity at %2$d, %3$d, %4$d",
                                 CodeHelper.getWorldSideName(world), pos.getX(), pos.getY(), pos.getZ())), pool))
                 .filter(result -> result)
                 .isPresent()) {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public boolean doesSneakBypassUse(ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player) {
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader world, BlockPos pos, Player player) {
         return false;
     }
 
     //endregion
     //region internals
 
-    private boolean sendMessages(final PlayerEntity player, final ITextComponent header, final MessagesPool pool) {
+    private boolean sendMessages(final Player player, final Component header, final MessagesPool pool) {
 
         if (pool.isNotEmpty()) {
 
-            CodeHelper.sendChatMessage(player, new StringTextComponent("--------------------------------------------------"));
+            CodeHelper.sendChatMessage(player, new TextComponent("--------------------------------------------------"));
             CodeHelper.sendChatMessage(player, header);
             pool.forEach(message -> CodeHelper.sendChatMessage(player, message));
             return true;
@@ -141,7 +148,7 @@ public class DebugToolItem
         return false;
     }
 
-    private static final class MessagesPool implements IDebugMessages, Iterable<ITextComponent> {
+    private static final class MessagesPool implements IDebugMessages, Iterable<Component> {
 
         public static MessagesPool build(IDebuggable debuggee, LogicalSide side) {
 
@@ -163,7 +170,7 @@ public class DebugToolItem
          * @param message the language resource key of the message to add
          */
         @Override
-        public void add(final ITextComponent message) {
+        public void add(final Component message) {
             this._messages.add(message);
         }
 
@@ -188,7 +195,7 @@ public class DebugToolItem
          * @param label      the language resource key of the message to add as a label for the other IDebuggable messages
          */
         @Override
-        public void add(final LogicalSide side, final IDebuggable debuggable, final ITextComponent label) {
+        public void add(final LogicalSide side, final IDebuggable debuggable, final Component label) {
 
             final MessagesPool other = new MessagesPool(this._depth + 1);
 
@@ -215,7 +222,7 @@ public class DebugToolItem
         }
 
         @Override
-        public <T> void add(final T debuggee, final BiConsumer<IDebugMessages, T> consumer, final ITextComponent label) {
+        public <T> void add(final T debuggee, final BiConsumer<IDebugMessages, T> consumer, final Component label) {
 
             final MessagesPool other = new MessagesPool(this._depth + 1);
 
@@ -238,7 +245,7 @@ public class DebugToolItem
          * @return an Iterator.
          */
         @Override
-        public Iterator<ITextComponent> iterator() {
+        public Iterator<Component> iterator() {
             return this._messages.iterator();
         }
 
@@ -251,11 +258,11 @@ public class DebugToolItem
             this._depth = depth;
         }
 
-        private void merge(final MessagesPool other, final ITextComponent label) {
+        private void merge(final MessagesPool other, final Component label) {
 
             if (1 == other._messages.size()) {
 
-                this.add(new StringTextComponent("").append(label).append(" ").append(other._messages.get(0)));
+                this.add(new TextComponent("").append(label).append(" ").append(other._messages.get(0)));
 
             } else {
 
@@ -264,20 +271,20 @@ public class DebugToolItem
             }
         }
 
-        private IFormattableTextComponent createPadding(final int depth) {
-            return new StringTextComponent("                    ".substring(0, Math.min(20, depth)));
+        private MutableComponent createPadding(final int depth) {
+            return new TextComponent("                    ".substring(0, Math.min(20, depth)));
         }
 
-        private ITextComponent getFormattedTextComponent(final String format, final Object... parameters) {
+        private Component getFormattedTextComponent(final String format, final Object... parameters) {
 
             if (parameters.length > 0) {
-                return new TranslationTextComponent(format, parameters);
+                return new TranslatableComponent(format, parameters);
             } else {
-                return new StringTextComponent(format);
+                return new TextComponent(format);
             }
         }
 
-        private final List<ITextComponent> _messages;
+        private final List<Component> _messages;
         private final int _depth;
 
         //endregion

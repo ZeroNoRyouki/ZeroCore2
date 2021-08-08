@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.resource.IResourceType;
@@ -64,7 +64,7 @@ public class AtlasSpriteSupplier implements ISelectiveResourceReloadListener {
      * @param resourcePredicate predicate to test whether any given resource type should be reloaded
      */
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
+    public void onResourceManagerReload(ResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
 
         if (resourcePredicate.test(VanillaResourceType.TEXTURES)) {
             ++this._generation;

@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.function.BiConsumer;
 
@@ -69,16 +69,16 @@ public class Static
     //region AbstractControl
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this._customPainter.accept(this, matrix);
     }
 
     //endregion
     //region internals
 
-    private final static BiConsumer<Static, MatrixStack> NO_PAINTER = (c, m) -> {};
+    private final static BiConsumer<Static, PoseStack> NO_PAINTER = (c, m) -> {};
 
-    private BiConsumer<Static, MatrixStack> _customPainter;
+    private BiConsumer<Static, PoseStack> _customPainter;
 
     //endregion
 }

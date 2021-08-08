@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
 import it.zerono.mods.zerocore.lib.client.gui.control.SlotsGroup;
@@ -31,12 +31,12 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -47,18 +47,18 @@ import java.util.Queue;
 @SuppressWarnings({"WeakerAccess", "unused"})
 @OnlyIn(Dist.CLIENT)
 public class ModContainerScreen<C extends ModContainer>
-        extends ContainerScreen<C> {
+        extends AbstractContainerScreen<C> {
 
     public final IEvent<Runnable> Create;
     public final IEvent<Runnable> Close;
     public final IEvent<Runnable> Created;
 
-    protected ModContainerScreen(final C container, final PlayerInventory inventory, final ITextComponent title,
+    protected ModContainerScreen(final C container, final Inventory inventory, final Component title,
                                  final int guiWidth, final int guiHeight) {
         this(container, inventory, title, guiWidth, guiHeight, true);
     }
 
-    protected ModContainerScreen(final C container, final PlayerInventory inventory, final ITextComponent title,
+    protected ModContainerScreen(final C container, final Inventory inventory, final Component title,
                                  final int guiWidth, final int guiHeight, boolean singleWindow) {
 
         super(container, inventory, title);
@@ -112,7 +112,7 @@ public class ModContainerScreen<C extends ModContainer>
      */
     public boolean isValid() {
 
-        final List<ITextComponent> errors = Lists.newArrayList();
+        final List<Component> errors = Lists.newArrayList();
 
         this._windowsManager.validate(errors::add);
 
@@ -162,14 +162,14 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     public int getClippedMouseX() {
-        return MathHelper.ceil(GuiHelper.getMouse().xpos() - this.getGuiX());
+        return Mth.ceil(GuiHelper.getMouse().xpos() - this.getGuiX());
     }
 
     public int getClippedMouseY() {
-        return MathHelper.ceil(GuiHelper.getMouse().ypos() - this.getGuiY());
+        return Mth.ceil(GuiHelper.getMouse().ypos() - this.getGuiY());
     }
 
-    public void renderHoveredSlotToolTip(final MatrixStack matrix) {
+    public void renderHoveredSlotToolTip(final PoseStack matrix) {
         this.renderTooltip(matrix, this.getOriginalMouseX(), this.getOriginalMouseY());
     }
 
@@ -310,7 +310,7 @@ public class ModContainerScreen<C extends ModContainer>
      * Draws the background layer of this container (behind the items).
      */
     @Override
-    protected final void renderBg(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    protected final void renderBg(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         this.renderBackground(matrix);
 
@@ -320,7 +320,7 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     @Override
-    protected final void renderLabels(final MatrixStack matrix, final int mouseX, final int mouseY) {
+    protected final void renderLabels(final PoseStack matrix, final int mouseX, final int mouseY) {
 
         this._originalMouseX = mouseX;
         this._originalMouseY = mouseY;
@@ -395,7 +395,7 @@ public class ModContainerScreen<C extends ModContainer>
 
     private boolean checkIgnoreCloseOnInventoryKey(final int keyCode, final int scanCode) {
         return this.ignoreCloseOnInventoryKey() &&
-                this.getMinecraft().options.keyInventory.isActiveAndMatches(InputMappings.getKey(keyCode, scanCode));
+                this.getMinecraft().options.keyInventory.isActiveAndMatches(InputConstants.getKey(keyCode, scanCode));
     }
 
     @Override

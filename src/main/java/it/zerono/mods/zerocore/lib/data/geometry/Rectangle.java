@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Rectangle {
@@ -48,7 +48,7 @@ public class Rectangle {
         this(other.Origin, other.Width, other.Height);
     }
 
-    public static Rectangle syncDataFrom(CompoundNBT data) {
+    public static Rectangle syncDataFrom(CompoundTag data) {
 
         if (data.contains("rx") && data.contains("ry") && data.contains("rw") && data.contains("rh")) {
             return new Rectangle(data.getInt("rx"), data.getInt("ry"),
@@ -58,7 +58,7 @@ public class Rectangle {
         return ZERO;
     }
 
-    public CompoundNBT syncDataTo(CompoundNBT data) {
+    public CompoundTag syncDataTo(CompoundTag data) {
 
         data.putInt("rx", this.Origin.X);
         data.putInt("ry", this.Origin.Y);

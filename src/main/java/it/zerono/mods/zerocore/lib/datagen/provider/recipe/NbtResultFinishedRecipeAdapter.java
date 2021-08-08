@@ -19,25 +19,25 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.gson.JsonObject;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.JSONUtils;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.GsonHelper;
 
 import java.util.function.Consumer;
 
 public class NbtResultFinishedRecipeAdapter
         extends AbstractFinishedRecipeAdapter {
 
-    public static Consumer<IFinishedRecipe> from(final Consumer<IFinishedRecipe> originalRecipe, final IRecipeSerializer<?> serializer,
-                                                 final CompoundNBT data)  {
+    public static Consumer<FinishedRecipe> from(final Consumer<FinishedRecipe> originalRecipe, final RecipeSerializer<?> serializer,
+                                                 final CompoundTag data)  {
         return fr -> originalRecipe.accept(new NbtResultFinishedRecipeAdapter(fr, serializer, data));
     }
 
-    public static Consumer<IFinishedRecipe> from(final Consumer<IFinishedRecipe> originalRecipe, final IRecipeSerializer<?> serializer,
-                                                 final Consumer<CompoundNBT> data) {
+    public static Consumer<FinishedRecipe> from(final Consumer<FinishedRecipe> originalRecipe, final RecipeSerializer<?> serializer,
+                                                 final Consumer<CompoundTag> data) {
 
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
 
         data.accept(nbt);
         return from(originalRecipe, serializer, nbt);
@@ -51,21 +51,21 @@ public class NbtResultFinishedRecipeAdapter
         super.serializeRecipeData(json);
 
         if (null != this._data) {
-            JSONUtils.getAsJsonObject(json, "result").addProperty("nbt", this._data.toString());
+            GsonHelper.getAsJsonObject(json, "result").addProperty("nbt", this._data.toString());
         }
     }
 
     //endregion
     //region internals
 
-    private NbtResultFinishedRecipeAdapter(final IFinishedRecipe originalRecipe, final IRecipeSerializer<?> serializer,
-                                           final CompoundNBT resultData) {
+    private NbtResultFinishedRecipeAdapter(final FinishedRecipe originalRecipe, final RecipeSerializer<?> serializer,
+                                           final CompoundTag resultData) {
 
         super(originalRecipe, serializer);
         this._data = resultData;
     }
 
-    private final CompoundNBT _data;
+    private final CompoundTag _data;
 
     //endregion
 }

@@ -26,7 +26,7 @@ import it.zerono.mods.zerocore.internal.proxy.ClientProxy;
 import it.zerono.mods.zerocore.internal.proxy.IProxy;
 import it.zerono.mods.zerocore.internal.proxy.ServerProxy;
 import it.zerono.mods.zerocore.lib.init.IModInitializationHandler;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.DistExecutor;

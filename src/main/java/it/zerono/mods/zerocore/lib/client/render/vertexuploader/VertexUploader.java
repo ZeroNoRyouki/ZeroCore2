@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.render.vertexuploader;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.client.render.IVertexSequence;
 import it.zerono.mods.zerocore.lib.client.render.IVertexSource;
@@ -27,10 +27,10 @@ import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.data.gfx.LightMap;
 import it.zerono.mods.zerocore.lib.data.gfx.UV;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -39,27 +39,27 @@ public class VertexUploader {
 
     public static final VertexUploader INSTANCE = new VertexUploader();
 
-    public void upload(IVertexBuilder builder, IVertexSource source) {
+    public void upload(VertexConsumer builder, IVertexSource source) {
         this.upload(builder, source, DEFAULT_ADAPTER);
     }
 
-    public void upload(IVertexBuilder builder, IVertexSequence sequence) {
+    public void upload(VertexConsumer builder, IVertexSequence sequence) {
         this.upload(builder, sequence, DEFAULT_ADAPTER);
     }
 
-    public void upload(IVertexBuilder builder, List<IVertexSource> sources) {
+    public void upload(VertexConsumer builder, List<IVertexSource> sources) {
         this.upload(builder, sources, DEFAULT_ADAPTER);
     }
 
-    public void upload(IVertexBuilder builder, IVertexSource source, ISourceAdapter adapter) {
+    public void upload(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
         this.getUploaderFor(builder).upload(builder, source, adapter);
     }
 
-    public void upload(IVertexBuilder builder, IVertexSequence sequence, ISourceAdapter adapter) {
+    public void upload(VertexConsumer builder, IVertexSequence sequence, ISourceAdapter adapter) {
         this.upload(builder, sequence.getVertices(), adapter);
     }
 
-    public void upload(IVertexBuilder builder, List<IVertexSource> sources, ISourceAdapter adapter) {
+    public void upload(VertexConsumer builder, List<IVertexSource> sources, ISourceAdapter adapter) {
 
         final IUploader uploader = this.getUploaderFor(builder);
 
@@ -76,11 +76,11 @@ public class VertexUploader {
     private VertexUploader() {
 
         this._uploaders = Maps.newHashMapWithExpectedSize(2);
-        this._uploaders.put(DefaultVertexFormats.BLOCK, VertexUploader::blockUploader);
-        this._uploaders.put(DefaultVertexFormats.NEW_ENTITY, VertexUploader::entityUploader);
+        this._uploaders.put(DefaultVertexFormat.BLOCK, VertexUploader::blockUploader);
+        this._uploaders.put(DefaultVertexFormat.NEW_ENTITY, VertexUploader::entityUploader);
     }
 
-    private IUploader getUploaderFor(IVertexBuilder builder) {
+    private IUploader getUploaderFor(VertexConsumer builder) {
 
         if (builder instanceof BufferBuilder) {
             return this._uploaders.getOrDefault(((BufferBuilder)builder).getVertexFormat(), VertexUploader::fallBackUploader);
@@ -89,7 +89,7 @@ public class VertexUploader {
         return VertexUploader::fallBackUploader;
     }
 
-    private static void fallBackUploader(IVertexBuilder builder, IVertexSource source, ISourceAdapter adapter) {
+    private static void fallBackUploader(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
 
         final Vector3d pos = adapter.getPos(source);
         final Vector3f normal = adapter.getNormal(source);
@@ -124,7 +124,7 @@ public class VertexUploader {
     }
 
     @SuppressWarnings("ConstantConditions") // if an element is missing (null) we would crash anyway in endVertex()
-    private static void blockUploader(IVertexBuilder builder, IVertexSource source, ISourceAdapter adapter) {
+    private static void blockUploader(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
 
         final Vector3d pos = adapter.getPos(source);
         final Vector3f normal = adapter.getNormal(source);
@@ -141,7 +141,7 @@ public class VertexUploader {
     }
 
     @SuppressWarnings("ConstantConditions") // if an element is missing (null) we would crash anyway in endVertex()
-    private static void entityUploader(IVertexBuilder builder, IVertexSource source, ISourceAdapter adapter) {
+    private static void entityUploader(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
 
         final Vector3d pos = adapter.getPos(source);
         final Vector3f normal = adapter.getNormal(source);

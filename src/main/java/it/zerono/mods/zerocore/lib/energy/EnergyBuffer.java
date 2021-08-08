@@ -21,8 +21,10 @@ package it.zerono.mods.zerocore.lib.energy;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.LogicalSide;
+
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 @SuppressWarnings({"unused", "WeakerAccess", "UnusedReturnValue"})
 public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebuggable {
@@ -199,7 +201,7 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
 
         this.setCapacity(data.getDouble("capacity"));
         this.setMaxInsert(data.getDouble("maxInsert"));
@@ -214,7 +216,7 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public CompoundNBT syncDataTo(CompoundNBT data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
 
         final EnergySystem localSystem = this.getEnergySystem();
 

@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.data;
 import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.LogicalSide;
 
 public enum IoMode implements IDebuggable {
@@ -39,7 +39,7 @@ public enum IoMode implements IDebuggable {
     }
 
     //TODO check "data" owner; for write too
-    public static IoMode read(final CompoundNBT data, final String key, final IoMode defaultValue) {
+    public static IoMode read(final CompoundTag data, final String key, final IoMode defaultValue) {
 
         if (data.contains(key)) {
 
@@ -53,7 +53,7 @@ public enum IoMode implements IDebuggable {
         return defaultValue;
     }
 
-    public static void write(final CompoundNBT data, final String key, final IoMode value) {
+    public static void write(final CompoundTag data, final String key, final IoMode value) {
         data.putString(key, value.name());
     }
 

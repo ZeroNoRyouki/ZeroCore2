@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class CompositeRichText
     //region IRichText
 
     @Override
-    public void paint(final MatrixStack matrix, int x, int y, final int zLevel) {
+    public void paint(final PoseStack matrix, int x, int y, final int zLevel) {
 
         x += this._margin;
         y += this._margin;

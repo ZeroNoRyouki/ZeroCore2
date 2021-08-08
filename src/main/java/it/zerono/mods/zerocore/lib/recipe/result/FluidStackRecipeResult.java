@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.recipe.result;
 
 import com.google.gson.JsonElement;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class FluidStackRecipeResult
         return new FluidStackRecipeResult(stack);
     }
 
-    public static FluidStackRecipeResult from(final PacketBuffer buffer) {
+    public static FluidStackRecipeResult from(final FriendlyByteBuf buffer) {
         return new FluidStackRecipeResult(FluidStack.readFromPacket(buffer));
     }
 
@@ -73,7 +73,7 @@ public class FluidStackRecipeResult
     }
 
     @Override
-    public void serializeTo(final PacketBuffer buffer) {
+    public void serializeTo(final FriendlyByteBuf buffer) {
         this._result.writeToPacket(buffer);
     }
 

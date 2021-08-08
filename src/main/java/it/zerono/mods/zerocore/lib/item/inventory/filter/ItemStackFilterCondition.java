@@ -21,9 +21,9 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -68,19 +68,19 @@ public class ItemStackFilterCondition implements IFilterCondition {
     }
 
     @Override
-    public CompoundNBT serializeNBT() {
+    public CompoundTag serializeNBT() {
 
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
 
         if (null != this._filterStack) {
-            nbt.put(NBT_KEY, this._filterStack.save(new CompoundNBT()));
+            nbt.put(NBT_KEY, this._filterStack.save(new CompoundTag()));
         }
 
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundNBT nbt) {
+    public void deserializeNBT(CompoundTag nbt) {
         this._filterStack = null == nbt || !nbt.contains(NBT_KEY) ? null :
                 ItemHelper.stackFrom(nbt.getCompound(NBT_KEY));
     }
@@ -108,7 +108,7 @@ public class ItemStackFilterCondition implements IFilterCondition {
             }
 
             @Override
-            public Optional<ItemStackFilterCondition> createComponent(ResourceLocation componentId, CompoundNBT nbt) {
+            public Optional<ItemStackFilterCondition> createComponent(ResourceLocation componentId, CompoundTag nbt) {
 
                 return this.createComponent(componentId)
                         .map(condition -> {

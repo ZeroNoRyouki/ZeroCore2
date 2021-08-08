@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
@@ -31,7 +31,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -183,17 +183,17 @@ public class PanelGroup<Index extends Enum<Index>>
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this.getActivePanel().ifPresent(p -> p.onPaintBackground(matrix, partialTicks, mouseX, mouseY));
     }
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this.getActivePanel().ifPresent(p -> p.onPaint(matrix, partialTicks, mouseX, mouseY));
     }
 
     @Override
-    public void onPaintOverlay(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this.getActivePanel().ifPresent(p -> p.onPaintOverlay(matrix, partialTicks, mouseX, mouseY));
     }
 
@@ -233,7 +233,7 @@ public class PanelGroup<Index extends Enum<Index>>
     }
 
     @Override
-    public void validate(final Consumer<ITextComponent> errorReport) {
+    public void validate(final Consumer<Component> errorReport) {
         this.getActivePanel().ifPresent(p -> p.validate(errorReport));
     }
 

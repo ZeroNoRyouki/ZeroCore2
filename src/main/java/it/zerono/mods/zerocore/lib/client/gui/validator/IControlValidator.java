@@ -19,12 +19,12 @@
 package it.zerono.mods.zerocore.lib.client.gui.validator;
 
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
 @FunctionalInterface
 public interface IControlValidator {
 
-    void validate(IControlContainer container, Consumer<ITextComponent> errorReport);
+    void validate(IControlContainer container, Consumer<Component> errorReport);
 }

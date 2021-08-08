@@ -21,9 +21,9 @@ package it.zerono.mods.zerocore.internal.network;
 import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -40,7 +40,7 @@ public class ErrorReportMessage
      * @param errors the error messages
      * @return the new message
      */
-    public static ErrorReportMessage create(@Nullable final BlockPos position, final ITextComponent... errors) {
+    public static ErrorReportMessage create(@Nullable final BlockPos position, final Component... errors) {
         return new ErrorReportMessage(position, errors);
     }
 
@@ -51,11 +51,11 @@ public class ErrorReportMessage
      * @param errors the error messages
      * @return the new message
      */
-    public static ErrorReportMessage create(@Nullable final BlockPos position, final List<ITextComponent> errors) {
+    public static ErrorReportMessage create(@Nullable final BlockPos position, final List<Component> errors) {
         return new ErrorReportMessage(position, errors);
     }
 
-    public ErrorReportMessage(final PacketBuffer buffer) {
+    public ErrorReportMessage(final FriendlyByteBuf buffer) {
 
         super(buffer);
 
@@ -78,7 +78,7 @@ public class ErrorReportMessage
      * @param buffer the {@link PacketBuffer} to encode your data into
      */
     @Override
-    public void encodeTo(final PacketBuffer buffer) {
+    public void encodeTo(final FriendlyByteBuf buffer) {
 
         buffer.writeInt(this._errors.size());
         this._errors.forEach(buffer::writeComponent);
@@ -116,7 +116,7 @@ public class ErrorReportMessage
      * @param position the position, in world, of the error message. Can be null.
      * @param errors the error messages
      */
-    protected ErrorReportMessage(@Nullable final BlockPos position, final ITextComponent... errors) {
+    protected ErrorReportMessage(@Nullable final BlockPos position, final Component... errors) {
         this(position, Lists.newArrayList(errors));
     }
 
@@ -126,13 +126,13 @@ public class ErrorReportMessage
      * @param position the position, in world, of the error message. Can be null.
      * @param errors the error messages
      */
-    protected ErrorReportMessage(@Nullable final BlockPos position, final List<ITextComponent> errors) {
+    protected ErrorReportMessage(@Nullable final BlockPos position, final List<Component> errors) {
 
         this._errors = Lists.newArrayList(errors);
         this._position = position;
     }
 
-    private final List<ITextComponent> _errors;
+    private final List<Component> _errors;
     private final BlockPos _position;
 
     //endregion

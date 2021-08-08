@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 public class EmptyVanillaInventory
-    implements IInventory {
+    implements Container {
 
     public static final EmptyVanillaInventory INSTANCE = new EmptyVanillaInventory();
 
@@ -82,7 +82,7 @@ public class EmptyVanillaInventory
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return false;
     }
 

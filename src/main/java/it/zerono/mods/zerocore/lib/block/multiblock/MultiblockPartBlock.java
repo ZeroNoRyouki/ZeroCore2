@@ -27,19 +27,19 @@ import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 import java.util.Optional;
 
@@ -63,7 +63,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
         return Optional.ofNullable(this._multiblockVariant);
     }
 
-    protected boolean openGui(final ServerPlayerEntity player, final AbstractModBlockEntity mbe) {
+    protected boolean openGui(final ServerPlayer player, final AbstractModBlockEntity mbe) {
         return mbe.openGui(player);
     }
 
@@ -92,7 +92,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
      * @return A instance of a class extending TileEntity
      */
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
         return this.getPartType().createTileEntity(state, world);
     }
 
@@ -101,12 +101,12 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
      */
     @Override
     @SuppressWarnings("deprecation")
-    public ActionResultType use(BlockState state, World world, BlockPos position, PlayerEntity player,
-                                             Hand hand, BlockRayTraceResult hit) {
+    public InteractionResult use(BlockState state, Level world, BlockPos position, Player player,
+                                             InteractionHand hand, BlockHitResult hit) {
 
         if (CodeHelper.calledByLogicalServer(world)) {
 
-            if (this.hasTileEntity(state) && Hand.MAIN_HAND == hand) {
+            if (this.hasTileEntity(state) && InteractionHand.MAIN_HAND == hand) {
 
                 final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
                 final ItemStack heldItem = player.getItemInHand(hand);
@@ -126,28 +126,28 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
 
 
                         CodeHelper.reportErrorToPlayer(player, error);
-                        return ActionResultType.SUCCESS;
+                        return InteractionResult.SUCCESS;
                     }
                 }
 
                 // open block GUI
 
-                if (part.filter(p -> p instanceof INamedContainerProvider && p instanceof AbstractModBlockEntity)
+                if (part.filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
                         .map(p -> (AbstractModBlockEntity)p)
                         .filter(mbe -> mbe.canOpenGui(world, position, state))
-                        .map(mbe -> this.openGui((ServerPlayerEntity) player, mbe))
+                        .map(mbe -> this.openGui((ServerPlayer) player, mbe))
                         .orElse(false)) {
-                    return ActionResultType.CONSUME;
+                    return InteractionResult.CONSUME;
                 }
             }
         } else {
 
             return WorldHelper.getMultiblockPartFrom(world, position)
-                    .filter(p -> p instanceof INamedContainerProvider && p instanceof AbstractModBlockEntity)
+                    .filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
                     .map(p -> (AbstractModBlockEntity)p)
                     .filter(mbe -> mbe.canOpenGui(world, position, state))
-                    .map(mbe -> ActionResultType.CONSUME)
-                    .orElse(ActionResultType.PASS);
+                    .map(mbe -> InteractionResult.CONSUME)
+                    .orElse(InteractionResult.PASS);
         }
 
         return super.use(state, world, position, player, hand, hit);

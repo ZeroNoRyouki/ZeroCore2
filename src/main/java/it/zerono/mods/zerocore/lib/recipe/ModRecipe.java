@@ -19,17 +19,17 @@
 package it.zerono.mods.zerocore.lib.recipe;
 
 import it.zerono.mods.zerocore.lib.item.inventory.EmptyVanillaInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
 public class ModRecipe
-    implements IRecipe<EmptyVanillaInventory> {
+    implements Recipe<EmptyVanillaInventory> {
 
     //region IRecipe
 
@@ -37,7 +37,7 @@ public class ModRecipe
      * Used to check if a recipe matches current crafting inventory
      */
     @Override
-    public boolean matches(final EmptyVanillaInventory inv, final World world) {
+    public boolean matches(final EmptyVanillaInventory inv, final Level world) {
         return true;
     }
 
@@ -86,12 +86,12 @@ public class ModRecipe
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         throw new IllegalStateException("Override in derived class");
     }
 
     @Override
-    public IRecipeType<?> getType() {
+    public RecipeType<?> getType() {
         throw new IllegalStateException("Override in derived class");
     }
 

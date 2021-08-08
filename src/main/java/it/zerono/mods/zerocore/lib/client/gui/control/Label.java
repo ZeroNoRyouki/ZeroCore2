@@ -21,13 +21,13 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 @SuppressWarnings("unused")
 public class Label
         extends AbstractTextualControl {
 
-    public Label(ModContainerScreen<? extends ModContainer> gui, final String name, final ITextComponent text) {
+    public Label(ModContainerScreen<? extends ModContainer> gui, final String name, final Component text) {
         this(gui, name, text./*getFormattedText*/getString());
     }
 

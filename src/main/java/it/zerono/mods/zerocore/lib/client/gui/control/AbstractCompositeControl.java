@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,12 +31,12 @@ public class AbstractCompositeControl
     //region AbstractCompoundControl
 
     @Override
-    public void setTooltips(final List<ITextComponent> lines) {
+    public void setTooltips(final List<Component> lines) {
         this.setTooltips(lines, Collections.emptyList());
     }
 
     @Override
-    public void setTooltips(final List<ITextComponent> lines, final List<Object> objects) {
+    public void setTooltips(final List<Component> lines, final List<Object> objects) {
         this.forEach(c -> c.setTooltips(lines, objects));
     }
 

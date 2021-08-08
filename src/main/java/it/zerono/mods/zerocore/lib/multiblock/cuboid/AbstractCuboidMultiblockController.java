@@ -49,10 +49,10 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.Constants;
 
 public abstract class AbstractCuboidMultiblockController<Controller extends AbstractCuboidMultiblockController<Controller>>
@@ -81,7 +81,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
             return false;
         }
 
-        final World world = this.getWorld();
+        final Level world = this.getWorld();
         final BlockPos boundingBoxMin = bb.getMin();
         final BlockPos boundingBoxMax = bb.getMax();
         final int minX = boundingBoxMin.getX();
@@ -178,7 +178,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
             this._detachedParts.clear();
         }
 
-        final BlockPos.Mutable partLocation = new BlockPos.Mutable();
+        final BlockPos.MutableBlockPos partLocation = new BlockPos.MutableBlockPos();
         boolean isValid;
         int errorIndex;
 
@@ -359,7 +359,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
     }
 
 	@Override
-	public void forceStructureUpdate(final World world) {
+	public void forceStructureUpdate(final Level world) {
 
 	    final CuboidBoundingBox bb = this.getBoundingBox();
 
@@ -375,7 +375,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
         final int maxX = maxCoord.getX();
         final int maxY = maxCoord.getY();
         final int maxZ = maxCoord.getZ();
-        final BlockPos.Mutable pos = new BlockPos.Mutable();
+        final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
         for (int x = minX; x <= maxX; ++x) {
             for (int y = minY; y <= maxY; ++y) {
@@ -392,7 +392,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 	//endregion
 	//region internals
 
-    protected AbstractCuboidMultiblockController(World world) {
+    protected AbstractCuboidMultiblockController(Level world) {
         super(world);
     }
 

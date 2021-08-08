@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.item.inventory;
 
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 public interface IInventorySlot {

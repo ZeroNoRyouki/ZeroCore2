@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage;
 
-import net.minecraft.item.crafting.FurnaceRecipe;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import vazkii.patchouli.client.book.page.PageSmelting;
 
 public class Smelting
-        extends AbstractRecipePage<FurnaceRecipe, PageSmelting> {
+        extends AbstractRecipePage<SmeltingRecipe, PageSmelting> {
 
     protected Smelting() {
         super(new PageSmelting());

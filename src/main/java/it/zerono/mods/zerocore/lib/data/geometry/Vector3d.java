@@ -18,19 +18,19 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.dispenser.IPosition;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.core.Position;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.Vec3i;
+import com.mojang.math.Vector4f;
 
 @SuppressWarnings({"WeakerAccess"})
 public class Vector3d
-    implements IPosition {
+    implements Position {
 
     public static final Vector3d ZERO = new Vector3d();
     public static final Vector3d HALF = new Vector3d(0.5, 0.5, 0.5);
@@ -57,11 +57,11 @@ public class Vector3d
         this(other.X, other.Y, other.Z);
     }
 
-    public Vector3d(final Vector3i other) {
+    public Vector3d(final Vec3i other) {
         this(other.getX(), other.getY(), other.getZ());
     }
 
-    public static Vector3d from(final Vector3i data) {
+    public static Vector3d from(final Vec3i data) {
         return new Vector3d(data.getX(), data.getY(), data.getZ());
     }
 
@@ -73,7 +73,7 @@ public class Vector3d
         return new Vector3d(data.x(), data.y(), data.z());
     }
 
-    public static Vector3d fromCenter(final Vector3i data) {
+    public static Vector3d fromCenter(final Vec3i data) {
         return new Vector3d(data.getX() + 0.5, data.getY() + 0.5, data.getZ() + 0.5);
     }
 
@@ -85,19 +85,19 @@ public class Vector3d
         return new Vector3d(data.getX() + 0.5, data.getY() + 0.5, data.getZ() + 0.5);
     }
 
-    public static Vector3d from(final TileEntity data) {
+    public static Vector3d from(final BlockEntity data) {
         return from(data.getBlockPos());
     }
 
-    public static Vector3d fromCenter(final TileEntity data) {
+    public static Vector3d fromCenter(final BlockEntity data) {
         return fromCenter(data.getBlockPos());
     }
 
-    public static Vector3d syncDataFrom(CompoundNBT data) {
+    public static Vector3d syncDataFrom(CompoundTag data) {
         return new Vector3d(data.getDouble("vx"), data.getDouble("vy"), data.getDouble("vz"));
     }
 
-    public CompoundNBT syncDataTo(CompoundNBT data) {
+    public CompoundTag syncDataTo(CompoundTag data) {
 
         data.putDouble("vx", this.X);
         data.putDouble("vy", this.Y);
@@ -105,8 +105,8 @@ public class Vector3d
         return data;
     }
 
-    public Vector3i toVec3i() {
-        return new Vector3i(this.X, this.Y, this.Z);
+    public Vec3i toVec3i() {
+        return new Vec3i(this.X, this.Y, this.Z);
     }
 
     public BlockPos toBlockPos() {
@@ -125,7 +125,7 @@ public class Vector3d
         return this.add(v.X, v.Y, v.Z);
     }
 
-    public Vector3d add(final Vector3i v) {
+    public Vector3d add(final Vec3i v) {
         return this.add(v.getX(), v.getY(), v.getZ());
     }
 
@@ -137,7 +137,7 @@ public class Vector3d
         return this.subtract(offset, offset, offset);
     }
 
-    public Vector3d subtract(final Vector3i v) {
+    public Vector3d subtract(final Vec3i v) {
         return this.subtract(v.getX(), v.getY(), v.getZ());
     }
 
@@ -153,7 +153,7 @@ public class Vector3d
         return this.multiply(factor, factor, factor);
     }
 
-    public Vector3d multiply(final Vector3i factor) {
+    public Vector3d multiply(final Vec3i factor) {
         return this.multiply(factor.getX(), factor.getY(), factor.getZ());
     }
 
@@ -169,16 +169,16 @@ public class Vector3d
         return this.divide(factor, factor, factor);
     }
 
-    public Vector3d divide(final Vector3i factor) {
+    public Vector3d divide(final Vec3i factor) {
         return this.divide(factor.getX(), factor.getY(), factor.getZ());
     }
 
     public Vector3d ceil() {
-        return new Vector3d(MathHelper.ceil(this.X), MathHelper.ceil(this.Y), MathHelper.ceil(this.Z));
+        return new Vector3d(Mth.ceil(this.X), Mth.ceil(this.Y), Mth.ceil(this.Z));
     }
 
     public Vector3d floor() {
-        return new Vector3d(MathHelper.floor(this.X), MathHelper.floor(this.Y), MathHelper.floor(this.Z));
+        return new Vector3d(Mth.floor(this.X), Mth.floor(this.Y), Mth.floor(this.Z));
     }
 
     public Vector3d crossProduct(final Vector3d vec) {

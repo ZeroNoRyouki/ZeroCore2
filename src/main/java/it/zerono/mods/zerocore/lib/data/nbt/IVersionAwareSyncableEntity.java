@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.nbt;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.function.Function;
 
@@ -26,5 +26,5 @@ public interface IVersionAwareSyncableEntity {
 
     int syncGetDataCurrentVersion();
 
-    Function<CompoundNBT, CompoundNBT> syncGetVersionConverter(int dataVersion);
+    Function<CompoundTag, CompoundTag> syncGetVersionConverter(int dataVersion);
 }

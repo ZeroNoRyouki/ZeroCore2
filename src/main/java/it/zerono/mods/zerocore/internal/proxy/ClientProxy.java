@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.internal.proxy;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
@@ -30,19 +30,19 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -94,7 +94,7 @@ public class ClientProxy
     }
 
     @Override
-    public Optional<World> getClientWorld() {
+    public Optional<Level> getClientWorld() {
         return Optional.ofNullable(Minecraft.getInstance().level);
     }
 
@@ -105,7 +105,7 @@ public class ClientProxy
     }
 
     @Override
-    public void sendPlayerStatusMessage(final PlayerEntity player, final ITextComponent message) {
+    public void sendPlayerStatusMessage(final Player player, final Component message) {
             Minecraft.getInstance().gui.setOverlayMessage(message, false);
     }
 
@@ -116,8 +116,8 @@ public class ClientProxy
 
         // always check for a null here, there is not MC instance while running the datagens
         //noinspection ConstantConditions
-        if (null != mc && mc.getResourceManager() instanceof IReloadableResourceManager) {
-            ((IReloadableResourceManager)Minecraft.getInstance().getResourceManager()).registerReloadListener(listener);
+        if (null != mc && mc.getResourceManager() instanceof ReloadableResourceManager) {
+            ((ReloadableResourceManager)Minecraft.getInstance().getResourceManager()).registerReloadListener(listener);
         }
     }
 
@@ -127,14 +127,14 @@ public class ClientProxy
     }
 
     @Override
-    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
-                                    final ITextComponent... messages) {
+    public void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
+                                    final Component... messages) {
         this._guiErrorData.addErrors(position, messages);
     }
 
     @Override
-    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
-                                    final List<ITextComponent> messages) {
+    public void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
+                                    final List<Component> messages) {
         this._guiErrorData.addErrors(position, messages);
     }
 
@@ -148,7 +148,7 @@ public class ClientProxy
 
         if (EffectiveSide.get().isClient()) {
 
-            final ClientPlayNetHandler handler = Minecraft.getInstance().getConnection();
+            final ClientPacketListener handler = Minecraft.getInstance().getConnection();
 
             return null != handler ? handler.getRecipeManager() : null;
 
@@ -161,7 +161,7 @@ public class ClientProxy
     }
 
     @Override
-    public void handleInternalCommand(final InternalCommand command, final CompoundNBT data, final NetworkDirection direction) {
+    public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
 
         switch (command) {
 
@@ -211,21 +211,21 @@ public class ClientProxy
 
     private void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
 
-        final BlockRayTraceResult result = event.getTarget();
+        final BlockHitResult result = event.getTarget();
         final BlockPos position = result.getBlockPos();
 
-        if (RayTraceResult.Type.BLOCK == result.getType() && this._guiErrorData.test(position)) {
+        if (HitResult.Type.BLOCK == result.getType() && this._guiErrorData.test(position)) {
 
-            final Vector3d projectedView = event.getInfo().getPosition();
+            final Vec3 projectedView = event.getInfo().getPosition();
 
-            ModRenderHelper.paintVoxelShape(event.getMatrix(), VoxelShapes.block(),
+            ModRenderHelper.paintVoxelShape(event.getMatrix(), Shapes.block(),
                     event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
                     position.getX() - projectedView.x(), position.getY() - projectedView.y(),
                     position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
         }
     }
 
-    private void paintErrorMessage(final MatrixStack matrix) {
+    private void paintErrorMessage(final PoseStack matrix) {
 
         final IRichText texts = this._guiErrorData.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2);
 

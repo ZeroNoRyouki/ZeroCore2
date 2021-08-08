@@ -51,8 +51,8 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.storage.IPartStorage;
 import it.zerono.mods.zerocore.lib.multiblock.storage.PartStorage;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.world.World;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 import java.util.List;
@@ -78,7 +78,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
         return Collections.unmodifiableSet(this._controllers);
     }
 
-    MultiblockWorldRegistry(final World world) {
+    MultiblockWorldRegistry(final Level world) {
 
         this._world = world;
         this._controllers = new ReferenceOpenHashSet<>(64);
@@ -100,7 +100,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
      */
     void tickStart() {
 
-        final IProfiler profiler = this._world.getProfiler();
+        final ProfilerFiller profiler = this._world.getProfiler();
 
         profiler.push("Zero CORE|Multiblock|World|Tick");
 
@@ -135,7 +135,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
             return;
         }
 
-        final IProfiler profiler = this._world.getProfiler();
+        final ProfilerFiller profiler = this._world.getProfiler();
 
         // Merge pools - sets of adjacent machines which should be merged later on in processing
 
@@ -405,7 +405,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
      */
     void onPartAdded(final IMultiblockPart<Controller> part) {
 
-        final IProfiler profiler = this._world.getProfiler();
+        final ProfilerFiller profiler = this._world.getProfiler();
 
         profiler.push("Zero CORE|Multiblock|World|PartAdded");
         this._orphanedParts.addOrReplace(part);
@@ -419,7 +419,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
      */
     void onPartRemovedFromWorld(final IMultiblockPart<Controller> part) {
 
-        final IProfiler profiler = this._world.getProfiler();
+        final ProfilerFiller profiler = this._world.getProfiler();
 
         profiler.push("Zero CORE|Multiblock|World|PartRemoved");
 
@@ -440,7 +440,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
      */
     void onWorldUnloaded() {
 
-        final IProfiler profiler = this._world.getProfiler();
+        final ProfilerFiller profiler = this._world.getProfiler();
 
         profiler.push("Zero CORE|Multiblock|World|WorldUnloaded");
 
@@ -500,7 +500,7 @@ final class MultiblockWorldRegistry<Controller extends IMultiblockController<Con
 
 	//region internals
 
-    private World _world;
+    private Level _world;
 
     // Active controllers
     private final Set<Controller> _controllers;

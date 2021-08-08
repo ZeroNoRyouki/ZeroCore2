@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 public class Point {
 
@@ -38,7 +38,7 @@ public class Point {
         this(other.X, other.Y);
     }
 
-    public static Point syncDataFrom(CompoundNBT data) {
+    public static Point syncDataFrom(CompoundTag data) {
 
         if (data.contains("px") && data.contains("py")) {
             return new Point(data.getInt("px"), data.getInt("py"));
@@ -47,7 +47,7 @@ public class Point {
         return ZERO;
     }
 
-    public CompoundNBT syncDataTo(CompoundNBT data) {
+    public CompoundTag syncDataTo(CompoundTag data) {
 
         data.putInt("px", this.X);
         data.putInt("py", this.Y);

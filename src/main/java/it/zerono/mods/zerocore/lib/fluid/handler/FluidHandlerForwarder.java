@@ -23,6 +23,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+
 public class FluidHandlerForwarder implements IFluidHandler {
 
     public FluidHandlerForwarder(final IFluidHandler handler) {

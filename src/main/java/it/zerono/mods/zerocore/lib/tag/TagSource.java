@@ -18,9 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.tag;
 
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.Optional;
@@ -28,21 +28,21 @@ import java.util.Optional;
 @SuppressWarnings({"WeakerAccess"})
 public class TagSource<T> {
 
-    public TagSource(final NonNullSupplier<ITagCollection<T>> provider) {
+    public TagSource(final NonNullSupplier<TagCollection<T>> provider) {
         this._provider = provider;
     }
 
-    public ITagCollection<T> getCollection() {
+    public TagCollection<T> getCollection() {
         return this._provider.get();
     }
 
-    public Optional<ITag<T>> getTag(final ResourceLocation tagId) {
+    public Optional<Tag<T>> getTag(final ResourceLocation tagId) {
         return Optional.ofNullable(this.getCollection().getTag(tagId));
     }
 
     //region internals
 
-    private final NonNullSupplier<ITagCollection<T>> _provider;
+    private final NonNullSupplier<TagCollection<T>> _provider;
 
     //endregion
 }

@@ -20,11 +20,11 @@ package it.zerono.mods.zerocore.lib.world;
 
 import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.gen.GenerationStage;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.template.RuleTest;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -54,19 +54,19 @@ public class WorldGenManager
     }
 
     public static Predicate<BiomeLoadingEvent> onlyNether() {
-        return event -> Biome.Category.NETHER == event.getCategory();
+        return event -> Biome.BiomeCategory.NETHER == event.getCategory();
     }
 
     public static Predicate<BiomeLoadingEvent> exceptNether() {
-        return event -> Biome.Category.NETHER != event.getCategory();
+        return event -> Biome.BiomeCategory.NETHER != event.getCategory();
     }
 
     public static Predicate<BiomeLoadingEvent> onlyTheEnd() {
-        return event -> Biome.Category.THEEND == event.getCategory();
+        return event -> Biome.BiomeCategory.THEEND == event.getCategory();
     }
 
     public static Predicate<BiomeLoadingEvent> exceptTheEnd() {
-        return event -> Biome.Category.THEEND != event.getCategory();
+        return event -> Biome.BiomeCategory.THEEND != event.getCategory();
     }
 
     public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
@@ -88,7 +88,7 @@ public class WorldGenManager
 
         final BiomeGenerationSettingsBuilder builder = event.getGeneration();
 
-        for (final GenerationStage.Decoration stage : this._entries.keySet()) {
+        for (final GenerationStep.Decoration stage : this._entries.keySet()) {
 
             final List<Supplier<ConfiguredFeature<?, ?>>> biomeFeatures = builder.getFeatures(stage);
 

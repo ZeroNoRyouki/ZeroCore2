@@ -10,6 +10,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven-publish'
+apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 file('build.properties').withReader {
 
@@ -23,7 +24,7 @@ version = "${config.minecraft_version}-${config.mod_version_major}.${config.mod_
 group = 'it.zerono.mods.zerocore'
 archivesBaseName = 'ZeroCore2'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 minecraft {
 
@@ -123,8 +124,8 @@ dependencies {
     implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
 
     // patchouli
-    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
-    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+//    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+//    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
 }
 
 jar {

@@ -18,16 +18,16 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -138,7 +138,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
         if (null != Minecraft.getInstance().player) {
             CodeHelper.sendStatusMessage(Minecraft.getInstance().player,
-                    new StringTextComponent(String.format("GUI debug hover-frame is now %s", s_debugFrame ? "enabled" : "disabled")));
+                    new TextComponent(String.format("GUI debug hover-frame is now %s", s_debugFrame ? "enabled" : "disabled")));
         }
     }
 
@@ -173,7 +173,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this.forEachWindow(Window::onTick);
     }
 
-    void onGuiContainerPaintBackground(final MatrixStack matrix, final float partialTicks) {
+    void onGuiContainerPaintBackground(final PoseStack matrix, final float partialTicks) {
 
         final int mouseX = this.getGuiScreen().getClippedMouseX();
         final int mouseY = this.getGuiScreen().getClippedMouseY();
@@ -182,7 +182,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this.forEachWindow(window -> window.onPaintBackground(matrix, partialTicks, mouseX, mouseY));
     }
 
-    void onGuiContainerPaintForeground(final MatrixStack matrix) {
+    void onGuiContainerPaintForeground(final PoseStack matrix) {
 
         final float partialTicks = this.getPaintPartialTicks();
         final int mouseX = this.getGuiScreen().getClippedMouseX();
@@ -205,7 +205,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         // ... and the tool tips ...
 
         this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
-        net.minecraft.client.renderer.RenderHelper.setupForFlatItems();
+        com.mojang.blaze3d.platform.Lighting.setupForFlatItems();
 
         // ... and the dragged object
 
@@ -223,8 +223,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
     boolean onGuiContainerMouseClicked(final double mouseX, final double mouseY, final int clickedButton) {
 
-        final int mx = MathHelper.fastFloor(mouseX);
-        final int my = MathHelper.fastFloor(mouseY);
+        final int mx = Mth.fastFloor(mouseX);
+        final int my = Mth.fastFloor(mouseY);
 
         if (this.isDragging()) {
 
@@ -244,8 +244,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
     boolean onGuiContainerMouseReleased(final double mouseX, final double mouseY, final int mouseButton) {
 
-        final int mx = MathHelper.fastFloor(mouseX);
-        final int my = MathHelper.fastFloor(mouseY);
+        final int mx = Mth.fastFloor(mouseX);
+        final int my = Mth.fastFloor(mouseY);
 
         if (this.isDragging()) {
             this.stopDragging(mx, my);
@@ -263,13 +263,13 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
     }
 
     void onGuiContainerMouseMoved(final double mouseX, final double mouseY) {
-        this.raiseMouseMoved(MathHelper.fastFloor(mouseX), MathHelper.fastFloor(mouseY));
+        this.raiseMouseMoved(Mth.fastFloor(mouseX), Mth.fastFloor(mouseY));
     }
 
     boolean onGuiContainerMouseScrolled(final double mouseX, final double mouseY, final double scrollDelta) {
 
         this._lastWheelMovement = scrollDelta;
-        return this.raiseMouseWheel(MathHelper.fastFloor(mouseX), MathHelper.fastFloor(mouseY), scrollDelta);
+        return this.raiseMouseWheel(Mth.fastFloor(mouseX), Mth.fastFloor(mouseY), scrollDelta);
     }
 
     boolean onGuiContainerCharTyped(final char typedChar, final int keyCode) {
@@ -343,7 +343,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         }
     }
 
-    void validate(Consumer<ITextComponent> errorReport) {
+    void validate(Consumer<Component> errorReport) {
         this.forEachWindow(w -> w.validate(errorReport));
     }
 
@@ -458,7 +458,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
             this._paintXOffset = this._paintYOffset = 0;
         }
 
-        void paint(final MatrixStack matrix, final int mouseX, final int mouseY, final float zLevel) {
+        void paint(final PoseStack matrix, final int mouseX, final int mouseY, final float zLevel) {
             this._draggable.onPaint(matrix, mouseX + this._paintXOffset, mouseY + this._paintYOffset, zLevel, IDraggable.PaintState.Dragging);
         }
 

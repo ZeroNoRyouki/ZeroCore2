@@ -23,14 +23,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.network.Network;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 
 public final class ZeroCoreCommand {
 
-    public static void register(final CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(final CommandDispatcher<CommandSourceStack> dispatcher) {
 
-        final LiteralCommandNode<CommandSource> mainCmd = dispatcher.register(Commands.literal(ZeroCore.MOD_ID)
+        final LiteralCommandNode<CommandSourceStack> mainCmd = dispatcher.register(Commands.literal(ZeroCore.MOD_ID)
                 .requires(cs -> cs.hasPermission(2))
                 .then(Commands.literal("debug")
                         .then(Commands.literal("gui")
@@ -53,19 +53,19 @@ public final class ZeroCoreCommand {
     private ZeroCoreCommand() {
     }
 
-    private static int debugEnableGuiFrame(CommandContext<CommandSource> context) {
+    private static int debugEnableGuiFrame(CommandContext<CommandSourceStack> context) {
 
         Network.sendDebugGuiFrameCommand(true);
         return 0;
     }
 
-    private static int debugDisableGuiFrame(CommandContext<CommandSource> context) {
+    private static int debugDisableGuiFrame(CommandContext<CommandSourceStack> context) {
 
         Network.sendDebugGuiFrameCommand(false);
         return 0;
     }
 
-    private static int recipeClearCache(CommandContext<CommandSource> context) {
+    private static int recipeClearCache(CommandContext<CommandSourceStack> context) {
 
         Network.sendClearRecipeCommand();
         return 0;

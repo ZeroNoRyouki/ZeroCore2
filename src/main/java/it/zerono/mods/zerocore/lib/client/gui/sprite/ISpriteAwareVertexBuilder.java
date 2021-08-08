@@ -18,37 +18,37 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
-public class ISpriteAwareVertexBuilder implements IVertexBuilder {
+public class ISpriteAwareVertexBuilder implements VertexConsumer {
 
-    public ISpriteAwareVertexBuilder(IVertexBuilder buffer, ISprite sprite) {
+    public ISpriteAwareVertexBuilder(VertexConsumer buffer, ISprite sprite) {
 
         this._builder = buffer;
         this._sprite = sprite;
     }
 
-    public IVertexBuilder vertex(double x, double y, double z) {
+    public VertexConsumer vertex(double x, double y, double z) {
         return this._builder.vertex(x, y, z);
     }
 
-    public IVertexBuilder color(int red, int green, int blue, int alpha) {
+    public VertexConsumer color(int red, int green, int blue, int alpha) {
         return this._builder.color(red, green, blue, alpha);
     }
 
-    public IVertexBuilder uv(float u, float v) {
+    public VertexConsumer uv(float u, float v) {
         return this._builder.uv(this._sprite.getInterpolatedU(u * 16.0F), this._sprite.getInterpolatedV(v * 16.0F));
     }
 
-    public IVertexBuilder overlayCoords(int u, int v) {
+    public VertexConsumer overlayCoords(int u, int v) {
         return this._builder.overlayCoords(u, v);
     }
 
-    public IVertexBuilder uv2(int u, int v) {
+    public VertexConsumer uv2(int u, int v) {
         return this._builder.uv2(u, v);
     }
 
-    public IVertexBuilder normal(float x, float y, float z) {
+    public VertexConsumer normal(float x, float y, float z) {
         return this._builder.normal(x, y, z);
     }
 
@@ -65,7 +65,7 @@ public class ISpriteAwareVertexBuilder implements IVertexBuilder {
 
     //region internals
 
-    private final IVertexBuilder _builder;
+    private final VertexConsumer _builder;
     private final ISprite _sprite;
 
     //endregion

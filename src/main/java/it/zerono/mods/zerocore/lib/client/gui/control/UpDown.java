@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -30,8 +30,8 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -130,7 +130,7 @@ public class UpDown
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         this.paintUpButton(matrix);
         this.paintDownButton(matrix);
@@ -177,7 +177,7 @@ public class UpDown
         }
     }
 
-    protected void paintUpButton(final MatrixStack matrix) {
+    protected void paintUpButton(final PoseStack matrix) {
 
         final ButtonState state = this.getButtonState(Direction.AxisDirection.POSITIVE);
 
@@ -220,7 +220,7 @@ public class UpDown
         }
     }
 
-    protected void paintDownButton(final MatrixStack matrix) {
+    protected void paintDownButton(final PoseStack matrix) {
 
         final ButtonState state = this.getButtonState(Direction.AxisDirection.NEGATIVE);
 
@@ -263,7 +263,7 @@ public class UpDown
         }
     }
 
-    protected void paintUpButton(final MatrixStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
+    protected void paintUpButton(final PoseStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
                                  final Colour gradientDarkColour, final Colour borderLightColour,
                                  final Colour borderDarkColour) {
 
@@ -299,7 +299,7 @@ public class UpDown
                 x3 + 0.5, y3 + 1.0, x1 + 0.5, y1);
     }
 
-    protected void paintDownButton(final MatrixStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
+    protected void paintDownButton(final PoseStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
                                  final Colour gradientDarkColour, final Colour borderLightColour,
                                  final Colour borderDarkColour) {
 

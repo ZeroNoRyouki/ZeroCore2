@@ -22,8 +22,8 @@ import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.client.debug.VoxelShapeHighlighter;
 import it.zerono.mods.zerocore.lib.data.Flags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.Mod;
@@ -58,7 +58,7 @@ public class DebugHelper {
         return isFlagSet(DebugFlags.HighlighterInitialized);
     }
 
-    public static void addVoxelShapeHighlight(final World world, final BlockPos position, final VoxelShapeType type) {
+    public static void addVoxelShapeHighlight(final Level world, final BlockPos position, final VoxelShapeType type) {
 
         if (!isVoxelShapeHighlighterEnabled()) {
             throw new IllegalStateException("ZeroCore Voxel shape highlighting debug facility must be initialized before using it");
@@ -71,14 +71,14 @@ public class DebugHelper {
         s_blockToHighlight.computeIfAbsent(world, k -> Maps.newHashMap()).put(position, type);
     }
 
-    public static void removeVoxelShapeHighlight(final World world, final BlockPos position) {
+    public static void removeVoxelShapeHighlight(final Level world, final BlockPos position) {
 
         if (null != s_blockToHighlight) {
             s_blockToHighlight.getOrDefault(world, Collections.emptyMap()).remove(position);
         }
     }
 
-    public static VoxelShapeType getBlockVoxelShapeHighlight(final World world, final BlockPos position) {
+    public static VoxelShapeType getBlockVoxelShapeHighlight(final Level world, final BlockPos position) {
 
         if (!isVoxelShapeHighlighterEnabled()) {
             throw new IllegalStateException("ZeroCore Voxel shape highlighting debug facility must be initialized before using it");
@@ -118,7 +118,7 @@ public class DebugHelper {
     }
 
     private static Flags<DebugFlags> s_flags;
-    private static Map<World, Map<BlockPos, VoxelShapeType>> s_blockToHighlight;
+    private static Map<Level, Map<BlockPos, VoxelShapeType>> s_blockToHighlight;
 
     //endregion
 }

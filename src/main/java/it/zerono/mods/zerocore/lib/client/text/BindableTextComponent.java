@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.text;
 
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 
@@ -27,9 +27,9 @@ import java.util.function.Consumer;
 import static it.zerono.mods.zerocore.lib.CodeHelper.TEXT_EMPTY_LINE;
 
 public class BindableTextComponent<Value>
-        implements NonNullSupplier<ITextComponent>, Consumer<Value> {
+        implements NonNullSupplier<Component>, Consumer<Value> {
 
-    public BindableTextComponent(final NonNullFunction<Value, ITextComponent> builder) {
+    public BindableTextComponent(final NonNullFunction<Value, Component> builder) {
 
         this._builder = builder;
         this._cachedText = null;
@@ -39,7 +39,7 @@ public class BindableTextComponent<Value>
     //region NonNullSupplier
 
     @Override
-    public ITextComponent get() {
+    public Component get() {
 
         if (null == this._cachedText) {
             this._cachedText = null != this._cachedValue ? this._builder.apply(this._cachedValue) : TEXT_EMPTY_LINE;
@@ -61,8 +61,8 @@ public class BindableTextComponent<Value>
     //endregion
     //region internals
 
-    private final NonNullFunction<Value, ITextComponent> _builder;
-    private ITextComponent _cachedText;
+    private final NonNullFunction<Value, Component> _builder;
+    private Component _cachedText;
     private Value _cachedValue;
 
     //endregion

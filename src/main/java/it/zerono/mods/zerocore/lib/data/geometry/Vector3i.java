@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import com.mojang.math.Vector4f;
 
 public class Vector3i {
 
@@ -44,7 +44,7 @@ public class Vector3i {
         this(other.X, other.Y, other.Z);
     }
 
-    public static Vector3i from(final net.minecraft.util.math.vector.Vector3i data) {
+    public static Vector3i from(final net.minecraft.core.Vec3i data) {
         return new Vector3i(data.getX(), data.getY(), data.getZ());
     }
 
@@ -56,15 +56,15 @@ public class Vector3i {
         return new Vector3i((int)data.getX(), (int)data.getY(), (int)data.getZ());
     }
 
-    public static Vector3i from(final TileEntity data) {
+    public static Vector3i from(final BlockEntity data) {
         return from(data.getBlockPos());
     }
 
-    public static Vector3i syncDataFrom(CompoundNBT data) {
+    public static Vector3i syncDataFrom(CompoundTag data) {
         return new Vector3i(data.getInt("vx"), data.getInt("vy"), data.getInt("vz"));
     }
 
-    public CompoundNBT syncDataTo(CompoundNBT data) {
+    public CompoundTag syncDataTo(CompoundTag data) {
 
         data.putInt("vx", this.X);
         data.putInt("vy", this.Y);
@@ -72,8 +72,8 @@ public class Vector3i {
         return data;
     }
 
-    public net.minecraft.util.math.vector.Vector3i toVec3i() {
-        return new net.minecraft.util.math.vector.Vector3i(this.X, this.Y, this.Z);
+    public net.minecraft.core.Vec3i toVec3i() {
+        return new net.minecraft.core.Vec3i(this.X, this.Y, this.Z);
     }
 
     public BlockPos toBlockPos() {
@@ -92,7 +92,7 @@ public class Vector3i {
         return this.add((int)offset.X, (int)offset.Y, (int)offset.X);
     }
 
-    public Vector3i add(final net.minecraft.util.math.vector.Vector3i offset) {
+    public Vector3i add(final net.minecraft.core.Vec3i offset) {
         return this.add(offset.getX(), offset.getY(), offset.getZ());
     }
 
@@ -144,16 +144,16 @@ public class Vector3i {
         return this.divide(factor, factor, factor);
     }
 
-    public Vector3i divide(final net.minecraft.util.math.vector.Vector3i factor) {
+    public Vector3i divide(final net.minecraft.core.Vec3i factor) {
         return this.divide(factor.getX(), factor.getY(), factor.getZ());
     }
 
     public Vector3i ceil() {
-        return new Vector3i(MathHelper.ceil(this.X), MathHelper.ceil(this.Y), MathHelper.ceil(this.Z));
+        return new Vector3i(Mth.ceil(this.X), Mth.ceil(this.Y), Mth.ceil(this.Z));
     }
 
     public Vector3i floor() {
-        return new Vector3i(MathHelper.floor(this.X), MathHelper.floor(this.Y), MathHelper.floor(this.Z));
+        return new Vector3i(Mth.floor(this.X), Mth.floor(this.Y), Mth.floor(this.Z));
     }
 
     public Vector3i crossProduct(final Vector3i vec) {

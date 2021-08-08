@@ -22,10 +22,10 @@ import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModTileContainer;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -63,7 +63,7 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
      * @param name the command name
      * @param parameters the parameters for the command
      */
-    public void sendCommandToServer(final String name, final CompoundNBT parameters) {
+    public void sendCommandToServer(final String name, final CompoundTag parameters) {
         this.getTileEntity().sendCommandToServer(name, parameters);
     }
 
@@ -72,7 +72,7 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
      *
      * @param name the command name
      */
-    public void sendCommandToPlayer(final ServerPlayerEntity player, final String name) {
+    public void sendCommandToPlayer(final ServerPlayer player, final String name) {
         this.getTileEntity().sendCommandToPlayer(player, name);
     }
 
@@ -82,19 +82,19 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
      * @param name the command name
      * @param parameters the parameters for the command
      */
-    public void sendCommandToPlayer(final ServerPlayerEntity player, final String name, final CompoundNBT parameters) {
+    public void sendCommandToPlayer(final ServerPlayer player, final String name, final CompoundTag parameters) {
         this.getTileEntity().sendCommandToPlayer(player, name, parameters);
     }
 
     //endregion
     //region internals
 
-    protected ModTileContainerScreen(final C container, final PlayerInventory inventory, final ITextComponent title,
+    protected ModTileContainerScreen(final C container, final Inventory inventory, final Component title,
                                  final int guiWidth, final int guiHeight) {
         this(container, inventory, title, guiWidth, guiHeight, true);
     }
 
-    protected ModTileContainerScreen(final C container, final PlayerInventory inventory, final ITextComponent title,
+    protected ModTileContainerScreen(final C container, final Inventory inventory, final Component title,
                                  final int guiWidth, final int guiHeight, boolean singleWindow) {
 
         super(container, inventory, title, guiWidth, guiHeight, singleWindow);

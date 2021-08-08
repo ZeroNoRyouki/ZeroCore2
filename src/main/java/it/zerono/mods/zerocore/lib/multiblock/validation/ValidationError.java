@@ -44,9 +44,9 @@ package it.zerono.mods.zerocore.lib.multiblock.validation;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.LogicalSide;
 
 import javax.annotation.Nullable;
@@ -64,8 +64,8 @@ public class ValidationError implements IDebuggable {
         this._position = position;
     }
 
-    public ITextComponent getChatMessage() {
-        return new TranslationTextComponent(this._resourceKey, _parameters);
+    public Component getChatMessage() {
+        return new TranslatableComponent(this._resourceKey, _parameters);
     }
 
     @Nullable

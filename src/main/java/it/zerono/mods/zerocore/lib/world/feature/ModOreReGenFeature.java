@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.world.feature;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.world.gen.Heightmap;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 public class ModOreReGenFeature
     extends ModOreFeature {
@@ -29,7 +29,7 @@ public class ModOreReGenFeature
     }
 
     @Override
-    protected Heightmap.Type getHeightmapType() {
-        return Heightmap.Type.OCEAN_FLOOR;
+    protected Heightmap.Types getHeightmapType() {
+        return Heightmap.Types.OCEAN_FLOOR;
     }
 }

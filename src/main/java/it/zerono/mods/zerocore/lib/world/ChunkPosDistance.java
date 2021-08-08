@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.world;
 
 import com.google.common.collect.Sets;
 import it.zerono.mods.zerocore.lib.data.AreaShape;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.Set;
 

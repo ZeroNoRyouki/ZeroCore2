@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.client.particle;
 
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,7 +28,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public abstract class SpiralParticle
         extends Particle {
 
-    protected SpiralParticle(ClientWorld world, double centerX, double centerY, double centerZ, double radius, int lifeInTicks) {
+    protected SpiralParticle(ClientLevel world, double centerX, double centerY, double centerZ, double radius, int lifeInTicks) {
 
         super(world, centerX + radius * /*MathHelper.cos(0)*/1, centerY, centerZ + radius * /*MathHelper.sin(0)*/0);
         this._angle = 0;
@@ -54,8 +54,8 @@ public abstract class SpiralParticle
         }
 
         final float radiants = (float)(this._angle * Math.PI / 180.0);
-        final double newX = this._centerX + this._radius * MathHelper.cos(radiants);
-        final double newZ = this._centerZ + this._radius * MathHelper.sin(radiants);
+        final double newX = this._centerX + this._radius * Mth.cos(radiants);
+        final double newZ = this._centerZ + this._radius * Mth.sin(radiants);
 
         this.xd = newX - this.x;
         this.zd = newZ - this.z;

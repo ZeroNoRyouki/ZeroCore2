@@ -19,11 +19,11 @@
 package it.zerono.mods.zerocore.lib.recipe;
 
 import com.google.gson.JsonElement;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public interface ISerializableRecipe {
 
-    void serializeTo(PacketBuffer buffer);
+    void serializeTo(FriendlyByteBuf buffer);
 
     JsonElement serializeTo();
 }

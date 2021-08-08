@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
 
@@ -30,7 +30,7 @@ public final class DebuggableHelper {
         if (stack.isEmpty()) {
             messages.addUnlocalized("ItemStack: EMPTY");
         } else {
-            messages.add(new StringTextComponent("ItemStack: [")
+            messages.add(new TextComponent("ItemStack: [")
                     .append(stack.getHoverName())
                     .append("] ")
                     .append(Integer.toString(stack.getCount()))
@@ -44,7 +44,7 @@ public final class DebuggableHelper {
         if (stack.isEmpty()) {
             messages.addUnlocalized("FluidStack: EMPTY");
         } else {
-            messages.add(new StringTextComponent("FluidStack: [")
+            messages.add(new TextComponent("FluidStack: [")
                     .append(stack.getDisplayName())
                     .append("] ")
                     .append(Integer.toString(stack.getAmount())));
@@ -59,7 +59,7 @@ public final class DebuggableHelper {
 
         for (int i = 0; i < slots; ++i) {
             messages.add(handler.getStackInSlot(i), DebuggableHelper::getDebugMessagesFor,
-                    new StringTextComponent(String.format("[%d]", i)));
+                    new TextComponent(String.format("[%d]", i)));
         }
     }
 }

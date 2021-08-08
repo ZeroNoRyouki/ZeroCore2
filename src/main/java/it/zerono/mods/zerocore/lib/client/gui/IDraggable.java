@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 public interface IDraggable {
 
@@ -41,5 +41,5 @@ public interface IDraggable {
      * @param zLevel
      * @param paintState
      */
-    void onPaint(MatrixStack matrix, int x, int y, float zLevel, PaintState paintState);
+    void onPaint(PoseStack matrix, int x, int y, float zLevel, PaintState paintState);
 }

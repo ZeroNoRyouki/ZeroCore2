@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.filter;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public interface IFilterComponent extends INBTSerializable<CompoundNBT> {
+public interface IFilterComponent extends INBTSerializable<CompoundTag> {
 
     ResourceLocation getComponentId();
 }

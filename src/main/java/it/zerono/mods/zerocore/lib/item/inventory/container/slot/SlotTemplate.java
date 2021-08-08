@@ -23,8 +23,8 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneri
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGhostInput;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGhostOutput;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 import java.util.EnumSet;

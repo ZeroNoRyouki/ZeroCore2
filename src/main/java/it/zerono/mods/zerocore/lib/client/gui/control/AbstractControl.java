@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
@@ -31,11 +31,11 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -272,7 +272,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public List<ITextComponent> getTooltips() {
+    public List<Component> getTooltips() {
         return this._tooltipsLines;
     }
 
@@ -282,7 +282,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void paintToolTips(final MatrixStack matrix, int screenX, int screenY) {
+    public void paintToolTips(final PoseStack matrix, int screenX, int screenY) {
 
         final RichText rich = this.getTooltipsRichText();
 
@@ -319,7 +319,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void setTooltips(final List<ITextComponent> lines) {
+    public void setTooltips(final List<Component> lines) {
 
         this._tooltipsLines = lines.isEmpty() ? Collections.emptyList() : lines;
         this._tooltipsObjects = Collections.emptyList();
@@ -327,7 +327,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void setTooltips(final List<ITextComponent> lines, final List<Object> objects) {
+    public void setTooltips(final List<Component> lines, final List<Object> objects) {
 
         this._tooltipsLines = lines.isEmpty() ? Collections.emptyList() : lines;
         this._tooltipsObjects = lines.isEmpty() || objects.isEmpty() ? Collections.emptyList() : objects;
@@ -447,16 +447,16 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this._backgroundPainter.accept(this, matrix);
     }
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
     }
 
     @Override
-    public void onPaintOverlay(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
     }
 
     @Override
@@ -465,7 +465,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void onPaintDebugFrame(final MatrixStack matrix, final Colour colour) {
+    public void onPaintDebugFrame(final PoseStack matrix, final Colour colour) {
         this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
     }
 
@@ -480,7 +480,7 @@ public abstract class AbstractControl
     //endregion
     //region paint helpers
 
-    protected void setCustomBackgroundHandler(final BiConsumer<AbstractControl, MatrixStack> handler) {
+    protected void setCustomBackgroundHandler(final BiConsumer<AbstractControl, PoseStack> handler) {
         this._backgroundPainter = Preconditions.checkNotNull(handler);
     }
 
@@ -505,14 +505,14 @@ public abstract class AbstractControl
                 return ((AbstractControl)this._tooltipsSource).getTooltipsRichText();
             }
 
-            final List<ITextComponent> lines = this._tooltipsSource.getTooltips();
+            final List<Component> lines = this._tooltipsSource.getTooltips();
 
             return lines.isEmpty() ? RichText.EMPTY : buildTooltipsRichText(lines, this._tooltipsSource.getTooltipsObjects());
         }
 
         if (null == this._tooltipsRichText) {
 
-            final List<ITextComponent> lines = this.getTooltips();
+            final List<Component> lines = this.getTooltips();
 
             if (!lines.isEmpty()) {
                 this._tooltipsRichText = buildTooltipsRichText(lines, this.getTooltipsObjects());
@@ -522,7 +522,7 @@ public abstract class AbstractControl
         return null != this._tooltipsRichText ? this._tooltipsRichText : RichText.EMPTY;
     }
 
-    private static RichText buildTooltipsRichText(final List<ITextComponent> lines, final List<Object> objects) {
+    private static RichText buildTooltipsRichText(final List<Component> lines, final List<Object> objects) {
 
         return RichText.builder()
                 .textLines(lines)
@@ -566,7 +566,7 @@ public abstract class AbstractControl
     }
 
     protected void playSound(final SoundEvent sound) {
-        Minecraft.getInstance().getSoundManager().play(SimpleSound.forUI(sound, 1.0F));
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1.0F));
     }
 
     protected boolean shouldBlend() {
@@ -636,16 +636,16 @@ public abstract class AbstractControl
 ////        ModRenderHelper.paintSolidRect(screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(), colour);
 ////    }
 
-    protected void paintSolidRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour colour) {
+    protected void paintSolidRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour colour) {
         ModRenderHelper.paintSolidRect(matrix, this.controlToScreen(x1, y1), this.controlToScreen(x2, y2), (int)this.getZLevel(), colour);
     }
 
 
-    protected void paintVerticalGradientRect(final MatrixStack matrix, final Colour startColour, final Colour endColour) {
+    protected void paintVerticalGradientRect(final PoseStack matrix, final Colour startColour, final Colour endColour) {
         this.paintVerticalGradientRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, startColour, endColour);
     }
 
-    protected void paintVerticalGradientRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2,
+    protected void paintVerticalGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2,
                                              final Colour startColour, final Colour endColour) {
 
         final Point screenXY1 = this.controlToScreen(x1, y1);
@@ -655,11 +655,11 @@ public abstract class AbstractControl
                 startColour, endColour);
     }
 
-    protected void paintHorizontalGradientRect(final MatrixStack matrix, final Colour startColour, final Colour endColour) {
+    protected void paintHorizontalGradientRect(final PoseStack matrix, final Colour startColour, final Colour endColour) {
         this.paintHorizontalGradientRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, startColour, endColour);
     }
 
-    protected void paintHorizontalGradientRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2,
+    protected void paintHorizontalGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2,
                                              final Colour startColour, final Colour endColour) {
 
         final Point screenXY1 = this.controlToScreen(x1, y1);
@@ -680,7 +680,7 @@ public abstract class AbstractControl
      * @param height the height of the rectangle
      * @param colour the colour to be used to paint the perimeter
      */
-    protected void paintHollowRect(final MatrixStack matrix, final int x, final int y, final int width, final int height,
+    protected void paintHollowRect(final PoseStack matrix, final int x, final int y, final int width, final int height,
                                    final Colour colour) {
         ModRenderHelper.paintHollowRect(matrix, this.controlToScreen(x, y), width, height, (int)this.getZLevel(), colour);
     }
@@ -727,7 +727,7 @@ public abstract class AbstractControl
      * @param length    the length of the line
      * @param colour    the colour to be used to paint the line
      */
-    protected void paintHorizontalLine(final MatrixStack matrix, final int x, final int y, final int length, final Colour colour) {
+    protected void paintHorizontalLine(final PoseStack matrix, final int x, final int y, final int length, final Colour colour) {
         ModRenderHelper.paintHorizontalLine(matrix, this.controlToScreen(x, y), length, (int)this.getZLevel(), colour);
     }
 
@@ -743,7 +743,7 @@ public abstract class AbstractControl
      * @param colour    the colour to be used to paint the line
      */
     @SuppressWarnings("unused")
-    protected void paintVerticalLine(final MatrixStack matrix, final int x, final int y, final int length, final Colour colour) {
+    protected void paintVerticalLine(final PoseStack matrix, final int x, final int y, final int length, final Colour colour) {
         ModRenderHelper.paintVerticalLine(matrix, this.controlToScreen(x, y), length, (int)this.getZLevel(), colour);
     }
 
@@ -781,7 +781,7 @@ public abstract class AbstractControl
      * @param minU      the starting U coordinates of the texture
      * @param minV      the starting V coordinates of the texture
      */
-    protected void paintTexturedRect(final MatrixStack matrix, final int x, final int y, final int width, final int height,
+    protected void paintTexturedRect(final PoseStack matrix, final int x, final int y, final int width, final int height,
                                      final int minU, final int minV) {
 
         final Point screenXY = this.controlToScreen(x, y);
@@ -821,7 +821,7 @@ public abstract class AbstractControl
      * @param x starting point on the X axis
      * @param y starting point on the Y axis
      */
-    protected void paintSprite(final MatrixStack matrix, final ISprite sprite, final int x, final int y) {
+    protected void paintSprite(final PoseStack matrix, final ISprite sprite, final int x, final int y) {
         ModRenderHelper.paintSprite(matrix, sprite, this.controlToScreen(x, y), (int)this.getZLevel(), sprite.getWidth(), sprite.getHeight());
     }
 
@@ -837,7 +837,7 @@ public abstract class AbstractControl
      * @param width the width of the area to paint
      * @param height the height of the area to paint
      */
-    protected void paintSprite(final MatrixStack matrix, final ISprite sprite, final int x, final int y,
+    protected void paintSprite(final PoseStack matrix, final ISprite sprite, final int x, final int y,
                                final int width, final int height) {
         ModRenderHelper.paintSprite(matrix, sprite, this.controlToScreen(x, y), (int)this.getZLevel(), width, height);
     }
@@ -937,7 +937,7 @@ public abstract class AbstractControl
 //                this.getZLevel(), progress, sprite, this.shouldBlend(), bufferOnly);
 //    }
 
-    protected void paintButton3D(final MatrixStack matrix, final int x, final int y, final int width, final int height,
+    protected void paintButton3D(final PoseStack matrix, final int x, final int y, final int width, final int height,
                                  final Colour darkOutlineColour, final Colour gradientLightColour, final Colour gradientDarkColour,
                                  final Colour borderLightColour, final Colour borderDarkColour) {
         ModRenderHelper.paintButton3D(matrix, this.controlToScreen(x, y), width, height, (int)this.getZLevel(),
@@ -956,7 +956,7 @@ public abstract class AbstractControl
 //                darkOutlineColour, gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
 //    }
 
-    protected void paint3DSunkenBox(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour gradientLightColour,
+    protected void paint3DSunkenBox(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour gradientLightColour,
                                     final Colour gradientDarkColour, final Colour borderLightColour, final Colour borderDarkColour) {
 
         final Point screenXY1 = this.controlToScreen(x1, y1);
@@ -966,11 +966,11 @@ public abstract class AbstractControl
                 gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
     }
 
-    protected void paintItemStack(final MatrixStack matrix, final ItemStack stack, final boolean highlight) {
+    protected void paintItemStack(final PoseStack matrix, final ItemStack stack, final boolean highlight) {
         this.paintItemStack(matrix, stack, 0, 0, highlight);
     }
 
-    protected void paintItemStack(final MatrixStack matrix, final ItemStack stack, final int x, final int y, final boolean highlight) {
+    protected void paintItemStack(final PoseStack matrix, final ItemStack stack, final int x, final int y, final boolean highlight) {
 
         final Point screenXY = this.controlToScreen(x, y);
 
@@ -1087,9 +1087,9 @@ public abstract class AbstractControl
     private Dimension _desiredDimension;
     private Padding _padding;
     private ILayoutEngine.ILayoutEngineHint _layoutHint;
-    private BiConsumer<AbstractControl, MatrixStack> _backgroundPainter;
+    private BiConsumer<AbstractControl, PoseStack> _backgroundPainter;
     private int _tabOrder;
-    private List<ITextComponent> _tooltipsLines;
+    private List<Component> _tooltipsLines;
     private List<Object> _tooltipsObjects;
     private RichText _tooltipsRichText;
     private IControl _tooltipsSource;

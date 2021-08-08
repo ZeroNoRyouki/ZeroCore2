@@ -20,20 +20,20 @@ package it.zerono.mods.zerocore.lib.datagen;
 
 import com.google.common.base.Preconditions;
 import joptsimple.internal.Strings;
-import net.minecraft.loot.LootParameterSet;
-import net.minecraft.loot.LootParameterSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
 public enum LootTableType {
 
-    AdvancementReward(LootParameterSets.ADVANCEMENT_REWARD, "advancement_reward"),
-    Block(LootParameterSets.BLOCK, "blocks"),
-    Chest(LootParameterSets.CHEST, "chests"),
-    Entity(LootParameterSets.ENTITY, "entities"),
-    Fishing(LootParameterSets.FISHING, "gameplay/fishing"),
-    Generic(LootParameterSets.ALL_PARAMS, "gameplay"),
-    Gift(LootParameterSets.GIFT, "gameplay/gift");
+    AdvancementReward(LootContextParamSets.ADVANCEMENT_REWARD, "advancement_reward"),
+    Block(LootContextParamSets.BLOCK, "blocks"),
+    Chest(LootContextParamSets.CHEST, "chests"),
+    Entity(LootContextParamSets.ENTITY, "entities"),
+    Fishing(LootContextParamSets.FISHING, "gameplay/fishing"),
+    Generic(LootContextParamSets.ALL_PARAMS, "gameplay"),
+    Gift(LootContextParamSets.GIFT, "gameplay/gift");
 
-    LootTableType(final LootParameterSet parameterSet, final String subFolderName) {
+    LootTableType(final LootContextParamSet parameterSet, final String subFolderName) {
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(subFolderName));
         this._parameters = parameterSet;
@@ -44,13 +44,13 @@ public enum LootTableType {
         return this._subFolder;
     }
 
-    public LootParameterSet getParameters() {
+    public LootContextParamSet getParameters() {
         return this._parameters;
     }
 
     //region internals
 
-    private final LootParameterSet _parameters;
+    private final LootContextParamSet _parameters;
     private final String _subFolder;
 
     //endregion

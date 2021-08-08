@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.network;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 /**
@@ -31,7 +31,7 @@ public interface IModMessage {
      *
      * @param buffer the {@link PacketBuffer} to encode your data into
      */
-    void encodeTo(PacketBuffer buffer);
+    void encodeTo(FriendlyByteBuf buffer);
 
     /**
      * Process the data received from the network.

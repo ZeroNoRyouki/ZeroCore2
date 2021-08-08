@@ -25,9 +25,9 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.recipe.AbstractOneToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
@@ -36,14 +36,14 @@ import java.util.function.Function;
 public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient extends IRecipeIngredient<Ingredient>,
                                       RecipeResult extends IRecipeResult<Result>,
                                       Recipe extends AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
-        extends ForgeRegistryEntry<IRecipeSerializer<?>>
-        implements IRecipeSerializer<Recipe> {
+        extends ForgeRegistryEntry<RecipeSerializer<?>>
+        implements RecipeSerializer<Recipe> {
 
     public OneToOneRecipeSerializer(final AbstractOneToOneRecipe.IRecipeFactory<Ingredient, Result, RecipeIngredient, RecipeResult, Recipe> recipeFactory,
                                     final Function<JsonElement, RecipeIngredient> jsonIngredientFactory,
-                                    final Function<PacketBuffer, RecipeIngredient> packetIngredientFactory,
+                                    final Function<FriendlyByteBuf, RecipeIngredient> packetIngredientFactory,
                                     final Function<JsonElement, RecipeResult> jsonResultFactory,
-                                    final Function<PacketBuffer, RecipeResult> packetResultFactory) {
+                                    final Function<FriendlyByteBuf, RecipeResult> packetResultFactory) {
 
         this._recipeFactory = recipeFactory;
         this._jsonIngredientFactory = jsonIngredientFactory;
@@ -65,7 +65,7 @@ public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient exten
 
     @Nullable
     @Override
-    public Recipe fromNetwork(final ResourceLocation recipeId, final PacketBuffer buffer) {
+    public Recipe fromNetwork(final ResourceLocation recipeId, final FriendlyByteBuf buffer) {
 
         final RecipeIngredient ingredient = this._packetIngredientFactory.apply(buffer);
         final RecipeResult result = this._packetResultFactory.apply(buffer);
@@ -74,7 +74,7 @@ public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient exten
     }
 
     @Override
-    public void toNetwork(final PacketBuffer buffer, final Recipe recipe) {
+    public void toNetwork(final FriendlyByteBuf buffer, final Recipe recipe) {
 
         recipe.getIngredient().serializeTo(buffer);
         recipe.getResult().serializeTo(buffer);
@@ -94,9 +94,9 @@ public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient exten
 
     private final AbstractOneToOneRecipe.IRecipeFactory<Ingredient, Result, RecipeIngredient, RecipeResult, Recipe> _recipeFactory;
     private final Function<JsonElement, RecipeIngredient> _jsonIngredientFactory;
-    private final Function<PacketBuffer, RecipeIngredient> _packetIngredientFactory;
+    private final Function<FriendlyByteBuf, RecipeIngredient> _packetIngredientFactory;
     private final Function<JsonElement, RecipeResult> _jsonResultFactory;
-    private final Function<PacketBuffer, RecipeResult> _packetResultFactory;
+    private final Function<FriendlyByteBuf, RecipeResult> _packetResultFactory;
 
     //endregion
 }

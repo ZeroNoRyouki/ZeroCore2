@@ -20,9 +20,9 @@ package it.zerono.mods.zerocore.lib.data.nbt;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.ListTag;
 import net.minecraftforge.common.util.Constants;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.util.function.Function;
 
 public final class NBTHelper {
 
-    public static final CompoundNBT EMPTY_COMPOUND = new CompoundNBT();
+    public static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
 
     /**
      * Load an CompoundNBT from the given file
@@ -43,12 +43,12 @@ public final class NBTHelper {
      * @param file the file to read from
      * @return the CompoundNBT read from the file or null if, for whatever reason, the operation fails
      */
-    public static Optional<CompoundNBT> nbtFrom(final File file) {
+    public static Optional<CompoundTag> nbtFrom(final File file) {
 
         if (file.exists()) {
 
             try (final FileInputStream stream = new FileInputStream(file)) {
-                return Optional.of(CompressedStreamTools.readCompressed(stream));
+                return Optional.of(NbtIo.readCompressed(stream));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -64,11 +64,11 @@ public final class NBTHelper {
      * @param data the data to store in the file
      * @return true if the operation succeeded, false otherwise
      */
-    public static boolean nbtTo(final File file, final CompoundNBT data) {
+    public static boolean nbtTo(final File file, final CompoundTag data) {
 
         try (final FileOutputStream stream = new FileOutputStream(file)) {
 
-            CompressedStreamTools.writeCompressed(data, stream);
+            NbtIo.writeCompressed(data, stream);
             return true;
 
         } catch (Exception ex) {
@@ -86,7 +86,7 @@ public final class NBTHelper {
      * @param value the value to store
      * @return nbt
      */
-    public static <E extends Enum<E>> CompoundNBT nbtSetEnum(CompoundNBT nbt, String key, E value) {
+    public static <E extends Enum<E>> CompoundTag nbtSetEnum(CompoundTag nbt, String key, E value) {
 
         nbt.putString(key, value.name());
         return nbt;
@@ -103,7 +103,7 @@ public final class NBTHelper {
      * @return The Enum value contained in the NBT tag
      * @throws IllegalArgumentException if the value contained in the NBT tag is not a valid value for the provided Enum class
      */
-    public static <E extends Enum<E>> E nbtGetEnum(CompoundNBT nbt, String key, Class<E> enumClass) throws IllegalArgumentException {
+    public static <E extends Enum<E>> E nbtGetEnum(CompoundTag nbt, String key, Class<E> enumClass) throws IllegalArgumentException {
         return E.valueOf(enumClass, nbt.getString(key));
     }
 
@@ -118,7 +118,7 @@ public final class NBTHelper {
      * @return The Enum value contained in the NBT tag
      * @throws IllegalArgumentException if the value contained in the NBT tag is not a valid value for the provided Enum class
      */
-    public static <E extends Enum<E>> E nbtGetEnum(CompoundNBT nbt, String key, Function<String, E> enumFactory, E defaultValue) {
+    public static <E extends Enum<E>> E nbtGetEnum(CompoundTag nbt, String key, Function<String, E> enumFactory, E defaultValue) {
 
         if (nbt.contains(key)) {
 
@@ -141,12 +141,12 @@ public final class NBTHelper {
      * @return nbt
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <E extends Enum<E>> CompoundNBT nbtSetEnumSet(CompoundNBT nbt, String key, EnumSet<E> value) {
+    public static <E extends Enum<E>> CompoundTag nbtSetEnumSet(CompoundTag nbt, String key, EnumSet<E> value) {
 
-        final ListNBT tagList = new ListNBT();
+        final ListTag tagList = new ListTag();
 
         for (final E enumValue : value) {
-            tagList.add(NBTHelper.nbtSetEnum(new CompoundNBT(), "enum", enumValue));
+            tagList.add(NBTHelper.nbtSetEnum(new CompoundTag(), "enum", enumValue));
         }
 
         nbt.put(key, tagList);
@@ -164,9 +164,9 @@ public final class NBTHelper {
      * @return The EnumSet contained in the NBT tag
      * @throws IllegalArgumentException if one the Enum values contained in the NBT tag is not a valid value for the Enum class
      */
-    public static <E extends Enum<E>> EnumSet<E> nbtGetEnumSet(CompoundNBT nbt, String key, Class<E> enumClass) throws IllegalArgumentException {
+    public static <E extends Enum<E>> EnumSet<E> nbtGetEnumSet(CompoundTag nbt, String key, Class<E> enumClass) throws IllegalArgumentException {
 
-        final ListNBT tagList = nbt.getList(key, Constants.NBT.TAG_STRING);
+        final ListTag tagList = nbt.getList(key, Constants.NBT.TAG_STRING);
         final List<E> valueList = Lists.newArrayList();
 
         for (int i = 0; i < tagList.size(); ++i) {

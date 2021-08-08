@@ -22,12 +22,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -56,7 +56,7 @@ public final class FluidHelper {
      * @param action        if the action should be executed or only simulated
      * @return the fluidStack that was transferred from the source to the destination
      */
-    public static FluidStack tryFluidTransfer(IFluidHandler source, World world, BlockPos destinationPosition,
+    public static FluidStack tryFluidTransfer(IFluidHandler source, Level world, BlockPos destinationPosition,
                                               Direction fillDirection, int maxAmount, IFluidHandler.FluidAction action) {
         return FluidUtil.getFluidHandler(world, destinationPosition, fillDirection)
                 .map(destination -> FluidUtil.tryFluidTransfer(destination, source, maxAmount, action.execute()))
@@ -69,7 +69,7 @@ public final class FluidHelper {
      * @param nbt an NBT Tag Compound containing the data of the stack to create
      * @return the newly create stack
      */
-    public static FluidStack stackFrom(final CompoundNBT nbt) {
+    public static FluidStack stackFrom(final CompoundTag nbt) {
         return FluidStack.loadFluidStackFromNBT(nbt);
     }
 
@@ -79,8 +79,8 @@ public final class FluidHelper {
      * @param stack the stack to serialize
      * @return the serialized NBT data
      */
-    public static CompoundNBT stackToNBT(final FluidStack stack) {
-        return stack.writeToNBT(new CompoundNBT());
+    public static CompoundTag stackToNBT(final FluidStack stack) {
+        return stack.writeToNBT(new CompoundTag());
     }
 
     /**

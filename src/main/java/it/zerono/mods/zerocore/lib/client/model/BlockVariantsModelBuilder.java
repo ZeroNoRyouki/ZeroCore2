@@ -22,9 +22,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
 
@@ -137,13 +137,13 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
     @Override
     public void onBakeModels(final ModelBakeEvent event) {
 
-        final Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
+        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModelRegistry();
         final Set<Integer> ids = this._modelToBeReplaced.keySet();
         final BlockVariantsModel model = this.createReplacementModel(ids.size(), this._ambientOcclusion, this._guid3D, this._builtInRenderer);
 
         for (final int id : ids) {
 
-            final List<IBakedModel> variants = this._variants.getOrDefault(id, Collections.emptyList()).stream()
+            final List<BakedModel> variants = this._variants.getOrDefault(id, Collections.emptyList()).stream()
                     .map(location -> lookupModel(modelRegistry, location))
                     .collect(Collectors.toList());
 
@@ -155,7 +155,7 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
     //endregion
     //region internals
 
-    private static IBakedModel lookupModel(final Map<ResourceLocation, IBakedModel> modelRegistry, final ResourceLocation location) {
+    private static BakedModel lookupModel(final Map<ResourceLocation, BakedModel> modelRegistry, final ResourceLocation location) {
 
         if (modelRegistry.containsKey(location)) {
 

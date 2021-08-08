@@ -18,44 +18,44 @@
 
 package it.zerono.mods.zerocore.lib.client.render.buffer;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 public class VertexBuilderWrapper
-    implements IVertexBuilder {
+    implements VertexConsumer {
 
-    protected VertexBuilderWrapper(final IVertexBuilder originalBuilder) {
+    protected VertexBuilderWrapper(final VertexConsumer originalBuilder) {
         this._builder = originalBuilder;
     }
 
     //region IVertexBuilder
 
     @Override
-    public IVertexBuilder vertex(final double x, final double y, final double z) {
+    public VertexConsumer vertex(final double x, final double y, final double z) {
         return this._builder.vertex(x, y, z);
     }
 
     @Override
-    public IVertexBuilder color(final int red, final int green, final int blue, final int alpha) {
+    public VertexConsumer color(final int red, final int green, final int blue, final int alpha) {
         return this._builder.color(red, green, blue, alpha);
     }
 
     @Override
-    public IVertexBuilder uv(final float u, final float v) {
+    public VertexConsumer uv(final float u, final float v) {
         return this._builder.uv(u, v);
     }
 
     @Override
-    public IVertexBuilder overlayCoords(final int u, final int v) {
+    public VertexConsumer overlayCoords(final int u, final int v) {
         return this._builder.overlayCoords(u, v);
     }
 
     @Override
-    public IVertexBuilder uv2(final int u, final int v) {
+    public VertexConsumer uv2(final int u, final int v) {
         return this._builder.uv2(u, v);
     }
 
     @Override
-    public IVertexBuilder normal(final float x, final float y, final float z) {
+    public VertexConsumer normal(final float x, final float y, final float z) {
         return this._builder.normal(x, y, z);
     }
 
@@ -67,7 +67,7 @@ public class VertexBuilderWrapper
     //endregion
     //region internals
 
-    protected final IVertexBuilder _builder;
+    protected final VertexConsumer _builder;
 
     //endregion
 }

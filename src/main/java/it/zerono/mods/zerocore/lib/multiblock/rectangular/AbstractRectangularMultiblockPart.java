@@ -46,16 +46,16 @@ import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public abstract class AbstractRectangularMultiblockPart<Controller extends AbstractRectangularMultiblockController<Controller>>
         extends AbstractMultiblockPart<Controller> {
 
-    public AbstractRectangularMultiblockPart(final TileEntityType<?> type) {
+    public AbstractRectangularMultiblockPart(final BlockEntityType<?> type) {
 
         super(type);
         this._position = PartPosition.Unknown;
@@ -91,7 +91,7 @@ public abstract class AbstractRectangularMultiblockPart<Controller extends Abstr
         final Block blockType = this.getBlockType();
         final BlockFacings facings = this.getOutwardFacings();
         final BlockPos position = this.getWorldPosition();
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
             for (final Direction facing : CodeHelper.DIRECTIONS) {

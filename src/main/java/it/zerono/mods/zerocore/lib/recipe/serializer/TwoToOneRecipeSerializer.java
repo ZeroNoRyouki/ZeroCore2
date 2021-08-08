@@ -25,9 +25,9 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.recipe.AbstractTwoToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
@@ -41,16 +41,16 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
                                         Recipe extends AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result,
                                                                                 RecipeIngredient1, RecipeIngredient2,
                                                                                 RecipeResult>>
-        extends ForgeRegistryEntry<IRecipeSerializer<?>>
-        implements IRecipeSerializer<Recipe> {
+        extends ForgeRegistryEntry<RecipeSerializer<?>>
+        implements RecipeSerializer<Recipe> {
 
     public TwoToOneRecipeSerializer(final AbstractTwoToOneRecipe.IRecipeFactory<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe> recipeFactory,
                                     final Function<JsonElement, RecipeIngredient1> jsonIngredient1Factory,
-                                    final Function<PacketBuffer, RecipeIngredient1> packetIngredient1Factory,
+                                    final Function<FriendlyByteBuf, RecipeIngredient1> packetIngredient1Factory,
                                     final Function<JsonElement, RecipeIngredient2> jsonIngredient2Factory,
-                                    final Function<PacketBuffer, RecipeIngredient2> packetIngredient2Factory,
+                                    final Function<FriendlyByteBuf, RecipeIngredient2> packetIngredient2Factory,
                                     final Function<JsonElement, RecipeResult> jsonResultFactory,
-                                    final Function<PacketBuffer, RecipeResult> packetResultFactory,
+                                    final Function<FriendlyByteBuf, RecipeResult> packetResultFactory,
                                     final IntFunction<String> jsonIngredientsLabelsSupplier) {
 
         this._recipeFactory = recipeFactory;
@@ -77,7 +77,7 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
 
     @Nullable
     @Override
-    public Recipe fromNetwork(final ResourceLocation recipeId, final PacketBuffer buffer) {
+    public Recipe fromNetwork(final ResourceLocation recipeId, final FriendlyByteBuf buffer) {
 
         final RecipeIngredient1 ingredient1 = this._packetIngredient1Factory.apply(buffer);
         final RecipeIngredient2 ingredient2 = this._packetIngredient2Factory.apply(buffer);
@@ -87,7 +87,7 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
     }
 
     @Override
-    public void toNetwork(final PacketBuffer buffer, final Recipe recipe) {
+    public void toNetwork(final FriendlyByteBuf buffer, final Recipe recipe) {
 
         recipe.getIngredient1().serializeTo(buffer);
         recipe.getIngredient2().serializeTo(buffer);
@@ -109,11 +109,11 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
 
     private final AbstractTwoToOneRecipe.IRecipeFactory<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe> _recipeFactory;
     private final Function<JsonElement, RecipeIngredient1> _jsonIngredient1Factory;
-    private final Function<PacketBuffer, RecipeIngredient1> _packetIngredient1Factory;
+    private final Function<FriendlyByteBuf, RecipeIngredient1> _packetIngredient1Factory;
     private final Function<JsonElement, RecipeIngredient2> _jsonIngredient2Factory;
-    private final Function<PacketBuffer, RecipeIngredient2> _packetIngredient2Factory;
+    private final Function<FriendlyByteBuf, RecipeIngredient2> _packetIngredient2Factory;
     private final Function<JsonElement, RecipeResult> _jsonResultFactory;
-    private final Function<PacketBuffer, RecipeResult> _packetResultFactory;
+    private final Function<FriendlyByteBuf, RecipeResult> _packetResultFactory;
 
     private final IntFunction<String> _jsonIngredientsLabelsSupplier;
 

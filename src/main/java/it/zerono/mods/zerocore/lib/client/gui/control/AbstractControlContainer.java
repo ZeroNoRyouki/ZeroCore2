@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -28,7 +28,7 @@ import it.zerono.mods.zerocore.lib.client.gui.validator.IControlValidator;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -91,7 +91,7 @@ public abstract class AbstractControlContainer
     }
 
     @Override
-    public void validate(final Consumer<ITextComponent> errorReport) {
+    public void validate(final Consumer<Component> errorReport) {
 
         this._validator.validate(this, errorReport);
         this.forEach(control -> {
@@ -123,7 +123,7 @@ public abstract class AbstractControlContainer
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isLayoutRunRequested()) {
             this.runLayoutEngine();

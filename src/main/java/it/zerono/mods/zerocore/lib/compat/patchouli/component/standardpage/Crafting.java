@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage;
 
-import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import vazkii.patchouli.client.book.page.PageCrafting;
 
 public class Crafting
-        extends AbstractRecipePage<IRecipe<?>, PageCrafting> {
+        extends AbstractRecipePage<Recipe<?>, PageCrafting> {
 
     protected Crafting() {
         super(new PageCrafting());

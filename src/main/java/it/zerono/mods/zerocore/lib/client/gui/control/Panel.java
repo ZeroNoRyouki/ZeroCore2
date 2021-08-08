@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 
@@ -37,7 +37,7 @@ public class Panel
         super(gui, name);
     }
 
-    public void setCustomBackgroundPainter(final BiConsumer<AbstractControl, MatrixStack> painter) {
+    public void setCustomBackgroundPainter(final BiConsumer<AbstractControl, PoseStack> painter) {
         this.setCustomBackgroundHandler(Objects.requireNonNull(painter));
     }
 }

@@ -51,11 +51,11 @@ import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.Collections;
@@ -65,6 +65,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 /**
  * Base logic class for Multiblock-connected tile entities. Most multiblock machines
@@ -77,7 +79,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
     //region AbstractMultiblockPart
 
-	public AbstractMultiblockPart(final TileEntityType<?> type) {
+	public AbstractMultiblockPart(final BlockEntityType<?> type) {
 
 		super(type);
 		this._controller = null;
@@ -87,9 +89,9 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         this._positionHash = this.worldPosition.asLong();
 	}
 
-	public World getPartWorldOrFail() {
+	public Level getPartWorldOrFail() {
 
-	    final World world = this.getLevel();
+	    final Level world = this.getLevel();
 
 	    if (null == world) {
 	        throw new IllegalStateException("Found a multiblock part without a world!");
@@ -155,22 +157,22 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
-    public Optional<World> getPartWorld() {
+    public Optional<Level> getPartWorld() {
         return Optional.ofNullable(this.getLevel());
     }
 
     @Override
-    public <T> T mapPartWorld(Function<World, T> mapper, T defaultValue) {
+    public <T> T mapPartWorld(Function<Level, T> mapper, T defaultValue) {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         return null != world ? mapper.apply(world) : defaultValue;
     }
 
     @Override
-    public void forPartWorld(Consumer<World> consumer) {
+    public void forPartWorld(Consumer<Level> consumer) {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null != world) {
             consumer.accept(world);
@@ -254,7 +256,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public List<IMultiblockPart<Controller>> getNeighboringParts() {
 
-        final World world = this.getLevel();
+        final Level world = this.getLevel();
 
         if (null == world) {
             return Collections.emptyList();
@@ -265,7 +267,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
         for (BlockPos position : positions) {
 
-            final TileEntity te = WorldHelper.getLoadedTile(world, position);
+            final BlockEntity te = WorldHelper.getLoadedTile(world, position);
 
             if (te instanceof IMultiblockPart) {
                 //noinspection unchecked
@@ -340,17 +342,17 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
-    public Optional<CompoundNBT> getMultiblockSaveData() {
+    public Optional<CompoundTag> getMultiblockSaveData() {
         return Optional.ofNullable(this._cachedMultiblockData);
     }
 
     @Override
-    public <T> T mapMultiblockSaveData(final Function<CompoundNBT, T> mapper, final T defaultValue) {
+    public <T> T mapMultiblockSaveData(final Function<CompoundTag, T> mapper, final T defaultValue) {
         return null != this._cachedMultiblockData ? mapper.apply(this._cachedMultiblockData) : defaultValue;
     }
 
     @Override
-    public void forMultiblockSaveData(final Consumer<CompoundNBT> consumer) {
+    public void forMultiblockSaveData(final Consumer<CompoundTag> consumer) {
 
         if (null != this._cachedMultiblockData) {
             consumer.accept(this._cachedMultiblockData);
@@ -389,13 +391,13 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	//region ISyncableEntity
 
 	@Override
-	public void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
+	public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
 
         this._positionHash = this.worldPosition.asLong();
 
         if (data.contains("multiblockData")) {
 
-            final CompoundNBT multiblockData = data.getCompound("multiblockData");
+            final CompoundTag multiblockData = data.getCompound("multiblockData");
 
             switch (syncReason) {
 
@@ -417,11 +419,11 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	}
 
 	@Override
-    public CompoundNBT syncDataTo(CompoundNBT data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
 
         if (this.isMultiblockSaveDelegate()) {
             this.getMultiblockController()
-                    .ifPresent(c -> data.put("multiblockData", c.syncDataTo(new CompoundNBT(), syncReason)));
+                    .ifPresent(c -> data.put("multiblockData", c.syncDataTo(new CompoundTag(), syncReason)));
         }
 
 		return data;
@@ -486,7 +488,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     @Override
-    public void setLevelAndPosition(final World world, final BlockPos pos) {
+    public void setLevelAndPosition(final Level world, final BlockPos pos) {
 
         super.setLevelAndPosition(world, pos);
         this._positionHash = this.worldPosition.asLong();
@@ -534,7 +536,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     private Controller _controller;
     private boolean _unvisited;
     private boolean _saveMultiblockData;
-    private CompoundNBT _cachedMultiblockData;
+    private CompoundTag _cachedMultiblockData;
     private long _positionHash;
 
     //endregion

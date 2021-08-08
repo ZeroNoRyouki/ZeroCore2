@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -47,7 +47,7 @@ public abstract class AbstractGaugeBar
     //region AbstractControl
 
     @Override
-    public void onPaintOverlay(final MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
+    public void onPaintOverlay(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
 
         super.onPaintOverlay(matrix, partialTicks, mouseX, mouseY);
 

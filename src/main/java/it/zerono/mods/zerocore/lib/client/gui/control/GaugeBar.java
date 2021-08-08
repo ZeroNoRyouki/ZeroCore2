@@ -19,14 +19,14 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nonnull;
 
@@ -46,7 +46,7 @@ public class GaugeBar
     }
 
     public void setValue(final double value) {
-        this._value = MathHelper.clamp(value, 0, this.getMaxValue());
+        this._value = Mth.clamp(value, 0, this.getMaxValue());
     }
 
     public void setBarSprite(final ISprite barSprite) {
@@ -60,7 +60,7 @@ public class GaugeBar
     //region AbstractGaugeBar
 
     @Override
-    public void onPaint(final MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
+    public void onPaint(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
 
         super.onPaint(matrix, partialTicks, mouseX, mouseY);
 

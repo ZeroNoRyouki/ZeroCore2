@@ -19,15 +19,15 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -150,7 +150,7 @@ public interface IControl {
      *
      * @return a list of text lines or an empty list if no tooltips are available
      */
-    List<ITextComponent> getTooltips();
+    List<Component> getTooltips();
 
     /**
      * Retrieve a list of objects to fill the placeholders in the strings returned by {@code getTooltips}
@@ -159,15 +159,15 @@ public interface IControl {
      */
     List<Object> getTooltipsObjects();
 
-    void paintToolTips(MatrixStack matrix, int screenX, int screenY);
+    void paintToolTips(PoseStack matrix, int screenX, int screenY);
 
-    default void setTooltips(ITextComponent... lines) {
+    default void setTooltips(Component... lines) {
         this.setTooltips(ImmutableList.copyOf(lines));
     }
 
-    void setTooltips(List<ITextComponent> lines);
+    void setTooltips(List<Component> lines);
 
-    void setTooltips(List<ITextComponent> lines, List<Object> objects);
+    void setTooltips(List<Component> lines, List<Object> objects);
 
     void useTooltipsFrom(@Nullable IControl control);
 
@@ -231,14 +231,14 @@ public interface IControl {
      */
     void onMoved();
 
-    void onPaintBackground(MatrixStack matrix, float partialTicks, int mouseX, int mouseY);
+    void onPaintBackground(PoseStack matrix, float partialTicks, int mouseX, int mouseY);
 
-    void onPaint(MatrixStack matrix, float partialTicks, int mouseX, int mouseY);
+    void onPaint(PoseStack matrix, float partialTicks, int mouseX, int mouseY);
 
-    void onPaintOverlay(MatrixStack matrix, float partialTicks, int mouseX, int mouseY);
+    void onPaintOverlay(PoseStack matrix, float partialTicks, int mouseX, int mouseY);
 
     void enablePaintBlending(boolean blend);
 
-    default void onPaintDebugFrame(MatrixStack matrix, Colour colour) {
+    default void onPaintDebugFrame(PoseStack matrix, Colour colour) {
     }
 }

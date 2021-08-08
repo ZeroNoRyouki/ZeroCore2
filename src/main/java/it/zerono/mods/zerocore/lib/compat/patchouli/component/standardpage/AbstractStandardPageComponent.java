@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.internal.Log;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import vazkii.patchouli.client.book.BookEntry;
@@ -58,7 +58,7 @@ public abstract class AbstractStandardPageComponent<PageType extends BookPage>
     }
 
     @Override
-    public void render(final MatrixStack stack, final BookPage page, final int mouseX, final int mouseY, final float partialTicks) {
+    public void render(final PoseStack stack, final BookPage page, final int mouseX, final int mouseY, final float partialTicks) {
 
         if (this.x > 0 || this.y > 0) {
 
@@ -76,7 +76,7 @@ public abstract class AbstractStandardPageComponent<PageType extends BookPage>
     //endregion
     //region internals
 
-    protected void renderPage(final MatrixStack stack, final int mouseX, final int mouseY, final float partialTicks) {
+    protected void renderPage(final PoseStack stack, final int mouseX, final int mouseY, final float partialTicks) {
         this.getPage().render(stack, mouseX, mouseY, partialTicks);
     }
 

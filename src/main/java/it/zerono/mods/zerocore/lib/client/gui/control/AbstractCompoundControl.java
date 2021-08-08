@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -180,7 +180,7 @@ public abstract class AbstractCompoundControl
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
 
@@ -195,7 +195,7 @@ public abstract class AbstractCompoundControl
     }
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         final int childX = this.parentToChildX(mouseX);
         final int childY = this.parentToChildY(mouseY);
@@ -208,7 +208,7 @@ public abstract class AbstractCompoundControl
     }
 
     @Override
-    public void onPaintOverlay(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         final int childX = this.parentToChildX(mouseX);
         final int childY = this.parentToChildY(mouseY);

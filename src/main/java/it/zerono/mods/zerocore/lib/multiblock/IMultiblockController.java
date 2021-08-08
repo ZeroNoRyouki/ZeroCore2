@@ -45,9 +45,9 @@ import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.multiblock.storage.IPartStorage;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 import java.util.Set;
@@ -202,7 +202,7 @@ public interface IMultiblockController<Controller extends IMultiblockController<
      * Sync the controller state from the save-delegate data
      * @param data the data
      */
-    void syncFromSaveDelegate(CompoundNBT data, ISyncableEntity.SyncReason syncReason);
+    void syncFromSaveDelegate(CompoundTag data, ISyncableEntity.SyncReason syncReason);
 
     /**
      * Check if the machine is whole or not.
@@ -241,7 +241,7 @@ public interface IMultiblockController<Controller extends IMultiblockController<
      */
     void recalculateCoords();
 
-    void forceStructureUpdate(World world);
+    void forceStructureUpdate(Level world);
 
     //endregion
 }

@@ -20,10 +20,10 @@ package it.zerono.mods.zerocore.lib.recipe.result;
 
 import com.google.gson.JsonElement;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class ItemStackRecipeResult
         return new ItemStackRecipeResult(stack);
     }
 
-    public static ItemStackRecipeResult from(final PacketBuffer buffer) {
+    public static ItemStackRecipeResult from(final FriendlyByteBuf buffer) {
         return new ItemStackRecipeResult(buffer.readItem());
     }
 
@@ -42,11 +42,11 @@ public class ItemStackRecipeResult
         return new ItemStackRecipeResult(ItemHelper.stackFrom(jsonElement));
     }
 
-    public static ItemStackRecipeResult from(final IItemProvider item) {
+    public static ItemStackRecipeResult from(final ItemLike item) {
         return from(item, 1);
     }
 
-    public static ItemStackRecipeResult from(final IItemProvider item, final int amount) {
+    public static ItemStackRecipeResult from(final ItemLike item, final int amount) {
         return from(new ItemStack(item, amount));
     }
 
@@ -82,7 +82,7 @@ public class ItemStackRecipeResult
     }
 
     @Override
-    public void serializeTo(final PacketBuffer buffer) {
+    public void serializeTo(final FriendlyByteBuf buffer) {
         buffer.writeItem(this._result);
     }
 

@@ -18,23 +18,23 @@
 
 package it.zerono.mods.zerocore.internal.client.debug;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.debug.DebugHelper;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.DrawHighlightEvent;
@@ -49,10 +49,10 @@ public class VoxelShapeHighlighter {
     @SubscribeEvent
     public static void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
 
-        final BlockRayTraceResult result = event.getTarget();
-        final World world;
+        final BlockHitResult result = event.getTarget();
+        final Level world;
 
-        if (RayTraceResult.Type.BLOCK != result.getType()) {
+        if (HitResult.Type.BLOCK != result.getType()) {
             return;
         }
 
@@ -79,10 +79,10 @@ public class VoxelShapeHighlighter {
             return;
         }
 
-        final ActiveRenderInfo renderInfo = event.getInfo();
-        final ISelectionContext selection = ISelectionContext.of(renderInfo.getEntity());
-        final IVertexBuilder builder = event.getBuffers().getBuffer(RenderType.lines());
-        final MatrixStack matrixStack = event.getMatrix();
+        final Camera renderInfo = event.getInfo();
+        final CollisionContext selection = CollisionContext.of(renderInfo.getEntity());
+        final VertexConsumer builder = event.getBuffers().getBuffer(RenderType.lines());
+        final PoseStack matrixStack = event.getMatrix();
         final double x = position.getX() - renderInfo.getPosition().x();
         final double y = position.getY() - renderInfo.getPosition().y();
         final double z = position.getZ() - renderInfo.getPosition().z();
@@ -102,7 +102,7 @@ public class VoxelShapeHighlighter {
                 break;
 
             case RayTrace:
-                paint(matrixStack, builder, x, y, z, COLOUR_RAYTRACESHAPE, blockstate.getVisualShape(world, position, ISelectionContext.empty()));
+                paint(matrixStack, builder, x, y, z, COLOUR_RAYTRACESHAPE, blockstate.getVisualShape(world, position, CollisionContext.empty()));
                 break;
         }
 
@@ -111,7 +111,7 @@ public class VoxelShapeHighlighter {
 
     //region internals
 
-    private static void paint(final MatrixStack matrixStack, final IVertexBuilder vertexBuilder,
+    private static void paint(final PoseStack matrixStack, final VertexConsumer vertexBuilder,
                               final double originX, final double originY, final double originZ,
                               final Colour colour, final VoxelShape voxelShape) {
 
@@ -127,13 +127,13 @@ public class VoxelShapeHighlighter {
         });
     }
 
-    private static World getWorld(final DrawHighlightEvent.HighlightBlock event) throws IllegalAccessException {
+    private static Level getWorld(final DrawHighlightEvent.HighlightBlock event) throws IllegalAccessException {
 
         if (null == s_worldField) {
-            s_worldField = ObfuscationReflectionHelper.findField(WorldRenderer.class, "level");
+            s_worldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "level");
         }
 
-        return (World)s_worldField.get(event.getContext());
+        return (Level)s_worldField.get(event.getContext());
     }
 
     private static final Colour COLOUR_SHAPE = Colour.from(DyeColor.YELLOW);

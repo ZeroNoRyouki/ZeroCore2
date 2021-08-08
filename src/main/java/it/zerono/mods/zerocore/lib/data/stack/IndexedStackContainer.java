@@ -25,12 +25,14 @@ import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.nbt.IMergeableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.*;
+
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 @SuppressWarnings({"WeakerAccess"})
 public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
@@ -497,7 +499,7 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
 
         final IStackAdapter<Stack, Content> adapter = this.getStackAdapter();
 
@@ -528,11 +530,11 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
      * @return the {@link CompoundNBT} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundNBT syncDataTo(CompoundNBT data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
 
         final IStackAdapter<Stack, Content> adapter = this.getStackAdapter();
 
-        this.getValidIndexes().forEach(index -> data.put(index.name(), adapter.writeTo(this.getStack(index), new CompoundNBT())));
+        this.getValidIndexes().forEach(index -> data.put(index.name(), adapter.writeTo(this.getStack(index), new CompoundTag())));
         return data;
     }
 

@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.stack;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.List;
 import java.util.Optional;
@@ -155,7 +155,7 @@ public interface IStackAdapter<StackType, ContentType> {
      * @param data the {@list CompoundNBT} that contains the data for the new stack
      * @return the new stack
      */
-    StackType readFrom(CompoundNBT data);
+    StackType readFrom(CompoundTag data);
 
     /**
      * Save the specified stack in the provided {@list CompoundNBT}
@@ -163,7 +163,7 @@ public interface IStackAdapter<StackType, ContentType> {
      * @param data the {@list CompoundNBT} to save to stack into
      * @return the data
      */
-    CompoundNBT writeTo(StackType stack, CompoundNBT data);
+    CompoundTag writeTo(StackType stack, CompoundTag data);
 
     /**
      * Get a textual representation of the provided stack

@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.IFeatureConfig;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 import java.util.Collection;
 
-public interface IWorldGenWhiteList extends IFeatureConfig {
+public interface IWorldGenWhiteList extends FeatureConfiguration {
 
     /**
      * Check if worldgen is allowed in the provided World
@@ -31,7 +31,7 @@ public interface IWorldGenWhiteList extends IFeatureConfig {
      * @param world the World to check
      * @return true if worldgen can be performed, false otherwise
      */
-    boolean shouldGenerateIn(World world);
+    boolean shouldGenerateIn(Level world);
 
     /**
      * Check if worldgen is allowed in the provided dimension

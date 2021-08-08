@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.internal.network;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 public class InternalCommandMessage
@@ -31,7 +31,7 @@ public class InternalCommandMessage
     /**
      * Construct the local message to be sent over the network.
      */
-    public InternalCommandMessage(final InternalCommand command, final CompoundNBT data) {
+    public InternalCommandMessage(final InternalCommand command, final CompoundTag data) {
 
         this._command = command;
         this._data = data;
@@ -52,11 +52,11 @@ public class InternalCommandMessage
      *
      * @param buffer the {@link PacketBuffer} containing the data received from the network.
      */
-    public InternalCommandMessage(final PacketBuffer buffer) {
+    public InternalCommandMessage(final FriendlyByteBuf buffer) {
 
         super(buffer);
         this._command = buffer.readEnum(InternalCommand.class);
-        this._data = buffer.readBoolean() ? buffer.readNbt() : new CompoundNBT();
+        this._data = buffer.readBoolean() ? buffer.readNbt() : new CompoundTag();
     }
 
     //region AbstractModMessage
@@ -67,7 +67,7 @@ public class InternalCommandMessage
      * @param buffer the {@link PacketBuffer} to encode your data into
      */
     @Override
-    public void encodeTo(final PacketBuffer buffer) {
+    public void encodeTo(final FriendlyByteBuf buffer) {
 
         buffer.writeEnum(this._command);
 
@@ -98,7 +98,7 @@ public class InternalCommandMessage
     //region internals
 
     private final InternalCommand _command;
-    private final CompoundNBT _data;
+    private final CompoundTag _data;
 
     //endregion
 }

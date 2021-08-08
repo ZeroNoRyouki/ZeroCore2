@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
@@ -27,8 +27,8 @@ import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -52,7 +52,7 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
     }
 
     public void setValue(final Index index, final double value) {
-        this._values.setElement(index, MathHelper.clamp(value, 0, this.getMaxValueFor(index)));
+        this._values.setElement(index, Mth.clamp(value, 0, this.getMaxValueFor(index)));
     }
 
     public void setBarSprite(final Index index, final ISprite sprite) {
@@ -70,7 +70,7 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
     //region AbstractGaugeBar
 
     @Override
-    public void onPaint(final MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
+    public void onPaint(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
 
         super.onPaint(matrix, partialTicks, mouseX, mouseY);
 
@@ -123,7 +123,7 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
         return this._tints.getElement(index);
     }
 
-    protected int paintValueRect(final MatrixStack matrix, final Index index, final Rectangle rect, final int skip) {
+    protected int paintValueRect(final PoseStack matrix, final Index index, final Rectangle rect, final int skip) {
         return this.getSprite(index)
                 .map(sprite -> ModRenderHelper.paintVerticalProgressSprite(matrix, sprite,
                         this.getTint(index).orElse(Colour.WHITE), this.controlToScreen(rect.Origin.X, rect.Origin.Y),

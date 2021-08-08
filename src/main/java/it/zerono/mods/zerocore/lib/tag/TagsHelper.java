@@ -19,12 +19,12 @@
 package it.zerono.mods.zerocore.lib.tag;
 
 import com.google.common.collect.Iterables;
-import net.minecraft.block.Block;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeTagHandler;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.NonNullFunction;
@@ -49,11 +49,11 @@ public final class TagsHelper<T>
             id -> ForgeTagHandler.makeWrapperTag(ForgeRegistries.FLUIDS, id),
             rl -> ForgeTagHandler.createOptionalTag(ForgeRegistries.FLUIDS, rl));
 
-    public static <T> T getTagFirstElement(final ITag<T> tag) {
+    public static <T> T getTagFirstElement(final Tag<T> tag) {
         return Iterables.get(tag.getValues(), 0);
     }
 
-    public ITag.INamedTag<T> createTag(final ResourceLocation tagId) {
+    public Tag.Named<T> createTag(final ResourceLocation tagId) {
         return this._factory.apply(tagId);
     }
 
@@ -61,7 +61,7 @@ public final class TagsHelper<T>
         return this._optionalFactory.apply(tagId);
     }
 
-    public ITag.INamedTag<T> createTag(final String tagId) {
+    public Tag.Named<T> createTag(final String tagId) {
         return this.createTag(new ResourceLocation(tagId));
     }
 
@@ -69,7 +69,7 @@ public final class TagsHelper<T>
         return this.createOptionalTag(new ResourceLocation(tagId));
     }
 
-    public ITag.INamedTag<T> createModTag(final String modId, final String tagName) {
+    public Tag.Named<T> createModTag(final String modId, final String tagName) {
         return this.createTag(new ResourceLocation(modId, tagName));
     }
 
@@ -77,7 +77,7 @@ public final class TagsHelper<T>
         return this.createOptionalTag(new ResourceLocation(modId, tagName));
     }
 
-    public ITag.INamedTag<T> createForgeTag(final String tagName) {
+    public Tag.Named<T> createForgeTag(final String tagName) {
         return this.createTag(new ResourceLocation("forge", tagName));
     }
 
@@ -93,7 +93,7 @@ public final class TagsHelper<T>
         return this.getTag(tagId).filter(tag -> tag.getValues().size() > 0).isPresent();
     }
 
-    public Optional<T> getFirstElement(final ITag<T> tag) {
+    public Optional<T> getFirstElement(final Tag<T> tag) {
         return tag.getValues().isEmpty() ? Optional.empty() : Optional.of(getTagFirstElement(tag));
     }
 
@@ -103,7 +103,7 @@ public final class TagsHelper<T>
                 .map(TagsHelper::getTagFirstElement);
     }
 
-    public List<T> getMatchingElements(final ITag<T> tag) {
+    public List<T> getMatchingElements(final Tag<T> tag) {
 
         try {
             return tag.getValues();
@@ -114,8 +114,8 @@ public final class TagsHelper<T>
 
     //region internals
 
-    private TagsHelper(final NonNullSupplier<ITagCollection<T>> provider,
-                       final NonNullFunction<ResourceLocation, ITag.INamedTag<T>> factory,
+    private TagsHelper(final NonNullSupplier<TagCollection<T>> provider,
+                       final NonNullFunction<ResourceLocation, Tag.Named<T>> factory,
                        final NonNullFunction<ResourceLocation, Tags.IOptionalNamedTag<T>> optionalFactory) {
 
         super(provider);
@@ -123,7 +123,7 @@ public final class TagsHelper<T>
         this._optionalFactory = optionalFactory;
     }
 
-    private final NonNullFunction<ResourceLocation, ITag.INamedTag<T>> _factory;
+    private final NonNullFunction<ResourceLocation, Tag.Named<T>> _factory;
     private final NonNullFunction<ResourceLocation, Tags.IOptionalNamedTag<T>> _optionalFactory;
 
     //endregion

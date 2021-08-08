@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.Vec3i;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Cuboid {
@@ -49,16 +49,16 @@ public class Cuboid {
         this(new Vector3d(other.Min), new Vector3d(other.Max));
     }
 
-    public Cuboid(final Vector3i min, final Vector3i max) {
+    public Cuboid(final Vec3i min, final Vec3i max) {
         this(Vector3d.from(min), Vector3d.from(max));
     }
 
-    public Cuboid(final AxisAlignedBB boundingBox) {
+    public Cuboid(final AABB boundingBox) {
         this(new Vector3d(boundingBox.minX, boundingBox.minY, boundingBox.minZ),
              new Vector3d(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ));
     }
 
-    public static Cuboid syncDataFrom(CompoundNBT data) {
+    public static Cuboid syncDataFrom(CompoundTag data) {
 
         if (data.contains("min") && data.contains("max")) {
             return new Cuboid(Vector3d.syncDataFrom(data.getCompound("min")),
@@ -68,15 +68,15 @@ public class Cuboid {
         return EMPTY;
     }
 
-    public CompoundNBT syncDataTo(CompoundNBT data) {
+    public CompoundTag syncDataTo(CompoundTag data) {
 
-        data.put("min", this.Min.syncDataTo(new CompoundNBT()));
-        data.put("max", this.Max.syncDataTo(new CompoundNBT()));
+        data.put("min", this.Min.syncDataTo(new CompoundTag()));
+        data.put("max", this.Max.syncDataTo(new CompoundTag()));
         return data;
     }
 
-    public AxisAlignedBB toBoundingBox() {
-        return new AxisAlignedBB(this.Min.X, this.Min.Y, this.Min.Z, this.Max.X, this.Max.Y, this.Max.Z);
+    public AABB toBoundingBox() {
+        return new AABB(this.Min.X, this.Min.Y, this.Min.Z, this.Max.X, this.Max.Y, this.Max.Z);
     }
 
     public Cuboid add(final double offsetX, final double offsetY, final double offsetZ) {
@@ -92,7 +92,7 @@ public class Cuboid {
         return this.add(data.X, data.Y, data.Z);
     }
 
-    public Cuboid add(final Vector3i data) {
+    public Cuboid add(final Vec3i data) {
         return this.add(data.getX(), data.getY(), data.getZ());
     }
 
@@ -109,7 +109,7 @@ public class Cuboid {
         return this.subtract(data.X, data.Y, data.Z);
     }
 
-    public Cuboid subtract(final Vector3i data) {
+    public Cuboid subtract(final Vec3i data) {
         return this.subtract(data.getX(), data.getY(), data.getZ());
     }
 
@@ -295,7 +295,7 @@ public class Cuboid {
 
         public Vector3f getNormal() {
 
-            final Vector3i n = this.FACING.getNormal();
+            final Vec3i n = this.FACING.getNormal();
 
             return new Vector3f(n.getX(), n.getY(), n.getZ());
         }

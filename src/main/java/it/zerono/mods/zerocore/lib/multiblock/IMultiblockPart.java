@@ -41,9 +41,9 @@
 
 package it.zerono.mods.zerocore.lib.multiblock;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -119,17 +119,17 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
      * Returns the world of this part
      */
     @Deprecated // use getCurrentWorld()
-    Optional<World> getPartWorld();
+    Optional<Level> getPartWorld();
 
-    default <T> T mapPartWorld(Function<World, T> mapper, T defaultValue) {
+    default <T> T mapPartWorld(Function<Level, T> mapper, T defaultValue) {
         return this.getPartWorld().map(mapper).orElse(defaultValue);
     }
 
-    default void forPartWorld(Consumer<World> consumer) {
+    default void forPartWorld(Consumer<Level> consumer) {
         this.getPartWorld().ifPresent(consumer);
     }
 
-    default World getCurrentWorld() {
+    default Level getCurrentWorld() {
         return Objects.requireNonNull(this.getPartWorld().orElse(null));
     }
 
@@ -336,13 +336,13 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
 	/**
 	 * @return The part's saved multiblock game-data in NBT format, or null if there isn't any.
 	 */
-	Optional<CompoundNBT> getMultiblockSaveData();
+	Optional<CompoundTag> getMultiblockSaveData();
 
-	default <T> T mapMultiblockSaveData(Function<CompoundNBT, T> mapper, T defaultValue) {
+	default <T> T mapMultiblockSaveData(Function<CompoundTag, T> mapper, T defaultValue) {
 	    return this.getMultiblockSaveData().map(mapper).orElse(defaultValue);
     }
 
-	default void forMultiblockSaveData(Consumer<CompoundNBT> consumer) {
+	default void forMultiblockSaveData(Consumer<CompoundTag> consumer) {
 	    this.getMultiblockSaveData().ifPresent(consumer);
     }
 

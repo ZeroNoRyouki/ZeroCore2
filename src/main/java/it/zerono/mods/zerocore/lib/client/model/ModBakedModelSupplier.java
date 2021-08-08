@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.lib.client.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -51,7 +51,7 @@ public class ModBakedModelSupplier {
         }
     }
 
-    public Supplier<IBakedModel> getOrCreate(final ResourceLocation name) {
+    public Supplier<BakedModel> getOrCreate(final ResourceLocation name) {
         return this._wrappers.computeIfAbsent(name, resourceLocation -> new Wrapper());
     }
 
@@ -65,8 +65,8 @@ public class ModBakedModelSupplier {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onModelBake(final ModelBakeEvent event) {
 
-        final Map<ResourceLocation, IBakedModel> modelRegistry = event.getModelRegistry();
-        final IBakedModel missing = ModRenderHelper.getMissingModel();
+        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModelRegistry();
+        final BakedModel missing = ModRenderHelper.getMissingModel();
 
         this._wrappers.forEach((key, value) -> value._cachedModel = modelRegistry.getOrDefault(key, missing));
     }
@@ -77,7 +77,7 @@ public class ModBakedModelSupplier {
     //region SpriteSupplier
 
     private static class Wrapper
-            implements Supplier<IBakedModel> {
+            implements Supplier<BakedModel> {
 
         protected Wrapper() {
             this._cachedModel = null;
@@ -86,14 +86,14 @@ public class ModBakedModelSupplier {
         //region Supplier
 
         @Override
-        public IBakedModel get() {
+        public BakedModel get() {
             return this._cachedModel;
         }
 
         //endregion
         //region internals
 
-        private IBakedModel _cachedModel;
+        private BakedModel _cachedModel;
 
         //endregion
     }

@@ -21,23 +21,23 @@ package it.zerono.mods.zerocore.lib.block;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.function.*;
@@ -66,8 +66,8 @@ public class ModBlock
         return builder;
     }
     
-    public static ITextComponent getNameForTranslation(final Block block) {
-        return new TranslationTextComponent(block.getDescriptionId());
+    public static Component getNameForTranslation(final Block block) {
+        return new TranslatableComponent(block.getDescriptionId());
     }
 
     public static int lightValueFrom(final float value) {
@@ -95,89 +95,89 @@ public class ModBlock
 
     //region Logical sides and deferred execution helpers
 
-    public void callOnLogicalSide(final World world, final Runnable serverCode, final Runnable clientCode) {
+    public void callOnLogicalSide(final Level world, final Runnable serverCode, final Runnable clientCode) {
         CodeHelper.callOnLogicalSide(world, serverCode, clientCode);
     }
 
-    public <T> T callOnLogicalSide(final World world, final Supplier<T> serverCode, final Supplier<T> clientCode) {
+    public <T> T callOnLogicalSide(final Level world, final Supplier<T> serverCode, final Supplier<T> clientCode) {
         return CodeHelper.callOnLogicalSide(world, serverCode, clientCode);
     }
 
-    public boolean callOnLogicalSide(final World world, final BooleanSupplier serverCode, final BooleanSupplier clientCode) {
+    public boolean callOnLogicalSide(final Level world, final BooleanSupplier serverCode, final BooleanSupplier clientCode) {
         return CodeHelper.callOnLogicalSide(world, serverCode, clientCode);
     }
 
-    public int callOnLogicalSide(final World world, final IntSupplier serverCode, final IntSupplier clientCode) {
+    public int callOnLogicalSide(final Level world, final IntSupplier serverCode, final IntSupplier clientCode) {
         return CodeHelper.callOnLogicalSide(world, serverCode, clientCode);
     }
 
-    public long callOnLogicalSide(final World world, final LongSupplier serverCode, final LongSupplier clientCode) {
+    public long callOnLogicalSide(final Level world, final LongSupplier serverCode, final LongSupplier clientCode) {
         return CodeHelper.callOnLogicalSide(world, serverCode, clientCode);
     }
 
-    public double callOnLogicalSide(final World world, final DoubleSupplier serverCode, final DoubleSupplier clientCode) {
+    public double callOnLogicalSide(final Level world, final DoubleSupplier serverCode, final DoubleSupplier clientCode) {
         return CodeHelper.callOnLogicalSide(world, serverCode, clientCode);
     }
 
-    public void callOnLogicalServer(final World world, final Runnable code) {
+    public void callOnLogicalServer(final Level world, final Runnable code) {
         CodeHelper.callOnLogicalServer(world, code);
     }
 
-    public void callOnLogicalServer(final World world, final Consumer<World> code) {
+    public void callOnLogicalServer(final Level world, final Consumer<Level> code) {
 
         if (CodeHelper.calledByLogicalServer(world)) {
             code.accept(world);
         }
     }
 
-    public <T> T callOnLogicalServer(final World world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
+    public <T> T callOnLogicalServer(final Level world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
         return CodeHelper.callOnLogicalServer(world, code, invalidSideReturnValue);
     }
 
-    public boolean callOnLogicalServer(final World world, final BooleanSupplier code) {
+    public boolean callOnLogicalServer(final Level world, final BooleanSupplier code) {
         return CodeHelper.callOnLogicalServer(world, code);
     }
 
-    public int callOnLogicalServer(final World world, final IntSupplier code, final int invalidSideReturnValue) {
+    public int callOnLogicalServer(final Level world, final IntSupplier code, final int invalidSideReturnValue) {
         return CodeHelper.callOnLogicalServer(world, code, invalidSideReturnValue);
     }
 
-    public long callOnLogicalServer(final World world, final LongSupplier code, final long invalidSideReturnValue) {
+    public long callOnLogicalServer(final Level world, final LongSupplier code, final long invalidSideReturnValue) {
         return CodeHelper.callOnLogicalServer(world, code, invalidSideReturnValue);
     }
 
-    public double callOnLogicalServer(final World world, final DoubleSupplier code, final double invalidSideReturnValue) {
+    public double callOnLogicalServer(final Level world, final DoubleSupplier code, final double invalidSideReturnValue) {
         return CodeHelper.callOnLogicalServer(world, code, invalidSideReturnValue);
     }
 
-    public void callOnLogicalClient(final World world, final Runnable code) {
+    public void callOnLogicalClient(final Level world, final Runnable code) {
         CodeHelper.callOnLogicalClient(world, code);
     }
 
-    public void callOnLogicalClient(final World world, final Consumer<World> code) {
+    public void callOnLogicalClient(final Level world, final Consumer<Level> code) {
 
         if (CodeHelper.calledByLogicalClient(world)) {
             code.accept(world);
         }
     }
 
-    public <T> T callOnLogicalClient(final World world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
+    public <T> T callOnLogicalClient(final Level world, final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
         return CodeHelper.callOnLogicalClient(world, code, invalidSideReturnValue);
     }
 
-    public boolean callOnLogicalClient(final World world, final BooleanSupplier code) {
+    public boolean callOnLogicalClient(final Level world, final BooleanSupplier code) {
         return CodeHelper.callOnLogicalClient(world, code);
     }
 
-    public int callOnLogicalClient(final World world, final IntSupplier code, final int invalidSideReturnValue) {
+    public int callOnLogicalClient(final Level world, final IntSupplier code, final int invalidSideReturnValue) {
         return CodeHelper.callOnLogicalClient(world, code, invalidSideReturnValue);
     }
 
-    public long callOnLogicalClient(final World world, final LongSupplier code, final long invalidSideReturnValue) {
+    public long callOnLogicalClient(final Level world, final LongSupplier code, final long invalidSideReturnValue) {
         return CodeHelper.callOnLogicalClient(world, code, invalidSideReturnValue);
     }
 
-    public double callOnLogicalClient(final World world, final DoubleSupplier code, final double invalidSideReturnValue) {
+    public double callOnLogicalClient(final Level world, final DoubleSupplier code, final double invalidSideReturnValue) {
         return CodeHelper.callOnLogicalClient(world, code, invalidSideReturnValue);
     }
 
@@ -185,14 +185,14 @@ public class ModBlock
     //region IBlockStateUpdater
 
     @Override
-    public void updateBlockState(BlockState currentState, IWorld world, BlockPos position,
-                                 @Nullable TileEntity tileEntity, int updateFlags) {
+    public void updateBlockState(BlockState currentState, LevelAccessor world, BlockPos position,
+                                 @Nullable BlockEntity tileEntity, int updateFlags) {
         world.setBlock(position, this.buildUpdatedState(currentState, world, position, tileEntity), updateFlags);
     }
 
     @Override
-    public BlockState buildUpdatedState(BlockState currentState, IBlockReader reader,
-                                        BlockPos position, @Nullable TileEntity tileEntity) {
+    public BlockState buildUpdatedState(BlockState currentState, BlockGetter reader,
+                                        BlockPos position, @Nullable BlockEntity tileEntity) {
         return currentState;
     }
 
@@ -201,7 +201,7 @@ public class ModBlock
 
     @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos blockPosition, Block block, BlockPos neighborPosition, boolean isMoving) {
+    public void neighborChanged(BlockState state, Level world, BlockPos blockPosition, Block block, BlockPos neighborPosition, boolean isMoving) {
 
         super.neighborChanged(state, world, blockPosition, block, neighborPosition, isMoving);
 
@@ -223,13 +223,13 @@ public class ModBlock
      * @param neighborPosition Block position of neighbor
      */
     @Override
-    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos blockPosition, BlockPos neighborPosition) {
+    public void onNeighborChange(BlockState state, LevelReader world, BlockPos blockPosition, BlockPos neighborPosition) {
 
         super.onNeighborChange(state, world, blockPosition, neighborPosition);
 
         if (this instanceof INeighborChangeListener.Notifier && this.hasTileEntity(state)) {
 
-            final TileEntity te = WorldHelper.getLoadedTile(world, blockPosition);
+            final BlockEntity te = WorldHelper.getLoadedTile(world, blockPosition);
 
             if (te instanceof INeighborChangeListener) {
                 ((INeighborChangeListener)te).onNeighborTileChanged(state, neighborPosition);
@@ -242,7 +242,7 @@ public class ModBlock
 
 
     @Override
-    public VoxelShape getBlockSupportShape(BlockState state, IBlockReader reader, BlockPos pos) {
+    public VoxelShape getBlockSupportShape(BlockState state, BlockGetter reader, BlockPos pos) {
         return super.getBlockSupportShape(state, reader, pos);
     }
 
@@ -258,7 +258,7 @@ public class ModBlock
      * @param param
      */
     @Override
-    public boolean triggerEvent(BlockState state, World world, BlockPos position, int id, int param) {
+    public boolean triggerEvent(BlockState state, Level world, BlockPos position, int id, int param) {
 
         if (this.hasTileEntity(state)) {
             return WorldHelper.getTile(world, position)
@@ -274,11 +274,11 @@ public class ModBlock
     //region internals
 
     @Override
-    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(final StateDefinition.Builder<Block, BlockState> builder) {
         this.buildBlockState(builder);
     }
 
-    protected void buildBlockState(final StateContainer.Builder<Block, BlockState> builder) {
+    protected void buildBlockState(final StateDefinition.Builder<Block, BlockState> builder) {
     }
 
     protected BlockState buildDefaultState(BlockState state) {

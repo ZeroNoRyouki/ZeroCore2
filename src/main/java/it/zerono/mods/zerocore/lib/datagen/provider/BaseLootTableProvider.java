@@ -24,11 +24,11 @@ import com.google.gson.GsonBuilder;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.datagen.LootTableType;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.LootTableManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootTables;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -36,7 +36,7 @@ import java.util.Map;
 
 @SuppressWarnings("unsued")
 public class BaseLootTableProvider
-        implements IDataProvider {
+        implements DataProvider {
 
     protected BaseLootTableProvider(final LootTableType type, final DataGenerator dataGenerator) {
 
@@ -71,7 +71,7 @@ public class BaseLootTableProvider
      * @param cache
      */
     @Override
-    public void run(DirectoryCache cache) {
+    public void run(HashCache cache) {
 
         this.generateTables();
         this._tables.forEach((id, builder) -> this.writeTable(cache, id,
@@ -106,13 +106,13 @@ public class BaseLootTableProvider
         return LootTable.builder().addLootPool(builder);
     }*/
 
-    private void writeTable(final DirectoryCache cache, final ResourceLocation id, final LootTable table) {
+    private void writeTable(final HashCache cache, final ResourceLocation id, final LootTable table) {
 
         final Path path = this._generator.getOutputFolder().resolve("data/" + id.getNamespace() +
                 "/loot_tables/" + this.getType().getSubFolderName() + "/" + id.getPath() + ".json");
 
         try {
-            IDataProvider.save(GSON, cache, LootTableManager.serialize(table), path);
+            DataProvider.save(GSON, cache, LootTables.serialize(table), path);
         } catch (IOException ex) {
             Log.LOGGER.error(Log.CORE, "Loot table provider - couldn't write tables at {}", path, ex);
         }

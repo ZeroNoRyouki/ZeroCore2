@@ -19,22 +19,22 @@
 package it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage;
 
 import com.google.gson.annotations.SerializedName;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.zerono.mods.zerocore.lib.compat.patchouli.Patchouli;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import net.minecraft.core.Vec3i;
+import com.mojang.math.Vector4f;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.data.IModelData;
 import vazkii.patchouli.api.IMultiblock;
@@ -112,7 +112,7 @@ public class Multiblock
     private static final Random RAND = new Random();
 
     @Override
-    protected void renderPage(final MatrixStack ms, final int mouseX, final int mouseY, final float partialTicks) {
+    protected void renderPage(final PoseStack ms, final int mouseX, final int mouseY, final float partialTicks) {
 
         int x = GuiBook.PAGE_WIDTH / 2 - 53;
         int y = 7;
@@ -127,10 +127,10 @@ public class Multiblock
         }
     }
 
-    private void renderMultiblock(MatrixStack ms) {
+    private void renderMultiblock(PoseStack ms) {
 
         multiblockObj.setWorld(mc.level);
-        Vector3i size = multiblockObj.getSize();
+        Vec3i size = multiblockObj.getSize();
         int sizeX = size.getX();
         int sizeY = size.getY();
         int sizeZ = size.getZ();
@@ -183,12 +183,12 @@ public class Multiblock
         ms.popPose();
     }
 
-    private void renderElements(MatrixStack ms, AbstractMultiblock mb, Iterable<? extends BlockPos> blocks, Vector4f eye) {
+    private void renderElements(PoseStack ms, AbstractMultiblock mb, Iterable<? extends BlockPos> blocks, Vector4f eye) {
         ms.pushPose();
         RenderSystem.color4f(1F, 1F, 1F, 1F);
         ms.translate(0, 0, -1);
 
-        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
         doWorldRenderPass(ms, mb, blocks, buffers, eye);
 //        doTileEntityRenderPass(ms, mb, blocks, buffers, eye);
 
@@ -197,8 +197,8 @@ public class Multiblock
         ms.popPose();
     }
 
-    private void doWorldRenderPass(MatrixStack ms, AbstractMultiblock mb, Iterable<? extends BlockPos> blocks,
-                                   final IRenderTypeBuffer.Impl buffers, Vector4f eye) {
+    private void doWorldRenderPass(PoseStack ms, AbstractMultiblock mb, Iterable<? extends BlockPos> blocks,
+                                   final MultiBufferSource.BufferSource buffers, Vector4f eye) {
 
         for (BlockPos pos : blocks) {
 
@@ -209,9 +209,9 @@ public class Multiblock
             ms.pushPose();
             ms.translate(pos.getX(), pos.getY(), pos.getZ());
             for (RenderType layer : RenderType.chunkBufferLayers()) {
-                if (RenderTypeLookup.canRenderInLayer(renderBlockState, layer)) {
+                if (ItemBlockRenderTypes.canRenderInLayer(renderBlockState, layer)) {
                     ForgeHooksClient.setRenderLayer(layer);
-                    IVertexBuilder buffer = buffers.getBuffer(layer);
+                    VertexConsumer buffer = buffers.getBuffer(layer);
                     Minecraft.getInstance().getBlockRenderer().renderModel(renderBlockState, pos, mb, ms, buffer, false, RAND, renderModelData);
                     ForgeHooksClient.setRenderLayer(null);
                 }

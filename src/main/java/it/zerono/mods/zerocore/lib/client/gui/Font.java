@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -28,7 +28,7 @@ public class Font {
 
     public static final Font MINECRAFT_STANDARD_FONT = new Font(Minecraft.getInstance().font);
 
-    public Font(final FontRenderer renderer) {
+    public Font(final Font renderer) {
         this._renderer = renderer;
     }
 
@@ -40,5 +40,5 @@ public class Font {
         return this._renderer.lineHeight - 1;
     }
 
-    private final FontRenderer _renderer;
+    private final Font _renderer;
 }

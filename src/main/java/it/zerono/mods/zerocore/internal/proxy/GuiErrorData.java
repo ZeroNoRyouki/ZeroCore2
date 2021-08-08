@@ -23,10 +23,10 @@ import it.zerono.mods.zerocore.lib.client.gui.CompositeRichText;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.RichText;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.item.Items;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.common.util.NonNullFunction;
 
 import javax.annotation.Nonnull;
@@ -54,11 +54,11 @@ class GuiErrorData
         }
     }
 
-    public void addErrors(final @Nullable BlockPos position, final ITextComponent... messages) {
+    public void addErrors(final @Nullable BlockPos position, final Component... messages) {
         this.addErrors(position, Lists.newArrayList(messages));
     }
 
-    public void addErrors(final @Nullable BlockPos position, final List<ITextComponent> messages) {
+    public void addErrors(final @Nullable BlockPos position, final List<Component> messages) {
 
         final long stamp = this._lock.writeLock();
 
@@ -70,7 +70,7 @@ class GuiErrorData
         this._lock.unlockWrite(stamp);
     }
 
-    public void addErrors(final ITextComponent... messages) {
+    public void addErrors(final Component... messages) {
         this.addErrors(null, messages);
     }
 
@@ -93,7 +93,7 @@ class GuiErrorData
     public IRichText apply(@Nonnull final Integer maxTextWidth) {
 
         long lockStamp = this._lock.readLock();
-        final List<ITextComponent> errorMessages = this._errorMessages;
+        final List<Component> errorMessages = this._errorMessages;
 
         if (null == errorMessages || errorMessages.isEmpty() || this._timeout.get() <= 0) {
 
@@ -123,7 +123,7 @@ class GuiErrorData
 
                         if (null != errorPosition) {
                             builder.add(RichText.builder(maxTextWidth)
-                                    .textLines(Lists.newArrayList(new StringTextComponent(String.format("@0 %d, %d, %d",
+                                    .textLines(Lists.newArrayList(new TextComponent(String.format("@0 %d, %d, %d",
                                             errorPosition.getX(), errorPosition.getY(), errorPosition.getZ()))))
                                     .objects(Lists.newArrayList(Items.COMPASS))
                                     .defaultColour(Colour.WHITE)
@@ -179,7 +179,7 @@ class GuiErrorData
     //endregion
     //region internals
 
-    private static IRichText textFrom(final ITextComponent errorMessage, final int maxTextWidth) {
+    private static IRichText textFrom(final Component errorMessage, final int maxTextWidth) {
         return RichText.builder(maxTextWidth)
                 .textLines(errorMessage)
                 .defaultColour(Colour.WHITE)
@@ -189,7 +189,7 @@ class GuiErrorData
     private final StampedLock _lock;
     private final AtomicInteger _timeout;
 
-    private List<ITextComponent> _errorMessages;
+    private List<Component> _errorMessages;
     private BlockPos _errorPosition;
     private IRichText _errorText;
 

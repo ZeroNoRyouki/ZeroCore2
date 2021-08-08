@@ -23,8 +23,8 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public final class EnergyStack
     implements IEnergySystemAware {
@@ -90,14 +90,14 @@ public final class EnergyStack
         this.grow(-amount);
     }
 
-    public CompoundNBT serializeTo(final CompoundNBT nbt) {
+    public CompoundTag serializeTo(final CompoundTag nbt) {
 
         NBTHelper.nbtSetEnum(nbt, "sys", this._system);
         nbt.putDouble("amount", this._amount);
         return nbt;
     }
 
-    public static EnergyStack from(final CompoundNBT nbt) {
+    public static EnergyStack from(final CompoundTag nbt) {
 
         if (nbt.contains("sys") && nbt.contains("amount")) {
             return new EnergyStack(NBTHelper.nbtGetEnum(nbt, "sys", EnergySystem.class), nbt.getDouble("amount"));
@@ -107,13 +107,13 @@ public final class EnergyStack
         return EMPTY;
     }
 
-    public void serializeTo(final PacketBuffer buffer) {
+    public void serializeTo(final FriendlyByteBuf buffer) {
 
         buffer.writeEnum(this._system);
         buffer.writeDouble(this._amount);
     }
 
-    public static EnergyStack from(final PacketBuffer buffer) {
+    public static EnergyStack from(final FriendlyByteBuf buffer) {
 
         try {
 

@@ -22,13 +22,13 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.zerono.mods.zerocore.ZeroCore;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,29 +42,29 @@ import java.util.Objects;
 public class ChunkCache {
 
     @Nullable
-    public static ChunkCache get(final World world) {
+    public static ChunkCache get(final Level world) {
         return s_caches.get(world);
     }
 
-    public static ChunkCache getOrCreate(final World world) {
+    public static ChunkCache getOrCreate(final Level world) {
         return s_caches.computeIfAbsent(world, w -> new ChunkCache(Objects.requireNonNull(world)));
     }
 
     @Nullable
-    public Chunk get(final BlockPos position) {
+    public LevelChunk get(final BlockPos position) {
 
-        if (!World.isInWorldBounds(position)) {
+        if (!Level.isInWorldBounds(position)) {
             return null;
         }
 
         final int chunkX = position.getX() >> 4;
         final int chunkZ = position.getZ() >> 4;
         final long chunkHash = ChunkPos.asLong(chunkX, chunkZ);
-        Chunk chunk = this._chunks.get(chunkHash);
+        LevelChunk chunk = this._chunks.get(chunkHash);
 
         if (null == chunk) {
 
-            chunk = (Chunk)this._world.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+            chunk = (LevelChunk)this._world.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
 
             if (null != chunk) {
                 this._chunks.put(chunkHash, chunk);
@@ -74,7 +74,7 @@ public class ChunkCache {
         return chunk;
     }
 
-    public void remove(final Chunk chunk) {
+    public void remove(final LevelChunk chunk) {
         this._chunks.remove(chunk.getPos().toLong());
     }
 
@@ -85,15 +85,15 @@ public class ChunkCache {
     @SubscribeEvent
     public static void onChunkUnload(final ChunkEvent.Unload event) {
 
-        final IChunk chunk = Objects.requireNonNull(event.getChunk());
-        final IWorld world = chunk.getWorldForge();
+        final ChunkAccess chunk = Objects.requireNonNull(event.getChunk());
+        final LevelAccessor world = chunk.getWorldForge();
 
         if (null != world) {
 
             final ChunkCache cache = s_caches.get(world);
 
             if (null != cache) {
-                cache.remove((Chunk)chunk);
+                cache.remove((LevelChunk)chunk);
             }
         }
     }
@@ -101,7 +101,7 @@ public class ChunkCache {
     @SubscribeEvent
     public static void onWorldUnload(final WorldEvent.Unload event) {
 
-        final IWorld world = Objects.requireNonNull(event.getWorld());
+        final LevelAccessor world = Objects.requireNonNull(event.getWorld());
         final ChunkCache cache = s_caches.get(world);
 
         if (null != cache) {
@@ -113,16 +113,16 @@ public class ChunkCache {
 
     //region internals
 
-    private ChunkCache(final World world) {
+    private ChunkCache(final Level world) {
 
         this._world = Objects.requireNonNull(world);
         this._chunks = new Long2ObjectOpenHashMap<>(256 * 256 / (16 * 2), 0.75f);
     }
 
-    private static final Map<IWorld, ChunkCache> s_caches = new Reference2ObjectArrayMap<>(2 * 8);
+    private static final Map<LevelAccessor, ChunkCache> s_caches = new Reference2ObjectArrayMap<>(2 * 8);
 
-    private final Long2ObjectMap<Chunk> _chunks;
-    private final World _world;
+    private final Long2ObjectMap<LevelChunk> _chunks;
+    private final Level _world;
 
     //endregion
 }

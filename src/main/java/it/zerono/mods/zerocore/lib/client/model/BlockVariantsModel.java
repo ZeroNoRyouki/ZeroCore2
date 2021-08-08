@@ -23,11 +23,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.zerono.mods.zerocore.lib.client.model.data.GenericProperties;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -49,12 +49,12 @@ public class BlockVariantsModel
     }
 
     @SuppressWarnings("unused")
-    public void addBlock(int blockId, boolean hasGeneralQuads, /*int particlesModelIndex,*/ IBakedModel... variants) {
+    public void addBlock(int blockId, boolean hasGeneralQuads, /*int particlesModelIndex,*/ BakedModel... variants) {
         this._entries.put(blockId, new BlockEntry(/*particlesModelIndex, */hasGeneralQuads, variants));
     }
 
     @SuppressWarnings("unused")
-    public void addBlock(int blockId, boolean hasGeneralQuads, /*int particlesModelIndex,*/ List<IBakedModel> variants) {
+    public void addBlock(int blockId, boolean hasGeneralQuads, /*int particlesModelIndex,*/ List<BakedModel> variants) {
         this._entries.put(blockId, new BlockEntry(/*particlesModelIndex, */hasGeneralQuads, variants));
     }
 
@@ -94,14 +94,14 @@ public class BlockVariantsModel
 
     private static class BlockEntry {
 
-        BlockEntry(/*final int particlesModelIndex,*/ final boolean hasGeneralQuads, final IBakedModel... variants) {
+        BlockEntry(/*final int particlesModelIndex,*/ final boolean hasGeneralQuads, final BakedModel... variants) {
 
             this._variants = ImmutableList.copyOf(variants);
             //this._particlesModelIndex = particlesModelIndex;
             this._noGeneralQuads = !hasGeneralQuads;
         }
 
-        BlockEntry(/*final int particlesModelIndex,*/ final boolean hasGeneralQuads, final List<IBakedModel> variants) {
+        BlockEntry(/*final int particlesModelIndex,*/ final boolean hasGeneralQuads, final List<BakedModel> variants) {
 
             this._variants = ImmutableList.copyOf(variants);
             //this._particlesModelIndex = particlesModelIndex;
@@ -124,7 +124,7 @@ public class BlockVariantsModel
 
         //region internals
 
-        private final List<IBakedModel> _variants;
+        private final List<BakedModel> _variants;
         //private final int _particlesModelIndex;
         private final boolean _noGeneralQuads;
 

@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
@@ -61,14 +61,14 @@ public abstract class AbstractDragSource
     }
 
     @Override
-    public void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
         this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, Theme.DARK_OUTLINE_COLOR);
     }
 
     @Override
-    public void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
         this.getDraggable().ifPresent(draggable -> draggable.onPaint(matrix, this.getPaintX(), this.getPaintY(),
                 this.getGuiZLevel(), this.getMouseOver() ? IDraggable.PaintState.Highlighted : IDraggable.PaintState.Default));
     }

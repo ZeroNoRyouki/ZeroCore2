@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -37,7 +37,7 @@ public class TextConstraints {
         } else {
 
             final long originalValue = Long.parseLong(text);
-            long value = MathHelper.clamp(originalValue, 0, Integer.MAX_VALUE);
+            long value = Mth.clamp(originalValue, 0, Integer.MAX_VALUE);
 
             if (originalValue != value || '0' == text.charAt(0)) {
                 return Optional.of(Long.toString(value));
@@ -56,7 +56,7 @@ public class TextConstraints {
         } else {
 
             final int originalValue = Integer.parseInt(text);
-            int percentage = MathHelper.clamp(originalValue, 0, 100);
+            int percentage = Mth.clamp(originalValue, 0, 100);
 
             if (originalValue != percentage || '0' == text.charAt(0)) {
                 return Optional.of(Integer.toString(percentage));

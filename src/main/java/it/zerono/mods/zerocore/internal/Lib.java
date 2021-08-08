@@ -24,7 +24,7 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
 import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockClientRegistry;
 import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
-import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
@@ -44,7 +44,7 @@ public final class Lib {
         IEventBus bus;
 
         bus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
-        bus.addGenericListener(IRecipeSerializer.class, Lib::onRegisterRecipeSerializer);
+        bus.addGenericListener(RecipeSerializer.class, Lib::onRegisterRecipeSerializer);
 
         bus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
         bus.addListener(Lib::onAddReloadListener);
@@ -92,7 +92,7 @@ public final class Lib {
     }
 
     @SubscribeEvent
-    public static void onRegisterRecipeSerializer(final RegistryEvent.Register<IRecipeSerializer<?>> event) {
+    public static void onRegisterRecipeSerializer(final RegistryEvent.Register<RecipeSerializer<?>> event) {
         ModRecipeType.onRegisterRecipes();
     }
 

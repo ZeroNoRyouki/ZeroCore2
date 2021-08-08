@@ -23,8 +23,8 @@ import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.compat.Mods;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TranslatableComponent;
 import vazkii.patchouli.api.PatchouliAPI;
 
 public class HelpButton
@@ -45,11 +45,11 @@ public class HelpButton
                     Log.LOGGER.error(Log.CORE, "Exception while opening Patchouli book.", ex);
                 }
             }));
-            button.setTooltips(ImmutableList.of(new TranslationTextComponent("zerocore:gui.manual.open")));
+            button.setTooltips(ImmutableList.of(new TranslatableComponent("zerocore:gui.manual.open")));
 
         } else {
 
-            button.setTooltips(ImmutableList.of(new TranslationTextComponent("zerocore:gui.patchouli.missing")));
+            button.setTooltips(ImmutableList.of(new TranslatableComponent("zerocore:gui.patchouli.missing")));
             button.setEnabled(false);
         }
 

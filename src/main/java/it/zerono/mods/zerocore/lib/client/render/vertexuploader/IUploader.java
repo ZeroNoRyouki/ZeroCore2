@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.client.render.vertexuploader;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.zerono.mods.zerocore.lib.client.render.IVertexSource;
 
 @FunctionalInterface
 public interface IUploader {
 
-    void upload(IVertexBuilder builder, IVertexSource source, ISourceAdapter adapter);
+    void upload(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter);
 }

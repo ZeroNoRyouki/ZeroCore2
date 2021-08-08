@@ -26,7 +26,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nullable;
@@ -37,11 +37,11 @@ import java.util.function.Function;
 @SuppressWarnings("WeakerAccess")
 public abstract class ComputerPeripheral<P extends ComputerPeripheral<P>> {
 
-    public ComputerPeripheral(final TileEntity peripheral) {
+    public ComputerPeripheral(final BlockEntity peripheral) {
         this._tile = peripheral;
     }
 
-    public TileEntity getTileEntity() {
+    public BlockEntity getTileEntity() {
         return this._tile;
     }
 
@@ -213,7 +213,7 @@ public abstract class ComputerPeripheral<P extends ComputerPeripheral<P>> {
     @SuppressWarnings("rawtypes")
     private static final Map<String, MethodCollection> s_methods = new Object2ObjectArrayMap<>();
 
-    private final TileEntity _tile;
+    private final BlockEntity _tile;
 
     //endregion
 }

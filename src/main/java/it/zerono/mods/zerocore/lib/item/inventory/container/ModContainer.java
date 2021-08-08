@@ -29,14 +29,14 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotTemplate;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneric;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings({"WeakerAccess"})
-public class ModContainer extends Container {
+public class ModContainer extends AbstractContainerMenu {
 
     public static final String INVENTORYNAME_PLAYER_INVENTORY = "playerinventory";
     public static final String INVENTORY_CONTAINER = "container";
@@ -55,7 +55,7 @@ public class ModContainer extends Container {
     public static final String SLOTGROUPNAME_PLAYER_INVENTORY = "playerinventory_main";
     public static final String SLOTGROUPNAME_PLAYER_HOTBAR = "playerinventory_hotbar";
 
-    public ModContainer(final ContainerFactory factory, final ContainerType<?> type, final int windowId) {
+    public ModContainer(final ContainerFactory factory, final MenuType<?> type, final int windowId) {
 
         super(type, windowId);
         this._factory = factory;
@@ -63,7 +63,7 @@ public class ModContainer extends Container {
         this._inventorySlotsGroups = Maps.newHashMap();
     }
 
-    public static ModContainer empty(final ContainerType<?> type, final int windowId) {
+    public static ModContainer empty(final MenuType<?> type, final int windowId) {
         return new ModContainer(ContainerFactory.EMPTY, type, windowId) {
             @Override
             public void setItem(int slotID, ItemStack stack) {
@@ -79,11 +79,11 @@ public class ModContainer extends Container {
         this._registeredInventories.put(name, inventory);
     }
 
-    public void addInventory(final String name, final IInventory inventory) {
+    public void addInventory(final String name, final Container inventory) {
         this.addInventory(name, new InvWrapper(inventory));
     }
 
-    public void addInventory(final String name, final PlayerInventory inventory) {
+    public void addInventory(final String name, final Inventory inventory) {
         this.addInventory(name, new PlayerInvWrapper(inventory));
     }
 
@@ -118,7 +118,7 @@ public class ModContainer extends Container {
      * @param player the player
      */
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
@@ -205,7 +205,7 @@ public class ModContainer extends Container {
     }
 
     @Override
-    public ItemStack clicked(int clickedSlotIndex, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+    public ItemStack clicked(int clickedSlotIndex, int dragType, ClickType clickTypeIn, Player player) {
 
         if (this._factory.isSlotOfType(clickedSlotIndex, SlotType.GhostInput)) {
 
@@ -235,7 +235,7 @@ public class ModContainer extends Container {
      *          contained in the slot
      */
     @Override
-    public ItemStack quickMoveStack(PlayerEntity player, int clickedSlotIndex) {
+    public ItemStack quickMoveStack(Player player, int clickedSlotIndex) {
 
         final Optional<SlotTemplate> clickedTemplate = this._factory.getSlotTemplate(clickedSlotIndex);
 

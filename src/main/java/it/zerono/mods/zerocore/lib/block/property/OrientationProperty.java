@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.block.property;
 
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.core.Direction;
 
 public final class OrientationProperty {
 

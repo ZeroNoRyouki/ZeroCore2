@@ -18,10 +18,10 @@
 
 package it.zerono.mods.zerocore.internal.client;
 
-import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import org.lwjgl.opengl.GL11;
 
 import java.util.OptionalDouble;
@@ -30,9 +30,9 @@ public final class RenderTypes
     extends RenderType {
 
     public static final RenderType ERROR_BLOCK_HIGHLIGHT = create("zc_mb_error_block",
-            DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
-            RenderType.State.builder()
-                    .setLineState(new RenderState.LineState(OptionalDouble.of(8)))
+            DefaultVertexFormat.POSITION_COLOR, GL11.GL_LINES, 256,
+            RenderType.CompositeState.builder()
+                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(8)))
                     .setTransparencyState(NO_TRANSPARENCY)
                     .setAlphaState(DEFAULT_ALPHA)
                     .setTextureState(NO_TEXTURE)

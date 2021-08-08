@@ -21,11 +21,13 @@ package it.zerono.mods.zerocore.lib.fluid.handler;
 import it.zerono.mods.zerocore.lib.data.stack.AllowedHandlerAction;
 import it.zerono.mods.zerocore.lib.data.stack.IndexedStackContainer;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
+
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class IndexedFluidHandlerForwarder<Index extends Enum<Index>>
         implements IFluidHandler {

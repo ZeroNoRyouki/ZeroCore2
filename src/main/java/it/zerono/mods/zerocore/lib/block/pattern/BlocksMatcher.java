@@ -18,9 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.block.pattern;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.pattern.BlockMatcher;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.predicate.BlockPredicate;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class BlocksMatcher implements Predicate<BlockState> {
 
     public static Predicate<BlockState> forBlock(final Block block) {
-        return new BlockMatcher(block);
+        return new BlockPredicate(block);
     }
 
     public static Predicate<BlockState> forBlock(final Block block, final Block... others) {

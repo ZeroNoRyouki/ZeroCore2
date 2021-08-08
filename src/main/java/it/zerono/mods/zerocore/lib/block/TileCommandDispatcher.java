@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.block;
 
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.internal.Log;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.Map;
@@ -62,7 +62,7 @@ public class TileCommandDispatcher<T extends AbstractModBlockEntity>
     //region ITileCommandDispatcher
 
     @Override
-    public void dispatch(LogicalSide source, String name, CompoundNBT parameters) {
+    public void dispatch(LogicalSide source, String name, CompoundTag parameters) {
         this._handlers.getOrDefault(name, (t, s, p) -> Log.LOGGER.error("No handler for Tile Command {}", name))
                 .handle(this._tile, source, parameters);
     }

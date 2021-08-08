@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.Arrays;
 import java.util.function.BiFunction;
@@ -65,7 +65,7 @@ public class Polygon {
         this(other._xs, other._ys);
     }
 
-    public static Polygon syncDataFrom(CompoundNBT data) {
+    public static Polygon syncDataFrom(CompoundTag data) {
 
         if (data.contains("xs") && data.contains("ys")) {
 
@@ -80,7 +80,7 @@ public class Polygon {
         return EMPTY;
     }
 
-    public CompoundNBT syncDataTo(CompoundNBT data) {
+    public CompoundTag syncDataTo(CompoundTag data) {
 
         data.putIntArray("xs", this._xs);
         data.putIntArray("ys", this._ys);

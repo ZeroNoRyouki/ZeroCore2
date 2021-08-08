@@ -47,9 +47,9 @@ import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -148,9 +148,9 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
      * Called before Tile Entities are ticked in the world. Do bookkeeping here.
      * @param world The world being ticked
      */
-    protected void tickStart(final World world) {
+    protected void tickStart(final Level world) {
 
-        final IProfiler profiler = world.getProfiler();
+        final ProfilerFiller profiler = world.getProfiler();
 
         profiler.push("Zero CORE|Multiblock|Tick");
 
@@ -173,9 +173,9 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onWorldUnload(final WorldEvent.Unload event) {
 
-        final IWorld world = event.getWorld();
+        final LevelAccessor world = event.getWorld();
 
-        if (world instanceof World) {
+        if (world instanceof Level) {
 
             final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
 
@@ -200,7 +200,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
 
     //endregion
 
-    private final Map<World, MultiblockWorldRegistry<Controller>> _registries;
+    private final Map<Level, MultiblockWorldRegistry<Controller>> _registries;
 
     //endregion
 }

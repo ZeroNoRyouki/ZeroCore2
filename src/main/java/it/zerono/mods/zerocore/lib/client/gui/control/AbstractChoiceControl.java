@@ -25,7 +25,7 @@ import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.EnumIndexerSelection;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 import java.util.List;
 import java.util.Optional;

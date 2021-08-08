@@ -28,12 +28,12 @@ import com.google.gson.JsonSyntaxException;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.crafting.NBTIngredient;
 
 import java.util.Arrays;
@@ -55,7 +55,7 @@ public abstract class ItemStackRecipeIngredient
         return new CompositeImpl(ingredients);
     }
 
-    public static ItemStackRecipeIngredient from(final PacketBuffer buffer) {
+    public static ItemStackRecipeIngredient from(final FriendlyByteBuf buffer) {
 
         final int ingredientsCount = buffer.readVarInt();
 
@@ -122,19 +122,19 @@ public abstract class ItemStackRecipeIngredient
         return from(stack.hasTag() ? new NBTIngredient(stack) {} : Ingredient.of(stack), amount);
     }
 
-    public static ItemStackRecipeIngredient from(final IItemProvider item) {
+    public static ItemStackRecipeIngredient from(final ItemLike item) {
         return from(item, 1);
     }
 
-    public static ItemStackRecipeIngredient from(final IItemProvider item, final int amount) {
+    public static ItemStackRecipeIngredient from(final ItemLike item, final int amount) {
         return from(new ItemStack(item), amount);
     }
 
-    public static ItemStackRecipeIngredient from(final ITag<Item> tag) {
+    public static ItemStackRecipeIngredient from(final Tag<Item> tag) {
         return from(tag, 1);
     }
 
-    public static ItemStackRecipeIngredient from(final ITag<Item> tag, final int amount) {
+    public static ItemStackRecipeIngredient from(final Tag<Item> tag, final int amount) {
         return from(Ingredient.of(tag), amount);
     }
 
@@ -181,7 +181,7 @@ public abstract class ItemStackRecipeIngredient
         }
 
         @Override
-        public void serializeTo(final PacketBuffer buffer) {
+        public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeVarInt(1);
             this._ingredient.toNetwork(buffer);
@@ -282,7 +282,7 @@ public abstract class ItemStackRecipeIngredient
         }
 
         @Override
-        public void serializeTo(final PacketBuffer buffer) {
+        public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeVarInt(this._ingredients.size());
             this._ingredients.forEach(ingredient -> ingredient.serializeTo(buffer));

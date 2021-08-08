@@ -25,12 +25,12 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.ICriterionInstance;
-import net.minecraft.advancements.IRequirementsStrategy;
-import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -49,22 +49,22 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
         this._conditions = Lists.newArrayList();
     }
 
-    protected abstract IFinishedRecipe getFinishedRecipe(ResourceLocation id);
+    protected abstract FinishedRecipe getFinishedRecipe(ResourceLocation id);
 
-    public void build(final Consumer<IFinishedRecipe> consumer, final ResourceLocation id) {
+    public void build(final Consumer<FinishedRecipe> consumer, final ResourceLocation id) {
 
         if (this.hasCriteria()) {
             this._advancementBuilder
                     .parent(new ResourceLocation("recipes/root"))
                     .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
                     .rewards(AdvancementRewards.Builder.recipe(id))
-                    .requirements(IRequirementsStrategy.OR);
+                    .requirements(RequirementsStrategy.OR);
         }
 
         consumer.accept(this.getFinishedRecipe(id));
     }
 
-    public Builder addCriterion(final String name, final ICriterionInstance criterionIn) {
+    public Builder addCriterion(final String name, final CriterionTriggerInstance criterionIn) {
 
         this._advancementBuilder.addCriterion(name, criterionIn);
         return this.self();
@@ -83,7 +83,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
     //region RecipeResult
 
     protected abstract class AbstractFinishedRecipe
-            implements IFinishedRecipe {
+            implements FinishedRecipe {
 
         public AbstractFinishedRecipe(final ResourceLocation id) {
             this._id = id;
@@ -120,7 +120,7 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
         }
 
         @Override
-        public IRecipeSerializer<?> getType() {
+        public RecipeSerializer<?> getType() {
             return Objects.requireNonNull(ForgeRegistries.RECIPE_SERIALIZERS.getValue(_serializerId),
                     () -> "Unknown recipe serializer: " + _serializerId);
         }

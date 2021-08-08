@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.lib.client.model.multiblock;
 import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModel;
 import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModelBuilder;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
 
@@ -59,7 +59,7 @@ public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
     //region internals
 
     private final ResourceLocation _templateId;
-    private IBakedModel _templateModel;
+    private BakedModel _templateModel;
 
     //endregion
 }

@@ -22,8 +22,8 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
@@ -42,14 +42,14 @@ public class TwoToOneRecipeBuilder<RecipeIngredient1, RecipeIngredient2, RecipeR
         this._jsonIngredientsLabelsSupplier = jsonIngredientsLabelsSupplier;
     }
 
-    public void build(final Consumer<IFinishedRecipe> consumer) {
+    public void build(final Consumer<FinishedRecipe> consumer) {
         this.build(consumer, this._result.getId());
     }
 
     //region AbstractModRecipeBuilder
 
     @Override
-    protected IFinishedRecipe getFinishedRecipe(final ResourceLocation id) {
+    protected FinishedRecipe getFinishedRecipe(final ResourceLocation id) {
         return new TwoToOneRecipeBuilderFinishedRecipe(id);
     }
 

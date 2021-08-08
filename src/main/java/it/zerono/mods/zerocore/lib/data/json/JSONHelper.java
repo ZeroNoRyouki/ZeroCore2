@@ -24,13 +24,13 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
@@ -242,9 +242,9 @@ public final class JSONHelper {
      * @param elementName the name of the element
      * @return the CompoundNBT value of the element
      */
-    public static CompoundNBT jsonGetNBT(final JsonObject json, final String elementName) {
+    public static CompoundTag jsonGetNBT(final JsonObject json, final String elementName) {
         try {
-            return JsonToNBT.parseTag(jsonGetString(json, elementName));
+            return TagParser.parseTag(jsonGetString(json, elementName));
         } catch (CommandSyntaxException ex) {
             throw new JsonSyntaxException("JSON element is not a valid CompoundNBT tag: " + elementName);
         }
@@ -259,9 +259,9 @@ public final class JSONHelper {
      * @param defaultValue the default value to use if the element is not found
      * @return the element value or {@code defaultValue}
      */
-    public static CompoundNBT jsonGetNBT(final JsonObject json, final String elementName, final CompoundNBT defaultValue) {
+    public static CompoundTag jsonGetNBT(final JsonObject json, final String elementName, final CompoundTag defaultValue) {
         try {
-            return json.has(elementName) ? JsonToNBT.parseTag(jsonGetString(json.get(elementName), elementName)) : defaultValue;
+            return json.has(elementName) ? TagParser.parseTag(jsonGetString(json.get(elementName), elementName)) : defaultValue;
         } catch (CommandSyntaxException ex) {
             throw new JsonSyntaxException("JSON element is not a valid CompoundNBT tag: " + elementName);
         }
@@ -274,7 +274,7 @@ public final class JSONHelper {
      * @param elementName the name of the element
      * @param value the value
      */
-    public static void jsonSetNBT(final JsonObject json, final String elementName, final CompoundNBT value) {
+    public static void jsonSetNBT(final JsonObject json, final String elementName, final CompoundTag value) {
         jsonSetString(json, elementName, value.toString());
     }
 
@@ -303,7 +303,7 @@ public final class JSONHelper {
      * @param elementName the name of the element
      * @param value the value
      */
-    public static void jsonSetItem(final JsonObject json, final String elementName, final IItemProvider value) {
+    public static void jsonSetItem(final JsonObject json, final String elementName, final ItemLike value) {
         jsonSetResourceLocation(json, elementName, ItemHelper.getItemId(value));
     }
 

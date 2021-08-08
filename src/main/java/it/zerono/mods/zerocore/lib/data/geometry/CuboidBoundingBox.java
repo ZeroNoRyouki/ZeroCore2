@@ -20,9 +20,9 @@ package it.zerono.mods.zerocore.lib.data.geometry;
 
 import it.unimi.dsi.fastutil.ints.IntComparator;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 
 import java.util.Objects;
 
@@ -34,16 +34,16 @@ public class CuboidBoundingBox {
         this(CodeHelper.MAX_BLOCKPOS, CodeHelper.MIN_BLOCKPOS);
     }
 
-    public CuboidBoundingBox(final Vector3i min, final Vector3i max) {
+    public CuboidBoundingBox(final Vec3i min, final Vec3i max) {
 
-        this._min = new BlockPos.Mutable(min.getX(), min.getY(), min.getZ());
-        this._max = new BlockPos.Mutable(max.getX(), max.getY(), max.getZ());
+        this._min = new BlockPos.MutableBlockPos(min.getX(), min.getY(), min.getZ());
+        this._max = new BlockPos.MutableBlockPos(max.getX(), max.getY(), max.getZ());
     }
 
     public CuboidBoundingBox(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ) {
 
-        this._min = new BlockPos.Mutable(minX, minY, minZ);
-        this._max = new BlockPos.Mutable(maxX, maxY, maxZ);
+        this._min = new BlockPos.MutableBlockPos(minX, minY, minZ);
+        this._max = new BlockPos.MutableBlockPos(maxX, maxY, maxZ);
     }
 
     public BlockPos getMin() {
@@ -54,10 +54,10 @@ public class CuboidBoundingBox {
         return this._max;
     }
 
-    public AxisAlignedBB getAABB() {
+    public AABB getAABB() {
 
         if (null == this._aabb) {
-            this._aabb = new AxisAlignedBB(this._min, this._max);
+            this._aabb = new AABB(this._min, this._max);
         }
 
         return this._aabb;
@@ -89,7 +89,7 @@ public class CuboidBoundingBox {
         return this;
     }
 
-    public boolean contains(final Vector3i vec) {
+    public boolean contains(final Vec3i vec) {
         return this.contains(vec.getX(), vec.getY(), vec.getZ());
     }
 
@@ -119,7 +119,7 @@ public class CuboidBoundingBox {
         return this._min.offset(this.getLengthX() / 2, this.getLengthY() / 2, this.getLengthZ() / 2);
     }
 
-    public int commonVertices(final Vector3i position) {
+    public int commonVertices(final Vec3i position) {
         return CodeHelper.commonVertices(position, this._min) + CodeHelper.commonVertices(position, this._max);
     }
 
@@ -156,7 +156,7 @@ public class CuboidBoundingBox {
     //endregion
     //region internals
 
-    private static boolean adjustPosition(final BlockPos.Mutable currentPosition, final BlockPos newPosition, final IntComparator minMax) {
+    private static boolean adjustPosition(final BlockPos.MutableBlockPos currentPosition, final BlockPos newPosition, final IntComparator minMax) {
 
         final int curX = currentPosition.getX();
         final int curY = currentPosition.getY();
@@ -174,16 +174,16 @@ public class CuboidBoundingBox {
         return false;
     }
 
-    private final BlockPos.Mutable _min;
-    private final BlockPos.Mutable _max;
-    private AxisAlignedBB _aabb;
+    private final BlockPos.MutableBlockPos _min;
+    private final BlockPos.MutableBlockPos _max;
+    private AABB _aabb;
 
     static {
 
         EMPTY = new CuboidBoundingBox() {
 
             @Override
-            public AxisAlignedBB getAABB() {
+            public AABB getAABB() {
                 return CodeHelper.EMPTY_BOUNDING_BOX;
             }
 

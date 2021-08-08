@@ -18,9 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.data;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public interface IIoEntity {
 
@@ -36,6 +36,6 @@ public interface IIoEntity {
         return IoMode.Both;
     }
 
-    default void onBlockReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    default void onBlockReplaced(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
     }
 }

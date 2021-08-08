@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.recipe.result;
 
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.item.inventory.IInventorySlot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 public class RecipeResultTargetWrapper {

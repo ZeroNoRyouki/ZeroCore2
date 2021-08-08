@@ -20,10 +20,10 @@ package it.zerono.mods.zerocore.lib.recipe;
 
 import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class ModRecipeType<Recipe extends ModRecipe>
-        implements IRecipeType<Recipe> {
+        implements RecipeType<Recipe> {
 
     public static <Recipe extends ModRecipe> ModRecipeType<Recipe> create(final ResourceLocation id) {
 

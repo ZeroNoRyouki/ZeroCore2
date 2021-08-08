@@ -19,16 +19,16 @@
 package it.zerono.mods.zerocore.lib.item;
 
 import com.google.common.collect.Lists;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-public class ModItemGroup extends ItemGroup {
+public class ModItemGroup extends CreativeModeTab {
 
     public ModItemGroup(final String label, final Supplier<ItemStack> iconFactory, final Supplier<List<ItemStack>> contentFactory) {
 

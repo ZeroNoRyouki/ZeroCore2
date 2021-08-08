@@ -21,14 +21,14 @@ package it.zerono.mods.zerocore.lib.network;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -47,10 +47,10 @@ public abstract class AbstractModTileMessage
      *
      * @param buffer the {@link PacketBuffer} containing the data received from the network.
      */
-    protected AbstractModTileMessage(final PacketBuffer buffer) {
+    protected AbstractModTileMessage(final FriendlyByteBuf buffer) {
 
         if (buffer.readBoolean()) {
-            this._dimension = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(buffer.readUtf(4096)));
+            this._dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(buffer.readUtf(4096)));
         } else {
             this._dimension = null;
         }
@@ -70,7 +70,7 @@ public abstract class AbstractModTileMessage
      * Returns the dimension of the target TileEntity
      * @return the dimension of the target
      */
-    public Optional<RegistryKey<World>> getDimension() {
+    public Optional<ResourceKey<Level>> getDimension() {
         return Optional.ofNullable(this._dimension);
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractModTileMessage
      * @param sourceSide the LogicalSide this message is coming from
      * @param tileEntity the TileEntity object on the other side of this message exchange
      */
-    protected abstract void processTileEntityMessage(LogicalSide sourceSide, TileEntity tileEntity);
+    protected abstract void processTileEntityMessage(LogicalSide sourceSide, BlockEntity tileEntity);
 
     //region AbstractModMessage
 
@@ -90,7 +90,7 @@ public abstract class AbstractModTileMessage
      * @param buffer the {@link PacketBuffer} to encode your data into
      */
     @Override
-    public void encodeTo(PacketBuffer buffer) {
+    public void encodeTo(FriendlyByteBuf buffer) {
 
         if (null != this._dimension) {
 
@@ -136,7 +136,7 @@ public abstract class AbstractModTileMessage
      * @param tileEntityPosition the coordinates of the TileEntity
      * @param dimension the dimension of the target
      */
-    protected AbstractModTileMessage(final BlockPos tileEntityPosition, final RegistryKey<World> dimension) {
+    protected AbstractModTileMessage(final BlockPos tileEntityPosition, final ResourceKey<Level> dimension) {
 
         this._tilePosition = tileEntityPosition;
         this._dimension = dimension;
@@ -145,7 +145,7 @@ public abstract class AbstractModTileMessage
     //endregion
     //region internals
 
-    private Optional<World> getWorld(final NetworkEvent.Context messageContext) {
+    private Optional<Level> getWorld(final NetworkEvent.Context messageContext) {
 
         switch (messageContext.getDirection()) {
 
@@ -156,7 +156,7 @@ public abstract class AbstractModTileMessage
             // Client -> Server
             case PLAY_TO_SERVER: {
 
-                final ServerPlayerEntity player = messageContext.getSender();
+                final ServerPlayer player = messageContext.getSender();
 
                 if (null != player) {
 
@@ -175,7 +175,7 @@ public abstract class AbstractModTileMessage
     }
 
     private final BlockPos _tilePosition;
-    private final RegistryKey<World> _dimension;
+    private final ResourceKey<Level> _dimension;
 
     //endregion
 }

@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.network;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -57,7 +57,7 @@ public class NetworkHandler {
      * @param messageFactory a factory to create a message from a PacketBuffer containing the message data
      */
     public <T extends IModMessage> void registerMessage(final Class<T> messageType,
-                                                        final Function<PacketBuffer, T> messageFactory) {
+                                                        final Function<FriendlyByteBuf, T> messageFactory) {
 
         this._channel.registerMessage(this._nextIndex++, messageType, T::encodeTo,
                 messageFactory, NetworkHandler::handleMessage);
@@ -78,7 +78,7 @@ public class NetworkHandler {
      * @param message the message to send
      * @param player  the message recipient
      */
-    public <T extends IModMessage> void sendToPlayer(final T message, final ServerPlayerEntity player) {
+    public <T extends IModMessage> void sendToPlayer(final T message, final ServerPlayer player) {
 
         if (!(player instanceof FakePlayer)) {
             this._channel.sendTo(message, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
@@ -128,7 +128,7 @@ public class NetworkHandler {
      */
     public <T extends IModMessage> void sendToAllAround(final T message,
                                                         final double x, final double y, final double z,
-                                                        final double radius, final RegistryKey<World> dimension) {
+                                                        final double radius, final ResourceKey<Level> dimension) {
         this.sendToAllAround(message, PacketDistributor.TargetPoint.p(x, y, z, radius, dimension));
     }
 
@@ -141,7 +141,7 @@ public class NetworkHandler {
      * @param dimension the target dimension
      */
     public <T extends IModMessage> void sendToAllAround(final T message, final BlockPos center,
-                                                        final double radius, final RegistryKey<World> dimension) {
+                                                        final double radius, final ResourceKey<Level> dimension) {
         this.sendToAllAround(message, PacketDistributor.TargetPoint.p(center.getX(), center.getY(), center.getZ(),
                 radius, dimension));
     }
@@ -152,7 +152,7 @@ public class NetworkHandler {
      * @param message   the message to send
      * @param dimension the target dimension
      */
-    public <T extends IModMessage> void sendToDimension(final T message, final RegistryKey<World> dimension) {
+    public <T extends IModMessage> void sendToDimension(final T message, final ResourceKey<Level> dimension) {
         this.sendTo(message, PacketDistributor.DIMENSION.with(() -> dimension));
     }
 

@@ -63,15 +63,17 @@ import it.zerono.mods.zerocore.lib.network.NetworkTileEntitySyncProvider;
 import it.zerono.mods.zerocore.lib.world.ChunkCache;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
+
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 /**
  * This class contains the base logic for "multiblock controllers". Conceptually, they are
@@ -98,7 +100,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param data the data
      */
     @Override
-    public void syncFromSaveDelegate(final CompoundNBT data, final SyncReason syncReason) {
+    public void syncFromSaveDelegate(final CompoundTag data, final SyncReason syncReason) {
 
         this.syncDataFrom(data, syncReason);
         this.requestDataUpdateNotification();
@@ -536,7 +538,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             // If this returns true, the server has changed its internal data.
             // If our chunks are loaded (they should be), we must mark our chunks as dirty.
 
-            final World myWorld = this.getWorld();
+            final Level myWorld = this.getWorld();
             final BlockPos min = this._boundingBox.getMin();
             final BlockPos max = this._boundingBox.getMax();
 
@@ -572,7 +574,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @return the world
      */
     @Override
-    public World getWorld() {
+    public Level getWorld() {
         return this._world;
     }
 
@@ -629,7 +631,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     @Override
-    public void forceStructureUpdate(World world) {
+    public void forceStructureUpdate(Level world) {
     }
 
     /**
@@ -741,7 +743,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundNBT data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
         this.requestDataUpdateNotification();
     }
 
@@ -763,7 +765,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param updateNow if true, send an update to the player immediately.
      */
     @Override
-    public void enlistForUpdates(ServerPlayerEntity player, boolean updateNow) {
+    public void enlistForUpdates(ServerPlayer player, boolean updateNow) {
         this._syncProvider.enlistForUpdates(player, updateNow && this.calledByLogicalServer());
     }
 
@@ -773,7 +775,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param player the player to be removed from the update queue.
      */
     @Override
-    public void delistFromUpdates(ServerPlayerEntity player) {
+    public void delistFromUpdates(ServerPlayer player) {
         this._syncProvider.delistFromUpdates(player);
     }
 
@@ -797,7 +799,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     //endregion
     //region AbstractMultiblockController
 
-	protected AbstractMultiblockController(final World world) {
+	protected AbstractMultiblockController(final Level world) {
 
         this._assemblyState = new AssemblyState();
         this._connectedParts = this.createPartStorage();
@@ -951,7 +953,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * @param y Y coordinate of the block being tested
 	 * @param z Z coordinate of the block being tested
 	 */
-	protected abstract boolean isBlockGoodForFrame(World world, int x, int y, int z, IMultiblockValidator validatorCallback);
+	protected abstract boolean isBlockGoodForFrame(Level world, int x, int y, int z, IMultiblockValidator validatorCallback);
 
 	/**
 	 * The top consists of the top face, minus the edges.
@@ -960,7 +962,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * @param y Y coordinate of the block being tested
 	 * @param z Z coordinate of the block being tested
 	 */
-	protected abstract boolean isBlockGoodForTop(World world, int x, int y, int z, IMultiblockValidator validatorCallback);
+	protected abstract boolean isBlockGoodForTop(Level world, int x, int y, int z, IMultiblockValidator validatorCallback);
 	
 	/**
 	 * The bottom consists of the bottom face, minus the edges.
@@ -969,7 +971,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * @param y Y coordinate of the block being tested
 	 * @param z Z coordinate of the block being tested
 	 */
-	protected abstract boolean isBlockGoodForBottom(World world, int x, int y, int z, IMultiblockValidator validatorCallback);
+	protected abstract boolean isBlockGoodForBottom(Level world, int x, int y, int z, IMultiblockValidator validatorCallback);
 	
 	/**
 	 * The sides consists of the N/E/S/W-facing faces, minus the edges.
@@ -978,7 +980,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * @param y Y coordinate of the block being tested
 	 * @param z Z coordinate of the block being tested
 	 */
-	protected abstract boolean isBlockGoodForSides(World world, int x, int y, int z, IMultiblockValidator validatorCallback);
+	protected abstract boolean isBlockGoodForSides(Level world, int x, int y, int z, IMultiblockValidator validatorCallback);
 	
 	/**
 	 * The interior is any block that does not touch blocks outside the machine.
@@ -987,7 +989,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	 * @param y Y coordinate of the block being tested
 	 * @param z Z coordinate of the block being tested
 	 */
-	protected abstract boolean isBlockGoodForInterior(World world, int x, int y, int z, IMultiblockValidator validatorCallback);
+	protected abstract boolean isBlockGoodForInterior(Level world, int x, int y, int z, IMultiblockValidator validatorCallback);
 
     /**
      * Marks the reference coord dirty & updateable.
@@ -1016,7 +1018,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this.callOnLogicalServer(() -> this.getReferenceTracker().consume((part, position) -> {
 
-            this.getWorld().blockEntityChanged(position, (TileEntity)part);
+            this.getWorld().blockEntityChanged(position, (BlockEntity)part);
             WorldHelper.notifyBlockUpdate(this.getWorld(), position);
         }));
     }
@@ -1457,7 +1459,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     /**
      * The World associated to this controller
      */
-    private final World _world;
+    private final Level _world;
 
     /** This is a deterministically-picked coordinate that identifies this
      * multiblock uniquely in its dimension.

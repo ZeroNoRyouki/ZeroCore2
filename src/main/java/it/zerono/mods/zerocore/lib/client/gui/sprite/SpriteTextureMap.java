@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import it.zerono.mods.zerocore.ZeroCore;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class SpriteTextureMap implements ISpriteTextureMap {
 

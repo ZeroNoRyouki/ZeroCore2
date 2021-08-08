@@ -19,12 +19,12 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
@@ -34,11 +34,11 @@ import java.util.Optional;
 
 public interface IProxy {
 
-    Optional<World> getClientWorld();
+    Optional<Level> getClientWorld();
 
     void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max);
 
-    void sendPlayerStatusMessage(PlayerEntity player, ITextComponent message);
+    void sendPlayerStatusMessage(Player player, Component message);
 
     void addResourceReloadListener(ISelectiveResourceReloadListener listener);
 
@@ -46,16 +46,16 @@ public interface IProxy {
         return 0;
     }
 
-    void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, ITextComponent... messages);
+    void reportErrorToPlayer(@Nullable Player player, @Nullable BlockPos position, Component... messages);
 
-    void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, List<ITextComponent> messages);
+    void reportErrorToPlayer(@Nullable Player player, @Nullable BlockPos position, List<Component> messages);
 
     void clearErrorReport();
 
     @Nullable
     RecipeManager getRecipeManager();
 
-    default void handleInternalCommand(final InternalCommand command, final CompoundNBT data, final NetworkDirection direction) {
+    default void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
         // handle commands that are common to both distributions here
     }
 

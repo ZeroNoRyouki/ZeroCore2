@@ -18,15 +18,15 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -73,12 +73,12 @@ public class Window<C extends ModContainer>
         return this.isVisible() ? this._topLevelContainer.findControl(x, y) : Optional.empty();
     }
 
-    public void paintToolTips(final MatrixStack matrix) {
+    public void paintToolTips(final PoseStack matrix) {
 
         if (null != this._mouseOver) {
 
-            final int mouseX = MathHelper.fastFloor(GuiHelper.getMouse().xpos() / this.getGuiScreen().getGuiScaleFactor());
-            final int mouseY = MathHelper.fastFloor(GuiHelper.getMouse().ypos() / this.getGuiScreen().getGuiScaleFactor());
+            final int mouseX = Mth.fastFloor(GuiHelper.getMouse().xpos() / this.getGuiScreen().getGuiScaleFactor());
+            final int mouseY = Mth.fastFloor(GuiHelper.getMouse().ypos() / this.getGuiScreen().getGuiScaleFactor());
 
             this._mouseOver.paintToolTips(matrix, mouseX, mouseY);
         }
@@ -164,8 +164,8 @@ public class Window<C extends ModContainer>
         this._flags.set(WindowFlags.ContentVisible, this._topLevelContainer.getVisible());
 
         final ModContainerScreen<C> gui = this.getGuiScreen();
-        final int mouseX = MathHelper.fastFloor(GuiHelper.getMouse().xpos() / gui.getGuiScaleFactor());
-        final int mouseY = MathHelper.fastFloor(GuiHelper.getMouse().ypos() / gui.getGuiScaleFactor());
+        final int mouseX = Mth.fastFloor(GuiHelper.getMouse().xpos() / gui.getGuiScaleFactor());
+        final int mouseY = Mth.fastFloor(GuiHelper.getMouse().ypos() / gui.getGuiScaleFactor());
 
         this.updateMouseOverControl(mouseX, mouseY);
     }
@@ -180,28 +180,28 @@ public class Window<C extends ModContainer>
         this.Focus.raise(c -> c.accept(this, newFocus));
     }
 
-    void onPaintBackground(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isVisible()) {
             this._topLevelContainer.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
         }
     }
 
-    void onPaint(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isVisible()) {
             this._topLevelContainer.onPaint(matrix, partialTicks, mouseX, mouseY);
         }
     }
 
-    void onPaintOverlay(final MatrixStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isVisible()) {
             this._topLevelContainer.onPaintOverlay(matrix, partialTicks, mouseX, mouseY);
         }
     }
 
-    void onPaintDebugFrame(final MatrixStack matrix, final Colour colour) {
+    void onPaintDebugFrame(final PoseStack matrix, final Colour colour) {
 
         if (null != this._mouseOver) {
             this._mouseOver.onPaintDebugFrame(matrix, colour);
@@ -256,7 +256,7 @@ public class Window<C extends ModContainer>
         return null != this._keyboardFocus && this._keyboardFocus.onKeyReleased(this, keyCode, scanCode, modifiers);
     }
 
-    void validate(final Consumer<ITextComponent> errorReport) {
+    void validate(final Consumer<Component> errorReport) {
         this._topLevelContainer.validate(errorReport);
     }
 
@@ -282,7 +282,7 @@ public class Window<C extends ModContainer>
         }
     }
 
-    private static final Pair<List<ITextComponent>, List<Object>> EMPTY_TOOLTIPS = Pair.of(Collections.emptyList(), Collections.emptyList());
+    private static final Pair<List<Component>, List<Object>> EMPTY_TOOLTIPS = Pair.of(Collections.emptyList(), Collections.emptyList());
 
     private enum WindowFlags {
 

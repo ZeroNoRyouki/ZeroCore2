@@ -19,13 +19,13 @@
 package it.zerono.mods.zerocore.lib.block.property;
 
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.util.StringRepresentable;
 
 import java.util.EnumSet;
 
 public enum BlockFacingsProperty
-        implements IStringSerializable {
+        implements StringRepresentable {
 
     None(BlockFacings.computeHash(false, false, false, false, false, false)),
     All(BlockFacings.computeHash(true, true, true, true, true, true)),
