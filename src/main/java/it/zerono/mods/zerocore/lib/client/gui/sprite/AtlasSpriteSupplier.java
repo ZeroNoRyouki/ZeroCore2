@@ -20,20 +20,17 @@ package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
-import net.minecraftforge.resource.VanillaResourceType;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class AtlasSpriteSupplier implements ISelectiveResourceReloadListener {
+public class AtlasSpriteSupplier implements ResourceManagerReloadListener {
 
     public static final AtlasSpriteSupplier INSTANCE = new AtlasSpriteSupplier();
 
@@ -52,23 +49,11 @@ public class AtlasSpriteSupplier implements ISelectiveResourceReloadListener {
         return new AtlasSpriteSupplier.SpriteSupplier(spriteName, map);
     }
 
-    //region ISelectiveResourceReloadListener
+    //region ResourceManagerReloadListener
 
-    /**
-     * A version of onResourceManager that selectively chooses {@link IResourceType}s
-     * to reload.
-     * When using this, the given predicate should be called to ensure the relevant resources should
-     * be reloaded at this time.
-     *
-     * @param resourceManager   the resource manager being reloaded
-     * @param resourcePredicate predicate to test whether any given resource type should be reloaded
-     */
     @Override
-    public void onResourceManagerReload(ResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-
-        if (resourcePredicate.test(VanillaResourceType.TEXTURES)) {
-            ++this._generation;
-        }
+    public void onResourceManagerReload(ResourceManager resourceManager) {
+        ++this._generation;
     }
 
     //endregion

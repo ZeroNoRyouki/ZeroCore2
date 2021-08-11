@@ -24,7 +24,7 @@ import it.zerono.mods.zerocore.lib.data.nbt.NBTBuilder;
 import it.zerono.mods.zerocore.lib.network.IModMessage;
 import it.zerono.mods.zerocore.lib.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 public final class Network {
 

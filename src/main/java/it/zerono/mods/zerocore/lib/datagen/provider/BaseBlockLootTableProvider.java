@@ -22,27 +22,25 @@ import it.zerono.mods.zerocore.lib.datagen.LootTableType;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.loot.*;
-import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.Objects;
-import java.util.function.Supplier;
-
-import net.minecraft.world.level.storage.loot.ConstantIntValue;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.RandomValueBounds;
 import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+
+import java.util.Objects;
+import java.util.function.Supplier;
 
 public class BaseBlockLootTableProvider
         extends BaseLootTableProvider {
@@ -67,7 +65,7 @@ public class BaseBlockLootTableProvider
                            final int count) {
         this.addDrop(block.get(), LootItem.lootTableItem(drop.get())
                 .when(ExplosionCondition.survivesExplosion())
-                .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(count))));
+                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(count))));
     }
 
     protected void addSilkDrop(final Supplier<? extends Block> block, final Supplier<? extends ItemLike> standardDrop,
@@ -80,7 +78,7 @@ public class BaseBlockLootTableProvider
                 // without ...
                 LootItem.lootTableItem(standardDrop.get())
                         .when(ExplosionCondition.survivesExplosion())
-                        .apply(SetItemCountFunction.setCount(ConstantIntValue.exactly(count)))));
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(count)))));
     }
 
     protected void addDrop(final Supplier<? extends Block> block, final Supplier<? extends ItemLike> drop,
@@ -88,7 +86,7 @@ public class BaseBlockLootTableProvider
         this.addDrop(block.get(), LootItem.lootTableItem(drop.get())
                 .when(ExplosionCondition.survivesExplosion())
                 .apply(ApplyBonusCount.addUniformBonusCount(Enchantments.BLOCK_FORTUNE, 1))
-                .apply(SetItemCountFunction.setCount(RandomValueBounds.between(min, max))));
+                .apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max))));
     }
 
     protected void addSilkDrop(final Supplier<? extends Block> block, final Supplier<? extends ItemLike> standardDrop,
@@ -103,7 +101,7 @@ public class BaseBlockLootTableProvider
                 LootItem.lootTableItem(standardDrop.get())
                         .when(ExplosionCondition.survivesExplosion())
                         .apply(ApplyBonusCount.addUniformBonusCount(Enchantments.BLOCK_FORTUNE, 1))
-                        .apply(SetItemCountFunction.setCount(new RandomValueBounds(min, max)))));
+                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(min, max)))));
     }
 
     //region internals
@@ -115,7 +113,7 @@ public class BaseBlockLootTableProvider
         this.add(id, LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .name(id.getPath())
-                        .setRolls(ConstantIntValue.exactly(1))
+                        .setRolls(ConstantValue.exactly(1))
                         .add(entry)
                 ));
     }

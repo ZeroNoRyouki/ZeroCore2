@@ -26,12 +26,14 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.tag.TagsHelper;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.SerializationTags;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.Collections;
@@ -94,20 +96,15 @@ public abstract class FluidStackRecipeIngredient
             final JsonArray json = jsonElement.getAsJsonArray();
             final int size = json.size();
 
-            switch (size) {
-
-                case 0:
-                    throw new JsonSyntaxException("No ingredients found, at least one is required");
-
-                case 1:
-                    return from(json.get(0));
-
-                default:
-                    //noinspection UnstableApiUsage
-                    return from(Streams.stream(json)
-                            .map(FluidStackRecipeIngredient::from)
-                            .toArray(FluidStackRecipeIngredient[]::new));
-            }
+            return switch (size) {
+                case 0 -> throw new JsonSyntaxException("No ingredients found, at least one is required");
+                case 1 -> from(json.get(0));
+                default ->
+                        //noinspection UnstableApiUsage
+                        from(Streams.stream(json)
+                                .map(FluidStackRecipeIngredient::from)
+                                .toArray(FluidStackRecipeIngredient[]::new));
+            };
         } else if (jsonElement.isJsonObject()) {
 
             final JsonObject json = jsonElement.getAsJsonObject();
@@ -129,7 +126,7 @@ public abstract class FluidStackRecipeIngredient
                 }
 
                 final ResourceLocation tagId = JSONHelper.jsonGetResourceLocation(json, Lib.NAME_TAG);
-                final Tag<Fluid> tag = SerializationTags.getInstance().getFluids().getTag(tagId);
+                final Tag<Fluid> tag = getFluidTagsCollection().getTag(tagId);
 
                 if (null == tag) {
                     throw new JsonSyntaxException("Unknown fluid ingredient Tag: " + tagId);
@@ -362,7 +359,7 @@ public abstract class FluidStackRecipeIngredient
         public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeByte(3);
-            buffer.writeResourceLocation(SerializationTags.getInstance().getFluids().getIdOrThrow(this._tag));
+            buffer.writeResourceLocation(Objects.requireNonNull(getFluidTagsCollection().getId(this._tag)));
             buffer.writeVarInt(this._amount);
         }
 
@@ -371,7 +368,7 @@ public abstract class FluidStackRecipeIngredient
 
             final JsonObject json = new JsonObject();
 
-            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, SerializationTags.getInstance().getFluids().getIdOrThrow(this._tag));
+            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, Objects.requireNonNull(getFluidTagsCollection().getId(this._tag)));
             JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, this._amount);
             return json;
         }
@@ -398,6 +395,13 @@ public abstract class FluidStackRecipeIngredient
         private List<FluidStack> _cachedMatchingElements;
 
         //endregion
+    }
+
+    //endregion
+    //region internals
+
+    private static TagCollection<Fluid> getFluidTagsCollection() {
+        return SerializationTags.getInstance().getOrEmpty(Registry.FLUID_REGISTRY);
     }
 
     //endregion

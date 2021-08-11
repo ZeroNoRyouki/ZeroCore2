@@ -21,6 +21,6 @@
  @MethodsReturnNonnullByDefault
  package it.zerono.mods.zerocore.lib.world.feature;
 
- import mcp.MethodsReturnNonnullByDefault;
+ import net.minecraft.MethodsReturnNonnullByDefault;
 
  import javax.annotation.ParametersAreNonnullByDefault;

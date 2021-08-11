@@ -29,11 +29,11 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotTemplate;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneric;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -66,7 +66,7 @@ public class ModContainer extends AbstractContainerMenu {
     public static ModContainer empty(final MenuType<?> type, final int windowId) {
         return new ModContainer(ContainerFactory.EMPTY, type, windowId) {
             @Override
-            public void setItem(int slotID, ItemStack stack) {
+            public void setItem(int slotID, int p_182408_, ItemStack stack) {
             }
         };
     }
@@ -205,7 +205,7 @@ public class ModContainer extends AbstractContainerMenu {
     }
 
     @Override
-    public ItemStack clicked(int clickedSlotIndex, int dragType, ClickType clickTypeIn, Player player) {
+    public void clicked(int clickedSlotIndex, int dragType, ClickType clickTypeIn, Player player) {
 
         if (this._factory.isSlotOfType(clickedSlotIndex, SlotType.GhostInput)) {
 
@@ -216,7 +216,7 @@ public class ModContainer extends AbstractContainerMenu {
             }
         }
 
-        return super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
+        super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
     }
 
     /**

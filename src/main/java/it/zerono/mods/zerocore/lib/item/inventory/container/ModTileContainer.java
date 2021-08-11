@@ -20,12 +20,12 @@ package it.zerono.mods.zerocore.lib.item.inventory.container;
 
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.network.INetworkTileEntitySyncProvider;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 
 import java.util.Objects;
 
@@ -36,7 +36,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * Construct a container linked to the given TileEntity
      *
      * @param factory
-     * @param type      the registered {@link ContainerType} for this container
+     * @param type      the registered {@link MenuType} for this container
      * @param windowId
      * @param tile      the TileEntity to link with
      */
@@ -52,7 +52,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * If the TileEntity implement INetworkTileEntitySyncProvider, subscribe the given Player to it
      *
      * @param factory
-     * @param type      the registered {@link ContainerType} for this container
+     * @param type      the registered {@link MenuType} for this container
      * @param windowId
      * @param tile      the TileEntity to link with
      * @param player    the player
@@ -71,7 +71,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
                                                                                   final int windowId, final T tile) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile) {
             @Override
-            public void setItem(int slotID, ItemStack stack) {
+            public void setItem(int slotID, int stateId, ItemStack stack) {
             }
         };
     }
@@ -81,7 +81,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
                                                                                   final ServerPlayer player) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile, player) {
             @Override
-            public void setItem(int slotID, ItemStack stack) {
+            public void setItem(int slotID, int stateId, ItemStack stack) {
             }
         };
     }

@@ -21,12 +21,12 @@ package it.zerono.mods.zerocore.internal.gamecontent;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.gamecontent.debugtool.DebugToolItem;
 import it.zerono.mods.zerocore.lib.world.feature.ModOreFeature;
-import it.zerono.mods.zerocore.lib.world.feature.ModOreFeatureConfig;
 import it.zerono.mods.zerocore.lib.world.feature.ModOreReGenFeature;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -43,6 +43,6 @@ public class Content {
 
     public static final RegistryObject<DebugToolItem> DEBUG_TOOL = ITEMS.register("debugtool", DebugToolItem::new);
 
-    public static final RegistryObject<Feature<ModOreFeatureConfig>> FEATURE_ORE = FEATURES.register("mod_ores", () -> new ModOreFeature(ModOreFeatureConfig.CODEC));
-    public static final RegistryObject<Feature<ModOreFeatureConfig>> FEATURE_ORE_REGEN = FEATURES.register("mod_ores_regen", () -> new ModOreReGenFeature(ModOreFeatureConfig.CODEC));
+    public static final RegistryObject<Feature<OreConfiguration>> FEATURE_ORE = FEATURES.register("mod_ores", () -> new ModOreFeature(OreConfiguration.CODEC));
+    public static final RegistryObject<Feature<OreConfiguration>> FEATURE_ORE_REGEN = FEATURES.register("mod_ores_regen", () -> new ModOreReGenFeature(OreConfiguration.CODEC));
 }

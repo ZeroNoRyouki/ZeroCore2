@@ -51,6 +51,6 @@
  @MethodsReturnNonnullByDefault
  package it.zerono.mods.zerocore.lib.multiblock.rectangular;
 
- import mcp.MethodsReturnNonnullByDefault;
+ import net.minecraft.MethodsReturnNonnullByDefault;
 
  import javax.annotation.ParametersAreNonnullByDefault;

@@ -14,7 +14,7 @@ logoFile="logo.png"
 [[mods]]
 
 	modId="zerocore"
-	version="${mod_version}"
+	version="${file.jarVersion}"
     updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2/master/update.json"
     displayName="${mod_name}"
 	authors="ZeroNoRyouki"

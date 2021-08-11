@@ -63,17 +63,14 @@ import it.zerono.mods.zerocore.lib.network.NetworkTileEntitySyncProvider;
 import it.zerono.mods.zerocore.lib.world.ChunkCache;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
-
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 /**
  * This class contains the base logic for "multiblock controllers". Conceptually, they are
@@ -737,9 +734,9 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     //region ISyncableEntity
 
     /**
-     * Sync the entity data from the given {@link CompoundNBT}
+     * Sync the entity data from the given {@link CompoundTag}
      *
-     * @param data       the {@link CompoundNBT} to read from
+     * @param data       the {@link CompoundTag} to read from
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
@@ -1018,7 +1015,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this.callOnLogicalServer(() -> this.getReferenceTracker().consume((part, position) -> {
 
-            this.getWorld().blockEntityChanged(position, (BlockEntity)part);
+            this.getWorld().blockEntityChanged(position);
             WorldHelper.notifyBlockUpdate(this.getWorld(), position);
         }));
     }

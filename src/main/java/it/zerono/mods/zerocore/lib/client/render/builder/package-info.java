@@ -20,6 +20,6 @@
 @MethodsReturnNonnullByDefault
 package it.zerono.mods.zerocore.lib.client.render.builder;
 
-import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -21,11 +21,11 @@ package it.zerono.mods.zerocore.internal.network;
 import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -73,9 +73,9 @@ public class ErrorReportMessage
     //region AbstractModMessage
 
     /**
-     * Encode your data into the {@link PacketBuffer} so it could be sent on the network to the other side.
+     * Encode your data into the {@link FriendlyByteBuf} so it could be sent on the network to the other side.
      *
-     * @param buffer the {@link PacketBuffer} to encode your data into
+     * @param buffer the {@link FriendlyByteBuf} to encode your data into
      */
     @Override
     public void encodeTo(final FriendlyByteBuf buffer) {

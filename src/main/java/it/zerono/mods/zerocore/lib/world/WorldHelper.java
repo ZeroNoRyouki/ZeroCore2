@@ -23,30 +23,29 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.Tag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkStatus;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -151,13 +150,13 @@ public final class WorldHelper {
     //region Tile Entities
 
     @Nullable
-    public static BlockEntity getLoadedTile(final LevelReader world, final BlockPos position) {
-        return Level.isInWorldBounds(position) ?
+    public static BlockEntity getLoadedTile(final Level world, final BlockPos position) {
+        return world.isInWorldBounds(position) ?
                 getLoadedTile((LevelChunk)world.getChunk(position.getX() >> 4, position.getZ() >> 4, ChunkStatus.FULL, false), position) : null;
     }
     @Nullable
     public static BlockEntity getLoadedTile(final ChunkCache chunkCache, final BlockPos position) {
-        return Level.isInWorldBounds(position) ? getLoadedTile(chunkCache.get(position), position) : null;
+        return chunkCache.getWorld().isInWorldBounds(position) ? getLoadedTile(chunkCache.get(position), position) : null;
     }
 
     @Nullable
@@ -186,8 +185,8 @@ public final class WorldHelper {
     @Deprecated
     public static Optional<BlockEntity> getTile(BlockGetter world, BlockPos position) {
 
-        if (world instanceof LevelReader) {
-            return Optional.ofNullable(getLoadedTile((LevelReader)world, position));
+        if (world instanceof Level) {
+            return Optional.ofNullable(getLoadedTile((Level)world, position));
         }
 
         return Optional.ofNullable(world.getBlockEntity(position));

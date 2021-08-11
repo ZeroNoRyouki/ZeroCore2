@@ -19,10 +19,10 @@
 package it.zerono.mods.zerocore.lib.block.multiblock;
 
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
@@ -30,7 +30,7 @@ public interface IMultiblockPartType
         extends StringRepresentable {
 
     @Nullable
-    BlockEntity createTileEntity(BlockState state, BlockGetter world);
+    BlockEntity createTileEntity(BlockState state, BlockPos position);
 
     String getTranslationKey();
 

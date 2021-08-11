@@ -29,23 +29,23 @@ import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,8 +53,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.*;
 import java.util.stream.Stream;
-
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 /**
  * A base class for modded tile entities
@@ -66,9 +64,9 @@ public abstract class AbstractModBlockEntity
     @Deprecated
     public final IEvent<Runnable> DataUpdate;
 
-    public AbstractModBlockEntity(final BlockEntityType<?> type) {
+    public AbstractModBlockEntity(final BlockEntityType<?> type, final BlockPos position, final BlockState blockState) {
 
-        super(type);
+        super(type, position, blockState);
         this._commandDispatcher = (source, name, parameters) -> {};
 
         this.DataUpdate = new Event<>();
@@ -283,9 +281,9 @@ public abstract class AbstractModBlockEntity
     //region TileEntity synchronization
 
     @Override
-    public void load(final BlockState state, final CompoundTag data) {
+    public void load(final CompoundTag data) {
 
-        super.load(state, data);
+        super.load(data);
         this.syncEntityDataFrom(data, SyncReason.FullSync);
     }
 
@@ -299,12 +297,12 @@ public abstract class AbstractModBlockEntity
      * <p>
      * Used to handle this tag in a special way. By default this simply calls readFromNBT(NBTTagCompound).
      *
-     * @param data The {@link CompoundNBT} sent from {@link #getUpdateTag()}
+     * @param data The {@link CompoundTag} sent from {@link #getUpdateTag()}
      */
     @Override
-    public void handleUpdateTag(final BlockState state, final CompoundTag data) {
+    public void handleUpdateTag(final CompoundTag data) {
 
-        super.load(state, data);
+        super.load(data);
         this.syncEntityDataFrom(data, SyncReason.NetworkUpdate);
     }
 
@@ -328,10 +326,6 @@ public abstract class AbstractModBlockEntity
      */
     @Override
     public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-
-//        this.syncDataFrom(packet.getNbtCompound(), ISyncableEntity.SyncReason.NetworkUpdate);
-//        this.onDataUpdate();
-
         this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
     }
 
@@ -342,12 +336,6 @@ public abstract class AbstractModBlockEntity
     @Nullable
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-//
-//        final CompoundNBT data = new CompoundNBT();
-//
-//        this.syncDataTo(data, ISyncableEntity.SyncReason.NetworkUpdate);
-//        return new SUpdateTileEntityPacket(this.getPos(), 0, data);
-
         return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0,
                 this.syncEntityDataTo(new CompoundTag(), SyncReason.NetworkUpdate));
     }
@@ -456,19 +444,12 @@ public abstract class AbstractModBlockEntity
     //endregion
     //region Chunk and block updates
 
-    /*
-    @Override
-    public void onChunkUnload() {
-        if (!tileEntityInvalid)
-            this.invalidate();
-    }*/
-
     public void markChunkDirty() {
 
         final Level world = this.getLevel();
 
         if (null != world) {
-            world.blockEntityChanged(this.getBlockPos(), this);
+            world.blockEntityChanged(this.getBlockPos());
         }
     }
 
@@ -534,13 +515,6 @@ public abstract class AbstractModBlockEntity
         }
     }
 
-    /**
-     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
-     * clientside.
-     *
-     * @param id
-     * @param type
-     */
     @Override
     public boolean triggerEvent(int id, int type) {
 

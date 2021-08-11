@@ -23,11 +23,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.zerono.mods.zerocore.lib.client.model.data.GenericProperties;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -72,13 +72,13 @@ public class BlockVariantsModel
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture(final IModelData data) {
+    public TextureAtlasSprite getParticleIcon(final IModelData data) {
 
         if (data.hasProperty(GenericProperties.ID) && data.hasProperty(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
             return this.getBlock(data).getParticleTexture(GenericProperties.getVariantIndex(data), data);
         }
 
-        return ModRenderHelper.getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
+        return ModRenderHelper.getMissingModel().getParticleIcon(EmptyModelData.INSTANCE);
     }
 
     //endregion
@@ -119,7 +119,7 @@ public class BlockVariantsModel
         }
 
         TextureAtlasSprite getParticleTexture(final int variantIndex, IModelData data) {
-            return this._variants.get(variantIndex).getParticleTexture(data);
+            return this._variants.get(variantIndex).getParticleIcon(data);
         }
 
         //region internals

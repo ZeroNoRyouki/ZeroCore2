@@ -29,25 +29,29 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import joptsimple.internal.Strings;
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.core.Direction;
 import net.minecraft.Util;
-import net.minecraft.util.thread.BlockableEventLoop;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.util.thread.BlockableEventLoop;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.fml.*;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.fmllegacy.LogicalSidedProvider;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -483,7 +487,7 @@ public final class CodeHelper {
         return Optional.ofNullable(LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER));
     }
 
-    public static void addResourceReloadListener(final ISelectiveResourceReloadListener listener) {
+    public static void addResourceReloadListener(final PreparableReloadListener listener) {
         ZeroCore.getProxy().addResourceReloadListener(Objects.requireNonNull(listener));
     }
 

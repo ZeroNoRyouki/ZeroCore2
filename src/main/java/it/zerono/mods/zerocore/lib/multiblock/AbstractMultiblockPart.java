@@ -51,11 +51,12 @@ import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.Collections;
@@ -65,8 +66,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
 
 /**
  * Base logic class for Multiblock-connected tile entities. Most multiblock machines
@@ -79,9 +78,9 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
     //region AbstractMultiblockPart
 
-	public AbstractMultiblockPart(final BlockEntityType<?> type) {
+	public AbstractMultiblockPart(final BlockEntityType<?> type, final BlockPos position, final BlockState blockState) {
 
-		super(type);
+		super(type, position, blockState);
 		this._controller = null;
         this._unvisited = true;
         this._saveMultiblockData = false;
@@ -393,8 +392,6 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	@Override
 	public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
 
-        this._positionHash = this.worldPosition.asLong();
-
         if (data.contains("multiblockData")) {
 
             final CompoundTag multiblockData = data.getCompound("multiblockData");
@@ -487,20 +484,6 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         this.detachSelf(true);
     }
 
-    @Override
-    public void setLevelAndPosition(final Level world, final BlockPos pos) {
-
-        super.setLevelAndPosition(world, pos);
-        this._positionHash = this.worldPosition.asLong();
-    }
-
-    @Override
-    public void setPosition(final BlockPos posIn) {
-
-        super.setPosition(posIn);
-        this._positionHash = this.worldPosition.asLong();
-    }
-
     //endregion
     //region internals
 
@@ -537,7 +520,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     private boolean _unvisited;
     private boolean _saveMultiblockData;
     private CompoundTag _cachedMultiblockData;
-    private long _positionHash;
+    private final long _positionHash;
 
     //endregion
 }

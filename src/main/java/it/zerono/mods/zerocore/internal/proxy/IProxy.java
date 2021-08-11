@@ -19,14 +19,14 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -40,7 +40,7 @@ public interface IProxy {
 
     void sendPlayerStatusMessage(Player player, Component message);
 
-    void addResourceReloadListener(ISelectiveResourceReloadListener listener);
+    void addResourceReloadListener(PreparableReloadListener listener);
 
     default long getLastRenderTime() {
         return 0;

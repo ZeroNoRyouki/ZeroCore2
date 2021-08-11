@@ -21,6 +21,6 @@
  @MethodsReturnNonnullByDefault
  package it.zerono.mods.zerocore.lib.compat.patchouli.component;
 
- import mcp.MethodsReturnNonnullByDefault;
+ import net.minecraft.MethodsReturnNonnullByDefault;
 
  import javax.annotation.ParametersAreNonnullByDefault;

@@ -26,7 +26,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotTemplate;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.SlotItemHandler;

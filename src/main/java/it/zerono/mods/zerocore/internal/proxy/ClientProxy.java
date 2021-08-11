@@ -25,25 +25,25 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.GuiHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
-import it.zerono.mods.zerocore.lib.client.model.BakedModelSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
@@ -51,12 +51,11 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.minecraftforge.fmllegacy.LogicalSidedProvider;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -72,7 +71,7 @@ public class ClientProxy
         final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
 
         modBus.register(this);
-        modBus.register(BakedModelSupplier.INSTANCE);
+//        modBus.register(BakedModelSupplier.INSTANCE);
         modBus.register(AtlasSpriteSupplier.INSTANCE);
 
         final IEventBus forgeBus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
@@ -110,7 +109,7 @@ public class ClientProxy
     }
 
     @Override
-    public void addResourceReloadListener(ISelectiveResourceReloadListener listener) {
+    public void addResourceReloadListener(PreparableReloadListener listener) {
 
         final Minecraft mc = Minecraft.getInstance();
 
@@ -164,18 +163,9 @@ public class ClientProxy
     public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
 
         switch (command) {
-
-            case ClearRecipes:
-                ModRecipeType.invalidate();
-                break;
-
-            case DebugGuiFrame:
-                GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
-                break;
-
-            default:
-                IProxy.super.handleInternalCommand(command, data, direction);
-                break;
+            case ClearRecipes -> ModRecipeType.invalidate();
+            case DebugGuiFrame -> GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
+            default -> IProxy.super.handleInternalCommand(command, data, direction);
         }
     }
 
@@ -209,7 +199,7 @@ public class ClientProxy
         }
     }
 
-    private void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
+    private void onHighlightBlock(final DrawSelectionEvent.HighlightBlock event) {
 
         final BlockHitResult result = event.getTarget();
         final BlockPos position = result.getBlockPos();

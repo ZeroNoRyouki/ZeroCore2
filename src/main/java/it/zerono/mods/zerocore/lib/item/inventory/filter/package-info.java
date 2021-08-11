@@ -20,6 +20,6 @@
 @MethodsReturnNonnullByDefault
 package it.zerono.mods.zerocore.lib.item.inventory.filter;
 
-import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

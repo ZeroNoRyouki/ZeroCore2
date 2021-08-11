@@ -49,10 +49,10 @@ public class SlotCraftingResult extends SlotGeneric {
     }
 
     @Override
-    public ItemStack onTake(Player playerIn, ItemStack stack) {
+    public void onTake(Player playerIn, ItemStack stack) {
 
         this.getCrafter().craft();
-        return super.onTake(playerIn, stack);
+        super.onTake(playerIn, stack);
     }
 
     private final ICrafter _crafter;

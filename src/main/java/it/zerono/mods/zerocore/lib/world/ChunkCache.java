@@ -24,11 +24,11 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.zerono.mods.zerocore.ZeroCore;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -53,7 +53,7 @@ public class ChunkCache {
     @Nullable
     public LevelChunk get(final BlockPos position) {
 
-        if (!Level.isInWorldBounds(position)) {
+        if (!this._world.isInWorldBounds(position)) {
             return null;
         }
 
@@ -109,6 +109,10 @@ public class ChunkCache {
             cache.clear();
             s_caches.remove(world);
         }
+    }
+
+    public Level getWorld() {
+        return this._world;
     }
 
     //region internals

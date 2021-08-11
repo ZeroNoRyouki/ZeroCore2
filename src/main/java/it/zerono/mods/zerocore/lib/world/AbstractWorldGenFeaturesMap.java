@@ -21,19 +21,21 @@ package it.zerono.mods.zerocore.lib.world;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
-import it.zerono.mods.zerocore.lib.world.feature.ModOreFeatureConfig;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.tags.Tag;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
+import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
+import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockStateMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
-import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
-import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -73,15 +75,16 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
         this._entries.computeIfAbsent(stage, s -> Lists.newLinkedList()).add(Pair.of(biomeMatcher, configSupplier));
     }
 
-    protected static ConfiguredFeature<?, ?> oreFeature(final Supplier<Feature<ModOreFeatureConfig>> oreFeature,
+    protected static ConfiguredFeature<?, ?> oreFeature(final Supplier<Feature<OreConfiguration>> oreFeature,
                                                         final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
                                                         final int clustersAmount, final int oresPerCluster,
                                                         final int placementBottomOffset, final int placementTopOffset,
                                                         final int placementMaximum) {
-        return oreFeature.get().configured(new ModOreFeatureConfig(matchRule, oreBlock.get().defaultBlockState(), oresPerCluster))
-                .decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(placementBottomOffset, placementTopOffset, placementMaximum))
+        return oreFeature.get().configured(new OreConfiguration(matchRule, oreBlock.get().defaultBlockState(), oresPerCluster))
+                .decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(
+                        UniformHeight.of(VerticalAnchor.aboveBottom(placementBottomOffset), VerticalAnchor.absolute(placementMaximum - placementTopOffset))))
                         .squared()
-                        .count/* repeat */(clustersAmount));
+                        .count(clustersAmount));
     }
 
     public void clearItems(final RegistryEvent.Register<Feature<?>> event) {

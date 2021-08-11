@@ -20,26 +20,26 @@ package it.zerono.mods.zerocore.internal.client.debug;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.debug.DebugHelper;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.world.item.DyeColor;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import com.mojang.math.Matrix4f;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 
@@ -47,7 +47,7 @@ import java.lang.reflect.Field;
 public class VoxelShapeHighlighter {
 
     @SubscribeEvent
-    public static void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
+    public static void onHighlightBlock(final DrawSelectionEvent.HighlightBlock event) {
 
         final BlockHitResult result = event.getTarget();
         final Level world;
@@ -75,7 +75,7 @@ public class VoxelShapeHighlighter {
 
         final BlockState blockstate = world.getBlockState(position);
 
-        if (blockstate.isAir(world, position) || !world.getWorldBorder().isWithinBounds(position)) {
+        if (blockstate.isAir() || !world.getWorldBorder().isWithinBounds(position)) {
             return;
         }
 
@@ -88,22 +88,10 @@ public class VoxelShapeHighlighter {
         final double z = position.getZ() - renderInfo.getPosition().z();
 
         switch (voxelType) {
-
-            case General:
-                paint(matrixStack, builder, x, y, z, COLOUR_SHAPE, blockstate.getShape(world, position, selection));
-                break;
-
-            case Render:
-                paint(matrixStack, builder, x, y, z, COLOUR_RENDERSHAPE, blockstate.getBlockSupportShape(world, position));
-                break;
-
-            case Collision:
-                paint(matrixStack, builder, x, y, z, COLOUR_COLLISIONSHAPE, blockstate.getCollisionShape(world, position, selection));
-                break;
-
-            case RayTrace:
-                paint(matrixStack, builder, x, y, z, COLOUR_RAYTRACESHAPE, blockstate.getVisualShape(world, position, CollisionContext.empty()));
-                break;
+            case General -> paint(matrixStack, builder, x, y, z, COLOUR_SHAPE, blockstate.getShape(world, position, selection));
+            case Render -> paint(matrixStack, builder, x, y, z, COLOUR_RENDERSHAPE, blockstate.getBlockSupportShape(world, position));
+            case Collision -> paint(matrixStack, builder, x, y, z, COLOUR_COLLISIONSHAPE, blockstate.getCollisionShape(world, position, selection));
+            case RayTrace -> paint(matrixStack, builder, x, y, z, COLOUR_RAYTRACESHAPE, blockstate.getVisualShape(world, position, CollisionContext.empty()));
         }
 
         event.setCanceled(true);
@@ -127,7 +115,7 @@ public class VoxelShapeHighlighter {
         });
     }
 
-    private static Level getWorld(final DrawHighlightEvent.HighlightBlock event) throws IllegalAccessException {
+    private static Level getWorld(final DrawSelectionEvent.HighlightBlock event) throws IllegalAccessException {
 
         if (null == s_worldField) {
             s_worldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "level");

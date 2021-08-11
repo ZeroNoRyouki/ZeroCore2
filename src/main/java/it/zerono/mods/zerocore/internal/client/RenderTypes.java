@@ -18,11 +18,10 @@
 
 package it.zerono.mods.zerocore.internal.client;
 
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
 
 import java.util.OptionalDouble;
 
@@ -30,23 +29,23 @@ public final class RenderTypes
     extends RenderType {
 
     public static final RenderType ERROR_BLOCK_HIGHLIGHT = create("zc_mb_error_block",
-            DefaultVertexFormat.POSITION_COLOR, GL11.GL_LINES, 256,
+            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES, 256, false, false,
             RenderType.CompositeState.builder()
                     .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(8)))
                     .setTransparencyState(NO_TRANSPARENCY)
-                    .setAlphaState(DEFAULT_ALPHA)
+//                    .setAlphaState(DEFAULT_ALPHA)
                     .setTextureState(NO_TEXTURE)
                     .setLightmapState(NO_LIGHTMAP)
                     .setOverlayState(NO_OVERLAY)
                     .setCullState(CULL)
                     .setDepthTestState(LEQUAL_DEPTH_TEST)
                     .setWriteMaskState(COLOR_DEPTH_WRITE)
-                    .setFogState(NO_FOG)
+//                    .setFogState(NO_FOG)
                     .createCompositeState(false));
 
     //region internals
 
-    protected RenderTypes(String nameIn, VertexFormat formatIn, int drawModeIn, int bufferSizeIn, boolean useDelegateIn, boolean needsSortingIn, Runnable setupTaskIn, Runnable clearTaskIn) {
+    protected RenderTypes(String nameIn, VertexFormat formatIn, VertexFormat.Mode drawModeIn, int bufferSizeIn, boolean useDelegateIn, boolean needsSortingIn, Runnable setupTaskIn, Runnable clearTaskIn) {
         super(nameIn, formatIn, drawModeIn, bufferSizeIn, useDelegateIn, needsSortingIn, setupTaskIn, clearTaskIn);
     }
 

@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.Flags;
@@ -26,7 +27,6 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -178,7 +178,7 @@ public abstract class AbstractDynamicBakedModel
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return ModRenderHelper.getMissingModel().getParticleTexture(EmptyModelData.INSTANCE);
+        return ModRenderHelper.getMissingModel().getParticleIcon(EmptyModelData.INSTANCE);
     }
 
     @Override

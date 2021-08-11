@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 /**
  * A generic network message
@@ -29,17 +29,17 @@ public abstract class AbstractModMessage implements IModMessage {
 
     /**
      * Construct the message from the data received from the network.
-     * Read your payload from the {@link PacketBuffer} and store it locally for later processing.
+     * Read your payload from the {@link FriendlyByteBuf} and store it locally for later processing.
      *
-     * @param buffer the {@link PacketBuffer} containing the data received from the network.
+     * @param buffer the {@link FriendlyByteBuf} containing the data received from the network.
      */
     public AbstractModMessage(FriendlyByteBuf buffer) {
     }
 
     /**
-     * Encode your data into the {@link PacketBuffer} so it could be sent on the network to the other side.
+     * Encode your data into the {@link FriendlyByteBuf} so it could be sent on the network to the other side.
      *
-     * @param buffer the {@link PacketBuffer} to encode your data into
+     * @param buffer the {@link FriendlyByteBuf} to encode your data into
      */
     public abstract void encodeTo(FriendlyByteBuf buffer);
 

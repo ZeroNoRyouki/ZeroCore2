@@ -47,11 +47,12 @@ import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Optional;
 
@@ -59,9 +60,9 @@ import java.util.Optional;
 public abstract class AbstractCuboidMultiblockPart<Controller extends AbstractCuboidMultiblockController<Controller>>
         extends AbstractMultiblockPart<Controller> {
 
-	public AbstractCuboidMultiblockPart(final BlockEntityType<?> type) {
+	public AbstractCuboidMultiblockPart(final BlockEntityType<?> type, final BlockPos position, final BlockState blockState) {
 
-		super(type);
+		super(type, position, blockState);
 		this._position = PartPosition.Unknown;
         this._outwardFacings = BlockFacings.NONE;
 	}

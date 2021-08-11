@@ -21,6 +21,6 @@
  @MethodsReturnNonnullByDefault
  package it.zerono.mods.zerocore.lib.recipe.holder;
 
- import mcp.MethodsReturnNonnullByDefault;
+ import net.minecraft.MethodsReturnNonnullByDefault;
 
  import javax.annotation.ParametersAreNonnullByDefault;

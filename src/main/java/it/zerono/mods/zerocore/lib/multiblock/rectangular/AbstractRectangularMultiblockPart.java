@@ -46,18 +46,19 @@ import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class AbstractRectangularMultiblockPart<Controller extends AbstractRectangularMultiblockController<Controller>>
         extends AbstractMultiblockPart<Controller> {
 
-    public AbstractRectangularMultiblockPart(final BlockEntityType<?> type) {
+    public AbstractRectangularMultiblockPart(final BlockEntityType<?> type, final BlockPos position, final BlockState blockState) {
 
-        super(type);
+        super(type, position, blockState);
         this._position = PartPosition.Unknown;
         this._outwardFacings = BlockFacings.NONE;
     }

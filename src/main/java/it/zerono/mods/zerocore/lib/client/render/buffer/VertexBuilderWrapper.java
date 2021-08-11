@@ -64,6 +64,16 @@ public class VertexBuilderWrapper
         this._builder.endVertex();
     }
 
+    @Override
+    public void defaultColor(int p_166901_, int p_166902_, int p_166903_, int p_166904_) {
+        this._builder.defaultColor(p_166901_, p_166902_, p_166903_, p_166904_);
+    }
+
+    @Override
+    public void unsetDefaultColor() {
+        this._builder.unsetDefaultColor();
+    }
+
     //endregion
     //region internals
 

@@ -96,7 +96,7 @@ processResources {
 
     from(sourceSets.main.resources.srcDirs) {
 	
-        include 'ZeroCore2-master/src/main/resources/META-INF/mods.toml'
+        include 'ZeroCore2-1.17/src/main/resources/META-INF/mods.toml'
         expand 'mod_version': version, 
 				'mod_name': config.mod_name,
 				'minecraft_versionrange': config.minecraft_versionrange,

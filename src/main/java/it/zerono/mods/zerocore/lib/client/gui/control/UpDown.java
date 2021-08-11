@@ -284,18 +284,18 @@ public class UpDown
 
         // light borders
         ModRenderHelper.paintSolidLines(matrix, borderLightColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x1 + 1.0, y1 + 1.5, x2 - 1.5, y2 + 1.5);
+                x1 + 0.5, y1 + 0.5, x2, y1 + 0.5);
         ModRenderHelper.paintSolidLines(matrix, borderLightColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x1 + 1.5, y1 + 1.5, x3 + 1.5, y3 - 1.5);
+                x1 + 1.0, y1 + 1.0, x1 + 1.0, y3);
 
         // dark border
         ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x2 - 1.0, y2 + 1.0, x3 + 1.0, y3 - 0.5);
+                x2 + 0.5, y2 + 0.5, x3 + 0.5, y3 + 0.5);
 
         // dark outline
         ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x1, y1 + 0.5, x2 + 1.0, y2 + 0.5,
-                x2 + 0.5, y2 + 0.5, x3 + 0.5, y3 + 1.0,
+                x1, y1, x2 + 1.0, y2,
+                x2 + 1.0, y2 + 0.5, x3 + 0.5, y3 + 1.0,
                 x3 + 0.5, y3 + 1.0, x1 + 0.5, y1);
     }
 
@@ -320,19 +320,19 @@ public class UpDown
 
         // light border
         ModRenderHelper.paintSolidLines(matrix, borderLightColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x1, y1 + 2.0, x3 + 2.0, y3 - 0.5);
+                x1, y1 + 1.0, x3 + 1.0, y3);
 
         // dark borders
         ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x1 - 0.5, y1 + 1.5, x2 - 0.5, y2 - 1.0);
+                x1 + 0.5, y1 + 0.5, x1 + 0.5, y2 + 0.5);
         ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x2, y2 - 0.5, x3 + 1.5, y3 - 0.5);
+                x2, y2, x3 + 0.5, y2);
 
         // dark outline
         ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
-                x1 + 0.5, y1, x2 + 0.5, y2 + 1.0,
+                x1 + 1.0, y1, x2 + 1.0, y2 + 1.0,
                 x2 + 0.5, y2 + 0.5, x3, y3 + 0.5,
-                x3 + 0.5, y3 + 0.5, x1 + 0.5, y1
+                x3, y3 + 0.5, x1 + 0.5, y1
         );
     }
 

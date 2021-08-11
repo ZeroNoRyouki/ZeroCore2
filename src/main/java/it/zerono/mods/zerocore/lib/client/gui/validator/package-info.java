@@ -1,7 +1,4 @@
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import mcp.MethodsReturnNonnullByDefault;
- 
  /*
   *
   * package-info.java
@@ -24,6 +21,6 @@ import mcp.MethodsReturnNonnullByDefault;
  @MethodsReturnNonnullByDefault
  package it.zerono.mods.zerocore.lib.client.gui.validator;
 
- import mcp.MethodsReturnNonnullByDefault;
+ import net.minecraft.MethodsReturnNonnullByDefault;
 
  import javax.annotation.ParametersAreNonnullByDefault;

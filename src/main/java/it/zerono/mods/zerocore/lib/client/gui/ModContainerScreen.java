@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
@@ -32,11 +33,10 @@ import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -289,13 +289,10 @@ public class ModContainerScreen<C extends ModContainer>
         CodeHelper.clearErrorReport();
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     @Override
-    public final void tick() {
+    public final void containerTick() {
 
-        super.tick();
+        super.containerTick();
         this._windowsManager.onGuiContainerTick();
         this._tickHandlers.forEach(Runnable::run);
 

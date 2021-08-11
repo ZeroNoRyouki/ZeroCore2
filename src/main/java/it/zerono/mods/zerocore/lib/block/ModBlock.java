@@ -21,23 +21,24 @@ package it.zerono.mods.zerocore.lib.block;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import java.util.function.*;
@@ -205,7 +206,7 @@ public class ModBlock
 
         super.neighborChanged(state, world, blockPosition, block, neighborPosition, isMoving);
 
-        if (this instanceof INeighborChangeListener.Notifier && this.hasTileEntity(state)) {
+        if (this instanceof INeighborChangeListener.Notifier && this instanceof EntityBlock) {
 
             WorldHelper.getTile(world, blockPosition)
                     .filter(te -> te instanceof INeighborChangeListener)
@@ -227,9 +228,9 @@ public class ModBlock
 
         super.onNeighborChange(state, world, blockPosition, neighborPosition);
 
-        if (this instanceof INeighborChangeListener.Notifier && this.hasTileEntity(state)) {
+        if (this instanceof INeighborChangeListener.Notifier && this instanceof EntityBlock && world instanceof Level) {
 
-            final BlockEntity te = WorldHelper.getLoadedTile(world, blockPosition);
+            final BlockEntity te = WorldHelper.getLoadedTile((Level)world, blockPosition);
 
             if (te instanceof INeighborChangeListener) {
                 ((INeighborChangeListener)te).onNeighborTileChanged(state, neighborPosition);
@@ -260,7 +261,7 @@ public class ModBlock
     @Override
     public boolean triggerEvent(BlockState state, Level world, BlockPos position, int id, int param) {
 
-        if (this.hasTileEntity(state)) {
+        if (this instanceof EntityBlock) {
             return WorldHelper.getTile(world, position)
                     .map(tile -> tile.triggerEvent(id, param))
                     .orElse(super.triggerEvent(state, world, position, id, param));

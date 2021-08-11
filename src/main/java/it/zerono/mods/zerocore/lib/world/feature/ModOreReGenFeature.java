@@ -20,12 +20,13 @@ package it.zerono.mods.zerocore.lib.world.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
 public class ModOreReGenFeature
     extends ModOreFeature {
 
-    public ModOreReGenFeature(Codec<ModOreFeatureConfig> p_i231976_1_) {
-        super(p_i231976_1_);
+    public ModOreReGenFeature(Codec<OreConfiguration> config) {
+        super(config);
     }
 
     @Override

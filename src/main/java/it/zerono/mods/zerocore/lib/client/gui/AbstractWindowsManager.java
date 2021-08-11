@@ -19,15 +19,14 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -195,7 +194,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         final int guiLeft = this.getGuiScreen().getGuiX();
         final int guiTop = this.getGuiScreen().getGuiY();
 
-        RenderSystem.translatef(-guiLeft, -guiTop, 0.0f);
+//        RenderSystem.translatef(-guiLeft, -guiTop, 0.0f);
+        matrix.translate(-guiLeft, -guiTop, 0.0f);
 
         // paint all the controls!
 
@@ -218,7 +218,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         }
 
         // translate the GL matrix back to make the MC code happy
-        RenderSystem.translatef(guiLeft, guiTop, 0.0f);
+//        RenderSystem.translatef(guiLeft, guiTop, 0.0f);
+        matrix.translate(guiLeft, guiTop, 0.0f);
     }
 
     boolean onGuiContainerMouseClicked(final double mouseX, final double mouseY, final int clickedButton) {

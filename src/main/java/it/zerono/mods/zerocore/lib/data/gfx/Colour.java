@@ -56,7 +56,7 @@ public class Colour {
     }
 
     public Colour(final DyeColor color, final int a) {
-        this(rgbRed(color.getColorValue()), rgbGreen(color.getColorValue()), rgbBlue(color.getColorValue()), a);
+        this(rgbRed(color.getTextColor()), rgbGreen(color.getTextColor()), rgbBlue(color.getTextColor()), a);
     }
 
     public Colour(final DyeColor color) {

@@ -27,26 +27,28 @@ import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
 public class MultiblockPartBlock<Controller extends IMultiblockController<Controller>,
                                  PartType extends Enum<PartType> & IMultiblockPartType>
-        extends ModBlock {
+        extends ModBlock
+        implements EntityBlock {
 
     public MultiblockPartBlock(final MultiblockPartProperties<PartType> properties) {
 
@@ -68,35 +70,6 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
     }
 
     /**
-     * Called throughout the code as a replacement for block instanceof BlockContainer
-     * Moving this to the Block base class allows for mods that wish to extend vanilla
-     * blocks, and also want to have a tile entity on that block, may.
-     * <p>
-     * Return true from this function to specify this block has a tile entity.
-     *
-     * @param state State of the current block
-     * @return True if block has a tile entity, false otherwise
-     */
-    @Override
-    public boolean hasTileEntity(BlockState state) {
-        return true;
-    }
-
-    /**
-     * Called throughout the code as a replacement for ITileEntityProvider.createNewTileEntity
-     * Return the same thing you would from that function.
-     * This will fall back to ITileEntityProvider.createNewTileEntity(World) if this block is a ITileEntityProvider
-     *
-     * @param world the block world
-     * @param state the block state
-     * @return A instance of a class extending TileEntity
-     */
-    @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return this.getPartType().createTileEntity(state, world);
-    }
-
-    /**
      * Called when the block is right clicked by a player.
      */
     @Override
@@ -106,7 +79,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
 
         if (CodeHelper.calledByLogicalServer(world)) {
 
-            if (this.hasTileEntity(state) && InteractionHand.MAIN_HAND == hand) {
+            if (InteractionHand.MAIN_HAND == hand) {
 
                 final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
                 final ItemStack heldItem = player.getItemInHand(hand);
@@ -182,6 +155,15 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
         //endregion
     }
 
+    //region EntityBlock
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(final BlockPos position, final BlockState state) {
+        return this.getPartType().createTileEntity(state, position);
+    }
+
+    //endregion
     //region internals
 
     private final PartType _partType;
