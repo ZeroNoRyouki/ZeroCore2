@@ -1,7 +1,7 @@
 # Zero CORE 2 - mods.toml
 
 modLoader="javafml"
-loaderVersion="${loader_versionrange}"
+loaderVersion="[37,)"
 
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
@@ -16,7 +16,7 @@ logoFile="logo.png"
 	modId="zerocore"
 	version="${file.jarVersion}"
     updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2/master/update.json"
-    displayName="${mod_name}"
+    displayName="Zero CORE 2"
 	authors="ZeroNoRyouki"
 	description="Utility mod and multiblock API"
 	
@@ -31,7 +31,7 @@ logoFile="logo.png"
 
     modId="minecraft"
     mandatory=true
-    versionRange="${minecraft_versionrange}"
+    versionRange="[1.17.1,)"
     ordering="NONE"
     side="BOTH"
 	
@@ -39,6 +39,6 @@ logoFile="logo.png"
 
 	modId="forge"
 	mandatory=true
-	versionRange="${forge_versionrange}"
+	versionRange="[37.0.27,)"
 	ordering="NONE"
 	side="BOTH"
