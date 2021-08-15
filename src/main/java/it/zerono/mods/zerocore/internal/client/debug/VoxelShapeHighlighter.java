@@ -118,7 +118,7 @@ public class VoxelShapeHighlighter {
     private static Level getWorld(final DrawSelectionEvent.HighlightBlock event) throws IllegalAccessException {
 
         if (null == s_worldField) {
-            s_worldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "level");
+            s_worldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "field_145850_b"); // level
         }
 
         return (Level)s_worldField.get(event.getContext());

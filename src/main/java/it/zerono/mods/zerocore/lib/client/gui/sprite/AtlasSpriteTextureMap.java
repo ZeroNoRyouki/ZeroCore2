@@ -241,8 +241,8 @@ public class AtlasSpriteTextureMap
 
     static {
 
-        s_xField = getField("x"); // x
-        s_yField = getField("y"); // y
+        s_xField = getField("field_110975_c"); // x
+        s_yField = getField("field_110974_d"); // y
     }
 
     @Nullable
