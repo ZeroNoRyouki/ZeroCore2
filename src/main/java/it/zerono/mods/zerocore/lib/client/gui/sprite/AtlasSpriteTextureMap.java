@@ -18,16 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
-import it.zerono.mods.zerocore.internal.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 public class AtlasSpriteTextureMap
@@ -211,17 +208,8 @@ public class AtlasSpriteTextureMap
 
     private ISprite makeSprite(final TextureAtlasSprite sprite, @Nullable final ISprite overlay) {
 
-        int spriteX = -1;
-        int spriteY = -1;
-
-        try {
-
-            spriteX = s_xField.getInt(sprite);
-            spriteY = s_yField.getInt(sprite);
-
-        } catch (IllegalAccessException e) {
-            Log.LOGGER.warn(Log.CORE, "Unable to get the value of field x or y for a TextureAtlasSprite");
-        }
+        final int spriteX = sprite.getX();
+        final int spriteY = sprite.getY();
 
         if (this._atlasHeight < 0 || this._atlasWidth < 0) {
 
@@ -235,29 +223,6 @@ public class AtlasSpriteTextureMap
     private final ResourceLocation _atlasName;
     private int _atlasWidth;
     private int _atlasHeight;
-
-    private static final Field s_xField;
-    private static final Field s_yField;
-
-    static {
-
-        s_xField = getField("field_110975_c"); // x
-        s_yField = getField("field_110974_d"); // y
-    }
-
-    @Nullable
-    private static Field getField(final String name) {
-
-        try {
-
-            return ObfuscationReflectionHelper.findField(TextureAtlasSprite.class, name);
-
-        } catch (ObfuscationReflectionHelper.UnableToFindFieldException ex) {
-
-            Log.LOGGER.error(Log.CORE, "AtlasSpriteTextureMap - Unable to get field {} : {}", name, ex);
-            return null;
-        }
-    }
 
     //endregion
 }
