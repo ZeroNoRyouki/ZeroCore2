@@ -21,11 +21,9 @@ package it.zerono.mods.zerocore.internal.client.debug;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.debug.DebugHelper;
 import net.minecraft.client.Camera;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.DyeColor;
@@ -39,9 +37,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-
-import java.lang.reflect.Field;
 
 @OnlyIn(Dist.CLIENT)
 public class VoxelShapeHighlighter {
@@ -50,32 +45,22 @@ public class VoxelShapeHighlighter {
     public static void onHighlightBlock(final DrawSelectionEvent.HighlightBlock event) {
 
         final BlockHitResult result = event.getTarget();
-        final Level world;
 
         if (HitResult.Type.BLOCK != result.getType()) {
             return;
         }
 
-        try {
-
-            world = getWorld(event);
-
-        } catch (IllegalAccessException e) {
-
-            Log.LOGGER.error(Log.CORE, "Voxel highlighter: failed to get world!");
-            return;
-        }
-
+        final Level world = event.getInfo().getEntity().getCommandSenderWorld();
         final BlockPos position = result.getBlockPos();
         final DebugHelper.VoxelShapeType voxelType = DebugHelper.getBlockVoxelShapeHighlight(world, position);
 
-        if (DebugHelper.VoxelShapeType.None == voxelType) {
+        if (DebugHelper.VoxelShapeType.None == voxelType || !world.getWorldBorder().isWithinBounds(position)) {
             return;
         }
 
         final BlockState blockstate = world.getBlockState(position);
 
-        if (blockstate.isAir() || !world.getWorldBorder().isWithinBounds(position)) {
+        if (blockstate.isAir()) {
             return;
         }
 
@@ -115,21 +100,10 @@ public class VoxelShapeHighlighter {
         });
     }
 
-    private static Level getWorld(final DrawSelectionEvent.HighlightBlock event) throws IllegalAccessException {
-
-        if (null == s_worldField) {
-            s_worldField = ObfuscationReflectionHelper.findField(LevelRenderer.class, "field_145850_b"); // level
-        }
-
-        return (Level)s_worldField.get(event.getContext());
-    }
-
     private static final Colour COLOUR_SHAPE = Colour.from(DyeColor.YELLOW);
     private static final Colour COLOUR_RENDERSHAPE = Colour.from(DyeColor.RED);
     private static final Colour COLOUR_COLLISIONSHAPE = Colour.from(DyeColor.BLUE);
     private static final Colour COLOUR_RAYTRACESHAPE = Colour.from(DyeColor.PURPLE);
-
-    private static Field s_worldField;
 
     //endregion
 }
