@@ -45,8 +45,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.item.Tiers;
-import net.minecraftforge.common.ToolType;
 
 public interface IMultiblockVariant {
 
@@ -62,8 +60,6 @@ public interface IMultiblockVariant {
         return Block.Properties.of(Material.METAL, MaterialColor.METAL)
                 .sound(SoundType.METAL)
                 .strength(5.0F, 6.0F)
-                .harvestLevel(Tiers.IRON.getLevel())
-                .harvestTool(ToolType.PICKAXE)
                 .requiresCorrectToolForDrops()
                 .lightLevel(blockState -> 0)
                 .isValidSpawn((blockState, blockReader, pos, entity) -> false)
