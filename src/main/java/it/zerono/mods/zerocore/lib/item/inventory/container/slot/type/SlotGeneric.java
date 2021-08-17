@@ -197,8 +197,8 @@ public class SlotGeneric
 
     static {
 
-        s_xPosField = getPosField("f_85870_"); // x
-        s_yPosField = getPosField("f_46014_"); // y
+        s_xPosField = getPosField("f_40220_"); // x
+        s_yPosField = getPosField("f_40221_"); // y
     }
 
     @Nullable
