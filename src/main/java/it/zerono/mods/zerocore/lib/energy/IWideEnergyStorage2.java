@@ -1,6 +1,6 @@
 /*
  *
- * IWideEnergyStorage.java
+ * IWideEnergyStorage2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,15 +18,16 @@
 
 package it.zerono.mods.zerocore.lib.energy;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
+
 /**
  * A buffer to store a very big amount of energy
  *
  * Based upon the IEnergyStorage from King Lemming's RedstoneFlux API
  */
 @SuppressWarnings("unused")
-@Deprecated //use IWideEnergyStorage2
-public interface IWideEnergyStorage
-    extends IEnergySystemAware {
+public interface IWideEnergyStorage2
+        extends IEnergySystemAware {
 
     /**
      * Add energy, expressed in the specified {@link EnergySystem}, to the storage
@@ -36,7 +37,7 @@ public interface IWideEnergyStorage
      * @param simulate if true, the insertion will only be simulated
      * @return amount of energy that was (or would have been, if simulated) inserted
      */
-    double insertEnergy(EnergySystem system, double maxAmount, boolean simulate);
+    WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate);
 
     /**
      * Remove energy, expressed in the specified {@link EnergySystem}, from the storage
@@ -46,19 +47,19 @@ public interface IWideEnergyStorage
      * @param simulate if true, the extraction will only be simulated
      * @return amount of energy that was (or would have been, if simulated) extracted from the storage
      */
-    double extractEnergy(EnergySystem system, double maxAmount, boolean simulate);
+    WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate);
 
     /**
      * Returns the amount of energy currently stored expressed in the specified {@link EnergySystem}
      *
      * @param system the {@link EnergySystem} used by the request
      */
-    double getEnergyStored(EnergySystem system);
+    WideAmount getEnergyStored(EnergySystem system);
 
     /**
      * Returns the maximum amount of energy that can be stored expressed in the specified {@link EnergySystem}
      *
      * @param system the {@link EnergySystem} used by the request
      */
-    double getCapacity(EnergySystem system);
+    WideAmount getCapacity(EnergySystem system);
 }

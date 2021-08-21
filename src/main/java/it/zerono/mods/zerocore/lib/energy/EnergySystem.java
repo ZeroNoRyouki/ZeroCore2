@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.energy;
 
 import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import net.minecraft.nbt.CompoundNBT;
 
 public enum EnergySystem {
@@ -50,9 +51,9 @@ public enum EnergySystem {
         this._name = name;
         this._unit = unit;
         this._conversionRatio = conversionRatio;
+        this._conversionRatioWide = WideAmount.asImmutable(conversionRatio);
     }
 
-    //TODO check "data" owner; for write too
     public static EnergySystem read(final CompoundNBT data, final String key, final EnergySystem defaultValue) {
 
         if (data.contains(key)) {
@@ -81,6 +82,18 @@ public enum EnergySystem {
     public double convertTo(final EnergySystem target, final double amount) {
         // convert the amount to the REFERENCE system and then to the requested one
         return amount / this.getConversionRatio() * target.getConversionRatio();
+    }
+
+    /**
+     * Convert the given amount to the given EnergySystem
+     *
+     * @param target the EnergySystem to convert the amount to
+     * @param amount the amount to convert
+     * @return the converted amount
+     */
+    public WideAmount convertTo(final EnergySystem target, final WideAmount amount) {
+        // convert the amount to the REFERENCE system and then to the requested one
+        return amount.divide(this._conversionRatioWide).multiply(target._conversionRatioWide);
     }
 
     public String getFullName() {
@@ -116,11 +129,10 @@ public enum EnergySystem {
 
     //region internals
 
-    public static final String[] sizePrefixes = {"", "Ki", "Me", "Gi", "Te", "Pe", "Ex", "Ze", "Yo", "Ho"};
-
-    private String _name;
-    private String _unit;
-    private double _conversionRatio;
+    private final String _name;
+    private final String _unit;
+    private final double _conversionRatio;
+    private final WideAmount _conversionRatioWide;
 
     //endregion
 }

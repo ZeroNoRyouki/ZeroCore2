@@ -1,6 +1,6 @@
 /*
  *
- * IWideEnergyProvider.java
+ * IWideEnergyHandler2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,29 +18,35 @@
 
 package it.zerono.mods.zerocore.lib.energy;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
 /**
- * Implement this interface on entities which should provide energy, generally storing it
- * in one or more internal {@link IWideEnergyStorage} objects
+ * Implement this interface on entities which should handle energy, generally storing it in one or more
+ * internal {@link IWideEnergyStorage} objects
+ *
+ * Note that {@link IWideEnergyReceiver} and {@link IWideEnergyProvider} are extensions of this
  *
  * Based upon the IEnergyHandler from King Lemming's RedstoneFlux API
  */
-@Deprecated //use IWideEnergyProvider2
-public interface IWideEnergyProvider
-        extends IWideEnergyHandler {
+public interface IWideEnergyHandler2
+        extends IWideEnergyConnection {
 
     /**
-     * Remove energy, expressed in the specified {@link EnergySystem}, from an IWideEnergyProvider.
-     * Internal distribution is left entirely to the IWideEnergyProvider
+     * Returns the amount of energy currently stored expressed in the specified {@link EnergySystem}
      *
      * @param system the {@link EnergySystem} used by the request
      * @param from the direction the request is coming from, or null for any directions
-     * @param maxAmount maximum amount of energy to extract
-     * @param simulate if true, the extraction will only be simulated
-     * @return amount of energy that was (or would have been, if simulated) extracted
      */
-    double extractEnergy(EnergySystem system, @Nullable Direction from, double maxAmount, boolean simulate);
+    WideAmount getEnergyStored(EnergySystem system, @Nullable Direction from);
+
+    /**
+     * Returns the maximum amount of energy that can be stored expressed in the requested {@link EnergySystem}
+     *
+     * @param system the {@link EnergySystem} used by the request
+     * @param from the direction the request is coming from, or null for any directions
+     */
+    WideAmount getCapacity(EnergySystem system, @Nullable Direction from);
 }

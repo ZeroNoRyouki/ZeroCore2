@@ -1,6 +1,6 @@
 /*
  *
- * IWideEnergyProvider.java
+ * IWideEnergyProvider2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.energy;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
@@ -28,9 +29,8 @@ import javax.annotation.Nullable;
  *
  * Based upon the IEnergyHandler from King Lemming's RedstoneFlux API
  */
-@Deprecated //use IWideEnergyProvider2
-public interface IWideEnergyProvider
-        extends IWideEnergyHandler {
+public interface IWideEnergyProvider2
+        extends IWideEnergyHandler2 {
 
     /**
      * Remove energy, expressed in the specified {@link EnergySystem}, from an IWideEnergyProvider.
@@ -42,5 +42,5 @@ public interface IWideEnergyProvider
      * @param simulate if true, the extraction will only be simulated
      * @return amount of energy that was (or would have been, if simulated) extracted
      */
-    double extractEnergy(EnergySystem system, @Nullable Direction from, double maxAmount, boolean simulate);
+    WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, boolean simulate);
 }

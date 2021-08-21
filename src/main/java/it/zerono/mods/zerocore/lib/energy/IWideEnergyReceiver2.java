@@ -1,6 +1,6 @@
 /*
  *
- * IWideEnergyProvider.java
+ * IWideEnergyReceiver2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,29 +18,30 @@
 
 package it.zerono.mods.zerocore.lib.energy;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
 /**
- * Implement this interface on entities which should provide energy, generally storing it
+ * Implement this interface on entities which should receive energy, generally storing it
  * in one or more internal {@link IWideEnergyStorage} objects
  *
- * Based upon the IEnergyHandler from King Lemming's RedstoneFlux API
+ * Based upon the IEnergyReceiver from King Lemming's RedstoneFlux API
  */
-@Deprecated //use IWideEnergyProvider2
-public interface IWideEnergyProvider
-        extends IWideEnergyHandler {
+@SuppressWarnings("unused")
+public interface IWideEnergyReceiver2
+        extends IWideEnergyHandler2 {
 
     /**
-     * Remove energy, expressed in the specified {@link EnergySystem}, from an IWideEnergyProvider.
-     * Internal distribution is left entirely to the IWideEnergyProvider
+     * Add energy, expressed in the specified {@link EnergySystem}, to an IWideEnergyReceiver.
+     * Internal distribution is left entirely to the IWideEnergyReceiver
      *
      * @param system the {@link EnergySystem} used by the request
      * @param from the direction the request is coming from, or null for any directions
-     * @param maxAmount maximum amount of energy to extract
+     * @param maxAmount maximum amount of energy to receive
      * @param simulate if true, the extraction will only be simulated
-     * @return amount of energy that was (or would have been, if simulated) extracted
+     * @return amount of energy that was (or would have been, if simulated) received
      */
-    double extractEnergy(EnergySystem system, @Nullable Direction from, double maxAmount, boolean simulate);
+    WideAmount receiveEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, boolean simulate);
 }
