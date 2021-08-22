@@ -45,10 +45,19 @@ public class WideEnergyBuffer
         this._capacity = capacity.copy();
         this._maxInsert = maxInsert.copy();
         this._maxExtract = maxExtract.copy();
+        this._modified = false;
     }
 
     public boolean isEmpty() {
         return this._energy.isZero();
+    }
+
+    public boolean modified() {
+
+        final boolean m = this._modified;
+
+        this._modified = false;
+        return m;
     }
 
     public WideEnergyBuffer setCapacity(final WideAmount capacity) {
@@ -56,7 +65,9 @@ public class WideEnergyBuffer
         this._capacity.set(capacity);
 
         if (this._energy.greaterThan(capacity)) {
+
             this._energy.set(capacity);
+            this._modified = true;
         }
 
         return this;
@@ -96,13 +107,16 @@ public class WideEnergyBuffer
     public WideEnergyBuffer setEnergyStored(final WideAmount amount) {
 
         this._energy.set(amount.greaterThan(this._capacity) ? this._capacity : amount);
+        this._modified = true;
         return this;
     }
 
     public void merge(final WideEnergyBuffer other) {
 
         if (!other.isEmpty()) {
+
             this._energy.add(other._system.convertTo(this._system, other._energy));
+            this._modified = true;
         }
     }
 
@@ -137,7 +151,9 @@ public class WideEnergyBuffer
                 WideAmount.min(this._maxInsert, maxAmount)).copy();
 
         if (!simulate) {
+
             this._energy.set(WideAmount.min(this.getEnergyStored(localSystem).add(inserted), this._capacity));
+            this._modified = true;
         }
 
         // convert the inserted energy amount back to the original energy system
@@ -163,7 +179,9 @@ public class WideEnergyBuffer
         final WideAmount extracted = WideAmount.min(this._energy, WideAmount.min(this._maxExtract, maxAmount)).copy();
 
         if (!simulate) {
+
             this._energy.subtract(extracted);
+            this._modified = true;
         }
 
         // convert the extracted energy amount back to the original energy system
@@ -218,6 +236,8 @@ public class WideEnergyBuffer
             this.setEnergyStored(WideAmount.from(data.getDouble("energy")));
             this.setCapacity(WideAmount.from(data.getDouble("capacity")));
         }
+
+        this._modified = true;
     }
 
     /**
@@ -279,6 +299,7 @@ public class WideEnergyBuffer
     private final WideAmount _capacity;
     private final WideAmount _maxInsert;
     private final WideAmount _maxExtract;
+    private boolean _modified;
 
     //endregion
 }
