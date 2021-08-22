@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.energy;
 
 import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 
 /**
  * A buffer to store a very big amount of energy
@@ -34,20 +35,20 @@ public interface IWideEnergyStorage2
      *
      * @param system the {@link EnergySystem} used by the request
      * @param maxAmount maximum amount of energy to be inserted
-     * @param simulate if true, the insertion will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) inserted
      */
-    WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate);
+    WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode);
 
     /**
      * Remove energy, expressed in the specified {@link EnergySystem}, from the storage
      *
      * @param system the {@link EnergySystem} used by the request
      * @param maxAmount maximum amount of energy to be extracted
-     * @param simulate if true, the extraction will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) extracted from the storage
      */
-    WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate);
+    WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode);
 
     /**
      * Returns the amount of energy currently stored expressed in the specified {@link EnergySystem}

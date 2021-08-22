@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.energy;
 
 import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
@@ -39,8 +40,8 @@ public interface IWideEnergyProvider2
      * @param system the {@link EnergySystem} used by the request
      * @param from the direction the request is coming from, or null for any directions
      * @param maxAmount maximum amount of energy to extract
-     * @param simulate if true, the extraction will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) extracted
      */
-    WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, boolean simulate);
+    WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode);
 }

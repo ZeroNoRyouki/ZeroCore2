@@ -40,7 +40,11 @@ public enum OperationMode {
         return Simulate == this;
     }
 
-    public static OperationMode from(IFluidHandler.FluidAction action) {
+    public static OperationMode from(final boolean simulate) {
+        return simulate ? Simulate : Execute;
+    }
+
+    public static OperationMode from(final IFluidHandler.FluidAction action) {
         return action.execute() ? Execute : Simulate;
     }
 }

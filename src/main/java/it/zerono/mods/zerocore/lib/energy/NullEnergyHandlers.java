@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.energy;
 
 import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
@@ -26,6 +27,7 @@ import javax.annotation.Nullable;
 @SuppressWarnings({"WeakerAccess"})
 public final class NullEnergyHandlers {
 
+    @SuppressWarnings("unused")
     public static final IWideEnergyHandler2 WIDE_HANDLER = new IWideEnergyHandler2() {
 
         @Override
@@ -72,11 +74,12 @@ public final class NullEnergyHandlers {
         }
 
         @Override
-        public WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, boolean simulate) {
+        public WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode) {
             return WideAmount.ZERO;
         }
     };
 
+    @SuppressWarnings("unused")
     public static final IWideEnergyReceiver2 WIDE_RECEIVER = new IWideEnergyReceiver2() {
 
         @Override
@@ -100,11 +103,12 @@ public final class NullEnergyHandlers {
         }
 
         @Override
-        public WideAmount receiveEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, boolean simulate) {
+        public WideAmount receiveEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode) {
             return WideAmount.ZERO;
         }
     };
 
+    @SuppressWarnings("unused")
     public static final IWideEnergyStorage2 WIDE_STORAGE = new IWideEnergyStorage2() {
 
         @Override
@@ -113,12 +117,12 @@ public final class NullEnergyHandlers {
         }
 
         @Override
-        public WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate) {
+        public WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode) {
             return WideAmount.ZERO;
         }
 
         @Override
-        public WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate) {
+        public WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode) {
             return WideAmount.ZERO;
         }
 

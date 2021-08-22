@@ -22,6 +22,7 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.LogicalSide;
 
@@ -136,11 +137,11 @@ public class WideEnergyBuffer
      *
      * @param system the {@link EnergySystem} used by the request
      * @param maxAmount maximum amount of energy to be inserted
-     * @param simulate if true, the insertion will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) inserted
      */
     @Override
-    public WideAmount insertEnergy(final EnergySystem system, WideAmount maxAmount, final boolean simulate) {
+    public WideAmount insertEnergy(final EnergySystem system, WideAmount maxAmount, final OperationMode mode) {
 
         final EnergySystem localSystem = this.getEnergySystem();
 
@@ -150,7 +151,7 @@ public class WideEnergyBuffer
         final WideAmount inserted = WideAmount.min(this.getCapacity(localSystem).subtract(this._energy),
                 WideAmount.min(this._maxInsert, maxAmount)).copy();
 
-        if (!simulate) {
+        if (mode.execute()) {
 
             this._energy.set(WideAmount.min(this.getEnergyStored(localSystem).add(inserted), this._capacity));
             this._modified = true;
@@ -165,11 +166,11 @@ public class WideEnergyBuffer
      *
      * @param system    the {@link EnergySystem} used by the request
      * @param maxAmount maximum amount of energy to be extracted
-     * @param simulate  if true, the extraction will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) extracted from the storage
      */
     @Override
-    public WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, boolean simulate) {
+    public WideAmount extractEnergy(final EnergySystem system, WideAmount maxAmount, final OperationMode mode) {
 
         final EnergySystem localSystem = this.getEnergySystem();
 
@@ -178,7 +179,7 @@ public class WideEnergyBuffer
 
         final WideAmount extracted = WideAmount.min(this._energy, WideAmount.min(this._maxExtract, maxAmount)).copy();
 
-        if (!simulate) {
+        if (mode.execute()) {
 
             this._energy.subtract(extracted);
             this._modified = true;
