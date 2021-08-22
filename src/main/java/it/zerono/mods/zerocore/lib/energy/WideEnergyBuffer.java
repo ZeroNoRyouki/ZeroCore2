@@ -47,6 +47,10 @@ public class WideEnergyBuffer
         this._maxExtract = maxExtract.copy();
     }
 
+    public boolean isEmpty() {
+        return this._energy.isZero();
+    }
+
     public WideEnergyBuffer setCapacity(final WideAmount capacity) {
 
         this._capacity.set(capacity);
@@ -93,6 +97,13 @@ public class WideEnergyBuffer
 
         this._energy.set(amount.greaterThan(this._capacity) ? this._capacity : amount);
         return this;
+    }
+
+    public void merge(final WideEnergyBuffer other) {
+
+        if (!other.isEmpty()) {
+            this._energy.add(other._system.convertTo(this._system, other._energy));
+        }
     }
 
     //region IWideEnergyStorage2
