@@ -43,9 +43,9 @@ public class WideEnergyBuffer
 
         this._system = system;
         this._energy = WideAmount.ZERO;
-        this._capacity = capacity.copy();
-        this._maxInsert = maxInsert.copy();
-        this._maxExtract = maxExtract.copy();
+        this._capacity = capacity;
+        this._maxInsert = maxInsert;
+        this._maxExtract = maxExtract;
         this._modified = false;
     }
 
@@ -63,11 +63,11 @@ public class WideEnergyBuffer
 
     public WideEnergyBuffer setCapacity(final WideAmount capacity) {
 
-        this._capacity.set(capacity);
+        this._capacity = this._capacity.set(capacity);
 
         if (this._energy.greaterThan(capacity)) {
 
-            this._energy.set(capacity);
+            this._energy = this._energy.set(capacity);
             this._modified = true;
         }
 
@@ -83,13 +83,13 @@ public class WideEnergyBuffer
 
     public WideEnergyBuffer setMaxInsert(final WideAmount maxInsert) {
 
-        this._maxInsert.set(maxInsert);
+        this._maxInsert = this._maxInsert.set(maxInsert);
         return this;
     }
 
     public WideEnergyBuffer setMaxExtract(final WideAmount maxExtract) {
 
-        this._maxExtract.set(maxExtract);
+        this._maxExtract = this._maxExtract.set(maxExtract);
         return this;
     }
 
@@ -107,7 +107,7 @@ public class WideEnergyBuffer
 
     public WideEnergyBuffer setEnergyStored(final WideAmount amount) {
 
-        this._energy.set(amount.greaterThan(this._capacity) ? this._capacity : amount);
+        this._energy = this._energy.set(amount.greaterThan(this._capacity) ? this._capacity : amount);
         this._modified = true;
         return this;
     }
@@ -116,7 +116,7 @@ public class WideEnergyBuffer
 
         if (!other.isEmpty()) {
 
-            this._energy.add(other._system.convertTo(this._system, other._energy));
+            this._energy = this._energy.add(other._system.convertTo(this._system, other._energy));
             this._modified = true;
         }
     }
@@ -153,7 +153,7 @@ public class WideEnergyBuffer
 
         if (mode.execute()) {
 
-            this._energy.set(WideAmount.min(this.getEnergyStored(localSystem).add(inserted), this._capacity));
+            this._energy = this._energy.set(WideAmount.min(this.getEnergyStored(localSystem).add(inserted), this._capacity));
             this._modified = true;
         }
 
@@ -181,7 +181,7 @@ public class WideEnergyBuffer
 
         if (mode.execute()) {
 
-            this._energy.subtract(extracted);
+            this._energy = this._energy.subtract(extracted);
             this._modified = true;
         }
 
@@ -223,10 +223,10 @@ public class WideEnergyBuffer
 
         if (data.contains("wide")) {
 
-            this.syncChildDataEntityFrom(this._capacity, "capacity", data, syncReason);
-            this.syncChildDataEntityFrom(this._maxInsert, "maxInsert", data, syncReason);
-            this.syncChildDataEntityFrom(this._maxExtract, "maxExtract", data, syncReason);
-            this.syncChildDataEntityFrom(this._energy, "energy", data, syncReason);
+            this._capacity = WideAmount.from(data.getCompound("capacity"));
+            this._maxInsert = WideAmount.from(data.getCompound("maxInsert"));
+            this._maxExtract = WideAmount.from(data.getCompound("maxExtract"));
+            this._energy = WideAmount.from(data.getCompound("energy"));
 
         } else {
 
@@ -251,10 +251,10 @@ public class WideEnergyBuffer
     public CompoundNBT syncDataTo(final CompoundNBT data, final SyncReason syncReason) {
 
         data.putByte("wide", (byte)1);
-        this.syncChildDataEntityTo(this._capacity, "capacity", data, syncReason);
-        this.syncChildDataEntityTo(this._maxInsert, "maxInsert", data, syncReason);
-        this.syncChildDataEntityTo(this._maxExtract, "maxExtract", data, syncReason);
-        this.syncChildDataEntityTo(this._energy, "energy", data, syncReason);
+        data.put("capacity", this._capacity.serializeTo(new CompoundNBT()));
+        data.put("maxInsert", this._maxInsert.serializeTo(new CompoundNBT()));
+        data.put("maxExtract", this._maxExtract.serializeTo(new CompoundNBT()));
+        data.put("energy", this._energy.serializeTo(new CompoundNBT()));
         return data;
     }
 
@@ -296,10 +296,10 @@ public class WideEnergyBuffer
     }
 
     private final EnergySystem _system;
-    private final WideAmount _energy;
-    private final WideAmount _capacity;
-    private final WideAmount _maxInsert;
-    private final WideAmount _maxExtract;
+    private WideAmount _energy;
+    private WideAmount _capacity;
+    private WideAmount _maxInsert;
+    private WideAmount _maxExtract;
     private boolean _modified;
 
     //endregion

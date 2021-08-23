@@ -18,11 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.data;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.MathHelper;
@@ -43,7 +41,7 @@ import java.util.function.BiFunction;
 @SuppressWarnings("unused")
 public class WideAmount
         extends Number
-        implements Comparable<WideAmount>, ISyncableEntity {
+        implements Comparable<WideAmount> {
 
     public static final WideAmount MAX_VALUE;
     public static final WideAmount ZERO;
@@ -66,15 +64,11 @@ public class WideAmount
     }
 
     public static WideAmount from(final CompoundNBT nbt) {
-
-        final WideAmount result = ZERO.copy();
-
-        result.syncDataFrom(nbt, SyncReason.FullSync);
-        return result;
+        return from(nbt.getLong("i"), nbt.getShort("d"));
     }
 
     public static WideAmount from(final JsonObject json) {
-        return ZERO.set(JSONHelper.jsonGetLong(json, "i"), JSONHelper.jsonGetShort(json, "d"));
+        return from(JSONHelper.jsonGetLong(json, "i"), JSONHelper.jsonGetShort(json, "d"));
     }
 
     public static WideAmount asImmutable(final long integerPart, final short decimalPart) {
@@ -103,7 +97,10 @@ public class WideAmount
     }
 
     public CompoundNBT serializeTo(final CompoundNBT nbt) {
-        return this.syncDataTo(nbt, SyncReason.FullSync);
+
+        nbt.putLong("i", this.getIntegerPart());
+        nbt.putShort("d", this.getDecimalPart());
+        return nbt;
     }
 
     public static WideAmount parse(final String text) {
@@ -476,35 +473,6 @@ public class WideAmount
     }
 
     //endregion
-    //region ISyncableEntity
-
-    /**
-     * Sync the entity data from the given {@link CompoundNBT}
-     *
-     * @param data       the {@link CompoundNBT} to read from
-     * @param syncReason the reason why the synchronization is necessary
-     */
-    @Override
-    public void syncDataFrom(final CompoundNBT data, final SyncReason syncReason) {
-        this.set(data.getLong("i"), data.getShort("d"));
-    }
-
-    /**
-     * Sync the entity data to the given {@link CompoundNBT}
-     *
-     * @param data       the {@link CompoundNBT} to write to
-     * @param syncReason the reason why the synchronization is necessary
-     * @return the {@link CompoundNBT} the data was written to (usually {@code data})
-     */
-    @Override
-    public CompoundNBT syncDataTo(final CompoundNBT data, final SyncReason syncReason) {
-
-        data.putLong("i", this.getIntegerPart());
-        data.putShort("d", this.getDecimalPart());
-        return data;
-    }
-
-    //endregion
     //region Number
 
     /**
@@ -600,21 +568,15 @@ public class WideAmount
         }
 
         //endregion
-        //region ISyncableEntity
-
-        @Override
-        public void syncDataFrom(final CompoundNBT data, final SyncReason syncReason) {
-            throw new UnsupportedOperationException("An immutable WideValue cannot be modified");
-        }
-
-        //endregion
     }
 
     //endregion
     //region internals
 
     private WideAmount(final long integerPart, final short decimalPart) {
-        this.set(integerPart, decimalPart);
+
+        this._integerPart = integerPart;
+        this._decimalPart = (short)MathHelper.clamp(decimalPart, 0, MAX_DECIMAL_VALUE);
     }
 
     private static WideAmount getKnowValueOrCreate(final long integerPart, final short decimalPart,
@@ -796,9 +758,9 @@ public class WideAmount
 
     static {
 
-        ZERO = asImmutable(0);
-        ONE = asImmutable(1);
-        MAX_VALUE = asImmutable(-1, MAX_DECIMAL_VALUE);
+        ZERO = new Immutable(0, (short)0);
+        ONE = new Immutable(1, (short)0);
+        MAX_VALUE = new Immutable(-1, MAX_DECIMAL_VALUE);
         MAX_VALUE_AS_DOUBLE = Double.parseDouble(MAX_VALUE.toString());
         MAX_LONG_SHIFT = Long.divideUnsigned(Long.divideUnsigned(-1L, SINGLE_UNIT), SINGLE_UNIT);
 
