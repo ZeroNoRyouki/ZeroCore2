@@ -25,9 +25,9 @@ import javax.annotation.Nullable;
 
 /**
  * Implement this interface on entities which should handle energy, generally storing it in one or more
- * internal {@link IWideEnergyStorage} objects
+ * internal {@link IWideEnergyStorage2} objects
  *
- * Note that {@link IWideEnergyReceiver} and {@link IWideEnergyProvider} are extensions of this
+ * Note that {@link IWideEnergyReceiver2} and {@link IWideEnergyProvider2} are extensions of this
  *
  * Based upon the IEnergyHandler from King Lemming's RedstoneFlux API
  */
