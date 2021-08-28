@@ -44,10 +44,7 @@ public class TabularLayoutEngine
 
     @Override
     public void layout(final IControlContainer controlsContainer) {
-        new CellLayout(this._columnDefinition, this._rowDefinition, controlsContainer.getBounds()
-                    .expand(-this.getHorizontalMargin() * 2, -this.getVerticalMargin() * 2)
-                    .offset(this.getHorizontalMargin(), this.getVerticalMargin()))
-                .layout(controlsContainer);
+        new CellLayout(this._columnDefinition, this._rowDefinition, controlsContainer.getBounds()).layout(controlsContainer);
     }
 
     //region Builder
@@ -59,7 +56,7 @@ public class TabularLayoutEngine
         }
 
         public TabularLayoutEngine build() {
-            return new TabularLayoutEngine(this._columnDefinition, this._rowDefinition);
+            return new TabularLayoutEngine(this._columnDefinition, this._rowDefinition).setZeroMargins();
         }
 
         public Builder columns(final int count, int... sizesInPixels) {
@@ -300,8 +297,7 @@ public class TabularLayoutEngine
             this._filledCells = new boolean[this._maxRows][this._maxColumns];
             this._tableBounds = tableBounds;
             this._currentColumn = this._currentRow = 0;
-            this._cellX = this._tableBounds.getX1();
-            this._cellY = this._tableBounds.getY1();
+            this._cellX = this._cellY = 0;
             this._columnSpanApplied = this._rowSpanApplied = 1;
         }
 
@@ -349,8 +345,8 @@ public class TabularLayoutEngine
             final int controlHeight = Math.min(controlMaxHeight, getControlDesiredDimension(control, DesiredDimension.Height, controlMaxHeight));
 
             control.setBounds(new Rectangle(
-                    hint.CellHorizontalAlignment.align(this._cellX + hint.CellPadding.getLeft(), controlWidth, controlMaxWidth),
-                    hint.CellVerticalAlignment.align(this._cellY + hint.CellPadding.getTop(), controlHeight, controlMaxHeight),
+                    this._cellX + hint.CellPadding.getLeft() + hint.CellHorizontalAlignment.align(0, controlWidth, controlMaxWidth),
+                    this._cellY + hint.CellPadding.getTop() + hint.CellVerticalAlignment.align(0, controlHeight, controlMaxHeight),
                     controlWidth, controlHeight));
 
             this.fill(this._columnSpanApplied, this._rowSpanApplied);
@@ -379,7 +375,7 @@ public class TabularLayoutEngine
                 if (this._currentColumn >= this._maxColumns) {
 
                     this._currentColumn = 0;
-                    this._cellX = this._tableBounds.getX1();
+                    this._cellX = 0;
                     this._cellY += this._rows.get(this._currentRow).applyAsInt(this._tableBounds.Height);
                     ++this._currentRow;
 
