@@ -159,6 +159,15 @@ public interface IControl {
      */
     List<Object> getTooltipsObjects();
 
+    /**
+     * Return the maximum width for the tooltips popup of this control
+     *
+     * @return the maximum width in pixels or -1 to not wrap the tooltips text
+    */
+    default int getTooltipsPopupMaxWidth() {
+        return this.getGui().getTooltipsPopupMaxWidth();
+    }
+
     void paintToolTips(MatrixStack matrix, int screenX, int screenY);
 
     default void setTooltips(ITextComponent... lines) {

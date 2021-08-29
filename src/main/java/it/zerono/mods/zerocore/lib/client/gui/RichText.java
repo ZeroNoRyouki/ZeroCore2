@@ -48,13 +48,14 @@ public class RichText
     implements IRichText {
 
     public static final RichText EMPTY = new RichText();
+    public static final int NO_MAX_WIDTH = -1;
 
     public static Builder builder() {
         return new Builder();
     }
 
     public static Builder builder(final int maxWidth) {
-        return new WrappedBuilder(maxWidth);
+        return NO_MAX_WIDTH == maxWidth ? new Builder() : new WrappedBuilder(maxWidth);
     }
 
     //region IRichText
