@@ -102,32 +102,38 @@ public class Rectangle {
             return this;
         }
 
-        int x = this.Origin.X;
-        int y = this.Origin.Y;
         int width = this.Width;
         int height = this.Height;
 
         if (deltaX > 0) {
-
             width += deltaX;
-
-        } else {
-
-            x += deltaX;
-            width -= deltaX;
         }
 
         if (deltaY > 0) {
-
             height += deltaY;
-
-        } else {
-
-            y += deltaY;
-            height -= deltaY;
         }
 
-        return new Rectangle(x, y, width, height);
+        return new Rectangle(this.Origin.X, this.Origin.Y, width, height);
+    }
+
+    public Rectangle shrink(final int deltaX, final int deltaY) {
+
+        if (0 == deltaX && 0 == deltaY) {
+            return this;
+        }
+
+        int width = this.Width;
+        int height = this.Height;
+
+        if (deltaX > 0) {
+            width = Math.max(0, width - deltaX);
+        }
+
+        if (deltaY > 0) {
+            height = Math.max(0, height - deltaY);
+        }
+
+        return new Rectangle(this.Origin.X, this.Origin.Y, width, height);
     }
 
     public Rectangle inset(final int horizontal, final int vertical) {
