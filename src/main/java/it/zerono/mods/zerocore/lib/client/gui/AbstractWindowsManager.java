@@ -25,6 +25,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -202,10 +203,13 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this.forEachWindow(window -> window.onPaint(matrix, partialTicks, mouseX, mouseY));
         this.forEachWindow(window -> window.onPaintOverlay(matrix, partialTicks, mouseX, mouseY));
 
-        // ... and the tool tips ...
+        // ... and the tool tips (skip them if ALT is pressed) ...
 
-        this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
-        net.minecraft.client.renderer.RenderHelper.setupForFlatItems();
+        if (!Screen.hasAltDown()) {
+
+            this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
+            net.minecraft.client.renderer.RenderHelper.setupForFlatItems();
+        }
 
         // ... and the dragged object
 
