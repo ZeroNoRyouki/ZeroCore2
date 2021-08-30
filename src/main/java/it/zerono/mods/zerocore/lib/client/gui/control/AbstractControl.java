@@ -32,6 +32,7 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -286,7 +287,7 @@ public abstract class AbstractControl
 
         final RichText rich = this.getTooltipsRichText();
 
-        if (rich.isEmpty()) {
+        if (rich.isEmpty() || Screen.hasAltDown()) {
             return;
         }
 
