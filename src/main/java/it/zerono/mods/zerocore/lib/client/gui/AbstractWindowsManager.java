@@ -255,6 +255,10 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
             this.stopDragging(mx, my);
         }
 
+        if (s_debugFrame && CodeHelper.MOUSE_BUTTON_RIGHT == mouseButton) {
+            this.forEachInteractiveWindow(Window::onDisplayDebugFrameControlName);
+        }
+
         if (-1 != mouseButton) {
 
             return this.raiseMouseReleased(mx, my, mouseButton);
