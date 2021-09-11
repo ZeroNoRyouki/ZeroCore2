@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.debug;
 
 import com.google.common.collect.Maps;
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.client.debug.VoxelShapeHighlighter;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import net.minecraft.util.math.BlockPos;
@@ -89,6 +90,10 @@ public class DebugHelper {
 
         return s_blockToHighlight.getOrDefault(world, Collections.emptyMap())
                 .getOrDefault(position, VoxelShapeType.None);
+    }
+
+    public static void ungrabMouse() {
+        ZeroCore.getProxy().debugUngrabMouse();
     }
 
     //endregion

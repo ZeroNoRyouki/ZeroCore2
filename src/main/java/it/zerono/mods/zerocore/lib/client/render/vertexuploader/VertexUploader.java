@@ -77,7 +77,7 @@ public class VertexUploader {
 
         this._uploaders = Maps.newHashMapWithExpectedSize(2);
         this._uploaders.put(DefaultVertexFormats.BLOCK, VertexUploader::blockUploader);
-        this._uploaders.put(DefaultVertexFormats.ENTITY, VertexUploader::entityUploader);
+        this._uploaders.put(DefaultVertexFormats.NEW_ENTITY, VertexUploader::entityUploader);
     }
 
     private IUploader getUploaderFor(IVertexBuilder builder) {
@@ -98,26 +98,26 @@ public class VertexUploader {
         final LightMap overlay = adapter.getOverlayMap(source);
         final LightMap light = adapter.getLightMap(source);
 
-        builder.pos(pos.X, pos.Y, pos.Z);
+        builder.vertex(pos.X, pos.Y, pos.Z);
 
         if (null != colour) {
             builder.color(colour.R, colour.G, colour.B, colour.A);
         }
 
         if (null != uv) {
-            builder.tex(uv.U, uv.V);
+            builder.uv(uv.U, uv.V);
         }
 
         if (null != overlay) {
-            builder.overlay(overlay.U, overlay.V);
+            builder.overlayCoords(overlay.U, overlay.V);
         }
 
         if (null != light) {
-            builder.lightmap(light.U, light.V);
+            builder.uv2(light.U, light.V);
         }
 
         if (null != normal) {
-            builder.normal(normal.getX(), normal.getY(), normal.getZ());
+            builder.normal(normal.x(), normal.y(), normal.z());
         }
 
         builder.endVertex();
@@ -132,11 +132,11 @@ public class VertexUploader {
         final Colour colour = adapter.getColour(source);
         final LightMap light = adapter.getLightMap(source);
 
-        builder.pos(pos.X, pos.Y, pos.Z)
+        builder.vertex(pos.X, pos.Y, pos.Z)
                 .color(colour.R, colour.G, colour.B, colour.A)
-                .tex(uv.U, uv.V)
-                .lightmap(light.U, light.V)
-                .normal(normal.getX(), normal.getY(), normal.getZ())
+                .uv(uv.U, uv.V)
+                .uv2(light.U, light.V)
+                .normal(normal.x(), normal.y(), normal.z())
                 .endVertex();
     }
 
@@ -153,12 +153,12 @@ public class VertexUploader {
 //        Log.LOGGER.info("UPV p:{} c:{} t:{} o:{} l:{} n:{}", pos, colour, uv, overlay, light, normal);
         Log.LOGGER.info("UPV {}", source);
 
-        builder.pos(pos.X, pos.Y, pos.Z)
+        builder.vertex(pos.X, pos.Y, pos.Z)
                 .color(colour.R, colour.G, colour.B, colour.A)
-                .tex(uv.U, uv.V)
-                .overlay(overlay.U, overlay.V)
-                .lightmap(light.U, light.V)
-                .normal(normal.getX(), normal.getY(), normal.getZ())
+                .uv(uv.U, uv.V)
+                .overlayCoords(overlay.U, overlay.V)
+                .uv2(light.U, light.V)
+                .normal(normal.x(), normal.y(), normal.z())
                 .endVertex();
     }
 

@@ -23,10 +23,8 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
 
 public final class EnergyStack
     implements IEnergySystemAware {
@@ -111,7 +109,7 @@ public final class EnergyStack
 
     public void serializeTo(final PacketBuffer buffer) {
 
-        buffer.writeEnumValue(this._system);
+        buffer.writeEnum(this._system);
         buffer.writeDouble(this._amount);
     }
 
@@ -119,7 +117,7 @@ public final class EnergyStack
 
         try {
 
-            return new EnergyStack(buffer.readEnumValue(EnergySystem.class), buffer.readDouble());
+            return new EnergyStack(buffer.readEnum(EnergySystem.class), buffer.readDouble());
 
         } catch (RuntimeException ex) {
 

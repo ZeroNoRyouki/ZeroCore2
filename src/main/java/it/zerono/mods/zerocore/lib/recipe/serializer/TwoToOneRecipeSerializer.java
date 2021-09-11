@@ -66,7 +66,7 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
     //region IRecipeSerializer<Recipe>
 
     @Override
-    public Recipe read(final ResourceLocation recipeId, final JsonObject json) {
+    public Recipe fromJson(final ResourceLocation recipeId, final JsonObject json) {
 
         final RecipeIngredient1 ingredient1 = this._jsonIngredient1Factory.apply(JSONHelper.jsonGetMandatoryElement(json, this._jsonIngredientsLabelsSupplier.apply(0)));
         final RecipeIngredient2 ingredient2 = this._jsonIngredient2Factory.apply(JSONHelper.jsonGetMandatoryElement(json, this._jsonIngredientsLabelsSupplier.apply(1)));
@@ -77,7 +77,7 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
 
     @Nullable
     @Override
-    public Recipe read(final ResourceLocation recipeId, final PacketBuffer buffer) {
+    public Recipe fromNetwork(final ResourceLocation recipeId, final PacketBuffer buffer) {
 
         final RecipeIngredient1 ingredient1 = this._packetIngredient1Factory.apply(buffer);
         final RecipeIngredient2 ingredient2 = this._packetIngredient2Factory.apply(buffer);
@@ -87,7 +87,7 @@ public class TwoToOneRecipeSerializer <Ingredient1, Ingredient2, Result,
     }
 
     @Override
-    public void write(final PacketBuffer buffer, final Recipe recipe) {
+    public void toNetwork(final PacketBuffer buffer, final Recipe recipe) {
 
         recipe.getIngredient1().serializeTo(buffer);
         recipe.getIngredient2().serializeTo(buffer);

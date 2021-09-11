@@ -129,7 +129,7 @@ public class Multiblock
 
     private void renderMultiblock(MatrixStack ms) {
 
-        multiblockObj.setWorld(mc.world);
+        multiblockObj.setWorld(mc.level);
         Vector3i size = multiblockObj.getSize();
         int sizeX = size.getX();
         int sizeY = size.getY();
@@ -143,7 +143,7 @@ public class Multiblock
 
         int xPos = GuiBook.PAGE_WIDTH / 2;
         int yPos = 60;
-        ms.push();
+        ms.pushPose();
         ms.translate(xPos, yPos, 100);
         ms.scale(scale, scale, scale);
         ms.translate(-(float) sizeX / 2, -(float) sizeY / 2, 0);
@@ -154,8 +154,8 @@ public class Multiblock
         rotMat.setIdentity();
 
         // For each GL rotation done, track the opposite to keep the eye pos accurate
-        ms.rotate(Vector3f.XP.rotationDegrees(-30F));
-        rotMat.mul(Vector3f.XP.rotationDegrees(30));
+        ms.mulPose(Vector3f.XP.rotationDegrees(-30F));
+        rotMat.multiply(Vector3f.XP.rotationDegrees(30));
 
         float offX = (float) -sizeX / 2;
         float offZ = (float) -sizeZ / 2 + 1;
@@ -165,10 +165,10 @@ public class Multiblock
             time += ClientTicker.partialTicks;
         }
         ms.translate(-offX, 0, -offZ);
-        ms.rotate(Vector3f.YP.rotationDegrees(time));
-        rotMat.mul(Vector3f.YP.rotationDegrees(-time));
-        ms.rotate(Vector3f.YP.rotationDegrees(45));
-        rotMat.mul(Vector3f.YP.rotationDegrees(-45));
+        ms.mulPose(Vector3f.YP.rotationDegrees(time));
+        rotMat.multiply(Vector3f.YP.rotationDegrees(-time));
+        ms.mulPose(Vector3f.YP.rotationDegrees(45));
+        rotMat.multiply(Vector3f.YP.rotationDegrees(-45));
         ms.translate(offX, 0, offZ);
 
         // Finally apply the rotations
@@ -178,23 +178,23 @@ public class Multiblock
 			Dense multiblocks store everything in positive X/Z, so this works, but sparse multiblocks store everything from the JSON as-is.
 			Potential solution: Rotate around the offset vars of the multiblock, and add AABB method for extent of the multiblock
 		*/
-        renderElements(ms, multiblockObj, BlockPos.getAllInBoxMutable(BlockPos.ZERO, new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1)), eye);
+        renderElements(ms, multiblockObj, BlockPos.betweenClosed(BlockPos.ZERO, new BlockPos(sizeX - 1, sizeY - 1, sizeZ - 1)), eye);
 
-        ms.pop();
+        ms.popPose();
     }
 
     private void renderElements(MatrixStack ms, AbstractMultiblock mb, Iterable<? extends BlockPos> blocks, Vector4f eye) {
-        ms.push();
+        ms.pushPose();
         RenderSystem.color4f(1F, 1F, 1F, 1F);
         ms.translate(0, 0, -1);
 
-        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IRenderTypeBuffer.Impl buffers = Minecraft.getInstance().renderBuffers().bufferSource();
         doWorldRenderPass(ms, mb, blocks, buffers, eye);
 //        doTileEntityRenderPass(ms, mb, blocks, buffers, eye);
 
         // todo 1.15 transparency sorting
-        buffers.finish();
-        ms.pop();
+        buffers.endBatch();
+        ms.popPose();
     }
 
     private void doWorldRenderPass(MatrixStack ms, AbstractMultiblock mb, Iterable<? extends BlockPos> blocks,
@@ -206,17 +206,17 @@ public class Multiblock
             final BlockState renderBlockState = Patchouli.getRenderBlockStateFor(mb, bs);
             final IModelData renderModelData = Patchouli.getModelDataFor(mb, bs);
 
-            ms.push();
+            ms.pushPose();
             ms.translate(pos.getX(), pos.getY(), pos.getZ());
-            for (RenderType layer : RenderType.getBlockRenderTypes()) {
+            for (RenderType layer : RenderType.chunkBufferLayers()) {
                 if (RenderTypeLookup.canRenderInLayer(renderBlockState, layer)) {
                     ForgeHooksClient.setRenderLayer(layer);
                     IVertexBuilder buffer = buffers.getBuffer(layer);
-                    Minecraft.getInstance().getBlockRendererDispatcher().renderModel(renderBlockState, pos, mb, ms, buffer, false, RAND, renderModelData);
+                    Minecraft.getInstance().getBlockRenderer().renderModel(renderBlockState, pos, mb, ms, buffer, false, RAND, renderModelData);
                     ForgeHooksClient.setRenderLayer(null);
                 }
             }
-            ms.pop();
+            ms.popPose();
         }
     }
 

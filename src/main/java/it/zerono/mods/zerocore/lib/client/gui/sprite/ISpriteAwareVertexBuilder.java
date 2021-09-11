@@ -28,24 +28,24 @@ public class ISpriteAwareVertexBuilder implements IVertexBuilder {
         this._sprite = sprite;
     }
 
-    public IVertexBuilder pos(double x, double y, double z) {
-        return this._builder.pos(x, y, z);
+    public IVertexBuilder vertex(double x, double y, double z) {
+        return this._builder.vertex(x, y, z);
     }
 
     public IVertexBuilder color(int red, int green, int blue, int alpha) {
         return this._builder.color(red, green, blue, alpha);
     }
 
-    public IVertexBuilder tex(float u, float v) {
-        return this._builder.tex(this._sprite.getInterpolatedU(u * 16.0F), this._sprite.getInterpolatedV(v * 16.0F));
+    public IVertexBuilder uv(float u, float v) {
+        return this._builder.uv(this._sprite.getInterpolatedU(u * 16.0F), this._sprite.getInterpolatedV(v * 16.0F));
     }
 
-    public IVertexBuilder overlay(int u, int v) {
-        return this._builder.overlay(u, v);
+    public IVertexBuilder overlayCoords(int u, int v) {
+        return this._builder.overlayCoords(u, v);
     }
 
-    public IVertexBuilder lightmap(int u, int v) {
-        return this._builder.lightmap(u, v);
+    public IVertexBuilder uv2(int u, int v) {
+        return this._builder.uv2(u, v);
     }
 
     public IVertexBuilder normal(float x, float y, float z) {
@@ -56,10 +56,10 @@ public class ISpriteAwareVertexBuilder implements IVertexBuilder {
         this._builder.endVertex();
     }
 
-    public void addVertex(float x, float y, float z, float red, float green, float blue, float alpha,
+    public void vertex(float x, float y, float z, float red, float green, float blue, float alpha,
                           float texU, float texV, int overlayUV, int lightmapUV,
                           float normalX, float normalY, float normalZ) {
-        this._builder.addVertex(x, y, z, red, green, blue, alpha, this._sprite.getInterpolatedU(texU * 16.0F),
+        this._builder.vertex(x, y, z, red, green, blue, alpha, this._sprite.getInterpolatedU(texU * 16.0F),
                 this._sprite.getInterpolatedV(texV * 16.0F), overlayUV, lightmapUV, normalX, normalY, normalZ);
     }
 

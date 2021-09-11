@@ -42,14 +42,18 @@
 package it.zerono.mods.zerocore.lib.multiblock;
 
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import it.zerono.mods.zerocore.lib.multiblock.storage.IPartStorage;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
+import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Collections;
 import java.util.Set;
 
 public interface IMultiblockController<Controller extends IMultiblockController<Controller>>
-        extends IMultiblockMachine, IMultiblockValidator, ISyncableEntity {
+        extends IMultiblockMachine, IMultiblockValidator, ISyncableEntity, Comparable<Controller> {
 
     //region Multiblock Parts management
 
@@ -100,6 +104,26 @@ public interface IMultiblockController<Controller extends IMultiblockController<
     boolean containsPart(IMultiblockPart<Controller> part);
 
     /**
+     * Check if this controller contains at least one valid part at one of the given coordinates.
+     *
+     * @param positions the coordinates to check
+     * @return True if at least one part exists at one of the given coordinates
+     */
+    default boolean containsPartsAt(NeighboringPositions positions) {
+        return false;
+    }
+
+    /**
+     * Check if this controller contains at least one valid part at one of the given coordinates.
+     *
+     * @param positions the coordinates to check
+     * @return True if at least one part exists at one of the given coordinates
+     */
+    default boolean containsPartsAt(BlockPos[] positions) {
+        return false;
+    }
+
+    /**
      * Attach a new part to this machine.
      * @param part The part to add.
      */
@@ -118,7 +142,17 @@ public interface IMultiblockController<Controller extends IMultiblockController<
      * have a valid tile entity. Chunk-safe.
      * @return A set of all parts which still have a valid tile entity.
      */
-    Set<IMultiblockPart<Controller>> detachAllParts();
+    @Deprecated //replaced by detachAll
+    default Set<IMultiblockPart<Controller>> detachAllParts() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Detach all parts. Return a collection of all parts which still
+     * have a valid tile entity. Chunk-safe.
+     * @return A collection of all parts which still have a valid tile entity.
+     */
+    IPartStorage<Controller> detachAll();
 
     /**
      * Assimilate another controller into this controller.
@@ -142,7 +176,7 @@ public interface IMultiblockController<Controller extends IMultiblockController<
      * Called when this machine may need to check for blocks that are no
      * longer physically connected to the reference coordinate.
      */
-    Set<IMultiblockPart<Controller>> checkForDisconnections();
+    IPartStorage<Controller> checkForDisconnections();
 
     //endregion
     //region Multiblock state

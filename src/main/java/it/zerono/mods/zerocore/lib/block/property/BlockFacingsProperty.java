@@ -127,7 +127,7 @@ public enum BlockFacingsProperty
     //region IStringSerializable
 
     @Override
-    public String getString() {
+    public String getSerializedName() {
         return this._name;
     }
 

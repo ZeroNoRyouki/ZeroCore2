@@ -41,6 +41,7 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.cuboid;
 
+import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
@@ -80,12 +81,13 @@ public enum PartPosition
      * @param blockPosition the position of the block
      * @return the position of the block in the multiblock
      */
+    @Deprecated
     public static <Controller extends AbstractCuboidMultiblockController<Controller>> PartPosition positionIn(
             final Controller controller, final BlockPos blockPosition) {
-        return controller.mapBoundingBoxCoordinates((min, max) -> positionIn(blockPosition, min, max), PartPosition.Unknown);
-    }
 
-    private static PartPosition positionIn(final BlockPos blockPosition, final BlockPos minimumCoord, final BlockPos maximumCoord) {
+        final CuboidBoundingBox bb = controller.getBoundingBox();
+        final BlockPos minimumCoord = bb.getMin();
+        final BlockPos maximumCoord = bb.getMax();
 
         // witch direction are we facing?
 
@@ -95,6 +97,83 @@ public enum PartPosition
         final boolean southFacing = blockPosition.getZ() == maximumCoord.getZ();
         final boolean westFacing = blockPosition.getX() == minimumCoord.getX();
         final boolean eastFacing = blockPosition.getX() == maximumCoord.getX();
+
+        // how many faces are facing outward?
+
+        int facesMatching = 0;
+
+        if (eastFacing || westFacing) {
+            ++facesMatching;
+        }
+
+        if (upFacing || downFacing) {
+            ++facesMatching;
+        }
+
+        if (southFacing || northFacing) {
+            ++facesMatching;
+        }
+
+        // what is our position in the multiblock structure?
+
+        final PartPosition position;
+
+        if (facesMatching <= 0) {
+            position = PartPosition.Interior;
+        } else if (facesMatching >= 3) {
+            position = PartPosition.FrameCorner;
+        } else if (facesMatching == 2) {
+
+            if (!eastFacing && !westFacing) {
+                position = PartPosition.FrameEastWest;
+            } else if (!southFacing && !northFacing) {
+                position = PartPosition.FrameSouthNorth;
+            } else {
+                position = PartPosition.FrameUpDown;
+            }
+
+        } else {
+
+            // only 1 face matches
+
+            if (eastFacing) {
+                position = PartPosition.EastFace;
+            } else if (westFacing) {
+                position = PartPosition.WestFace;
+            } else if (southFacing) {
+                position = PartPosition.SouthFace;
+            } else if (northFacing) {
+                position = PartPosition.NorthFace;
+            } else if (upFacing) {
+                position = PartPosition.TopFace;
+            } else {
+                position = PartPosition.BottomFace;
+            }
+        }
+
+        return position;
+    }
+
+
+    /**
+     * Compute the position of a block in the multiblock volume
+     *
+     * @param boundingBoxMin the starting coordinate of the multiblock bounding box
+     * @param boundingBoxMax the ending coordinate of the multiblock bounding box
+     * @param blockPosition the position of the block
+     * @return the position of the block in the multiblock
+     */
+    public static PartPosition positionIn(final BlockPos boundingBoxMin, final BlockPos boundingBoxMax,
+                                          final BlockPos blockPosition) {
+
+        // witch direction are we facing?
+
+        final boolean downFacing = blockPosition.getY() == boundingBoxMin.getY();
+        final boolean upFacing = blockPosition.getY() == boundingBoxMax.getY();
+        final boolean northFacing = blockPosition.getZ() == boundingBoxMin.getZ();
+        final boolean southFacing = blockPosition.getZ() == boundingBoxMax.getZ();
+        final boolean westFacing = blockPosition.getX() == boundingBoxMin.getX();
+        final boolean eastFacing = blockPosition.getX() == boundingBoxMax.getX();
 
         // how many faces are facing outward?
 
@@ -184,7 +263,7 @@ public enum PartPosition
 	//region IStringSerializable
 
 	@Override
-	public String getString() {
+	public String getSerializedName() {
 		return this.toString();
 	}
 

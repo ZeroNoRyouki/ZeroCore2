@@ -30,8 +30,8 @@ public class VertexBuilderWrapper
     //region IVertexBuilder
 
     @Override
-    public IVertexBuilder pos(final double x, final double y, final double z) {
-        return this._builder.pos(x, y, z);
+    public IVertexBuilder vertex(final double x, final double y, final double z) {
+        return this._builder.vertex(x, y, z);
     }
 
     @Override
@@ -40,18 +40,18 @@ public class VertexBuilderWrapper
     }
 
     @Override
-    public IVertexBuilder tex(final float u, final float v) {
-        return this._builder.tex(u, v);
+    public IVertexBuilder uv(final float u, final float v) {
+        return this._builder.uv(u, v);
     }
 
     @Override
-    public IVertexBuilder overlay(final int u, final int v) {
-        return this._builder.overlay(u, v);
+    public IVertexBuilder overlayCoords(final int u, final int v) {
+        return this._builder.overlayCoords(u, v);
     }
 
     @Override
-    public IVertexBuilder lightmap(final int u, final int v) {
-        return this._builder.lightmap(u, v);
+    public IVertexBuilder uv2(final int u, final int v) {
+        return this._builder.uv2(u, v);
     }
 
     @Override

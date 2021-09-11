@@ -35,18 +35,18 @@ public abstract class SpiralParticle
         this._centerX = centerX;
         this._centerZ = centerZ;
         this._radius = radius;
-        this.setMaxAge(lifeInTicks);
+        this.setLifetime(lifeInTicks);
     }
 
     @Override
     public void tick() {
 
-        this.prevPosX = this.posX;
-        this.prevPosY = this.posY;
-        this.prevPosZ = this.posZ;
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
 
-        if (++this.age >= this.getMaxAge()) {
-            this.setExpired();
+        if (++this.age >= this.getLifetime()) {
+            this.remove();
         }
 
         if ((this._angle += 10) >= 360) {
@@ -57,11 +57,11 @@ public abstract class SpiralParticle
         final double newX = this._centerX + this._radius * MathHelper.cos(radiants);
         final double newZ = this._centerZ + this._radius * MathHelper.sin(radiants);
 
-        this.motionX = newX - this.posX;
-        this.motionZ = newZ - this.posZ;
-        this.motionY = 0.01;
+        this.xd = newX - this.x;
+        this.zd = newZ - this.z;
+        this.yd = 0.01;
 
-        this.move(this.motionX, this.motionY, this.motionZ);
+        this.move(this.xd, this.yd, this.zd);
     }
 
     protected float _angle;

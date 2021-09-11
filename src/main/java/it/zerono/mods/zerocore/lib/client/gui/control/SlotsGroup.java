@@ -92,7 +92,7 @@ public class SlotsGroup
     @Override
     public void onMoved() {
 
-        final List<Slot> slots = this.getGui().getContainer().getInventorySlotsGroup(this._inventorySlotsGroupName);
+        final List<Slot> slots = this.getGui().getMenu().getInventorySlotsGroup(this._inventorySlotsGroupName);
 
         slots.stream()
                 .filter(slot -> slot instanceof SlotGeneric)

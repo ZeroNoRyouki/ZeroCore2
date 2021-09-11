@@ -20,13 +20,11 @@ package it.zerono.mods.zerocore.internal.client.debug;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.debug.DebugHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.item.DyeColor;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -39,9 +37,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-
-import java.lang.reflect.Field;
 
 @OnlyIn(Dist.CLIENT)
 public class VoxelShapeHighlighter {
@@ -50,42 +45,32 @@ public class VoxelShapeHighlighter {
     public static void onHighlightBlock(final DrawHighlightEvent.HighlightBlock event) {
 
         final BlockRayTraceResult result = event.getTarget();
-        final World world;
 
         if (RayTraceResult.Type.BLOCK != result.getType()) {
             return;
         }
 
-        try {
-
-            world = getWorld(event);
-
-        } catch (IllegalAccessException e) {
-
-            Log.LOGGER.error(Log.CORE, "Voxel highlighter: failed to get world!");
-            return;
-        }
-
-        final BlockPos position = result.getPos();
+        final World world = event.getInfo().getEntity().getCommandSenderWorld();
+        final BlockPos position = result.getBlockPos();
         final DebugHelper.VoxelShapeType voxelType = DebugHelper.getBlockVoxelShapeHighlight(world, position);
 
-        if (DebugHelper.VoxelShapeType.None == voxelType) {
+        if (DebugHelper.VoxelShapeType.None == voxelType || !world.getWorldBorder().isWithinBounds(position)) {
             return;
         }
 
         final BlockState blockstate = world.getBlockState(position);
 
-        if (blockstate.isAir(world, position) || !world.getWorldBorder().contains(position)) {
+        if (blockstate.isAir()) {
             return;
         }
 
         final ActiveRenderInfo renderInfo = event.getInfo();
-        final ISelectionContext selection = ISelectionContext.forEntity(renderInfo.getRenderViewEntity());
-        final IVertexBuilder builder = event.getBuffers().getBuffer(RenderType.getLines());
+        final ISelectionContext selection = ISelectionContext.of(renderInfo.getEntity());
+        final IVertexBuilder builder = event.getBuffers().getBuffer(RenderType.lines());
         final MatrixStack matrixStack = event.getMatrix();
-        final double x = position.getX() - renderInfo.getProjectedView().getX();
-        final double y = position.getY() - renderInfo.getProjectedView().getY();
-        final double z = position.getZ() - renderInfo.getProjectedView().getZ();
+        final double x = position.getX() - renderInfo.getPosition().x();
+        final double y = position.getY() - renderInfo.getPosition().y();
+        final double z = position.getZ() - renderInfo.getPosition().z();
 
         switch (voxelType) {
 
@@ -94,7 +79,7 @@ public class VoxelShapeHighlighter {
                 break;
 
             case Render:
-                paint(matrixStack, builder, x, y, z, COLOUR_RENDERSHAPE, blockstate.getRenderShape(world, position));
+                paint(matrixStack, builder, x, y, z, COLOUR_RENDERSHAPE, blockstate.getBlockSupportShape(world, position));
                 break;
 
             case Collision:
@@ -102,7 +87,7 @@ public class VoxelShapeHighlighter {
                 break;
 
             case RayTrace:
-                paint(matrixStack, builder, x, y, z, COLOUR_RAYTRACESHAPE, blockstate.getRaytraceShape(world, position, ISelectionContext.dummy()));
+                paint(matrixStack, builder, x, y, z, COLOUR_RAYTRACESHAPE, blockstate.getVisualShape(world, position, ISelectionContext.empty()));
                 break;
         }
 
@@ -115,33 +100,22 @@ public class VoxelShapeHighlighter {
                               final double originX, final double originY, final double originZ,
                               final Colour colour, final VoxelShape voxelShape) {
 
-        final Matrix4f matrix = matrixStack.getLast().getMatrix();
+        final Matrix4f matrix = matrixStack.last().pose();
         final float red = colour.glRed();
         final float green = colour.glGreen();
         final float blue = colour.glBlue();
 
-        voxelShape.forEachEdge((x1, y1, z1, x2, y2, z2) -> {
+        voxelShape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
 
-            vertexBuilder.pos(matrix, (float)(x1 + originX), (float)(y1 + originY), (float)(z1 + originZ)).color(red, green, blue, 0.5f).endVertex();
-            vertexBuilder.pos(matrix, (float)(x2 + originX), (float)(y2 + originY), (float)(z2 + originZ)).color(red, green, blue, 0.5f).endVertex();
+            vertexBuilder.vertex(matrix, (float)(x1 + originX), (float)(y1 + originY), (float)(z1 + originZ)).color(red, green, blue, 0.5f).endVertex();
+            vertexBuilder.vertex(matrix, (float)(x2 + originX), (float)(y2 + originY), (float)(z2 + originZ)).color(red, green, blue, 0.5f).endVertex();
         });
-    }
-
-    private static World getWorld(final DrawHighlightEvent.HighlightBlock event) throws IllegalAccessException {
-
-        if (null == s_worldField) {
-            s_worldField = ObfuscationReflectionHelper.findField(WorldRenderer.class, "world");
-        }
-
-        return (World)s_worldField.get(event.getContext());
     }
 
     private static final Colour COLOUR_SHAPE = Colour.from(DyeColor.YELLOW);
     private static final Colour COLOUR_RENDERSHAPE = Colour.from(DyeColor.RED);
     private static final Colour COLOUR_COLLISIONSHAPE = Colour.from(DyeColor.BLUE);
     private static final Colour COLOUR_RAYTRACESHAPE = Colour.from(DyeColor.PURPLE);
-
-    private static Field s_worldField;
 
     //endregion
 }

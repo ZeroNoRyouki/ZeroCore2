@@ -61,14 +61,14 @@ public abstract class ItemStackRecipeIngredient
 
         if (1 == ingredientsCount) {
 
-            return new Impl(Ingredient.read(buffer), buffer.readVarInt());
+            return new Impl(Ingredient.fromNetwork(buffer), buffer.readVarInt());
 
         } else if (ingredientsCount > 1) {
 
             final ItemStackRecipeIngredient[] ingredients = new ItemStackRecipeIngredient[ingredientsCount];
 
             for (int idx = 0; idx < ingredients.length; ++idx) {
-                ingredients[idx] = new Impl(Ingredient.read(buffer), buffer.readVarInt());
+                ingredients[idx] = new Impl(Ingredient.fromNetwork(buffer), buffer.readVarInt());
             }
 
             return new CompositeImpl(ingredients);
@@ -119,7 +119,7 @@ public abstract class ItemStackRecipeIngredient
     }
 
     public static ItemStackRecipeIngredient from(final ItemStack stack, final int amount) {
-        return from(stack.hasTag() ? new NBTIngredient(stack) {} : Ingredient.fromStacks(stack), amount);
+        return from(stack.hasTag() ? new NBTIngredient(stack) {} : Ingredient.of(stack), amount);
     }
 
     public static ItemStackRecipeIngredient from(final IItemProvider item) {
@@ -135,7 +135,7 @@ public abstract class ItemStackRecipeIngredient
     }
 
     public static ItemStackRecipeIngredient from(final ITag<Item> tag, final int amount) {
-        return from(Ingredient.fromTag(tag), amount);
+        return from(Ingredient.of(tag), amount);
     }
 
     //region implementations
@@ -166,7 +166,7 @@ public abstract class ItemStackRecipeIngredient
             if (null == this._cachedMatchingElements) {
 
                 //noinspection UnstableApiUsage
-                this._cachedMatchingElements = Arrays.stream(this._ingredient.getMatchingStacks())
+                this._cachedMatchingElements = Arrays.stream(this._ingredient.getItems())
                         .filter(stack -> !stack.isEmpty())
                         .map(stack -> stack.getCount() == this._amount ? stack : ItemHelper.stackFrom(stack, this._amount))
                         .collect(ImmutableList.toImmutableList());
@@ -177,14 +177,14 @@ public abstract class ItemStackRecipeIngredient
 
         @Override
         public boolean isEmpty() {
-            return this._ingredient.hasNoMatchingItems();
+            return this._ingredient.isEmpty();
         }
 
         @Override
         public void serializeTo(final PacketBuffer buffer) {
 
             buffer.writeVarInt(1);
-            this._ingredient.write(buffer);
+            this._ingredient.toNetwork(buffer);
             buffer.writeVarInt(this._amount);
         }
 
@@ -208,7 +208,7 @@ public abstract class ItemStackRecipeIngredient
 
         @Override
         public String toString() {
-            return this._amount + " " + Arrays.stream(this._ingredient.getMatchingStacks())
+            return this._amount + " " + Arrays.stream(this._ingredient.getItems())
                     .map(stack -> stack.getItem().toString())
                     .collect(Collectors.joining(","));
         }

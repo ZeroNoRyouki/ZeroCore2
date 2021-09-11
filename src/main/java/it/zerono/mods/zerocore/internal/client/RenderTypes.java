@@ -29,20 +29,20 @@ import java.util.OptionalDouble;
 public final class RenderTypes
     extends RenderType {
 
-    public static final RenderType ERROR_BLOCK_HIGHLIGHT = makeType("zc_mb_error_block",
+    public static final RenderType ERROR_BLOCK_HIGHLIGHT = create("zc_mb_error_block",
             DefaultVertexFormats.POSITION_COLOR, GL11.GL_LINES, 256,
-            RenderType.State.getBuilder()
-                    .line(new RenderState.LineState(OptionalDouble.of(8)))
-                    .transparency(NO_TRANSPARENCY)
-                    .alpha(DEFAULT_ALPHA)
-                    .texture(NO_TEXTURE)
-                    .lightmap(LIGHTMAP_DISABLED)
-                    .overlay(OVERLAY_DISABLED)
-                    .cull(CULL_ENABLED)
-                    .depthTest(DEPTH_LEQUAL)
-                    .writeMask(COLOR_DEPTH_WRITE)
-                    .fog(NO_FOG)
-                    .build(false));
+            RenderType.State.builder()
+                    .setLineState(new RenderState.LineState(OptionalDouble.of(8)))
+                    .setTransparencyState(NO_TRANSPARENCY)
+                    .setAlphaState(DEFAULT_ALPHA)
+                    .setTextureState(NO_TEXTURE)
+                    .setLightmapState(NO_LIGHTMAP)
+                    .setOverlayState(NO_OVERLAY)
+                    .setCullState(CULL)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .setWriteMaskState(COLOR_DEPTH_WRITE)
+                    .setFogState(NO_FOG)
+                    .createCompositeState(false));
 
     //region internals
 

@@ -55,7 +55,7 @@ public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient exten
     //region IRecipeSerializer<Recipe>
 
     @Override
-    public Recipe read(final ResourceLocation recipeId, final JsonObject json) {
+    public Recipe fromJson(final ResourceLocation recipeId, final JsonObject json) {
 
         final RecipeIngredient ingredient = this._jsonIngredientFactory.apply(JSONHelper.jsonGetMandatoryElement(json, Lib.NAME_INGREDIENT));
         final RecipeResult result = this._jsonResultFactory.apply(JSONHelper.jsonGetMandatoryElement(json, Lib.NAME_RESULT));
@@ -65,7 +65,7 @@ public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient exten
 
     @Nullable
     @Override
-    public Recipe read(final ResourceLocation recipeId, final PacketBuffer buffer) {
+    public Recipe fromNetwork(final ResourceLocation recipeId, final PacketBuffer buffer) {
 
         final RecipeIngredient ingredient = this._packetIngredientFactory.apply(buffer);
         final RecipeResult result = this._packetResultFactory.apply(buffer);
@@ -74,7 +74,7 @@ public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient exten
     }
 
     @Override
-    public void write(final PacketBuffer buffer, final Recipe recipe) {
+    public void toNetwork(final PacketBuffer buffer, final Recipe recipe) {
 
         recipe.getIngredient().serializeTo(buffer);
         recipe.getResult().serializeTo(buffer);

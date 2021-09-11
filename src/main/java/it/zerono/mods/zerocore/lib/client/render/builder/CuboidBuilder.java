@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.render.builder;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.Shape;
@@ -37,7 +38,7 @@ import java.util.function.Supplier;
 public class CuboidBuilder extends AbstractShapeBuilder {
 
     public final static int VERTICES_COUNT = 8;
-    public final static int FACES_COUNT = Direction.values().length;
+    public final static int FACES_COUNT = CodeHelper.DIRECTIONS.length;
 
     public static CuboidBuilder getDefaultBuilder() {
 
@@ -72,14 +73,13 @@ public class CuboidBuilder extends AbstractShapeBuilder {
         final VertexBuilder vertexBuilder = new VertexBuilder(true);
         int vidx = 0;
 
-        for (final Direction facing : Direction.values()) {
+        for (final Direction facing : CodeHelper.DIRECTIONS) {
 
             if (this._facesToBeRendered.isSet(facing)) {
 
-                final PolygonalFaceData data = this._cuboidData[facing.getIndex()];
+                final PolygonalFaceData data = this._cuboidData[facing.get3DDataValue()];
 
                 for (int vertexIndex = data.VERTICES_COUNT - 1; vertexIndex >= 0; --vertexIndex) {
-//                for (int vertexIndex = 0; vertexIndex < data.VERTICES_COUNT; ++vertexIndex) {
                     shape.addVertex(QuadBuilder.buildSingleVertex(vidx++, vertexIndex, vertexBuilder, this._cuboid.getFace(facing), data));
                 }
             }
@@ -152,7 +152,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
      */
     public CuboidBuilder setColour(final Direction facing, final Colour colour) {
 
-        this._cuboidData[facing.getIndex()].setColour(colour);
+        this._cuboidData[facing.get3DDataValue()].setColour(colour);
         return this;
     }
 
@@ -165,7 +165,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
      */
     public CuboidBuilder setColour(final Direction facing, final int vertexIndex, final Colour colour) {
 
-        this._cuboidData[facing.getIndex()].setColour(vertexIndex, colour);
+        this._cuboidData[facing.get3DDataValue()].setColour(vertexIndex, colour);
         return this;
     }
 
@@ -206,7 +206,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
     public CuboidBuilder setTexture(final Direction facing, final UV a, final UV b,
                                     final UV c, final UV d) {
 
-        final PolygonalFaceData data = this._cuboidData[facing.getIndex()];
+        final PolygonalFaceData data = this._cuboidData[facing.get3DDataValue()];
 
         data.setTexture(0, a);
         data.setTexture(1, b);
@@ -217,7 +217,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
 
     public CuboidBuilder setTexture(final Direction facing, final int vertexIndex, final UV uv) {
 
-        final PolygonalFaceData data = this._cuboidData[facing.getIndex()];
+        final PolygonalFaceData data = this._cuboidData[facing.get3DDataValue()];
 
         data.setTexture(vertexIndex, uv);
         return this;
@@ -252,19 +252,19 @@ public class CuboidBuilder extends AbstractShapeBuilder {
 
     public CuboidBuilder setTexture(final Direction facing, final TextureAtlasSprite sprite) {
 
-        this._cuboidData[facing.getIndex()].setTexture(sprite);
+        this._cuboidData[facing.get3DDataValue()].setTexture(sprite);
         return this;
     }
 
     public CuboidBuilder setTexture(final Direction facing, final ISprite sprite) {
 
-        this._cuboidData[facing.getIndex()].setTexture(sprite);
+        this._cuboidData[facing.get3DDataValue()].setTexture(sprite);
         return this;
     }
 
     public CuboidBuilder setTexture(final Direction facing, final Supplier<ISprite> sprite) {
 
-        this._cuboidData[facing.getIndex()].setTexture(sprite);
+        this._cuboidData[facing.get3DDataValue()].setTexture(sprite);
         return this;
     }
 
@@ -296,7 +296,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
      */
     public CuboidBuilder setLightMap(final Direction facing, final LightMap lightMap) {
 
-        this._cuboidData[facing.getIndex()].setLightMap(lightMap);
+        this._cuboidData[facing.get3DDataValue()].setLightMap(lightMap);
         return this;
     }
 
@@ -313,7 +313,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
      */
     public CuboidBuilder setLightMap(final Direction facing, final int vertexIndex, final LightMap lightMap) {
 
-        this._cuboidData[facing.getIndex()].setLightMap(vertexIndex, lightMap);
+        this._cuboidData[facing.get3DDataValue()].setLightMap(vertexIndex, lightMap);
         return this;
     }
 
@@ -349,7 +349,7 @@ public class CuboidBuilder extends AbstractShapeBuilder {
      */
     public CuboidBuilder setOverlayMap(final Direction facing, final LightMap map) {
 
-        this._cuboidData[facing.getIndex()].setOverlayMap(map);
+        this._cuboidData[facing.get3DDataValue()].setOverlayMap(map);
         return this;
     }
 
@@ -366,14 +366,13 @@ public class CuboidBuilder extends AbstractShapeBuilder {
      */
     public CuboidBuilder setOverlayMap(final Direction facing, final int vertexIndex, final LightMap map) {
 
-        this._cuboidData[facing.getIndex()].setOverlayMap(vertexIndex, map);
+        this._cuboidData[facing.get3DDataValue()].setOverlayMap(vertexIndex, map);
         return this;
     }
 
     public CuboidBuilder setOverlayMapCombined(final Direction facing, final int vertexIndex, final int combined) {
         return this.setOverlayMap(facing, vertexIndex, new LightMap(combined));
     }
-
 
     //region internals
 

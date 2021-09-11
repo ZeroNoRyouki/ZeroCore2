@@ -18,16 +18,17 @@
 
 package it.zerono.mods.zerocore.lib.block;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.property.BlockFacingsProperty;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * A general purpose class to track the state of all 6 faces of a block
@@ -70,7 +71,7 @@ public final class BlockFacings {
      * @return true if the face is "set", false otherwise
      */
     public boolean isSet(final Direction facing) {
-        return 0 != (this._value & (1 << facing.getIndex()));
+        return 0 != (this._value & (1 << facing.get3DDataValue()));
     }
 
     /**
@@ -156,12 +157,13 @@ public final class BlockFacings {
     }
 
     public BlockState toBlockState(final BlockState state) {
-        return state.with(FACING_DOWN, this.isSet(Direction.DOWN))
-                .with(FACING_UP, this.isSet(Direction.UP))
-                .with(FACING_WEST, this.isSet(Direction.WEST))
-                .with(FACING_EAST, this.isSet(Direction.EAST))
-                .with(FACING_NORTH, this.isSet(Direction.NORTH))
-                .with(FACING_SOUTH, this.isSet(Direction.SOUTH));
+        //noinspection AutoBoxing
+        return state.setValue(FACING_DOWN, this.isSet(Direction.DOWN))
+                .setValue(FACING_UP, this.isSet(Direction.UP))
+                .setValue(FACING_WEST, this.isSet(Direction.WEST))
+                .setValue(FACING_EAST, this.isSet(Direction.EAST))
+                .setValue(FACING_NORTH, this.isSet(Direction.NORTH))
+                .setValue(FACING_SOUTH, this.isSet(Direction.SOUTH));
     }
 
     /**
@@ -176,9 +178,9 @@ public final class BlockFacings {
         byte newHash = this._value;
 
         if (value) {
-            newHash |= (1 << facing.getIndex());
+            newHash |= (1 << facing.get3DDataValue());
         } else {
-            newHash &= ~(1 << facing.getIndex());
+            newHash &= ~(1 << facing.get3DDataValue());
         }
 
         return BlockFacings.from(newHash);
@@ -231,16 +233,16 @@ public final class BlockFacings {
 
         int x = 0, y = 0, z = 0;
 
-        for (Direction facing : Direction.values()) {
+        for (Direction facing : CodeHelper.DIRECTIONS) {
             if (this.isSet(facing)) {
 
-                x += facing.getXOffset();
-                y += facing.getYOffset();
-                z += facing.getZOffset();
+                x += facing.getStepX();
+                y += facing.getStepY();
+                z += facing.getStepZ();
             }
         }
 
-        return originalPosition.add(x, y, z);
+        return originalPosition.offset(x, y, z);
     }
 
     /**
@@ -251,13 +253,18 @@ public final class BlockFacings {
      */
     public Optional<Direction> firstIf(final boolean isSet) {
 
-        for (Direction facing : Direction.values()) {
+        for (Direction facing : CodeHelper.DIRECTIONS) {
             if (isSet == this.isSet(facing)) {
                 return Optional.of(facing);
             }
         }
 
         return Optional.empty();
+    }
+
+    public Stream<Direction> stream() {
+        return Arrays.stream(CodeHelper.DIRECTIONS)
+                .filter(this::isSet);
     }
 
     /**
@@ -332,46 +339,44 @@ public final class BlockFacings {
         }
     }
 
-    static BlockFacings from(final Byte hash) {
+    static BlockFacings from(final byte hash) {
 
-        BlockFacings facings = BlockFacings.s_cache.get(hash);
+        BlockFacings facings = s_cache[hash];
 
         if (null == facings) {
-
-            facings = new BlockFacings(hash);
-            BlockFacings.s_cache.put(hash, facings);
+            return s_cache[hash] = new BlockFacings(hash);
         }
 
         return facings;
     }
 
-    public static Byte computeHash(final boolean down, final boolean up, final boolean north, final boolean south,
+    public static byte computeHash(final boolean down, final boolean up, final boolean north, final boolean south,
                                    final boolean west, final boolean east) {
 
         byte hash = 0;
 
         if (down) {
-            hash |= (1 << Direction.DOWN.getIndex());
+            hash |= (1 << Direction.DOWN.get3DDataValue());
         }
 
         if (up) {
-            hash |= (1 << Direction.UP.getIndex());
+            hash |= (1 << Direction.UP.get3DDataValue());
         }
 
         if (north) {
-            hash |= (1 << Direction.NORTH.getIndex());
+            hash |= (1 << Direction.NORTH.get3DDataValue());
         }
 
         if (south) {
-            hash |= (1 << Direction.SOUTH.getIndex());
+            hash |= (1 << Direction.SOUTH.get3DDataValue());
         }
 
         if (west) {
-            hash |= (1 << Direction.WEST.getIndex());
+            hash |= (1 << Direction.WEST.get3DDataValue());
         }
 
         if (east) {
-            hash |= (1 << Direction.EAST.getIndex());
+            hash |= (1 << Direction.EAST.get3DDataValue());
         }
 
         return hash;
@@ -403,12 +408,12 @@ public final class BlockFacings {
         this._value = value;
     }
 
-    static Byte computeHash(final boolean[] facings) {
+    static byte computeHash(final boolean[] facings) {
 
         byte hash = 0;
         int len = facings.length;
 
-        if (len > Direction.values().length) {
+        if (len > CodeHelper.DIRECTIONS.length) {
             throw new IllegalArgumentException("Invalid length of facings array");
         }
 
@@ -421,51 +426,51 @@ public final class BlockFacings {
         return hash;
     }
 
-    private byte _value;
+    private final byte _value;
 
-    private static final Map<Byte, BlockFacings> s_cache;
+    private static final BlockFacings[] s_cache;
 
     static {
 
-        Byte hash;
+        byte hash;
 
-        s_cache = new HashMap<>(12);
+        s_cache = new BlockFacings[256];
 
         hash = BlockFacings.computeHash(false, false, false, false, false, false);
-        s_cache.put(hash, NONE = new BlockFacings(hash));
+        s_cache[hash] = NONE = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(true, true, true, true, true, true);
-        s_cache.put(hash, ALL = new BlockFacings(hash));
+        s_cache[hash] = ALL = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(true, false, false, false, false, false);
-        s_cache.put(hash, DOWN = new BlockFacings(hash));
+        s_cache[hash] = DOWN = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, true, false, false, false, false);
-        s_cache.put(hash, UP = new BlockFacings(hash));
+        s_cache[hash] = UP = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, true, false, false, false);
-        s_cache.put(hash, NORTH = new BlockFacings(hash));
+        s_cache[hash] = NORTH = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, false, true, false, false);
-        s_cache.put(hash, SOUTH = new BlockFacings(hash));
+        s_cache[hash] = SOUTH = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, false, false, true, false);
-        s_cache.put(hash, WEST = new BlockFacings(hash));
+        s_cache[hash] = WEST = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, false, false, false, true);
-        s_cache.put(hash, EAST = new BlockFacings(hash));
+        s_cache[hash] = EAST = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(true, true, false, false, false, false);
-        s_cache.put(hash, VERTICAL = new BlockFacings(hash));
+        s_cache[hash] = VERTICAL = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, true, true, true, true);
-        s_cache.put(hash, HORIZONTAL = new BlockFacings(hash));
+        s_cache[hash] = HORIZONTAL = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, false, false, true, true);
-        s_cache.put(hash, AXIS_X = new BlockFacings(hash));
+        s_cache[hash] = AXIS_X = new BlockFacings(hash);
 
         hash = BlockFacings.computeHash(false, false, true, true, false, false);
-        s_cache.put(hash, AXIS_Z = new BlockFacings(hash));
+        s_cache[hash] = AXIS_Z = new BlockFacings(hash);
 
         AXIS_Y = VERTICAL;
     }

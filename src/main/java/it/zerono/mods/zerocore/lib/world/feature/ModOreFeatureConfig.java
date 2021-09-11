@@ -29,7 +29,7 @@ public class ModOreFeatureConfig
         implements IFeatureConfig {
 
     public static final Codec<ModOreFeatureConfig> CODEC = RecordCodecBuilder.create(
-            (p) -> p.group(RuleTest.field_237127_c_.fieldOf("target").forGetter((config) -> config.target), BlockState.CODEC.fieldOf("state").forGetter((config) -> config.state), Codec.intRange(0, 64).fieldOf("size").forGetter((config) -> config.size))
+            (p) -> p.group(RuleTest.CODEC.fieldOf("target").forGetter((config) -> config.target), BlockState.CODEC.fieldOf("state").forGetter((config) -> config.state), Codec.intRange(0, 64).fieldOf("size").forGetter((config) -> config.size))
                     .apply(p, ModOreFeatureConfig::new));
 
     public final RuleTest target;

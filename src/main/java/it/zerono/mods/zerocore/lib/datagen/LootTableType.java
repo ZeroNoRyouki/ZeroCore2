@@ -25,12 +25,12 @@ import net.minecraft.loot.LootParameterSets;
 
 public enum LootTableType {
 
-    AdvancementReward(LootParameterSets.ADVANCEMENT, "advancement_reward"),
+    AdvancementReward(LootParameterSets.ADVANCEMENT_REWARD, "advancement_reward"),
     Block(LootParameterSets.BLOCK, "blocks"),
     Chest(LootParameterSets.CHEST, "chests"),
     Entity(LootParameterSets.ENTITY, "entities"),
     Fishing(LootParameterSets.FISHING, "gameplay/fishing"),
-    Generic(LootParameterSets.GENERIC, "gameplay"),
+    Generic(LootParameterSets.ALL_PARAMS, "gameplay"),
     Gift(LootParameterSets.GIFT, "gameplay/gift");
 
     LootTableType(final LootParameterSet parameterSet, final String subFolderName) {

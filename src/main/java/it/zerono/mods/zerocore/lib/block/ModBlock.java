@@ -55,19 +55,19 @@ public class ModBlock
                                                     final float hardness, final float resistance,
                                                     final boolean randomTick) {
 
-        final Block.Properties builder = Block.Properties.create(material)
-                .hardnessAndResistance(hardness, resistance)
+        final Block.Properties builder = Block.Properties.of(material)
+                .strength(hardness, resistance)
                 .sound(soundType);
 
         if (randomTick) {
-            builder.tickRandomly();
+            builder.randomTicks();
         }
 
         return builder;
     }
     
     public static ITextComponent getNameForTranslation(final Block block) {
-        return new TranslationTextComponent(block.getTranslationKey());
+        return new TranslationTextComponent(block.getDescriptionId());
     }
 
     public static int lightValueFrom(final float value) {
@@ -77,7 +77,7 @@ public class ModBlock
     public ModBlock(final Block.Properties properties) {
 
         super(properties);
-        this.setDefaultState(this.buildDefaultState(this.getStateContainer().getBaseState()));
+        this.registerDefaultState(this.buildDefaultState(this.getStateDefinition().any()));
     }
 
     public ItemStack createItemStack() {
@@ -187,7 +187,7 @@ public class ModBlock
     @Override
     public void updateBlockState(BlockState currentState, IWorld world, BlockPos position,
                                  @Nullable TileEntity tileEntity, int updateFlags) {
-        world.setBlockState(position, this.buildUpdatedState(currentState, world, position, tileEntity), updateFlags);
+        world.setBlock(position, this.buildUpdatedState(currentState, world, position, tileEntity), updateFlags);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class ModBlock
 
         if (this instanceof INeighborChangeListener.Notifier && this.hasTileEntity(state)) {
 
-            final TileEntity te = world.getTileEntity(blockPosition);
+            final TileEntity te = WorldHelper.getLoadedTile(world, blockPosition);
 
             if (te instanceof INeighborChangeListener) {
                 ((INeighborChangeListener)te).onNeighborTileChanged(state, neighborPosition);
@@ -242,8 +242,8 @@ public class ModBlock
 
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader reader, BlockPos pos) {
-        return super.getCollisionShape(state, reader, pos);
+    public VoxelShape getBlockSupportShape(BlockState state, IBlockReader reader, BlockPos pos) {
+        return super.getBlockSupportShape(state, reader, pos);
     }
 
     /**
@@ -258,15 +258,15 @@ public class ModBlock
      * @param param
      */
     @Override
-    public boolean eventReceived(BlockState state, World world, BlockPos position, int id, int param) {
+    public boolean triggerEvent(BlockState state, World world, BlockPos position, int id, int param) {
 
         if (this.hasTileEntity(state)) {
             return WorldHelper.getTile(world, position)
-                    .map(tile -> tile.receiveClientEvent(id, param))
-                    .orElse(super.eventReceived(state, world, position, id, param));
+                    .map(tile -> tile.triggerEvent(id, param))
+                    .orElse(super.triggerEvent(state, world, position, id, param));
 
         } else {
-            return super.eventReceived(state, world, position, id, param);
+            return super.triggerEvent(state, world, position, id, param);
         }
     }
 
@@ -274,7 +274,7 @@ public class ModBlock
     //region internals
 
     @Override
-    protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder) {
         this.buildBlockState(builder);
     }
 

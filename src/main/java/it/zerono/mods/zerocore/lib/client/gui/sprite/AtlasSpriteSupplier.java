@@ -77,7 +77,7 @@ public class AtlasSpriteSupplier implements ISelectiveResourceReloadListener {
     @SubscribeEvent
     public void onPreTextureStitch(TextureStitchEvent.Pre evt) {
         
-        final ResourceLocation atlasName = evt.getMap().getTextureLocation();
+        final ResourceLocation atlasName = evt.getMap().location();
 
         if (this._toBeStitched.containsKey(atlasName)) {
             this._toBeStitched.get(atlasName).forEach(evt::addSprite);

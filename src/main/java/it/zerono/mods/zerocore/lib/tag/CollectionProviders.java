@@ -30,7 +30,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 @SuppressWarnings({"WeakerAccess"})
 public final class CollectionProviders {
 
-    public static final NonNullSupplier<ITagCollection<Block>> BLOCKS_PROVIDER = BlockTags::getCollection;
-    public static final NonNullSupplier<ITagCollection<Item>> ITEMS_PROVIDER = ItemTags::getCollection;
-    public static final NonNullSupplier<ITagCollection<Fluid>> FLUIDS_PROVIDER = FluidTags::getCollection;
+    public static final NonNullSupplier<ITagCollection<Block>> BLOCKS_PROVIDER = BlockTags::getAllTags;
+    public static final NonNullSupplier<ITagCollection<Item>> ITEMS_PROVIDER = ItemTags::getAllTags;
+    public static final NonNullSupplier<ITagCollection<Fluid>> FLUIDS_PROVIDER = FluidTags::getAllTags;
 }

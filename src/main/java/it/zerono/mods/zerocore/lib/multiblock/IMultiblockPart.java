@@ -51,11 +51,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Basic interface for a multiblock machine part.
@@ -69,6 +68,10 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
 	 * @return True if this part is connected to a multiblock controller. False otherwise.
 	 */
 	boolean isConnected();
+
+	default boolean isConnectedTo(Controller controller) {
+	    return this.evalOnController(c -> c == controller, false);
+    }
 
 	/**
 	 * @return True if this part is connected to a multiblock controller of an assembled machine. False otherwise.
@@ -109,8 +112,19 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
     }
 
     /**
+     * Execute the given Predicate on the controller return it's result, if this part is connected to one
+     *
+     * @param test the predicate
+     * @return true if this part is connected to a controller and the predicate match the controller, false otherwise
+     */
+    default boolean testOnController(Predicate<Controller> test) {
+        return this.getMultiblockController().filter(test).isPresent();
+    }
+
+    /**
      * Returns the world of this part
      */
+    @Deprecated // use getCurrentWorld()
     Optional<World> getPartWorld();
 
     default <T> T mapPartWorld(Function<World, T> mapper, T defaultValue) {
@@ -121,11 +135,19 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
         this.getPartWorld().ifPresent(consumer);
     }
 
+    default World getCurrentWorld() {
+        return Objects.requireNonNull(this.getPartWorld().orElse(null));
+    }
+
 	/**
 	 * Returns the location of this multiblock part in the world, in BlockPos form.
 	 * @return A BlockPos set to the location of this multiblock part in the world.
 	 */
 	BlockPos getWorldPosition();
+
+	default long getWorldPositionHash() {
+	    return this.getWorldPosition().asLong();
+    }
 
 	boolean isPartInvalid();
 	
@@ -148,8 +170,8 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
 	 * should persist despite a machine being broken.
 	 * This should NOT mark the part as disconnected. onDetached will be called immediately afterwards.
 	 * @param oldController The controller which is orphaning this block. 
-	 * @param oldControllerSize The number of connected blocks in the controller prior to shedding orphans.
-	 * @param newControllerSize The number of connected blocks in the controller after shedding orphans.
+	 * @param oldControllerSize The number of connected blocks in the controller prior to shedding orphans. Deprecated: always zero
+	 * @param newControllerSize The number of connected blocks in the controller after shedding orphans. Deprecated: always zero
 	 */
 	void onOrphaned(Controller oldController, int oldControllerSize, int newControllerSize);
 	
@@ -196,6 +218,13 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
 	 * @return True if this block has been visited by your validation algorithms since the last reset.
 	 */
 	boolean isVisited();
+
+    /**
+     * @return True if this block has NOT been visited by your validation algorithms since the last reset.
+     */
+    default boolean isNotVisited() {
+        return !this.isVisited();
+    }
 	
 	/**
 	 * Called when this block becomes the designated block for saving data and
@@ -282,7 +311,22 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
      * have attached to one of the controllers in this list. Return an empty {@link Set} if there are no compatible
      * controllers nearby
 	 */
-    Set<Controller> attachToNeighbors();
+	@Deprecated
+    default Set<Controller> attachToNeighbors() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Called when this part should check its neighbors.
+     * This method MUST NOT cause additional chunks to load.
+     * ALWAYS check to see if a chunk is loaded before querying for its tile entity
+     * This part should inform the controller that it is attaching at this time.
+     *
+     * @return A {@link Set} containing multiblock controllers to which this object would like to attach. It should
+     * have attached to one of the controllers in this list. Return an empty {@link Set} if there are no compatible
+     * controllers nearby
+     */
+    Set<Controller> attachToNeighbors(Function<IMultiblockPart<Controller>, Set<Controller>> controllersLookup);
 
 	/**
 	 * Assert that this part is detached. If not, log a warning and set the part's controller to null.

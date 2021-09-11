@@ -78,10 +78,10 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
                                                         final int clustersAmount, final int oresPerCluster,
                                                         final int placementBottomOffset, final int placementTopOffset,
                                                         final int placementMaximum) {
-        return oreFeature.get().withConfiguration(new ModOreFeatureConfig(matchRule, oreBlock.get().getDefaultState(), oresPerCluster))
-                .withPlacement(Placement.RANGE.configure(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
-                        .square()
-                        .func_242731_b/* repeat */(clustersAmount));
+        return oreFeature.get().configured(new ModOreFeatureConfig(matchRule, oreBlock.get().defaultBlockState(), oresPerCluster))
+                .decorated(Placement.RANGE.configured(new TopSolidRangeConfig(placementBottomOffset, placementTopOffset, placementMaximum))
+                        .squared()
+                        .count/* repeat */(clustersAmount));
     }
 
     public void clearItems(final RegistryEvent.Register<Feature<?>> event) {

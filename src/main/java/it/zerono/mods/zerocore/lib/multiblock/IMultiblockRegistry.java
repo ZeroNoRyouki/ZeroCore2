@@ -57,7 +57,10 @@ public interface IMultiblockRegistry<Controller extends IMultiblockController<Co
 
     /**
      * Call to mark a controller as dead. It should only be marked as dead
-     * when it has no connected parts. It will be removed after the next world tick.
+     * when it has no connected parts. It will be cleaned up at the end of the next world tick.
+     * Note that a controller must shed all of its blocks before being marked as dead, or the system
+     * will complain at you.
+     *
      * @param controller The dead controller
      */
     void addDeadController(Controller controller);

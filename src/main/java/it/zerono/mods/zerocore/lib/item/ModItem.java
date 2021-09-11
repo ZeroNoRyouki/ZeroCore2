@@ -39,6 +39,6 @@ public class ModItem extends Item {
     }
 
     public static ITextComponent getNameForTranslation(final Item item) {
-        return new TranslationTextComponent(item.getTranslationKey());
+        return new TranslationTextComponent(item.getDescriptionId());
     }
 }

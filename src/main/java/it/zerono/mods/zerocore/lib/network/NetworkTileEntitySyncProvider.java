@@ -87,7 +87,9 @@ public class NetworkTileEntitySyncProvider implements INetworkTileEntitySyncProv
      */
     @Override
     public void sendUpdates() {
-        this.getUpdateMessage().ifPresent(update -> this._players.forEach(player -> this.sendUpdate(update, player)));
+        if (!this._players.isEmpty()) {
+            this.getUpdateMessage().ifPresent(update -> this._players.forEach(player -> this.sendUpdate(update, player)));
+        }
     }
 
     //region internals

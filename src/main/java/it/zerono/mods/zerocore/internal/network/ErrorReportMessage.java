@@ -64,7 +64,7 @@ public class ErrorReportMessage
         this._errors = Lists.newArrayListWithCapacity(count);
 
         for (int i = 0; i < count; ++i) {
-            this._errors.add(buffer.readTextComponent());
+            this._errors.add(buffer.readComponent());
         }
 
         this._position = buffer.readBoolean() ? buffer.readBlockPos() : null;
@@ -81,7 +81,7 @@ public class ErrorReportMessage
     public void encodeTo(final PacketBuffer buffer) {
 
         buffer.writeInt(this._errors.size());
-        this._errors.forEach(buffer::writeTextComponent);
+        this._errors.forEach(buffer::writeComponent);
 
         if (null == this._position) {
 

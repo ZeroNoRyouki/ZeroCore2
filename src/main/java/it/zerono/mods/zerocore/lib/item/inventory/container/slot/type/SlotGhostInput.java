@@ -36,13 +36,13 @@ public class SlotGhostInput extends SlotGeneric {
      * @param stack the stack to be put in the inventory
      */
     @Override
-    public void putStack(ItemStack stack) {
+    public void set(ItemStack stack) {
 
         if (stack.isEmpty()) {
             ItemHelper.stackSetSize(stack, 1);
         }
 
-        super.putStack(stack);
+        super.set(stack);
     }
 
     /**
@@ -50,7 +50,7 @@ public class SlotGhostInput extends SlotGeneric {
      * of armor slots)
      */
     @Override
-    public int getSlotStackLimit() {
+    public int getMaxStackSize() {
         return 0;
     }
 
@@ -60,7 +60,7 @@ public class SlotGhostInput extends SlotGeneric {
      * @param playerIn
      */
     @Override
-    public boolean canTakeStack(PlayerEntity playerIn) {
+    public boolean mayPickup(PlayerEntity playerIn) {
         return false;
     }
 
@@ -71,7 +71,7 @@ public class SlotGhostInput extends SlotGeneric {
      * @param amount
      */
     @Override
-    public ItemStack decrStackSize(int amount) {
+    public ItemStack remove(int amount) {
         return ItemHelper.stackEmpty();
     }
 }

@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.world;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
+@Deprecated
 public abstract class Zone implements Comparable<Zone> {
 
     public static Zone rectangular(final BlockPos minCoords, final BlockPos maxCoords) {

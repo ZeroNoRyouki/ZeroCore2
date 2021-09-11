@@ -41,35 +41,28 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.registry;
 
-import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.profiler.IProfiler;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DistExecutor;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
-public final class MultiblockRegistry<Controller extends IMultiblockController<Controller>>
+public class MultiblockRegistry<Controller extends IMultiblockController<Controller>>
         implements IMultiblockRegistry<Controller> {
 
     @SuppressWarnings("rawtypes")
-    public static final IMultiblockRegistry INSTANCE = new MultiblockRegistry();
+    public static final IMultiblockRegistry INSTANCE = Lib.createMultiblockRegistry();
 
     //region IMultiblockRegistry
 
@@ -80,9 +73,7 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
      */
     @Override
     public void onPartAdded(final IMultiblockPart<Controller> part) {
-        CodeHelper.optionalIfPresentOrElse(part.getPartWorld(),
-                world -> this.getRegistryOrDefault(world).onPartAdded(part),
-                () -> Log.LOGGER.info(Log.MULTIBLOCK, "[Multiblock Registry] Found a part with no world: not adding it!"));
+        this._registries.computeIfAbsent(part.getCurrentWorld(), MultiblockWorldRegistry::new).onPartAdded(part);
     }
 
     /**
@@ -92,28 +83,37 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
      */
     @Override
     public void onPartRemovedFromWorld(final IMultiblockPart<Controller> part) {
-        CodeHelper.optionalIfPresentOrElse(part.getPartWorld(),
-                world -> CodeHelper.optionalIfPresentOrElse(this.getRegistry(world),
-                        registry -> registry.onPartRemovedFromWorld(part),
-                        () -> Log.LOGGER.error(Log.MULTIBLOCK, "[Multiblock Registry] Trying to remove a part from a world ({}) that is not tracked! Skipping.",
-                                world.getDimensionKey())),
-                () -> Log.LOGGER.error(Log.MULTIBLOCK, "[Multiblock Registry] Trying to remove a part with no world: Skipping!"));
+
+        final MultiblockWorldRegistry<Controller> registry = this._registries.get(part.getCurrentWorld());
+
+        if (null != registry) {
+            registry.onPartRemovedFromWorld(part);
+        } else {
+            Log.LOGGER.error(Log.MULTIBLOCK, "Trying to remove a part from a world ({}) that is not tracked! Skipping.",
+                    part.getCurrentWorld().dimension());
+        }
     }
 
     /**
      * Call to mark a controller as dead. It should only be marked as dead
-     * when it has no connected parts. It will be removed after the next world tick.
+     * when it has no connected parts. It will be cleaned up at the end of the next world tick.
+     * Note that a controller must shed all of its blocks before being marked as dead, or the system
+     * will complain at you.
+     *
      * @param controller The dead controller
      */
     @Override
     public void addDeadController(final Controller controller) {
 
-        final World world = controller.getWorld();
+        final MultiblockWorldRegistry<Controller> registry = this._registries.get(controller.getWorld());
 
-        CodeHelper.optionalIfPresentOrElse(this.getRegistry(world),
-                registry -> registry.addDeadController(controller),
-                () -> Log.LOGGER.error(Log.MULTIBLOCK, "[Multiblock Registry] Controller {} in world ({}) marked as dead, but that world is not tracked! Controller is being ignored.",
-                        controller.hashCode(), world.getDimensionKey()));
+        if (null != registry) {
+            registry.addDeadController(controller);
+        } else {
+            //noinspection AutoBoxing
+            Log.LOGGER.error(Log.MULTIBLOCK, "Controller {} in world ({}) marked as dead, but that world is not tracked! Controller is being ignored.",
+                    controller.hashCode(), controller.getWorld().dimension());
+        }
     }
 
     /**
@@ -124,113 +124,70 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
     @Override
     public void addDirtyController(final Controller controller) {
 
-        final World world = controller.getWorld();
+        final MultiblockWorldRegistry<Controller> registry = this._registries.get(controller.getWorld());
 
-        this.forRegistry(world,
-                registry -> registry.addDirtyController(controller),
-                () -> Log.LOGGER.error(Log.MULTIBLOCK, "Adding a dirty controller to a world ({}) that has no registered controllers!",
-                        world.getDimensionKey()));
+        if (null != registry) {
+            registry.addDirtyController(controller);
+        } else {
+            Log.LOGGER.error(Log.MULTIBLOCK, "Adding a dirty controller to a world ({}) that has no registered controllers!",
+                    controller.getWorld().dimension());
+        }
     }
 
     //endregion
     //region internals
 
-    private MultiblockRegistry() {
+    public MultiblockRegistry() {
 
-        this._registries = Maps.newHashMapWithExpectedSize(2);
-        MinecraftForge.EVENT_BUS.addListener(this::onChunkLoad);
+        this._registries = new Reference2ObjectArrayMap<>(2 * 8);
         MinecraftForge.EVENT_BUS.addListener(this::onWorldUnload);
         MinecraftForge.EVENT_BUS.addListener(this::onWorldTick);
-
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.addListener(this::onClientTick));
     }
 
     /**
      * Called before Tile Entities are ticked in the world. Do bookkeeping here.
      * @param world The world being ticked
      */
-    private void tickStart(final World world) {
+    protected void tickStart(final World world) {
 
-        world.getProfiler().startSection("Zero CORE|Multiblock|Tick");
+        final IProfiler profiler = world.getProfiler();
 
-        this.forRegistry(world, registry -> {
+        profiler.push("Zero CORE|Multiblock|Tick");
+
+        final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
+
+        if (null != registry) {
 
             registry.processMultiblockChanges();
             registry.tickStart();
-        });
-
-        world.getProfiler().endSection();
-    }
-
-    /**
-     * Called when the world has finished loading a chunk.
-     * @param world The world which has finished loading a chunk
-     * @param chunkX The X coordinate of the chunk
-     * @param chunkZ The Z coordinate of the chunk
-     */
-    private void onChunkLoaded(final IWorld world, final int chunkX, final int chunkZ) {
-        this.forRegistry(world, registry -> registry.onChunkLoaded(chunkX, chunkZ));
-    }
-
-    /**
-     * Called whenever a world is unloaded. Unload the relevant registry, if we have one.
-     * @param world The world being unloaded.
-     */
-    private void onWorldUnloaded(final IWorld world) {
-
-        this.forRegistry(world, registry -> {
-
-            registry.onWorldUnloaded();
-            this.removeRegistry(world);
-        });
-    }
-
-    private Optional<MultiblockWorldRegistry<Controller>> getRegistry(final IWorld world) {
-        return Optional.ofNullable(this._registries.get(world));
-    }
-
-    private void forRegistry(final IWorld world, final Consumer<MultiblockWorldRegistry<Controller>> consumer) {
-
-        final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
-
-        if (null != registry) {
-            consumer.accept(registry);
         }
-    }
 
-    private void forRegistry(final IWorld world, final Consumer<MultiblockWorldRegistry<Controller>> consumer,
-                             final Runnable registryNotFound) {
-
-        final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
-
-        if (null != registry) {
-            consumer.accept(registry);
-        } else {
-            registryNotFound.run();
-        }
-    }
-
-    private MultiblockWorldRegistry<Controller> getRegistryOrDefault(final World world) {
-        return this._registries.computeIfAbsent(world, w -> new MultiblockWorldRegistry<>(world));
-    }
-
-    private void removeRegistry(final IWorld world) {
-        this._registries.remove(world);
+        profiler.pop();
     }
 
     //region event handlers
 
-    @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void onChunkLoad(final ChunkEvent.Load event) {
-
-        final ChunkPos pos = event.getChunk().getPos();
-
-        this.onChunkLoaded(event.getWorld(), pos.x, pos.z);
-    }
-
+    /**
+     * Called whenever a world is unloaded. Unload the relevant registry, if we have one.
+     */
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void onWorldUnload(final WorldEvent.Unload event) {
-        this.onWorldUnloaded(event.getWorld());
+
+        final IWorld world = event.getWorld();
+
+        if (world instanceof World) {
+
+            final MultiblockWorldRegistry<Controller> registry = this._registries.get(world);
+
+            if (null != registry) {
+
+                registry.onWorldUnloaded();
+                this._registries.remove(world);
+            }
+        } else {
+
+            Log.LOGGER.error(Log.MULTIBLOCK, "Trying to unload a world that's not a World!");
+        }
     }
 
     @SubscribeEvent
@@ -241,20 +198,9 @@ public final class MultiblockRegistry<Controller extends IMultiblockController<C
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public void onClientTick(final TickEvent.ClientTickEvent event) {
-
-        final World world = Minecraft.getInstance().world;
-
-        if (TickEvent.Phase.START == event.phase && null != world) {
-            this.tickStart(world);
-        }
-    }
-
     //endregion
 
-    private final Map<IWorld, MultiblockWorldRegistry<Controller>> _registries;
+    private final Map<World, MultiblockWorldRegistry<Controller>> _registries;
 
     //endregion
 }

@@ -77,6 +77,16 @@ public class AssemblyState {
         this._state = InternalState.Paused;
     }
 
+    //region Object
+
+    @Override
+    public String toString() {
+        return this._state.toString();
+    }
+
+    //endregion
+    //region internals
+
     private enum InternalState {
 
         Disassembled,
@@ -85,4 +95,6 @@ public class AssemblyState {
     }
 
     private InternalState _state;
+
+    //endregion
 }

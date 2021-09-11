@@ -62,7 +62,7 @@ public class RichText
     @Override
     public void paint(final MatrixStack matrix, int x, int y, final int zLevel) {
 
-        matrix.push();
+        matrix.pushPose();
         matrix.translate(0, 0, zLevel);
 
         for (final TextLine line : this._lines) {
@@ -71,7 +71,7 @@ public class RichText
             y += line.getHeight() + this._interline;
         }
 
-        matrix.pop();
+        matrix.popPose();
     }
 
     @Override
@@ -122,13 +122,13 @@ public class RichText
 
     private static void paintString(final RichText richText, final String chunk,
                                     final MatrixStack matrix, final int x, final int y) {
-        richText._fontSupplier.get().drawStringWithShadow(matrix, chunk, x, y, richText._textColour.toARGB());
+        richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
     private static void paintString(final RichText richText, final ITextComponent chunk,
                                     final MatrixStack matrix, final int x, final int y) {
 //        richText._fontSupplier.get().drawStringWithShadow(matrix, chunk, x, y, richText._textColour.toARGB());
-        richText._fontSupplier.get().func_243246_a(matrix, chunk, x, y, richText._textColour.toARGB());
+        richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
     private static void paintItemStack(final RichText richText, final ItemStack chunk,
@@ -303,7 +303,7 @@ public class RichText
 
         public DynamicTextChunk(final Supplier<String> thing, final NonNullSupplier<FontRenderer> fontSupplier) {
 
-            super(thing, 0, fontSupplier.get().FONT_HEIGHT, DynamicTextChunk::paintString);
+            super(thing, 0, fontSupplier.get().lineHeight, DynamicTextChunk::paintString);
             this._fontSupplier = fontSupplier;
         }
 
@@ -311,7 +311,7 @@ public class RichText
 
         @Override
         public int getWidth() {
-            return this._fontSupplier.get().getStringWidth(this.get().get());
+            return this._fontSupplier.get().width(this.get().get());
         }
 
         //endregion
@@ -335,7 +335,7 @@ public class RichText
 
         public TranslationTextChunk(final NonNullSupplier<ITextComponent> thing, final NonNullSupplier<FontRenderer> fontSupplier) {
 
-            super(thing, 0, fontSupplier.get().FONT_HEIGHT, TranslationTextChunk::paintString);
+            super(thing, 0, fontSupplier.get().lineHeight, TranslationTextChunk::paintString);
             this._fontSupplier = fontSupplier;
         }
 
@@ -344,7 +344,7 @@ public class RichText
         @Override
         public int getWidth() {
 //            return this._fontSupplier.get().getStringWidth(this.get().get()./*getFormattedText()*/getString());
-            return this._fontSupplier.get().getStringPropertyWidth(this.get().get());
+            return this._fontSupplier.get().width(this.get().get());
         }
 
         //endregion
@@ -455,13 +455,13 @@ public class RichText
         }
 
         protected ITextChunk chunk(final ITextComponent text) {
-            return new TextChunk<>(text, this._fontSupplier.get().getStringPropertyWidth(text),
-                    this._fontSupplier.get().FONT_HEIGHT, RichText::paintString);
+            return new TextChunk<>(text, this._fontSupplier.get().width(text),
+                    this._fontSupplier.get().lineHeight, RichText::paintString);
         }
 
         protected ITextChunk chunk(final String text) {
-            return new TextChunk<>(text, this._fontSupplier.get().getStringWidth(text),
-                    this._fontSupplier.get().FONT_HEIGHT, RichText::paintString);
+            return new TextChunk<>(text, this._fontSupplier.get().width(text),
+                    this._fontSupplier.get().lineHeight, RichText::paintString);
         }
 
         private ITextChunk chunk(final Supplier<String> text) {
@@ -612,7 +612,7 @@ public class RichText
             final FontRenderer font = this._fontSupplier.get();
             final String text = line.getString();
 
-            if (this._maxWidth > font.getStringWidth(text)) {
+            if (this._maxWidth > font.width(text)) {
                 // no need to split the line
                 return Stream.of(TextLine.from(this.chunk(text)));
             } else {

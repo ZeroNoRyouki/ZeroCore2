@@ -52,17 +52,17 @@ public class TileCommandMessage
      */
     public static TileCommandMessage create(final AbstractModBlockEntity tile, final String commandName,
                                                 final CompoundNBT parameters) {
-        //return new TileCommandMessage(tile.getPos(), tile.getWorld().func_230315_m_(), commandName, parameters);
+        //return new TileCommandMessage(tile.getPos(), tile.getWorld().dimensionType(), commandName, parameters);
         return new TileCommandMessage(tile, commandName, parameters);
     }
 
     public TileCommandMessage(final PacketBuffer buffer) {
 
         super(buffer);
-        this._name = buffer.readString(4096);
+        this._name = buffer.readUtf(4096);
 
         if (buffer.readBoolean()) {
-            this._parameters = buffer.readCompoundTag();
+            this._parameters = buffer.readNbt();
         } else {
             this._parameters = NBTHelper.EMPTY_COMPOUND;
         }
@@ -74,7 +74,7 @@ public class TileCommandMessage
     public void encodeTo(final PacketBuffer buffer) {
 
         super.encodeTo(buffer);
-        buffer.writeString(this._name);
+        buffer.writeUtf(this._name);
 
         if (this._parameters.isEmpty()) {
 
@@ -83,7 +83,7 @@ public class TileCommandMessage
         } else {
 
             buffer.writeBoolean(true);
-            buffer.writeCompoundTag(this._parameters);
+            buffer.writeNbt(this._parameters);
         }
     }
 
@@ -117,7 +117,7 @@ public class TileCommandMessage
                                  final String commandName, final CompoundNBT parameters) {
 
         //super(tileEntityPosition);
-        super(tile.getPos(), Objects.requireNonNull(tile.getWorld()).getDimensionKey());
+        super(tile.getBlockPos(), Objects.requireNonNull(tile.getLevel()).dimension());
         this._name = commandName;
         this._parameters = parameters;
     }

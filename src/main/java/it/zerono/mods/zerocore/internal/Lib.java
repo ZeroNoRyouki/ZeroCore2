@@ -19,6 +19,10 @@
 package it.zerono.mods.zerocore.internal;
 
 import it.zerono.mods.zerocore.internal.network.Network;
+import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
+import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
+import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockClientRegistry;
+import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -26,6 +30,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.concurrent.CompletableFuture;
@@ -48,6 +53,10 @@ public final class Lib {
 
     public static boolean shouldInvalidateResourceCache() {
         return s_resourceReloaded;
+    }
+
+    public static <Controller extends IMultiblockController<Controller>> IMultiblockRegistry<Controller> createMultiblockRegistry() {
+        return DistExecutor.safeRunForDist(() -> MultiblockClientRegistry::new, () -> MultiblockRegistry::new);
     }
 
     //region common constants
@@ -79,7 +88,7 @@ public final class Lib {
                     ModRecipeType.invalidate();
                     Network.sendClearRecipeCommand();
 
-                }, gameExecutor).thenCompose(stage::markCompleteAwaitingOthers));
+                }, gameExecutor).thenCompose(stage::wait));
     }
 
     @SubscribeEvent

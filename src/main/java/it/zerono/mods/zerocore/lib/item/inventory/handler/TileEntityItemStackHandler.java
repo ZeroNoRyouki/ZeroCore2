@@ -91,7 +91,7 @@ public class TileEntityItemStackHandler extends ItemStackHandler implements IDeb
     @Override
     protected void onContentsChanged(int slot) {
 
-        this._linkedTE.markDirty();
+        this._linkedTE.setChanged();
         this._slotChanged.accept(slot);
     }
 

@@ -100,7 +100,7 @@ public final class StackAdapters {
 
             @Override
             public boolean isStackContentEqual(ItemStack stack1, ItemStack stack2) {
-                return stack1.isItemEqual(stack2);
+                return stack1.sameItem(stack2);
             }
 
             @Override
@@ -110,7 +110,7 @@ public final class StackAdapters {
 
             @Override
             public boolean areIdentical(ItemStack stack1, ItemStack stack2) {
-                return ItemStack.areItemStacksEqual(stack1, stack2);
+                return ItemStack.matches(stack1, stack2);
             }
 
             @Override
@@ -145,7 +145,7 @@ public final class StackAdapters {
 
             @Override
             public CompoundNBT writeTo(ItemStack stack, CompoundNBT data) {
-                return stack.write(data);
+                return stack.save(data);
             }
 
             @Override
@@ -238,7 +238,7 @@ public final class StackAdapters {
 
             @Override
             public boolean isContentEqual(Fluid content1, Fluid content2) {
-                return content1.isEquivalentTo(content2);
+                return content1.isSame(content2);
             }
 
             @Override

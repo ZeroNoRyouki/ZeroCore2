@@ -77,7 +77,7 @@ public abstract class FluidStackRecipeIngredient
                 return new CompositeImpl(ingredients);
 
             case 3:
-                return new TaggedImpl(FluidTags.makeWrapperTag(buffer.readResourceLocation().toString()), buffer.readVarInt());
+                return new TaggedImpl(FluidTags.bind(buffer.readResourceLocation().toString()), buffer.readVarInt());
         }
 
         throw new IllegalArgumentException("Invalid fluid ingredient data from then network");
@@ -129,7 +129,7 @@ public abstract class FluidStackRecipeIngredient
                 }
 
                 final ResourceLocation tagId = JSONHelper.jsonGetResourceLocation(json, Lib.NAME_TAG);
-                final ITag<Fluid> tag = TagCollectionManager.getManager().getFluidTags().get(tagId);
+                final ITag<Fluid> tag = TagCollectionManager.getInstance().getFluids().getTag(tagId);
 
                 if (null == tag) {
                     throw new JsonSyntaxException("Unknown fluid ingredient Tag: " + tagId);
@@ -321,7 +321,7 @@ public abstract class FluidStackRecipeIngredient
 
         @Override
         public boolean isCompatible(final FluidStack stack) {
-            return Objects.requireNonNull(stack).getFluid().isIn(this._tag);
+            return Objects.requireNonNull(stack).getFluid().is(this._tag);
         }
 
         @Override
@@ -362,7 +362,7 @@ public abstract class FluidStackRecipeIngredient
         public void serializeTo(final PacketBuffer buffer) {
 
             buffer.writeByte(3);
-            buffer.writeResourceLocation(TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(this._tag));
+            buffer.writeResourceLocation(TagCollectionManager.getInstance().getFluids().getIdOrThrow(this._tag));
             buffer.writeVarInt(this._amount);
         }
 
@@ -371,7 +371,7 @@ public abstract class FluidStackRecipeIngredient
 
             final JsonObject json = new JsonObject();
 
-            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, TagCollectionManager.getManager().getFluidTags().getValidatedIdFromTag(this._tag));
+            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, TagCollectionManager.getInstance().getFluids().getIdOrThrow(this._tag));
             JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, this._amount);
             return json;
         }

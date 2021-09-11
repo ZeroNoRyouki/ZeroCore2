@@ -36,7 +36,7 @@ public class SlotGhostOutput extends SlotGeneric {
      * @param stack
      */
     @Override
-    public boolean isItemValid(ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return false;
     }
 
@@ -46,7 +46,7 @@ public class SlotGhostOutput extends SlotGeneric {
      * @param playerIn
      */
     @Override
-    public boolean canTakeStack(PlayerEntity playerIn) {
+    public boolean mayPickup(PlayerEntity playerIn) {
         return false;
     }
 
@@ -57,7 +57,7 @@ public class SlotGhostOutput extends SlotGeneric {
      * @param amount
      */
     @Override
-    public ItemStack decrStackSize(int amount) {
+    public ItemStack remove(int amount) {
         return ItemHelper.stackEmpty();
     }
 
@@ -66,7 +66,7 @@ public class SlotGhostOutput extends SlotGeneric {
      * of armor slots)
      */
     @Override
-    public int getSlotStackLimit() {
+    public int getMaxStackSize() {
         return 64;
     }
 }

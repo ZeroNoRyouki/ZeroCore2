@@ -60,7 +60,7 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
 
         super(buffer);
         this._nested = buffer.readBoolean();
-        this._payload = buffer.readCompoundTag();
+        this._payload = buffer.readNbt();
     }
 
     //region AbstractModTileMessage
@@ -89,7 +89,7 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
 
         super.encodeTo(buffer);
         buffer.writeBoolean(this._nested);
-        buffer.writeCompoundTag(this._payload);
+        buffer.writeNbt(this._payload);
     }
 
     //region internals

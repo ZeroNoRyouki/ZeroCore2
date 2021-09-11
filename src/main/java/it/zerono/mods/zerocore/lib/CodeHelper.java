@@ -38,6 +38,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.concurrent.ThreadTaskExecutor;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -67,6 +68,12 @@ public final class CodeHelper {
     public static final ITextComponent TEXT_EMPTY_LINE = new StringTextComponent("");
 
     public static final Direction[] DIRECTIONS = Direction.values();
+    public static final Direction[] POSITIVE_DIRECTIONS;
+    public static final Direction[] NEGATIVE_DIRECTIONS;
+
+    public static final AxisAlignedBB EMPTY_BOUNDING_BOX = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+    public static final BlockPos MIN_BLOCKPOS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    public static final BlockPos MAX_BLOCKPOS = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
     public static final AxisAlignedBB EMPTY_AABB = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 
@@ -121,7 +128,7 @@ public final class CodeHelper {
      * Return a reference time for the system
      */
     public static long getSystemTime() {
-        return Util.nanoTime();
+        return Util.getNanos();
     }
 
     public static Random fakeRandom() {
@@ -315,7 +322,7 @@ public final class CodeHelper {
      * @param world A valid world instance
      */
     public static boolean calledByLogicalServer(final World world) {
-        return !world.isRemote;
+        return !world.isClientSide;
     }
 
     /**
@@ -324,7 +331,7 @@ public final class CodeHelper {
      * @param world A valid world instance
      */
     public static boolean calledByLogicalClient(final World world) {
-        return world.isRemote;
+        return world.isClientSide;
     }
 
     public static void callOnLogicalSide(final World world, final Runnable serverCode, final Runnable clientCode) {
@@ -463,9 +470,9 @@ public final class CodeHelper {
         // Must check ourselves as Minecraft will sometimes delay tasks even when they are received on the client thread
         // Same logic as ThreadTaskExecutor#runImmediately without the join
 
-        if (!executor.isOnExecutionThread()) {
+        if (!executor.isSameThread()) {
 
-            return executor.deferTask(runnable); // Use the internal method so thread check isn't done twice
+            return executor.submitAsync(runnable); // Use the internal method so thread check isn't done twice
 
         } else {
 
@@ -480,6 +487,48 @@ public final class CodeHelper {
 
     public static void addResourceReloadListener(final ISelectiveResourceReloadListener listener) {
         ZeroCore.getProxy().addResourceReloadListener(Objects.requireNonNull(listener));
+    }
+
+    public static Runnable delayedRunnable(final Runnable code, final int tickDelay) {
+        return new Runnable() {
+
+            @Override
+            public void run() {
+
+                ++this._ticks;
+
+                if (this._ticks >= this._delay) {
+
+                    this._ticks = 0;
+                    this._code.run();
+                }
+            }
+
+            private final Runnable _code = code;
+            private final int _delay = tickDelay;
+            private int _ticks = 0;
+        };
+    }
+
+    public static BooleanSupplier tickCountdown(final int tickCountdown) {
+        return new BooleanSupplier() {
+
+            @Override
+            public boolean getAsBoolean() {
+
+                --this._countdown;
+
+                if (this._countdown <= 0) {
+
+                    this._countdown = tickCountdown;
+                    return true;
+                }
+
+                return false;
+            }
+
+            private int _countdown = tickCountdown;
+        };
     }
 
     //endregion
@@ -715,14 +764,14 @@ public final class CodeHelper {
 
     @OnlyIn(Dist.CLIENT)
     public static ITextComponent i18nFormatComponent(final String translateKey, Object... parameters) {
-        return new StringTextComponent(I18n.format(translateKey, parameters));
+        return new StringTextComponent(I18n.get(translateKey, parameters));
     }
 
     /**
      * MC-Version independent wrapper around PlayerEntity::addChatMessage()
      */
     public static void sendChatMessage(final PlayerEntity sender, final ITextComponent component) {
-        sender.sendMessage(component, sender.getUniqueID());
+        sender.sendMessage(component, sender.getUUID());
     }
 
     /**
@@ -784,6 +833,10 @@ public final class CodeHelper {
      */
     public static int mathTruncateToInt(final long value) {
         return Ints.saturatedCast(value);
+    }
+
+    public static int commonVertices(final Vector3i a, final Vector3i b) {
+        return (a.getX() == b.getX() ? 1 : 0) + (a.getY() == b.getY() ? 1 : 0) + (a.getZ() == b.getZ() ? 1 : 0);
     }
 
     //endregion
@@ -915,6 +968,11 @@ public final class CodeHelper {
         s_perpendicularDirections.put(Direction.SOUTH, zPerpendicularsDirections);
         s_perpendicularDirections.put(Direction.EAST, xPerpendicularsDirections);
         s_perpendicularDirections.put(Direction.WEST, xPerpendicularsDirections);
+
+        // positive & negative directions
+
+        POSITIVE_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(d -> d.getAxisDirection() == Direction.AxisDirection.POSITIVE).toArray(Direction[]::new);
+        NEGATIVE_DIRECTIONS = Arrays.stream(DIRECTIONS).filter(d -> d.getAxisDirection() == Direction.AxisDirection.NEGATIVE).toArray(Direction[]::new);
     }
 
     //endregion

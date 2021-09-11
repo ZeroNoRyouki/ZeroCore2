@@ -41,218 +41,352 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.cuboid;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.block.BlockFacings;
+import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockController;
+import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
-import it.zerono.mods.zerocore.lib.world.WorldHelper;
+import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 
-import java.util.Optional;
-
 public abstract class AbstractCuboidMultiblockController<Controller extends AbstractCuboidMultiblockController<Controller>>
         extends AbstractMultiblockController<Controller> {
 
-    /**
-     * Return true if the given position is in the multiblock internal volume
-     * @param position the position to check
-     * @return true if position lay in the internal volume, false otherwise
-     */
-    protected boolean containPosition(final BlockPos position) {
-        return this.mapBoundingBoxCoordinates((minPos, maxPos) -> minPos.compareTo(position) < 0 && maxPos.compareTo(position) > 0, false);
-    }
-
 	//region AbstractMultiblockController
 
-	/**
-	 * @return True if the machine is "whole" and should be assembled. False otherwise.
-	 */
-	@Override
-	protected boolean isMachineWhole(final IMultiblockValidator validatorCallback) {
+    @Override
+    protected CuboidBoundingBox buildBoundingBox() {
+        return this._connectedParts.boundingBox();
+    }
 
-        if (this.getPartsCount() < this.getMinimumNumberOfPartsForAssembledMachine() ||
-                !this.hasValidBoundingBoxCoordinates()) {
+    @Override
+    protected NeighboringPositions getNeighboringPositionsToVisit() {
+        return new NeighboringPositions(CodeHelper.POSITIVE_DIRECTIONS);
+    }
+
+    @Override
+    protected boolean isMachineWhole(final IMultiblockValidator validatorCallback) {
+
+        final CuboidBoundingBox bb = this.getBoundingBox();
+
+        if (this.getPartsCount() < this.getMinimumNumberOfPartsForAssembledMachine() || bb.isEmpty()) {
 
             validatorCallback.setLastError(ValidationError.VALIDATION_ERROR_TOO_FEW_PARTS);
             return false;
         }
 
-        return this.mapBoundingBoxCoordinates((min, max) -> this.isMachineWhole(validatorCallback, min, max), false);
-    }
-
-    private boolean isMachineWhole(final IMultiblockValidator validatorCallback,
-                                   final BlockPos minimumCoord, final BlockPos maximumCoord) {
-
-        final int minX = minimumCoord.getX();
-        final int minY = minimumCoord.getY();
-        final int minZ = minimumCoord.getZ();
-        final int maxX = maximumCoord.getX();
-        final int maxY = maximumCoord.getY();
-        final int maxZ = maximumCoord.getZ();
+        final World world = this.getWorld();
+        final BlockPos boundingBoxMin = bb.getMin();
+        final BlockPos boundingBoxMax = bb.getMax();
+        final int minX = boundingBoxMin.getX();
+        final int minY = boundingBoxMin.getY();
+        final int minZ = boundingBoxMin.getZ();
+        final int maxX = boundingBoxMax.getX();
+        final int maxY = boundingBoxMax.getY();
+        final int maxZ = boundingBoxMax.getZ();
 
         if (isSizeWrong(validatorCallback, Direction.Axis.X, this.getMinimumXSize(), this.getMaximumXSize(), maxX - minX + 1) ||
-            isSizeWrong(validatorCallback, Direction.Axis.Y, this.getMinimumYSize(), this.getMaximumYSize(), maxY - minY + 1) ||
-            isSizeWrong(validatorCallback, Direction.Axis.Z, this.getMinimumZSize(), this.getMaximumZSize(), maxZ - minZ + 1)) {
+                isSizeWrong(validatorCallback, Direction.Axis.Y, this.getMinimumYSize(), this.getMaximumYSize(), maxY - minY + 1) ||
+                isSizeWrong(validatorCallback, Direction.Axis.Z, this.getMinimumZSize(), this.getMaximumZSize(), maxZ - minZ + 1)) {
             return false;
         }
 
-		// Now we run a simple check on each block within that volume.
-		// Any block deviating = NO DEAL SIR
+        // if we have some detached parts let's do a preemptive check of what's in their place now
 
-		boolean isPartValid;
+        if (null != this._detachedParts && !this._detachedParts.isEmpty()) {
 
-		for (int x = minX; x <= maxX; x++) {
-			for (int y = minY; y <= maxY; y++) {
-				for (int z = minZ; z <= maxZ; z++) {
+            for (final IMultiblockPart<Controller> part : this._detachedParts) {
 
-					// Okay, figure out what sort of block this should be.
+                final BlockPos partLocation = part.getWorldPosition();
+                final int x = partLocation.getX();
+                final int y = partLocation.getY();
+                final int z = partLocation.getZ();
+                int extremes = 0, errorIndex;
+                boolean isValid;
 
-                    final BlockPos partLocation = new BlockPos(x, y, z);
-                    final Optional<AbstractCuboidMultiblockPart<Controller>> part = this.getCuboidPartFromWorld(partLocation);
-                    final AbstractCuboidMultiblockPart<Controller> cuboidPart;
-                    final boolean isCuboidMultiblockPart;
+                if (x == minX) {
+                    ++extremes;
+                }
 
-                    if (part.isPresent()) {
+                if (x == maxX) {
+                    ++extremes;
+                }
 
-                        isCuboidMultiblockPart = true;
-                        cuboidPart = part.get();
+                if (y == minY) {
+                    ++extremes;
+                }
 
-                        // Ensure this part should actually be allowed within a cube of this controller's type
-                        if (!cuboidPart.getMultiblockController().map(this::isControllerCompatible).orElse(false)) {
+                if (y == maxY) {
+                    ++extremes;
+                }
+
+                if (z == minZ) {
+                    ++extremes;
+                }
+
+                if (z == maxZ) {
+                    ++extremes;
+                }
+
+                if (extremes >= 2) {
+
+                    errorIndex = 0;
+                    isValid = this.isBlockGoodForFrame(world, x, y, z, validatorCallback);
+
+                } else if (1 == extremes) {
+
+                    if (y == maxY) {
+
+                        errorIndex = 1;
+                        isValid = this.isBlockGoodForTop(world, x, y, z, validatorCallback);
+
+                    } else if (y == minY) {
+
+                        errorIndex = 2;
+                        isValid = this.isBlockGoodForBottom(world, x, y, z, validatorCallback);
+
+                    } else {
+
+                        errorIndex = 3;
+                        isValid = this.isBlockGoodForSides(world, x, y, z, validatorCallback);
+                    }
+
+                } else {
+
+                    errorIndex = 4;
+                    isValid = this.isBlockGoodForInterior(world, x, y, z, validatorCallback);
+                }
+
+                if (!isValid) {
+
+                    // report error and quit
+
+                    if (validatorCallback.isLastErrorEmpty()) {
+                        validatorCallback.setLastError(partLocation, s_errors[errorIndex]);
+                    }
+
+                    return false;
+                }
+            }
+
+            this._detachedParts.clear();
+        }
+
+        final BlockPos.Mutable partLocation = new BlockPos.Mutable();
+        boolean isValid;
+        int errorIndex;
+
+        for (int x = minX; x <= maxX; ++x) {
+            for (int y = minY; y <= maxY; ++y) {
+                for (int z = minZ; z <= maxZ; ++z) {
+
+                    // Okay, figure out what sort of block this should be.
+
+                    partLocation.set(x, y, z);
+
+                    final IMultiblockPart<Controller> part = this._connectedParts.get(BlockPos.asLong(x, y, z));
+                    int extremes = 0;
+                    boolean downFacing = false;
+                    boolean upFacing = false;
+                    boolean northFacing = false;
+                    boolean southFacing = false;
+                    boolean westFacing = false;
+                    boolean eastFacing = false;
+
+                    if (x == minX) {
+
+                        ++extremes;
+                        westFacing = true;
+                    }
+
+                    if (x == maxX) {
+
+                        ++extremes;
+                        eastFacing = true;
+                    }
+
+                    if (y == minY) {
+
+                        ++extremes;
+                        downFacing = true;
+                    }
+
+                    if (y == maxY) {
+
+                        ++extremes;
+                        upFacing = true;
+                    }
+
+                    if (z == minZ) {
+
+                        ++extremes;
+                        northFacing = true;
+                    }
+
+                    if (z == maxZ) {
+
+                        ++extremes;
+                        southFacing = true;
+                    }
+
+                    if (part instanceof AbstractCuboidMultiblockPart) {
+
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+                        // found a cuboid part. is it valid?
+
+                        if (!part.testOnController(this::isControllerCompatible)) {
 
                             validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part");
                             return false;
                         }
 
-                        if (!this.containsPart(cuboidPart)) {
+                        final PartPosition partPosition;
 
-                            validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_foreign_part");
-                            return false;
+                        if (extremes >= 2) {
+
+                            errorIndex = 0;
+
+                            if (!eastFacing && !westFacing) {
+                                partPosition = PartPosition.FrameEastWest;
+                            } else if (!southFacing && !northFacing) {
+                                partPosition = PartPosition.FrameSouthNorth;
+                            } else {
+                                partPosition = PartPosition.FrameUpDown;
+                            }
+
+                        } else if (1 == extremes) {
+
+                            if (y == maxY) {
+
+                                errorIndex = 1;
+                                partPosition = PartPosition.TopFace;
+
+                            } else if (y == minY) {
+
+                                errorIndex = 2;
+                                partPosition = PartPosition.BottomFace;
+
+                            } else {
+
+                                errorIndex = 3;
+
+                                if (eastFacing) {
+                                    partPosition = PartPosition.EastFace;
+                                } else if (westFacing) {
+                                    partPosition = PartPosition.WestFace;
+                                } else if (southFacing) {
+                                    partPosition = PartPosition.SouthFace;
+                                } else if (northFacing) {
+                                    partPosition = PartPosition.NorthFace;
+                                } else if (upFacing) {
+                                    partPosition = PartPosition.TopFace;
+                                } else {
+                                    partPosition = PartPosition.BottomFace;
+                                }
+                            }
+
+                        } else {
+
+                            errorIndex = 4;
+                            partPosition = PartPosition.Interior;
                         }
+
+                        final BlockFacings facings = BlockFacings.from(downFacing, upFacing, northFacing, southFacing, westFacing, eastFacing);
+
+                        ((AbstractCuboidMultiblockPart<Controller>)part).setPartPosition(partPosition, facings);
+                        isValid = ((AbstractCuboidMultiblockPart<Controller>)part).isGoodForPosition(partPosition, validatorCallback);
+
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
 
                     } else {
 
-                        // This is permitted so that we can incorporate certain non-multiblock parts inside interiors
-                        isCuboidMultiblockPart = false;
-                        cuboidPart = null;
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
+                        // found something else. is it valid?
+
+                        if (extremes >= 2) {
+
+                            errorIndex = 0;
+                            isValid = this.isBlockGoodForFrame(world, x, y, z, validatorCallback);
+
+                        } else if (1 == extremes) {
+
+                            if (y == maxY) {
+
+                                errorIndex = 1;
+                                isValid = this.isBlockGoodForTop(world, x, y, z, validatorCallback);
+
+                            } else if (y == minY) {
+
+                                errorIndex = 2;
+                                isValid = this.isBlockGoodForBottom(world, x, y, z, validatorCallback);
+
+                            } else {
+
+                                errorIndex = 3;
+                                isValid = this.isBlockGoodForSides(world, x, y, z, validatorCallback);
+                            }
+
+                        } else {
+
+                            errorIndex = 4;
+                            isValid = this.isBlockGoodForInterior(world, x, y, z, validatorCallback);
+                        }
+
+                        ///////////////////////////////////////////////////////////////////////////////////////////////
                     }
 
-					// Validate block type against both part-level and material-level validators.
+                    if (!isValid) {
 
-                    final PartPosition position = PartPosition.positionIn(this.castSelf(), partLocation);
-					int extremes = 0;
+                        // report error and quit
 
-					if (x == minX) {
-					    ++extremes;
-					}
+                        if (validatorCallback.isLastErrorEmpty()) {
+                            validatorCallback.setLastError(partLocation, s_errors[errorIndex]);
+                        }
 
-					if (y == minY) {
-					    ++extremes;
-					}
+                        return false;
+                    }
+                }
+            }
+        }
 
-					if (z == minZ) {
-					    ++extremes;
-					}
-					
-					if (x == maxX) {
-					    ++extremes;
-					}
-
-					if (y == maxY) {
-					    ++extremes;
-					}
-
-					if (z == maxZ) {
-					    ++extremes;
-					}
-
-					if (extremes >= 2) {
-
-						isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                this.isBlockGoodForFrame(this.getWorld(), x, y, z, validatorCallback);
-
-						if (!isPartValid) {
-
-							if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_frame");
-                            }
-
-							return false;
-						}
-
-					} else if (1 == extremes) {
-
-						if (y == maxY) {
-
-							isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                    this.isBlockGoodForTop(this.getWorld(), x, y, z, validatorCallback);
-
-							if (!isPartValid) {
-
-                                if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_top");
-                                }
-
-								return false;
-							}
-
-						} else if (y == minY) {
-
-							isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                    this.isBlockGoodForBottom(this.getWorld(), x, y, z, validatorCallback);
-
-							if (!isPartValid) {
-
-                                if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_bottom");
-                                }
-
-								return false;
-							}
-
-						} else {
-
-							// Side
-							isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                    this.isBlockGoodForSides(this.getWorld(), x, y, z, validatorCallback);
-
-							if (!isPartValid) {
-
-                                if (!validatorCallback.getLastError().isPresent()) {
-                                    validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_sides");
-                                }
-
-								return false;
-							}
-						}
-
-					} else {
-
-						isPartValid = isCuboidMultiblockPart ? cuboidPart.isGoodForPosition(position, validatorCallback) :
-                                this.isBlockGoodForInterior(this.getWorld(), x, y, z, validatorCallback);
-
-						if (!isPartValid) {
-
-                            if (!validatorCallback.getLastError().isPresent()) {
-                                validatorCallback.setLastError(partLocation, "zerocore:api.multiblock.validation.invalid_part_for_interior");
-                            }
-
-							return false;
-						}
-					}
-				}
-			}
-		}
-
-		return true;
-	}
+        return true;
+    }
 
 	@Override
 	public void forceStructureUpdate(final World world) {
-	    this.forBoundingBoxCoordinates((min, max) -> forceStructureUpdate(world, min, max));
+
+	    final CuboidBoundingBox bb = this.getBoundingBox();
+
+	    if (bb.isEmpty()) {
+	        return;
+        }
+
+	    final BlockPos minCoord = bb.getMin();
+	    final BlockPos maxCoord = bb.getMax();
+        final int minX = minCoord.getX();
+        final int minY = minCoord.getY();
+        final int minZ = minCoord.getZ();
+        final int maxX = maxCoord.getX();
+        final int maxY = maxCoord.getY();
+        final int maxZ = maxCoord.getZ();
+        final BlockPos.Mutable pos = new BlockPos.Mutable();
+
+        for (int x = minX; x <= maxX; ++x) {
+            for (int y = minY; y <= maxY; ++y) {
+                for (int z = minZ; z <= maxZ; ++z) {
+
+                    final BlockState state = world.getBlockState(pos.set(x, y ,z));
+
+                    world.sendBlockUpdated(pos, state, state, Constants.BlockFlags.DEFAULT);
+                }
+            }
+        }
 	}
 
 	//endregion
@@ -267,46 +401,31 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 
         if (maxSize > 0 && size > maxSize) {
 
-            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_large", maxSize, axis.getString());
+            //noinspection AutoBoxing
+            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_large", maxSize, axis.getSerializedName());
             return true;
         }
 
         if (size < minSize) {
 
-            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_small", minSize, axis.getString());
+            //noinspection AutoBoxing
+            validatorCallback.setLastError("zerocore:api.multiblock.validation.machine_too_small", minSize, axis.getSerializedName());
             return true;
         }
 
         return false;
     }
 
-    private Optional<AbstractCuboidMultiblockPart<Controller>> getCuboidPartFromWorld(BlockPos position) {
-        //noinspection unchecked
-        return WorldHelper.getTile(this.getWorld(), position)
-                .filter(te -> te instanceof AbstractCuboidMultiblockPart)
-                .map(te -> (AbstractCuboidMultiblockPart<Controller>)te);
-    }
+    private static final String[] s_errors;
 
-    private static void forceStructureUpdate(final World world, final BlockPos minCoord, final BlockPos maxCoord) {
+	static {
 
-        final int minX = minCoord.getX();
-        final int minY = minCoord.getY();
-        final int minZ = minCoord.getZ();
-        final int maxX = maxCoord.getX();
-        final int maxY = maxCoord.getY();
-        final int maxZ = maxCoord.getZ();
-
-        for (int x = minX; x <= maxX; ++x) {
-            for (int y = minY; y <= maxY; ++y) {
-                for (int z = minZ; z <= maxZ; ++z) {
-
-                    final BlockPos pos = new BlockPos(x, y, z);
-                    final BlockState state = world.getBlockState(pos);
-
-                    world.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.DEFAULT);
-                }
-            }
-        }
+        s_errors = new String[5];
+        s_errors[0] = "zerocore:api.multiblock.validation.invalid_part_for_frame";
+        s_errors[1] = "zerocore:api.multiblock.validation.invalid_part_for_top";
+        s_errors[2] = "zerocore:api.multiblock.validation.invalid_part_for_bottom";
+        s_errors[3] = "zerocore:api.multiblock.validation.invalid_part_for_sides";
+        s_errors[4] = "zerocore:api.multiblock.validation.invalid_part_for_interior";
     }
 
     //endregion

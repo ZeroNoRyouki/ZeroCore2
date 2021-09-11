@@ -41,6 +41,7 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.rectangular;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
@@ -90,12 +91,12 @@ public abstract class AbstractRectangularMultiblockPart<Controller extends Abstr
         final Block blockType = this.getBlockType();
         final BlockFacings facings = this.getOutwardFacings();
         final BlockPos position = this.getWorldPosition();
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
-            for (final Direction facing : Direction.values()) {
+            for (final Direction facing : CodeHelper.DIRECTIONS) {
                 if (facings.isSet(facing)) {
-                    WorldHelper.notifyNeighborsOfStateChange(world, position.offset(facing), blockType);
+                    WorldHelper.notifyNeighborsOfStateChange(world, position.relative(facing), blockType);
                 }
             }
         }

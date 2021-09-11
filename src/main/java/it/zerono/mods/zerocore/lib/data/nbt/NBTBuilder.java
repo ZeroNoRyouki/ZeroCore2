@@ -159,7 +159,7 @@ public class NBTBuilder {
     public NBTBuilder addUniqueId(final String name, final UUID value) {
 
         validateName(name);
-        this._root.putUniqueId(name, value);
+        this._root.putUUID(name, value);
         return this;
     }
 

@@ -41,7 +41,7 @@ public class ModItemGroup extends ItemGroup {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public ItemStack createIcon() {
+    public ItemStack makeIcon() {
         return this._iconFactory.get();
     }
 
@@ -52,7 +52,7 @@ public class ModItemGroup extends ItemGroup {
      */
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void fill(NonNullList<ItemStack> items) {
+    public void fillItemList(NonNullList<ItemStack> items) {
 
         if (null == this._content) {
             this._content = Lists.newArrayList(this._contentFactory.get());

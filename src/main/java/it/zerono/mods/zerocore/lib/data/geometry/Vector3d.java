@@ -66,11 +66,11 @@ public class Vector3d
     }
 
     public static Vector3d from(final Vector3f data) {
-        return new Vector3d(data.getX(), data.getY(), data.getZ());
+        return new Vector3d(data.x(), data.y(), data.z());
     }
 
     public static Vector3d from(final Vector4f data) {
-        return new Vector3d(data.getX(), data.getY(), data.getZ());
+        return new Vector3d(data.x(), data.y(), data.z());
     }
 
     public static Vector3d fromCenter(final Vector3i data) {
@@ -78,19 +78,19 @@ public class Vector3d
     }
 
     public static Vector3d from(final Entity data) {
-        return new Vector3d(data.getPosX(), data.getPosY(), data.getPosZ());
+        return new Vector3d(data.getX(), data.getY(), data.getZ());
     }
 
     public static Vector3d fromCenter(final Entity data) {
-        return new Vector3d(data.getPosX() + 0.5, data.getPosY() + 0.5, data.getPosZ() + 0.5);
+        return new Vector3d(data.getX() + 0.5, data.getY() + 0.5, data.getZ() + 0.5);
     }
 
     public static Vector3d from(final TileEntity data) {
-        return from(data.getPos());
+        return from(data.getBlockPos());
     }
 
     public static Vector3d fromCenter(final TileEntity data) {
-        return fromCenter(data.getPos());
+        return fromCenter(data.getBlockPos());
     }
 
     public static Vector3d syncDataFrom(CompoundNBT data) {
@@ -158,7 +158,7 @@ public class Vector3d
     }
 
     public Vector3d multiply(final Vector3d v) {
-        return this.multiply(v.getX(), v.getY(), v.getZ());
+        return this.multiply(v.x(), v.y(), v.z());
     }
 
     public Vector3d divide(final double factorX, final double factorY, final double factorZ) {
@@ -220,17 +220,17 @@ public class Vector3d
     //region IPosition
 
     @Override
-    public double getX() {
+    public double x() {
         return this.X;
     }
 
     @Override
-    public double getY() {
+    public double y() {
         return this.Y;
     }
 
     @Override
-    public double getZ() {
+    public double z() {
         return this.Z;
     }
 

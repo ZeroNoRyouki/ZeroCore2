@@ -66,7 +66,7 @@ public class ModContainer extends Container {
     public static ModContainer empty(final ContainerType<?> type, final int windowId) {
         return new ModContainer(ContainerFactory.EMPTY, type, windowId) {
             @Override
-            public void putStackInSlot(int slotID, ItemStack stack) {
+            public void setItem(int slotID, ItemStack stack) {
             }
         };
     }
@@ -118,7 +118,7 @@ public class ModContainer extends Container {
      * @param player the player
      */
     @Override
-    public boolean canInteractWith(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         return true;
     }
 
@@ -133,7 +133,7 @@ public class ModContainer extends Container {
      * @return  true if the stack was merged, false otherwise
      */
     @Override
-    protected boolean mergeItemStack(ItemStack sourceStack, int startIndex, int endIndex, boolean reverseDirection) {
+    protected boolean moveItemStackTo(ItemStack sourceStack, int startIndex, int endIndex, boolean reverseDirection) {
 
         if (sourceStack.isEmpty() || !this._factory.isIndexValid(startIndex) || !this._factory.isIndexValid(endIndex - 1)) {
             return false;
@@ -150,27 +150,27 @@ public class ModContainer extends Container {
                     (!reverseDirection && targetSlotIndex < endIndex || reverseDirection && targetSlotIndex >= startIndex)) {
 
                 final Slot targetSlot = this.getSlot(targetSlotIndex);
-                final ItemStack targetItemStack = targetSlot.getStack();
+                final ItemStack targetItemStack = targetSlot.getItem();
 
                 if (!targetItemStack.isEmpty() &&
                         ItemHelper.stackMatch(targetItemStack, sourceStack, ItemHelper.MatchOption.MATCH_EXISTING_STACK) &&
-                        targetSlot.isItemValid(sourceStack)) {
+                        targetSlot.mayPlace(sourceStack)) {
 
                     int mergedSize = targetItemStack.getCount() + sourceStack.getCount();
-                    int maxStackSize = Math.min(targetSlot.getSlotStackLimit(), sourceStack.getMaxStackSize());
+                    int maxStackSize = Math.min(targetSlot.getMaxStackSize(), sourceStack.getMaxStackSize());
 
                     if (mergedSize <= maxStackSize) {
 
                         ItemHelper.stackSetSize(sourceStack, 0);
                         ItemHelper.stackSetSize(targetItemStack, mergedSize);
-                        targetSlot.onSlotChanged();
+                        targetSlot.setChanged();
                         return true;
 
                     } else if (targetItemStack.getCount() < maxStackSize) {
 
                         sourceStack.grow(-(maxStackSize - targetItemStack.getCount()));
                         ItemHelper.stackSetSize(targetItemStack, maxStackSize);
-                        targetSlot.onSlotChanged();
+                        targetSlot.setChanged();
                         return true;
                     }
                 }
@@ -189,10 +189,10 @@ public class ModContainer extends Container {
 
                 final Slot targetSlot = this.getSlot(targetSlotIndex);
 
-                if (!targetSlot.getHasStack() && targetSlot.isItemValid(sourceStack)) {
+                if (!targetSlot.hasItem() && targetSlot.mayPlace(sourceStack)) {
 
-                    targetSlot.putStack(ItemHelper.stackFrom(sourceStack));
-                    targetSlot.onSlotChanged();
+                    targetSlot.set(ItemHelper.stackFrom(sourceStack));
+                    targetSlot.setChanged();
                     ItemHelper.stackSetSize(sourceStack, 0);
                     return true;
                 }
@@ -205,14 +205,14 @@ public class ModContainer extends Container {
     }
 
     @Override
-    public ItemStack slotClick(int clickedSlotIndex, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+    public ItemStack clicked(int clickedSlotIndex, int dragType, ClickType clickTypeIn, PlayerEntity player) {
 
         if (this._factory.isSlotOfType(clickedSlotIndex, SlotType.GhostInput)) {
 
             final Slot slot = this.getSlot(clickedSlotIndex);
 
-            if (slot.getHasStack()) {
-                slot.putStack(ItemHelper.stackEmpty());
+            if (slot.hasItem()) {
+                slot.set(ItemHelper.stackEmpty());
             }
         }
 
@@ -246,7 +246,7 @@ public class ModContainer extends Container {
      *          contained in the slot
      */
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity player, int clickedSlotIndex) {
+    public ItemStack quickMoveStack(PlayerEntity player, int clickedSlotIndex) {
 
         final Optional<SlotTemplate> clickedTemplate = this._factory.getSlotTemplate(clickedSlotIndex);
 
@@ -258,11 +258,11 @@ public class ModContainer extends Container {
 
         final SlotGeneric clickedSlot = (SlotGeneric)this.getSlot(clickedSlotIndex);
 
-        if (!clickedSlot.getHasStack()) {
+        if (!clickedSlot.hasItem()) {
             return ItemHelper.stackEmpty();
         }
 
-        final ItemStack clickedStack = clickedSlot.getStack();
+        final ItemStack clickedStack = clickedSlot.getItem();
         final ItemStack resultStack = ItemHelper.stackFrom(clickedStack);
 
         // Try to add the clicked-stack to the other slots in this container.
@@ -281,7 +281,7 @@ public class ModContainer extends Container {
                     return ItemHelper.stackEmpty();
                 }
 
-                clickedSlot.onSlotChange(clickedStack, resultStack);
+                clickedSlot.onQuickCraft(clickedStack, resultStack);
                 break;
             }
 
@@ -321,15 +321,15 @@ public class ModContainer extends Container {
                     return ItemHelper.stackEmpty();
                 }
 
-                clickedSlot.onSlotChange(clickedStack, resultStack);
+                clickedSlot.onQuickCraft(clickedStack, resultStack);
                 break;
             }
         }
 
         if (clickedStack.getCount() == 0) {
-            clickedSlot.putStack(ItemHelper.stackEmpty());
+            clickedSlot.set(ItemHelper.stackEmpty());
         } else {
-            clickedSlot.onSlotChanged();
+            clickedSlot.setChanged();
         }
 
         if (clickedStack.getCount() == resultStack.getCount()) {
@@ -399,7 +399,7 @@ public class ModContainer extends Container {
         for (final SlotIndexSet indexSet : targetIndices) {
             for (final Range<Integer> range: indexSet.asRanges()) {
 
-                if (this.mergeItemStack(stack, range.lowerEndpoint(), range.upperEndpoint(), reverseDirection)) {
+                if (this.moveItemStackTo(stack, range.lowerEndpoint(), range.upperEndpoint(), reverseDirection)) {
                     return true;
                 }
             }

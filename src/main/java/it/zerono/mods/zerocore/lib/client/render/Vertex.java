@@ -97,7 +97,7 @@ public class Vertex
         }
 
         if (null != this.NORMAL) {
-            sb.append(String.format(" n:(%f, %f, %f)", this.NORMAL.getX(), this.NORMAL.getY(), this.NORMAL.getZ()));
+            sb.append(String.format(" n:(%f, %f, %f)", this.NORMAL.x(), this.NORMAL.y(), this.NORMAL.z()));
         }
 
         return sb.toString();

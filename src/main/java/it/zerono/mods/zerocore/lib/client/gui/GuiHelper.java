@@ -28,11 +28,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public final  class GuiHelper {
 
     public static MouseHelper getMouse() {
-        return Minecraft.getInstance().mouseHelper;
+        return Minecraft.getInstance().mouseHandler;
     }
 
     public static KeyboardListener getKeyboard() {
-        return Minecraft.getInstance().keyboardListener;
+        return Minecraft.getInstance().keyboardHandler;
     }
 
     public static void enableGuiDebugFrame(final boolean enable) {

@@ -540,7 +540,7 @@ public abstract class AbstractControl
         final double scale = this.getGui().getGuiScaleFactor();
         final Point screenXY = this.controlToScreen(x, y + height);
 
-        GlStateManager.viewport(
+        GlStateManager._viewport(
                 (int)Math.round(screenXY.X * scale),
                 this.getGui().getMinecraftWindowHeight() - (int)Math.round(screenXY.Y * scale),
                 (int)Math.round(width * scale),
@@ -562,11 +562,11 @@ public abstract class AbstractControl
     }
 
     protected void setDefaultViewport() {
-        GlStateManager.viewport(0, 0, this.getGui().getMinecraftWindowWidth(), this.getGui().getMinecraftWindowHeight());
+        GlStateManager._viewport(0, 0, this.getGui().getMinecraftWindowWidth(), this.getGui().getMinecraftWindowHeight());
     }
 
     protected void playSound(final SoundEvent sound) {
-        Minecraft.getInstance().getSoundHandler().play(SimpleSound.master(sound, 1.0F));
+        Minecraft.getInstance().getSoundManager().play(SimpleSound.forUI(sound, 1.0F));
     }
 
     protected boolean shouldBlend() {

@@ -101,7 +101,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
      */
     @Override
     @SuppressWarnings("deprecation")
-    public ActionResultType onBlockActivated(BlockState state, World world, BlockPos position, PlayerEntity player,
+    public ActionResultType use(BlockState state, World world, BlockPos position, PlayerEntity player,
                                              Hand hand, BlockRayTraceResult hit) {
 
         if (CodeHelper.calledByLogicalServer(world)) {
@@ -109,7 +109,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
             if (this.hasTileEntity(state) && Hand.MAIN_HAND == hand) {
 
                 final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
-                final ItemStack heldItem = player.getHeldItem(hand);
+                final ItemStack heldItem = player.getItemInHand(hand);
 
                 if (heldItem.isEmpty()) {
 
@@ -150,7 +150,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                     .orElse(ActionResultType.PASS);
         }
 
-        return super.onBlockActivated(state, world, position, player, hand, hit);
+        return super.use(state, world, position, player, hand, hit);
     }
 
     public static class MultiblockPartProperties<PartType extends Enum<PartType> & IMultiblockPartType> {

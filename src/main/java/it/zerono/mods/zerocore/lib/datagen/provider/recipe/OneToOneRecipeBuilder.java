@@ -57,7 +57,7 @@ public class OneToOneRecipeBuilder<RecipeIngredient, RecipeResult>
         }
 
         @Override
-        public void serialize(final JsonObject json) {
+        public void serializeRecipeData(final JsonObject json) {
 
             json.add(Lib.NAME_INGREDIENT, _ingredient.serializeTo());
             json.add(Lib.NAME_RESULT, _result.serializeTo());

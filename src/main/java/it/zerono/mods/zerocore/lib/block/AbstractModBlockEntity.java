@@ -61,6 +61,7 @@ public abstract class AbstractModBlockEntity
         extends TileEntity
         implements IBlockStateUpdater, ISyncableEntity, IDebuggable {
 
+    @Deprecated
     public final IEvent<Runnable> DataUpdate;
 
     public AbstractModBlockEntity(final TileEntityType<?> type) {
@@ -79,157 +80,157 @@ public abstract class AbstractModBlockEntity
 
     public void callOnLogicalSide(final Runnable serverCode, final Runnable clientCode) {
 
-        if (null != this.world) {
-            CodeHelper.callOnLogicalSide(this.world, serverCode, clientCode);
+        if (null != this.level) {
+            CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
         }
     }
 
     public <T> T callOnLogicalSide(final Supplier<T> serverCode, final Supplier<T> clientCode, final Supplier<T> invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue.get();
         }
 
-        return CodeHelper.callOnLogicalSide(this.world, serverCode, clientCode);
+        return CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
     }
 
     public boolean callOnLogicalSide(final BooleanSupplier serverCode, final BooleanSupplier clientCode) {
-        return null != this.world && CodeHelper.callOnLogicalSide(this.world, serverCode, clientCode);
+        return null != this.level && CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
     }
 
     public int callOnLogicalSide(final IntSupplier serverCode, final IntSupplier clientCode, final IntSupplier invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue.getAsInt();
         }
 
-        return CodeHelper.callOnLogicalSide(this.world, serverCode, clientCode);
+        return CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
     }
 
     public long callOnLogicalSide(final LongSupplier serverCode, final LongSupplier clientCode, final LongSupplier invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue.getAsLong();
         }
 
-        return CodeHelper.callOnLogicalSide(this.world, serverCode, clientCode);
+        return CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
     }
 
     public double callOnLogicalSide(final DoubleSupplier serverCode, final DoubleSupplier clientCode, final DoubleSupplier invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue.getAsDouble();
         }
 
-        return CodeHelper.callOnLogicalSide(this.world, serverCode, clientCode);
+        return CodeHelper.callOnLogicalSide(this.level, serverCode, clientCode);
     }
 
     public void callOnLogicalServer(final Runnable code) {
 
-        if (null != this.world) {
-            CodeHelper.callOnLogicalServer(this.world, code);
+        if (null != this.level) {
+            CodeHelper.callOnLogicalServer(this.level, code);
         }
     }
 
     public void callOnLogicalServer(final Consumer<World> code) {
 
-        if (null != this.world && CodeHelper.calledByLogicalServer(this.world)) {
-            code.accept(this.world);
+        if (null != this.level && CodeHelper.calledByLogicalServer(this.level)) {
+            code.accept(this.level);
         }
     }
 
     public <T> T callOnLogicalServer(final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue.get();
         }
 
-        return CodeHelper.callOnLogicalServer(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalServer(this.level, code, invalidSideReturnValue);
     }
 
     public boolean callOnLogicalServer(final BooleanSupplier code) {
-        return null != this.world && CodeHelper.callOnLogicalServer(this.world, code);
+        return null != this.level && CodeHelper.callOnLogicalServer(this.level, code);
     }
 
     public int callOnLogicalServer(final IntSupplier code, final int invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue;
         }
 
-        return CodeHelper.callOnLogicalServer(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalServer(this.level, code, invalidSideReturnValue);
     }
 
     public long callOnLogicalServer(final LongSupplier code, final long invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue;
         }
 
-        return CodeHelper.callOnLogicalServer(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalServer(this.level, code, invalidSideReturnValue);
     }
 
     public double callOnLogicalServer(final DoubleSupplier code, final double invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue;
         }
 
-        return CodeHelper.callOnLogicalServer(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalServer(this.level, code, invalidSideReturnValue);
     }
 
     public void callOnLogicalClient(final Runnable code) {
 
-        if (null != this.world) {
-            CodeHelper.callOnLogicalClient(this.world, code);
+        if (null != this.level) {
+            CodeHelper.callOnLogicalClient(this.level, code);
         }
     }
 
     public void callOnLogicalClient(final Consumer<World> code) {
 
-        if (null != this.world && CodeHelper.calledByLogicalClient(this.world)) {
-            code.accept(this.world);
+        if (null != this.level && CodeHelper.calledByLogicalClient(this.level)) {
+            code.accept(this.level);
         }
     }
 
     public <T> T callOnLogicalClient(final Supplier<T> code, final Supplier<T> invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue.get();
         }
 
-        return CodeHelper.callOnLogicalClient(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalClient(this.level, code, invalidSideReturnValue);
     }
 
     public boolean callOnLogicalClient(final BooleanSupplier code) {
-        return null != this.world && CodeHelper.callOnLogicalClient(this.world, code);
+        return null != this.level && CodeHelper.callOnLogicalClient(this.level, code);
     }
 
     public int callOnLogicalClient(final IntSupplier code, final int invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue;
         }
 
-        return CodeHelper.callOnLogicalClient(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalClient(this.level, code, invalidSideReturnValue);
     }
 
     public long callOnLogicalClient(final LongSupplier code, final long invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue;
         }
 
-        return CodeHelper.callOnLogicalClient(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalClient(this.level, code, invalidSideReturnValue);
     }
 
     public double callOnLogicalClient(final DoubleSupplier code, final double invalidSideReturnValue) {
 
-        if (null == this.world) {
+        if (null == this.level) {
             return invalidSideReturnValue;
         }
 
-        return CodeHelper.callOnLogicalClient(this.world, code, invalidSideReturnValue);
+        return CodeHelper.callOnLogicalClient(this.level, code, invalidSideReturnValue);
     }
 
     //endregion
@@ -280,15 +281,15 @@ public abstract class AbstractModBlockEntity
     //region TileEntity synchronization
 
     @Override
-    public void read(final BlockState state, final CompoundNBT data) {
+    public void load(final BlockState state, final CompoundNBT data) {
 
-        super.read(state, data);
+        super.load(state, data);
         this.syncEntityDataFrom(data, SyncReason.FullSync);
     }
 
     @Override
-    public CompoundNBT write(final CompoundNBT data) {
-        return this.syncEntityDataTo(super.write(data), SyncReason.FullSync);
+    public CompoundNBT save(final CompoundNBT data) {
+        return this.syncEntityDataTo(super.save(data), SyncReason.FullSync);
     }
 
     /**
@@ -301,7 +302,7 @@ public abstract class AbstractModBlockEntity
     @Override
     public void handleUpdateTag(final BlockState state, final CompoundNBT data) {
 
-        super.read(state, data);
+        super.load(state, data);
         this.syncEntityDataFrom(data, SyncReason.NetworkUpdate);
     }
 
@@ -329,7 +330,7 @@ public abstract class AbstractModBlockEntity
 //        this.syncDataFrom(packet.getNbtCompound(), ISyncableEntity.SyncReason.NetworkUpdate);
 //        this.onDataUpdate();
 
-        this.syncEntityDataFrom(packet.getNbtCompound(), SyncReason.NetworkUpdate);
+        this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
     }
 
     /**
@@ -345,7 +346,7 @@ public abstract class AbstractModBlockEntity
 //        this.syncDataTo(data, ISyncableEntity.SyncReason.NetworkUpdate);
 //        return new SUpdateTileEntityPacket(this.getPos(), 0, data);
 
-        return new SUpdateTileEntityPacket(this.getPos(), 0,
+        return new SUpdateTileEntityPacket(this.getBlockPos(), 0,
                 this.syncEntityDataTo(new CompoundNBT(), SyncReason.NetworkUpdate));
     }
 
@@ -462,19 +463,19 @@ public abstract class AbstractModBlockEntity
 
     public void markChunkDirty() {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
-            world.markChunkDirty(this.getPos(), this);
+            world.blockEntityChanged(this.getBlockPos(), this);
         }
     }
 
     public void callNeighborBlockChange() {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
-            WorldHelper.notifyNeighborsOfStateChange(world, this.getPos(), this.getBlockState().getBlock());
+            WorldHelper.notifyNeighborsOfStateChange(world, this.getBlockPos(), this.getBlockState().getBlock());
         }
     }
 
@@ -485,19 +486,19 @@ public abstract class AbstractModBlockEntity
 
     public void notifyBlockUpdate() {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
-            WorldHelper.notifyBlockUpdate(world, this.getPos(), null, null);
+            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
         }
     }
 
     public void notifyBlockUpdate(BlockState oldState, BlockState newState) {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
-            WorldHelper.notifyBlockUpdate(world, this.getPos(), oldState, newState);
+            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), oldState, newState);
         }
     }
 
@@ -511,23 +512,23 @@ public abstract class AbstractModBlockEntity
 
     public void notifyTileEntityUpdate() {
 
-        final World world = this.getWorld();
+        final World world = this.getLevel();
 
         if (null != world) {
 
-            this.markDirty();
-            WorldHelper.notifyBlockUpdate(world, this.getPos(), null, null);
+            this.setChanged();
+            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
         }
     }
 
     public void markForRenderUpdate() {
-        WorldHelper.markBlockRangeForRenderUpdate(this.getPos(), this.getPos());
+        WorldHelper.markBlockRangeForRenderUpdate(this.getBlockPos(), this.getBlockPos());
     }
 
     public void requestClientRenderUpdate() {
 
-        if (null != this.world) {
-            this.world.addBlockEvent(this.getPos(), this.getBlockType(), EVENT_CLIENT_RENDER_UPDATE, 0);
+        if (null != this.level) {
+            this.level.blockEvent(this.getBlockPos(), this.getBlockType(), EVENT_CLIENT_RENDER_UPDATE, 0);
         }
     }
 
@@ -539,9 +540,9 @@ public abstract class AbstractModBlockEntity
      * @param type
      */
     @Override
-    public boolean receiveClientEvent(int id, int type) {
+    public boolean triggerEvent(int id, int type) {
 
-        if (null != this.world) {
+        if (null != this.level) {
 
             switch (id) {
 
@@ -551,7 +552,7 @@ public abstract class AbstractModBlockEntity
             }
         }
 
-        return super.receiveClientEvent(id, type);
+        return super.triggerEvent(id, type);
     }
 
     //endregion
@@ -566,7 +567,7 @@ public abstract class AbstractModBlockEntity
         if (block instanceof IBlockStateUpdater) {
             ((IBlockStateUpdater) block).updateBlockState(currentState, world, position, tileEntity, updateFlags);
         } else {
-            world.setBlockState(position, this.buildUpdatedState(currentState, world, position, tileEntity), updateFlags);
+            world.setBlock(position, this.buildUpdatedState(currentState, world, position, tileEntity), updateFlags);
         }
     }
 
@@ -612,7 +613,7 @@ public abstract class AbstractModBlockEntity
 
             if (this instanceof INamedContainerProvider && !(player instanceof FakePlayer)) {
 
-                final Consumer<PacketBuffer> positionWriter = buffer -> buffer.writeBlockPos(this.getPos());
+                final Consumer<PacketBuffer> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
 
                 NetworkHooks.openGui(player, (INamedContainerProvider) this, positionWriter.andThen(extraDataWriter));
                 return true;

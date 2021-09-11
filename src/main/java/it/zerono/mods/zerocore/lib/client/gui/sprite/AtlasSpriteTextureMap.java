@@ -33,11 +33,11 @@ import java.util.Optional;
 public class AtlasSpriteTextureMap
         implements ISpriteTextureMap {
 
-    public static final AtlasSpriteTextureMap BLOCKS = new AtlasSpriteTextureMap(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+    public static final AtlasSpriteTextureMap BLOCKS = new AtlasSpriteTextureMap(PlayerContainer.BLOCK_ATLAS);
 
     public static AtlasSpriteTextureMap from(final TextureAtlasSprite sprite) {
 
-        final ResourceLocation id = sprite.getAtlasTexture().getTextureLocation();
+        final ResourceLocation id = sprite.atlas().location();
 
         if (BLOCKS.getTextureLocation().equals(id)) {
             return BLOCKS;
@@ -53,7 +53,7 @@ public class AtlasSpriteTextureMap
     }
 
     public ISprite sprite(final ResourceLocation spriteName) {
-        return this.sprite(Minecraft.getInstance().getAtlasSpriteGetter(this._atlasName).apply(spriteName));
+        return this.sprite(Minecraft.getInstance().getTextureAtlas(this._atlasName).apply(spriteName));
     }
 
     public ISprite sprite(final TextureAtlasSprite sprite, final ISprite overlay) {
@@ -127,22 +127,22 @@ public class AtlasSpriteTextureMap
 
         @Override
         public float getMinU() {
-            return this._atlasSprite.getMinU();
+            return this._atlasSprite.getU0();
         }
 
         @Override
         public float getMaxU() {
-            return this._atlasSprite.getMaxU();
+            return this._atlasSprite.getU1();
         }
 
         @Override
         public float getMinV() {
-            return this._atlasSprite.getMinV();
+            return this._atlasSprite.getV0();
         }
 
         @Override
         public float getMaxV() {
-            return this._atlasSprite.getMaxV();
+            return this._atlasSprite.getV1();
         }
 
         /**
@@ -225,8 +225,8 @@ public class AtlasSpriteTextureMap
 
         if (this._atlasHeight < 0 || this._atlasWidth < 0) {
 
-            this._atlasWidth = (int)(spriteX / sprite.getMinU());
-            this._atlasHeight = (int)(spriteY / sprite.getMinV());
+            this._atlasWidth = (int)(spriteX / sprite.getU0());
+            this._atlasHeight = (int)(spriteY / sprite.getV0());
         }
 
         return new AtlasSprite(this, sprite, spriteX, spriteY, overlay);
