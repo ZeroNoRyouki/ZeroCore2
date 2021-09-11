@@ -44,6 +44,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fml.*;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -588,6 +589,27 @@ public final class CodeHelper {
 
     public static boolean ioCreateModConfigDirectory(final String name) {
         return ioCreateDirectory(FMLPaths.CONFIGDIR.get(), name);
+    }
+
+    //endregion
+    //region Non-null wrappers
+
+    public static <T> NonNullSupplier<T> asNonNull(final Supplier<T> supplier, final NonNullSupplier<T> fallbackValue) {
+        return () -> {
+
+            final T current = supplier.get();
+
+            return null != current ? current : fallbackValue.get();
+        };
+    }
+
+    public static <T, R> NonNullFunction<T, R> asNonNull(final Function<T, R> function, final NonNullFunction<T, R> fallbackValue) {
+        return (T v) -> {
+
+            final R current = function.apply(v);
+
+            return null != current ? current : fallbackValue.apply(v);
+        };
     }
 
     //endregion
