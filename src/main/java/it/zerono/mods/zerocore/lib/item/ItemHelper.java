@@ -36,6 +36,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.EmptyHandler;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -48,6 +49,7 @@ import java.util.stream.IntStream;
 public final class ItemHelper {
 
     public static final String INVENTORY = "inventory";
+    public static final IItemHandlerModifiable EMPTY_ITEM_HANDLER = (IItemHandlerModifiable)EmptyHandler.INSTANCE;
 
     public static ResourceLocation getItemId(final IItemProvider item) {
         return Objects.requireNonNull(item.asItem().getRegistryName());
@@ -405,7 +407,7 @@ public final class ItemHelper {
     }
 
     public static void inventoryDropItems(final IItemHandlerModifiable inventory, final World world,
-                                          final BlockPos position/*, final boolean withMomentum*/) {
+                                          final BlockPos position) {
 
         final double x = position.getX(), y = position.getY(), z = position.getZ();
 
