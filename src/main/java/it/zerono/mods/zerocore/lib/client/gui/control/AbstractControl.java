@@ -302,7 +302,7 @@ public abstract class AbstractControl
         final Colour bk = Colour.fromARGB(-267386864);
         final Colour highlight1 = Colour.fromARGB((1347420415 & 16711422) >> 1 | 1347420415 & -16777216);
         final Colour highlight2 = Colour.fromARGB(1347420415);
-        final int z = 300;
+        final int z = ModRenderHelper.GUI_TOPMOST_Z;
 
         ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
         ModRenderHelper.paintSolidRect(matrix, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, z, bk);

@@ -70,6 +70,9 @@ public final class ModRenderHelper {
 
     public static final float ONE_PIXEL = 1.0f / 16.0f;
 
+    public static final int GUI_TOPMOST_Z = 900;
+    public static final int GUI_ITEM_Z = 600;
+
     public static final NonNullSupplier<FontRenderer> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().font;
 
     public static long getLastRenderTime() {
@@ -1234,10 +1237,10 @@ public final class ModRenderHelper {
         float saveZ = itemRenderer.blitOffset;
 
         if (highlight) {
-            fill(matrix.last().pose(), x, y, x + 16, y + 16, 300, -2130706433);
+            fill(matrix.last().pose(), x, y, x + 16, y + 16, GUI_ITEM_Z - 1, -2130706433);
         }
 
-        itemRenderer.blitOffset = 300.0F;
+        itemRenderer.blitOffset = GUI_ITEM_Z;
         RenderSystem.enableDepthTest();
         itemRenderer.renderAndDecorateItem(mc.player, stack, x, y);
         itemRenderer.renderGuiItemDecorations(mc.font, stack, x + 4, y, text);
