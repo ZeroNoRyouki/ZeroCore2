@@ -216,7 +216,18 @@ public class ModContainer extends Container {
             }
         }
 
-        return super.slotClick(clickedSlotIndex, dragType, clickTypeIn, player);
+        final SlotType slotType = this._factory.getSlotType(clickedSlotIndex);
+
+        switch (slotType) {
+
+            case GhostOutput:
+            case Static:
+            case Unknown:
+                return ItemStack.EMPTY;
+
+            default:
+                return super.slotClick(clickedSlotIndex, dragType, clickTypeIn, player);
+        }
     }
 
     /**
