@@ -156,6 +156,14 @@ public enum PartPosition
 		return this._type == Type.Face;
 	}
 
+	public boolean isVerticalFace() {
+        return EastFace == this || WestFace == this || NorthFace == this || SouthFace == this;
+    }
+
+    public boolean isHorizontalFace() {
+        return TopFace == this || BottomFace == this;
+    }
+
 	public boolean isFrame() {
 		return this._type == Type.Frame;
 	}
