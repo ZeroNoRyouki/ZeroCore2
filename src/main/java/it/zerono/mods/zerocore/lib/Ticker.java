@@ -18,24 +18,15 @@
 
 package it.zerono.mods.zerocore.lib;
 
-import it.zerono.mods.zerocore.lib.event.Event;
-import it.zerono.mods.zerocore.lib.event.IEvent;
-import it.zerono.mods.zerocore.lib.event.SlimEvent;
+import javax.annotation.Nullable;
 
-public final class Ticker {
+public class Ticker {
 
-    public final IEvent<Runnable> Expired;
+    public Ticker(final int expireAfterTicks) {
 
-    public static Ticker singleListener(final int expireAfterTicks, final Runnable listener) {
-
-        final Ticker ticker = new Ticker(expireAfterTicks, new SlimEvent<>());
-
-        ticker.Expired.subscribe(listener);
-        return ticker;
-    }
-
-    public static Ticker multiListener(final int expireAfterTicks) {
-        return new Ticker(expireAfterTicks, new Event<>());
+        this._expireAfter = expireAfterTicks;
+        this._expireCallback = null;
+        this._ticks = 0;
     }
 
     public void tick() {
@@ -45,25 +36,39 @@ public final class Ticker {
         if (this._ticks >= this._expireAfter) {
 
             this._ticks = 0;
-            this.Expired.raise(Runnable::run);
+
+            if (null != this._expireCallback) {
+                this._expireCallback.run();
+            }
         }
     }
+
+    public int getTicks() {
+        return this._ticks;
+    }
+
+    public void reset() {
+        this._ticks = 0;
+    }
+
+    protected Ticker setExpiredCallback(@Nullable final Runnable expire) {
+
+        this._expireCallback = expire;
+        return this;
+    }
+
+    //region Object
 
     @Override
     public String toString() {
         return String.format("Ticker: %d / %d", this._ticks, this._expireAfter);
     }
 
+    //endregion
     //region internals
 
-    private Ticker(final int expireAfterTicks, final IEvent<Runnable> event) {
-
-        this._expireAfter = expireAfterTicks;
-        this._ticks = 0;
-        this.Expired = event;
-    }
-
     private final int _expireAfter;
+    private Runnable _expireCallback;
     private int _ticks;
 
     //endregion
