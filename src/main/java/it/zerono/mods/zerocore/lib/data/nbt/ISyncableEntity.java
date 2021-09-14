@@ -18,7 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.data.nbt;
 
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.items.ItemStackHandler;
 
 /**
  * Sync a generic entity from/to NBT
@@ -99,5 +103,105 @@ public interface ISyncableEntity {
      */
     default void syncChildDataEntityTo(ISyncableEntity childEntity, String dataKey, CompoundNBT parentData, SyncReason syncReason) {
         parentData.put(dataKey, childEntity.syncDataTo(new CompoundNBT(), syncReason));
+    }
+
+    /**
+     * Call the provided {@link NonNullConsumer} if the specified {@link CompoundNBT} element is present in the parent data.
+     *
+     * @param dataKey       the name of the element
+     * @param parentData    the {@link CompoundNBT} to read the element from
+     * @param consumer      a {@link NonNullConsumer} that will be called if the element is present
+     */
+    default void syncDataElementFrom(String dataKey, CompoundNBT parentData, NonNullConsumer<CompoundNBT> consumer) {
+
+        if (parentData.contains(dataKey)) {
+            consumer.accept(parentData.getCompound(dataKey));
+        }
+    }
+
+    /**
+     * Store the provided {@link CompoundNBT} element in the parent data.
+     *
+     * @param dataKey       the name for the element
+     * @param parentData    the {@link CompoundNBT} to store the element into
+     * @param value         the value to store
+     */
+    default void syncDataElementTo(String dataKey, CompoundNBT parentData, CompoundNBT value) {
+        parentData.put(dataKey, value);
+    }
+
+    /**
+     * Fill the provided {@link ItemStackHandler} if the specified element is present in the parent data.
+     *
+     * @param dataKey       the name of the element
+     * @param parentData    the {@link CompoundNBT} to read the element from
+     * @param value         the {@link ItemStackHandler} to load the data into
+     */
+    default void syncDataElementFrom(String dataKey, CompoundNBT parentData, ItemStackHandler value) {
+
+        if (parentData.contains(dataKey)) {
+            value.deserializeNBT(parentData.getCompound(dataKey));
+        }
+    }
+
+    /**
+     * Store the provided {@link ItemStackHandler} element in the parent data.
+     *
+     * @param dataKey       the name for the element
+     * @param parentData    the {@link CompoundNBT} to store the element into
+     * @param value         the value to store
+     */
+    default void syncDataElementTo(String dataKey, CompoundNBT parentData, ItemStackHandler value) {
+        parentData.put(dataKey, value.serializeNBT());
+    }
+
+    /**
+     * Fill the provided {@link ItemStackHolder} if the specified element is present in the parent data.
+     *
+     * @param dataKey       the name of the element
+     * @param parentData    the {@link CompoundNBT} to read the element from
+     * @param value         the {@link ItemStackHandler} to load the data into
+     */
+    default void syncDataElementFrom(String dataKey, CompoundNBT parentData, ItemStackHolder value) {
+
+        if (parentData.contains(dataKey)) {
+            value.deserializeNBT(parentData.getCompound(dataKey));
+        }
+    }
+
+    /**
+     * Store the provided {@link ItemStackHolder} element in the parent data.
+     *
+     * @param dataKey       the name for the element
+     * @param parentData    the {@link CompoundNBT} to store the element into
+     * @param value         the value to store
+     */
+    default void syncDataElementTo(String dataKey, CompoundNBT parentData, ItemStackHolder value) {
+        parentData.put(dataKey, value.serializeNBT());
+    }
+
+    /**
+     * Call the provided {@link BooleanConsumer} if the specified boolean element is present in the parent data.
+     *
+     * @param dataKey       the name of the element
+     * @param parentData    the {@link CompoundNBT} to read the element from
+     * @param consumer      a {@link BooleanConsumer} that will be called if the element is present
+     */
+    default void syncBooleanElementFrom(String dataKey, CompoundNBT parentData, BooleanConsumer consumer) {
+
+        if (parentData.contains(dataKey)) {
+            consumer.accept(parentData.getBoolean(dataKey));
+        }
+    }
+
+    /**
+     * Store the provided boolean element in the parent data.
+     *
+     * @param dataKey       the name for the element
+     * @param parentData    the {@link CompoundNBT} to store the element into
+     * @param value         the value to store
+     */
+    default void syncBooleanElementTo(String dataKey, CompoundNBT parentData, boolean value) {
+        parentData.putBoolean(dataKey, value);
     }
 }
