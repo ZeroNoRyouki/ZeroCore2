@@ -31,10 +31,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 
 import java.util.Objects;
 
 public final class FluidHelper {
+
+    public static final IFluidHandler EMPTY_FLUID_HANDLER = EmptyFluidHandler.INSTANCE;
 
     public static ResourceLocation getFluidId(final Fluid fluid) {
         return Objects.requireNonNull(fluid.getRegistryName());

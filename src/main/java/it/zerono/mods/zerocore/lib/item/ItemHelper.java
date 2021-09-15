@@ -28,6 +28,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.NBTUtil;
@@ -37,6 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -57,6 +59,24 @@ public final class ItemHelper {
 
     public static ResourceLocation getItemId(final ItemStack stack) {
         return Objects.requireNonNull(stack.getItem().getRegistryName());
+    }
+
+    @Nullable
+    public static Item getItemFrom(final String id) {
+        return getItemFrom(new ResourceLocation(id));
+    }
+
+    public static Item getItemFromOrAir(final String id) {
+        return getItemFromOrAir(new ResourceLocation(id));
+    }
+
+    @Nullable
+    public static Item getItemFrom(final ResourceLocation id) {
+        return ForgeRegistries.ITEMS.getValue(id);
+    }
+
+    public static Item getItemFromOrAir(final ResourceLocation id) {
+        return ForgeRegistries.ITEMS.containsKey(id) ? Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(id)) : Items.AIR;
     }
 
     public enum MatchOption {
