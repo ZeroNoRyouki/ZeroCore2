@@ -41,8 +41,12 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.variant;
 
-import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.item.ItemTier;
+import net.minecraftforge.common.ToolType;
 
 public interface IMultiblockVariant {
 
