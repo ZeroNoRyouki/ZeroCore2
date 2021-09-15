@@ -226,7 +226,7 @@ public class ModContainer extends Container {
                 return ItemStack.EMPTY;
 
             default:
-                return super.slotClick(clickedSlotIndex, dragType, clickTypeIn, player);
+                return super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
         }
     }
 
