@@ -106,6 +106,10 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
         return this;
     }
 
+    public double getEnergyStoredPercentage() {
+        return this.getEnergyStored() / this._capacity;
+    }
+
     //region IWideEnergyStorage
 
     /**
@@ -127,6 +131,10 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
      */
     @Override
     public double insertEnergy(EnergySystem system, double maxAmount, boolean simulate) {
+
+        if (!this.canInsert()) {
+            return 0d;
+        }
 
         final EnergySystem localSystem = this.getEnergySystem();
 
@@ -153,6 +161,10 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
      */
     @Override
     public double extractEnergy(EnergySystem system, double maxAmount, boolean simulate) {
+
+        if (!this.canExtract()) {
+            return 0d;
+        }
 
         final EnergySystem localSystem = this.getEnergySystem();
 
@@ -187,6 +199,24 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
     @Override
     public double getCapacity(EnergySystem system) {
         return this.convertIf(system, this._capacity);
+    }
+
+    /**
+     * Returns if this storage can have energy extracted.
+     * If this is false, then any calls to extractEnergy will return 0.
+     */
+    @Override
+    public boolean canExtract() {
+        return this.getMaxExtract() > 0;
+    }
+
+    /**
+     * Used to determine if this storage can receive energy.
+     * If this is false, then any calls to insertEnergy will return 0.
+     */
+    @Override
+    public boolean canInsert() {
+        return this.getMaxInsert() > 0;
     }
 
     //endregion
