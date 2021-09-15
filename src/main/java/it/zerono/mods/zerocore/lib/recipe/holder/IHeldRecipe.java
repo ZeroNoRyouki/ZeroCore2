@@ -19,14 +19,24 @@
 package it.zerono.mods.zerocore.lib.recipe.holder;
 
 import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import net.minecraft.util.math.MathHelper;
 
 public interface IHeldRecipe<Recipe extends ModRecipe>
         extends IRecipeProcessing {
 
     /**
      * Process the recipe
+     *
+     * @return true if a single processing step or the whole recipe was completed, false otherwise
      */
-    void processRecipe();
+    boolean processRecipe();
+
+    /**
+     * Get the currently held recipe
+     *
+     * @return the recipe
+     */
+    Recipe getRecipe();
 
     /**
      * Get the holder of this recipe
@@ -42,4 +52,22 @@ public interface IHeldRecipe<Recipe extends ModRecipe>
      * zero otherwise
      */
     int getCurrentTick();
+
+    /**
+     * Load a previously saved processing state back in the recipe
+     *
+     * @param tick the new current tick
+     */
+    void loadCurrentTick(int tick);
+
+    /**
+     * Get the current completion progress of this recipe
+     *
+     * @return the completion progress
+     */
+    double getProgress();
+
+    default int getProgressPercentage() {
+        return MathHelper.clamp((int)(100.0 * this.getProgress()), 0, 100);
+    }
 }

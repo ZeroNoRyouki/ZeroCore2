@@ -40,6 +40,13 @@ public interface IRecipeHolder<Recipe extends ModRecipe>
     }
 
     /**
+     * Discard the currently held recipe (if any) and load a new one (if possibile)
+     */
+    default void refresh() {
+        this.createHeldRecipe();
+    }
+
+    /**
      * @return the recipe currently held by this recipe holder
      */
     <HeldRecipe extends IHeldRecipe<Recipe>> Optional<HeldRecipe> getHeldRecipe();
@@ -61,9 +68,11 @@ public interface IRecipeHolder<Recipe extends ModRecipe>
     /**
      * Check if the provided recipe can be processed or not.
      *
+     * @param recipe the recipe
+     *
      * @return return true if the holder can process a recipe, false otherwise.
      */
-    boolean canProcessRecipe();
+    boolean canProcessRecipe(Recipe recipe);
 
     /**
      * @return true if the available ingredients were changed by an external entity since the last check

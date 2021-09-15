@@ -54,6 +54,11 @@ public final class RecipeIngredientSourceWrapper {
                     slot.decreaseStackSize(ingredient.getCount(), OperationMode.Execute);
                 }
             }
+
+            @Override
+            public boolean isEmpty() {
+                return slot.isSlotEmpty();
+            }
         };
     }
 
@@ -84,6 +89,11 @@ public final class RecipeIngredientSourceWrapper {
                     inventory.extractItem(slot, ingredient.getCount(), false);
                 }
             }
+
+            @Override
+            public boolean isEmpty() {
+                return this.getIngredient().isEmpty();
+            }
         };
     }
 
@@ -113,6 +123,11 @@ public final class RecipeIngredientSourceWrapper {
                 if (!ingredient.isEmpty()) {
                     handler.drain(ingredient, IFluidHandler.FluidAction.EXECUTE);
                 }
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return this.getIngredient().isEmpty();
             }
         };
     }

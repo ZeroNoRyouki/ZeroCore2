@@ -32,11 +32,11 @@ public interface IRecipeResultTarget<T extends IRecipeResult<?>> {
     long setResult(T result, OperationMode mode);
 
     /**
-     * Return the amount of space available in target to store the result, based on the capacity of the target and what,
-     * if anything, it already contains.
+     * Return how many times the provided result can be stored in the target, based the size of the result,
+     * the capacity of the target and what, if anything, it already contains.
      *
      * @param result The recipe result.
-     * @return The amount of available space.
+     * @return How many times the result can be stored in the target.
      */
-    long availableSpaceFor(T result);
+    long countStorableResults(T result);
 }

@@ -20,14 +20,16 @@ package it.zerono.mods.zerocore.lib.recipe.holder;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import net.minecraft.nbt.CompoundNBT;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.*;
 
 public class RecipeHolder<Recipe extends ModRecipe>
-        implements IRecipeHolder<Recipe> {
+        implements IRecipeHolder<Recipe>, ISyncableEntity {
 
     /**
      * Return a builder to construct a new RecipeHolder
@@ -37,6 +39,15 @@ public class RecipeHolder<Recipe extends ModRecipe>
     public static <Recipe extends ModRecipe> Builder<Recipe> builder(final Function<IRecipeHolder<Recipe>, IHeldRecipe<Recipe>> factory,
                                                                      final ToIntFunction<Recipe> requiredTicksSupplier) {
         return new Builder<>(factory, requiredTicksSupplier);
+    }
+
+    public boolean processRecipeIfPresent() {
+
+        if (null != this._recipe) {
+            return this._recipe.processRecipe();
+        }
+
+        return false;
     }
 
     //region IRecipeHolder<HeldRecipe>
@@ -57,6 +68,7 @@ public class RecipeHolder<Recipe extends ModRecipe>
     public <HeldRecipe extends IHeldRecipe<Recipe>> Optional<HeldRecipe> createHeldRecipe() {
 
         this._recipe = this._factory.apply(this);
+        this._recipeChanged.accept(null != this._recipe ? this._recipe.getRecipe() : null);
 
         //noinspection unchecked
         return Optional.ofNullable((HeldRecipe)this._recipe);
@@ -79,8 +91,8 @@ public class RecipeHolder<Recipe extends ModRecipe>
      * @return return true if the holder can process a recipe, false otherwise.
      */
     @Override
-    public boolean canProcessRecipe() {
-        return this._canProcess.getAsBoolean();
+    public boolean canProcessRecipe(Recipe recipe) {
+        return this._canProcess.test(recipe);
     }
 
     /**
@@ -104,7 +116,9 @@ public class RecipeHolder<Recipe extends ModRecipe>
      */
     @Override
     public void invalidateRecipe() {
+
         this._recipe = null;
+        this._recipeChanged.accept(null);
     }
 
     /**
@@ -145,6 +159,37 @@ public class RecipeHolder<Recipe extends ModRecipe>
     }
 
     //endregion
+    //region ISyncableEntity
+
+    /**
+     * Sync the entity data from the given {@link CompoundNBT}
+     *
+     * @param data       the {@link CompoundNBT} to read from
+     * @param syncReason the reason why the synchronization is necessary
+     */
+    @Override
+    public void syncDataFrom(final CompoundNBT data, final SyncReason syncReason) {
+
+        if (data.contains("recipetick")) {
+            this.getHeldRecipe().ifPresent(r -> r.loadCurrentTick(data.getInt("recipetick")));
+        }
+    }
+
+    /**
+     * Sync the entity data to the given {@link CompoundNBT}
+     *
+     * @param data       the {@link CompoundNBT} to write to
+     * @param syncReason the reason why the synchronization is necessary
+     * @return the {@link CompoundNBT} the data was written to (usually {@code data})
+     */
+    @Override
+    public CompoundNBT syncDataTo(final CompoundNBT data, final SyncReason syncReason) {
+
+        data.putInt("recipetick", this.getHeldRecipe().map(IHeldRecipe::getCurrentTick).orElse(0));
+        return data;
+    }
+
+    //endregion
     //region builder
 
     @SuppressWarnings("unused")
@@ -156,17 +201,18 @@ public class RecipeHolder<Recipe extends ModRecipe>
             this._factory = factory;
             this._requiredTicks = requiredTicks;
             this._statusChanged = CodeHelper.VOID_BOOL_CONSUMER;
-            this._canProcess = CodeHelper.TRUE_SUPPLIER;
+            this._canProcess = r -> true;
             this._ingredientsChanged = CodeHelper.FALSE_SUPPLIER;
             this._beginRecipeProcessing = this._recipeProcessed = CodeHelper.VOID_RUNNABLE;
             this._recipeTickProcessed = CodeHelper.VOID_INT_CONSUMER;
+            this._recipeChanged = r -> {};
         }
 
         public RecipeHolder<Recipe> build() {
             return new RecipeHolder<>(this);
         }
 
-        public Builder<Recipe> onCanProcess(final BooleanSupplier supplier) {
+        public Builder<Recipe> onCanProcess(final Predicate<Recipe> supplier) {
 
             this._canProcess = Objects.requireNonNull(supplier);
             return this;
@@ -202,17 +248,24 @@ public class RecipeHolder<Recipe extends ModRecipe>
             return this;
         }
 
+        public Builder<Recipe> onRecipeChanged(final Consumer<Recipe> consumer) {
+
+            this._recipeChanged = Objects.requireNonNull(consumer);
+            return this;
+        }
+
         //region internals
 
         private final Function<IRecipeHolder<Recipe>, IHeldRecipe<Recipe>> _factory;
         private final ToIntFunction<Recipe> _requiredTicks;
 
         private BooleanConsumer _statusChanged;
-        private BooleanSupplier _canProcess;
+        private Predicate<Recipe> _canProcess;
         private BooleanSupplier _ingredientsChanged;
         private Runnable _beginRecipeProcessing;
         private Runnable _recipeProcessed;
         private IntConsumer _recipeTickProcessed;
+        private Consumer<Recipe> _recipeChanged;
 
         //endregion
     }
@@ -230,16 +283,18 @@ public class RecipeHolder<Recipe extends ModRecipe>
         this._beginRecipeProcessing = Objects.requireNonNull(builder._beginRecipeProcessing);
         this._recipeProcessed = Objects.requireNonNull(builder._recipeProcessed);
         this._recipeTickProcessed = Objects.requireNonNull(builder._recipeTickProcessed);
+        this._recipeChanged = Objects.requireNonNull(builder._recipeChanged);
     }
 
     private final Function<IRecipeHolder<Recipe>, IHeldRecipe<Recipe>> _factory;
     private final ToIntFunction<Recipe> _requiredTicks;
     private final BooleanConsumer _statusChanged;
-    private final BooleanSupplier _canProcess;
+    private final Predicate<Recipe> _canProcess;
     private final BooleanSupplier _ingredientsChanged;
     private final Runnable _beginRecipeProcessing;
     private final Runnable _recipeProcessed;
     private final IntConsumer _recipeTickProcessed;
+    private final Consumer<Recipe> _recipeChanged;
 
     private IHeldRecipe<Recipe> _recipe;
 

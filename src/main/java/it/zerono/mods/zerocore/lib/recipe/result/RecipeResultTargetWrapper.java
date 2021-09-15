@@ -38,8 +38,8 @@ public class RecipeResultTargetWrapper {
             }
 
             @Override
-            public long availableSpaceFor(final ItemStackRecipeResult result) {
-                return slot.getSlotFreeSpace(result.getResult());
+            public long countStorableResults(final ItemStackRecipeResult result) {
+                return slot.getSlotFreeSpace(result.getResult()) / result.getAmount();
             }
         };
     }
@@ -54,7 +54,7 @@ public class RecipeResultTargetWrapper {
             }
 
             @Override
-            public long availableSpaceFor(final ItemStackRecipeResult result) {
+            public long countStorableResults(final ItemStackRecipeResult result) {
 
                 final ItemStack stack = result.getResult();
 
@@ -65,7 +65,7 @@ public class RecipeResultTargetWrapper {
                 final int max = stack.getMaxStackSize();
 
                 stack.setCount(max);
-                return max - inventory.insertItem(slot, stack, true).getCount();
+                return (max - inventory.insertItem(slot, stack, true).getCount()) / result.getAmount();
             }
         };
     }
