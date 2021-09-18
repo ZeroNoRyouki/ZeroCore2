@@ -222,6 +222,10 @@ public class Rectangle {
         return this.contains(p.X, p.Y);
     }
 
+    public boolean contains(final double x, final double y) {
+        return this.contains((int)x, (int)y);
+    }
+
     public boolean contains(int x, int y, int width, int height) {
         
         int tw = this.Width;
