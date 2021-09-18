@@ -23,13 +23,32 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ModRecipe
     implements IRecipe<EmptyVanillaInventory> {
+
+    @SafeVarargs
+    protected static NonNullList<Ingredient> buildVanillaIngredientsList(final List<Ingredient>... lists) {
+
+        final NonNullList<Ingredient> ingredients = NonNullList.create();
+
+        for (final List<Ingredient> list : lists) {
+            if (null != list) {
+                list.stream()
+                        .filter(Objects::nonNull)
+                        .forEach(ingredients::add);
+            }
+        }
+
+        return ingredients;
+    }
 
     //region IRecipe
 

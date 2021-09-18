@@ -18,8 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.recipe.ingredient;
 
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.recipe.ISerializableRecipe;
+import net.minecraft.item.crafting.Ingredient;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -35,4 +38,8 @@ public interface IRecipeIngredient<T>
     List<T> getMatchingElements();
 
     boolean isEmpty();
+
+    default List<Ingredient> asVanillaIngredients() {
+        return ObjectLists.emptyList();
+    }
 }

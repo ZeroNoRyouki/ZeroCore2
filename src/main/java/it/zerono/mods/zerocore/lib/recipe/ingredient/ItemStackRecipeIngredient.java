@@ -25,6 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
@@ -181,6 +182,11 @@ public abstract class ItemStackRecipeIngredient
         }
 
         @Override
+        public List<Ingredient> asVanillaIngredients() {
+            return ObjectLists.singleton(this._ingredient);
+        }
+
+        @Override
         public void serializeTo(final PacketBuffer buffer) {
 
             buffer.writeVarInt(1);
@@ -274,6 +280,13 @@ public abstract class ItemStackRecipeIngredient
         @Override
         public boolean isEmpty() {
             return this._ingredients.stream().anyMatch(IRecipeIngredient::isEmpty);
+        }
+
+        @Override
+        public List<Ingredient> asVanillaIngredients() {
+            return this.getMatchingElements().stream()
+                    .map(Ingredient::of)
+                    .collect(Collectors.toList());
         }
 
         @Override
