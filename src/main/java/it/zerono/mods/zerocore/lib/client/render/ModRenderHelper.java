@@ -26,6 +26,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
+import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
@@ -499,6 +500,57 @@ public final class ModRenderHelper {
         RenderSystem.disableBlend();
 
         sprite.applyOverlay(o -> paintSprite(matrix, o, x, y, zLevel, width, height));
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param xOffset painting coordinates relative to the top-left corner of the screen
+     * @param yOffset painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param padding padding
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param maskTop mask offset form the top of the sprite
+     * @param maskBottom mask offset form the bottom of the sprite
+     * @param maskLeft mask offset form the left of the sprite
+     * @param maskRight mask offset form the right of the sprite
+     */
+    public static void paintSprite(final MatrixStack matrix, final ISprite sprite, final int xOffset, final int yOffset,
+                                   final int zLevel, final Padding padding, final int width, final int height,
+                                   final int maskTop, final int maskBottom, final int maskLeft, final int maskRight) {
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        ModRenderHelper.bindTexture(sprite);
+
+        final int x = xOffset + padding.getLeft() + maskLeft;
+        final int y = yOffset + padding.getTop() + maskTop;
+        final int u = sprite.getU() + maskLeft;
+        final int v = sprite.getV() + maskTop;
+        final int paintWidth = width - maskRight - maskLeft;
+        final int paintHeight = height - maskBottom - maskTop;
+        final float widthRatio = 1.0F / sprite.getTextureMap().getWidth();
+        final float heightRatio = 1.0F / sprite.getTextureMap().getHeight();
+
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder bufferbuilder = tessellator.getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.vertex(pose, x, y + paintHeight, zLevel).uv(u * widthRatio, (v + (float) paintHeight) * heightRatio).endVertex();
+        bufferbuilder.vertex(pose, x + paintWidth, y + paintHeight, zLevel).uv((u + (float) paintWidth) * widthRatio, (v + (float) paintHeight) * heightRatio).endVertex();
+        bufferbuilder.vertex(pose, x + paintWidth, y, zLevel).uv((u + (float) paintWidth) * widthRatio, v * heightRatio).endVertex();
+        bufferbuilder.vertex(pose, x, y, zLevel).uv(u * widthRatio, v * heightRatio).endVertex();
+        tessellator.end();
+
+        RenderSystem.disableBlend();
+
+        sprite.applyOverlay(o -> paintSprite(matrix, o, xOffset, yOffset, zLevel, padding, width, height, maskTop, maskBottom, maskLeft, maskRight));
     }
 
     /**
