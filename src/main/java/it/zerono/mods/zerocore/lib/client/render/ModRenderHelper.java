@@ -26,6 +26,7 @@ import com.mojang.math.Matrix4f;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
+import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
@@ -34,9 +35,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -70,6 +69,9 @@ import java.util.function.IntFunction;
 public final class ModRenderHelper {
 
     public static final float ONE_PIXEL = 1.0f / 16.0f;
+
+    public static final int GUI_TOPMOST_Z = 900;
+    public static final int GUI_ITEM_Z = 600;
 
     public static final NonNullSupplier<Font> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().font;
 
@@ -503,6 +505,57 @@ public final class ModRenderHelper {
     }
 
     /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param xOffset painting coordinates relative to the top-left corner of the screen
+     * @param yOffset painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param padding padding
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param maskTop mask offset form the top of the sprite
+     * @param maskBottom mask offset form the bottom of the sprite
+     * @param maskLeft mask offset form the left of the sprite
+     * @param maskRight mask offset form the right of the sprite
+     */
+    public static void paintSprite(final PoseStack matrix, final ISprite sprite, final int xOffset, final int yOffset,
+                                   final int zLevel, final Padding padding, final int width, final int height,
+                                   final int maskTop, final int maskBottom, final int maskLeft, final int maskRight) {
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        ModRenderHelper.bindTexture(sprite);
+
+        final int x = xOffset + padding.getLeft() + maskLeft;
+        final int y = yOffset + padding.getTop() + maskTop;
+        final int u = sprite.getU() + maskLeft;
+        final int v = sprite.getV() + maskTop;
+        final int paintWidth = width - maskRight - maskLeft;
+        final int paintHeight = height - maskBottom - maskTop;
+        final float widthRatio = 1.0F / sprite.getTextureMap().getWidth();
+        final float heightRatio = 1.0F / sprite.getTextureMap().getHeight();
+
+        final Tesselator tessellator = Tesselator.getInstance();
+        final BufferBuilder bufferbuilder = tessellator.getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.vertex(pose, x, y + paintHeight, zLevel).uv(u * widthRatio, (v + (float) paintHeight) * heightRatio).endVertex();
+        bufferbuilder.vertex(pose, x + paintWidth, y + paintHeight, zLevel).uv((u + (float) paintWidth) * widthRatio, (v + (float) paintHeight) * heightRatio).endVertex();
+        bufferbuilder.vertex(pose, x + paintWidth, y, zLevel).uv((u + (float) paintWidth) * widthRatio, v * heightRatio).endVertex();
+        bufferbuilder.vertex(pose, x, y, zLevel).uv(u * widthRatio, v * heightRatio).endVertex();
+        tessellator.end();
+
+        RenderSystem.disableBlend();
+
+        sprite.applyOverlay(o -> paintSprite(matrix, o, xOffset, yOffset, zLevel, padding, width, height, maskTop, maskBottom, maskLeft, maskRight));
+    }
+
+    /**
      * Paint a vertical rectangle filled, from the bottom up, with an ISprite up to the indicated progress percentage.
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
@@ -682,6 +735,141 @@ public final class ModRenderHelper {
                 final int sliceY1 = sliceY2 - (int)Math.ceil(16 * missing);
 
                 blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
+                        sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+            }
+        }
+
+        RenderSystem.disableBlend();
+
+        sprite.applyOverlay(o -> paintSprite(matrix, o, x, y, zLevel, areaWidth, areaHeight));
+    }
+
+    /**
+     * Paint a vertical rectangle filled, from the top down, with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param area the maximum area to be filled (the origin is ignored)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @return the height of the painted sprite
+     */
+    public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
+                                                             final int zLevel, final Rectangle area, final double progress) {
+        paintFlippedVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
+                area.Width, area.Height, progress, Colour.WHITE);
+    }
+
+    /**
+     * Paint a vertical rectangle filled, from the top down, with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param area the maximum area to be filled (the origin is ignored)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     * @return the height of the painted sprite
+     */
+    public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
+                                                             final int zLevel, final Rectangle area, final double progress,
+                                                             final Colour tint) {
+        paintFlippedVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
+                area.Width, area.Height, progress, tint);
+    }
+
+    /**
+     * Paint a vertical rectangle filled, from the top down, with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param areaWidth the width of the maximum area to be filled
+     * @param areaHeight the height of the maximum area to be filled
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @return the height of the painted sprite
+     */
+    public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
+                                                             final int x, final int y, final int zLevel,
+                                                             final int areaWidth, final int areaHeight,
+                                                             final double progress) {
+        paintFlippedVerticalProgressBarSprite(matrix, sprite, x, y, zLevel, areaWidth, areaHeight, progress, Colour.WHITE);
+    }
+
+    /**
+     * Paint a vertical rectangle filled, from the top down, with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the MatrixStack for the current paint operation
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param areaWidth the width of the maximum area to be filled
+     * @param areaHeight the height of the maximum area to be filled
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     * @return the height of the painted sprite
+     */
+    public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
+                                                             final int x, final int y, final int zLevel,
+                                                             final int areaWidth, final int areaHeight,
+                                                             final double progress, final Colour tint) {
+
+        if (progress < 0.01) {
+            return;
+        }
+
+        final int spriteHeight = sprite.getHeight();
+        final int filledHeight = (int)(areaHeight * progress);
+        final int y1 = y;
+        final int y2 = y + filledHeight;
+
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+
+        bindTexture(sprite);
+
+        if (spriteHeight == areaHeight) {
+
+            blitSprite(matrix, x, x + areaWidth, y1, y2, zLevel, sprite.getWidth(), filledHeight,
+                    sprite.getU(), sprite.getV() + (sprite.getHeight() - filledHeight),
+                    sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+
+        } else {
+
+            final float verticalSlices = filledHeight / 16.0f;
+            int verticalSliceIdx = 0;
+
+            for (; verticalSliceIdx <= verticalSlices - 1.0f; ++verticalSliceIdx) {
+
+                final int sliceY1 = y1 + (verticalSliceIdx * 16);
+                final int sliceY2 = sliceY1 + 16;
+
+                blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
+                        sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+            }
+
+            final float missing = verticalSlices - verticalSliceIdx;
+
+            if (missing > 0.0f) {
+
+                final int h = (int)Math.ceil(16 * missing);
+                final int sliceY1 = y1 + (verticalSliceIdx * 16);
+                final int sliceY2 = sliceY1 + h;
+
+                blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), h,
                         sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
             }
         }
@@ -1094,151 +1282,39 @@ public final class ModRenderHelper {
 
     //endregion
     //endregion
-
-
-
-
-
-
-
-
-
-
     //region common paint tasks
 
     private static final Colour ITEMSTACK_HIGHLIGHT = Colour.fromARGB(0x80ffffff);
 
-    public static boolean renderItemStack(final PoseStack matrix, /*final IRenderTypeBuffer buffer,*/
-                                          final ItemStack stack, int x, int y, final String text, boolean highlight) {
+    public static boolean paintItemStack(final PoseStack matrix, final ItemStack stack, final int x, final int y,
+                                         final String text, final boolean highlight) {
 
-        boolean rc = false;
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        final Minecraft mc = Minecraft.getInstance();
+        final ItemRenderer itemRenderer = mc.getItemRenderer();
+        float saveZ = itemRenderer.blitOffset;
 
         if (highlight) {
-
-//            //RenderSystem.disableLighting();
-            paintVerticalGradientRect(matrix, x, y, x + 16, y + 16, 0, ITEMSTACK_HIGHLIGHT, Colour.WHITE);
-        }
-
-        if (!stack.isEmpty()) {
-
-            stack.getItem();
-            rc = true;
-
-//            RenderSystem.color4f(1F, 1F, 1F, 1F);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            //RenderSystem.enableRescaleNormal();
-            //RenderSystem.enableLighting();
-            //Lighting.turnBackOn();
-
-            matrix.pushPose();
-            //RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, (float) 240, (float) 240);
-
-            ItemRenderer render = Minecraft.getInstance().getItemRenderer();
-            float renderZ = render.blitOffset;
-
-            render.blitOffset = 300;
-            render.renderAndDecorateItem(stack, x, y);
-            render.blitOffset = renderZ;
-
-            renderItemOverlayIntoGUI(matrix, Minecraft.getInstance().font, stack, x, y, text, text.length() - 2);
-
-            matrix.popPose();
-
-            //com.mojang.blaze3d.platform.Lighting.turnOff();
-            //RenderSystem.disableLighting();
-            //RenderSystem.disableRescaleNormal();
-        }
-
-        return rc;
-    }
-
-    public static boolean renderItemStackWithCount(final PoseStack matrix, ItemStack stack, int x, int y, boolean highlight) {
-        return renderItemStack(matrix, stack, x, y, CodeHelper.formatAsHumanReadableNumber(stack.getCount(), ""), highlight);
-    }
-
-    private static void renderItemOverlayIntoGUI(final PoseStack matrix, /*final IRenderTypeBuffer buffer,*/
-                                                 final Font fr, final ItemStack stack, int xPosition, int yPosition,
-                                                 @Nullable String text, int scaled) {
-
-        if (!stack.isEmpty()) {
-
-            ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-
-            if (stack.getCount() != 1 || text != null) {
-
-                String s = text == null ? String.valueOf(stack.getCount()) : text;
-
-                matrix.translate(0.0D, 0.0D, (itemRenderer.blitOffset + 200.0F));
-
-                MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-
-                if (scaled >= 2) {
-
-                    matrix.pushPose();
-                    matrix.scale(0.5f, 0.5f, 0.5f);
-                    fr.drawShadow(matrix, s, ((xPosition + 19 - 2) * 2 - 1 - fr.width(s)), yPosition * 2 + 24, 16777215);
-                    matrix.popPose();
-
-                } else if (scaled == 1) {
-
-                    matrix.pushPose();
-                    matrix.scale(0.75f, 0.75f, 0.75f);
-                    fr.drawShadow(matrix, s, ((xPosition - 2) * 1.34f + 24 - fr.width(s)), yPosition * 1.34f + 14, 16777215);
-                    matrix.popPose();
-
-                } else {
-                    fr.drawShadow(matrix, s, (xPosition + 19 - 2 - fr.width(s)), (float)(yPosition + 6 + 3), 16777215);
-                }
-
-//                buffer.finish();
-            }
-
-            if (stack.getItem().showDurabilityBar(stack)) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                //RenderSystem.disableAlphaTest();
-                RenderSystem.disableBlend();
-                RenderSystem.setShader(GameRenderer::getPositionColorShader);
-                Tesselator tessellator = Tesselator.getInstance();
-                BufferBuilder bufferbuilder = tessellator.getBuilder();
-                double health = stack.getItem().getDurabilityForDisplay(stack);
-                int i = Math.round(13.0F - (float)health * 13.0F);
-                int j = stack.getItem().getRGBDurabilityForDisplay(stack);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, 13, 2, 0, 0, 0, 255);
-                draw(bufferbuilder, xPosition + 2, yPosition + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
-                RenderSystem.enableBlend();
-                //RenderSystem.enableAlphaTest();
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
-
-            LocalPlayer clientplayerentity = Minecraft.getInstance().player;
-            float f3 = clientplayerentity == null ? 0.0F : clientplayerentity.getCooldowns().getCooldownPercent(stack.getItem(), Minecraft.getInstance().getFrameTime());
-            if (f3 > 0.0F) {
-                RenderSystem.disableDepthTest();
-                RenderSystem.disableTexture();
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
-                RenderSystem.setShader(GameRenderer::getPositionColorShader);
-                Tesselator tessellator1 = Tesselator.getInstance();
-                BufferBuilder bufferbuilder1 = tessellator1.getBuilder();
-                draw(bufferbuilder1, xPosition, yPosition + Mth.floor(16.0F * (1.0F - f3)), 16, Mth.ceil(16.0F * f3), 255, 255, 255, 127);
-                RenderSystem.enableTexture();
-                RenderSystem.enableDepthTest();
-            }
+            fill(matrix.last().pose(), x, y, x + 16, y + 16, GUI_ITEM_Z - 1, -2130706433);
 
         }
+
+        itemRenderer.blitOffset = GUI_ITEM_Z;
+        RenderSystem.enableDepthTest();
+        itemRenderer.renderAndDecorateItem(stack, x, y);
+        itemRenderer.renderGuiItemDecorations(mc.font, stack, x + 4, y, text);
+        itemRenderer.blitOffset = saveZ;
+
+        return true;
     }
-    /**
-     * Draw with the WorldRenderer
-     */
-    private static void draw(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue, int alpha) {
-        renderer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        renderer.vertex((x + 0), (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.vertex((x + 0), (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.vertex((x + width), (y + height), 0.0D).color(red, green, blue, alpha).endVertex();
-        renderer.vertex((x + width), (y + 0), 0.0D).color(red, green, blue, alpha).endVertex();
-        Tesselator.getInstance().end();
+
+    public static boolean paintItemStackWithCount(final PoseStack matrix, final ItemStack stack,
+                                                  final int x, final int y, final boolean highlight) {
+        return !stack.isEmpty() &&
+                paintItemStack(matrix, stack, x, y, CodeHelper.formatAsHumanReadableNumber(stack.getCount(), ""), highlight);
     }
 
     /**

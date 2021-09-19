@@ -216,7 +216,19 @@ public class ModContainer extends AbstractContainerMenu {
             }
         }
 
-        super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
+        //TODO 1.17.1 todo
+//        final SlotType slotType = this._factory.getSlotType(clickedSlotIndex);
+//
+//        switch (slotType) {
+//
+//            case GhostOutput:
+//            case Static:
+//            case Unknown:
+//                return ItemStack.EMPTY;
+//
+//            default:
+//                return super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
+//        }
     }
 
     /**

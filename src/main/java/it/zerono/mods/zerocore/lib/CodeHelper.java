@@ -45,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModContainer;
@@ -78,6 +79,8 @@ public final class CodeHelper {
     public static final AABB EMPTY_BOUNDING_BOX = new AABB(0, 0, 0, 0, 0, 0);
     public static final BlockPos MIN_BLOCKPOS = new BlockPos(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     public static final BlockPos MAX_BLOCKPOS = new BlockPos(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+    public static final AABB EMPTY_AABB = new AABB(0, 0, 0, 0, 0, 0);
 
     public static final BooleanSupplier TRUE_SUPPLIER = () -> true;
     public static final BooleanSupplier FALSE_SUPPLIER = () -> false;
@@ -590,6 +593,27 @@ public final class CodeHelper {
 
     public static boolean ioCreateModConfigDirectory(final String name) {
         return ioCreateDirectory(FMLPaths.CONFIGDIR.get(), name);
+    }
+
+    //endregion
+    //region Non-null wrappers
+
+    public static <T> NonNullSupplier<T> asNonNull(final Supplier<T> supplier, final NonNullSupplier<T> fallbackValue) {
+        return () -> {
+
+            final T current = supplier.get();
+
+            return null != current ? current : fallbackValue.get();
+        };
+    }
+
+    public static <T, R> NonNullFunction<T, R> asNonNull(final Function<T, R> function, final NonNullFunction<T, R> fallbackValue) {
+        return (T v) -> {
+
+            final R current = function.apply(v);
+
+            return null != current ? current : fallbackValue.apply(v);
+        };
     }
 
     //endregion

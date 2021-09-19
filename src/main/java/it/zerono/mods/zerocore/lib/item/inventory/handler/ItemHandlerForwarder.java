@@ -68,7 +68,10 @@ public class ItemHandlerForwarder implements IItemHandler {
         return this.getHandler().isItemValid(slot, stack);
     }
 
+    //endregion
     //region internals
 
     private IItemHandler _handler;
+
+    //endregion
 }

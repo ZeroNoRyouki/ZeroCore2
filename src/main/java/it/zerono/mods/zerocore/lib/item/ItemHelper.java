@@ -24,18 +24,21 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.EmptyHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -48,6 +51,7 @@ import java.util.stream.IntStream;
 public final class ItemHelper {
 
     public static final String INVENTORY = "inventory";
+    public static final IItemHandlerModifiable EMPTY_ITEM_HANDLER = (IItemHandlerModifiable)EmptyHandler.INSTANCE;
 
     public static ResourceLocation getItemId(final ItemLike item) {
         return Objects.requireNonNull(item.asItem().getRegistryName());
@@ -55,6 +59,24 @@ public final class ItemHelper {
 
     public static ResourceLocation getItemId(final ItemStack stack) {
         return Objects.requireNonNull(stack.getItem().getRegistryName());
+    }
+
+    @Nullable
+    public static Item getItemFrom(final String id) {
+        return getItemFrom(new ResourceLocation(id));
+    }
+
+    public static Item getItemFromOrAir(final String id) {
+        return getItemFromOrAir(new ResourceLocation(id));
+    }
+
+    @Nullable
+    public static Item getItemFrom(final ResourceLocation id) {
+        return ForgeRegistries.ITEMS.getValue(id);
+    }
+
+    public static Item getItemFromOrAir(final ResourceLocation id) {
+        return ForgeRegistries.ITEMS.containsKey(id) ? Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(id)) : Items.AIR;
     }
 
     public enum MatchOption {

@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.google.gson.*;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
@@ -36,7 +37,6 @@ import net.minecraft.tags.TagCollection;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -165,7 +165,7 @@ public abstract class FluidStackRecipeIngredient
         public List<FluidStack> getMatchingElements() {
 
             if (null == this._cachedMatchingElements) {
-                this._cachedMatchingElements = Collections.singletonList(this._ingredient);
+                this._cachedMatchingElements = ObjectLists.singleton(this._ingredient);
             }
 
             return this._cachedMatchingElements;

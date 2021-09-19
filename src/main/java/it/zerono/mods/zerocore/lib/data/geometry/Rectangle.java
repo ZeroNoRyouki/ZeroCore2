@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Rectangle {
@@ -220,6 +220,10 @@ public class Rectangle {
 
     public boolean contains(final Point p) {
         return this.contains(p.X, p.Y);
+    }
+
+    public boolean contains(final double x, final double y) {
+        return this.contains((int)x, (int)y);
     }
 
     public boolean contains(int x, int y, int width, int height) {

@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
@@ -32,10 +32,10 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -302,7 +302,7 @@ public abstract class AbstractControl
         final Colour bk = Colour.fromARGB(-267386864);
         final Colour highlight1 = Colour.fromARGB((1347420415 & 16711422) >> 1 | 1347420415 & -16777216);
         final Colour highlight2 = Colour.fromARGB(1347420415);
-        final int z = 300;
+        final int z = ModRenderHelper.GUI_TOPMOST_Z;
 
         ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
         ModRenderHelper.paintSolidRect(matrix, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, z, bk);
@@ -974,7 +974,18 @@ public abstract class AbstractControl
 
         final Point screenXY = this.controlToScreen(x, y);
 
-        ModRenderHelper.renderItemStack(matrix, stack, screenXY.X, screenXY.Y, "", highlight);
+        ModRenderHelper.paintItemStack(matrix, stack, screenXY.X, screenXY.Y, "", highlight);
+    }
+
+    protected void paintItemStackWithCount(final PoseStack matrix, final ItemStack stack, final boolean highlight) {
+        this.paintItemStackWithCount(matrix, stack, 0, 0, highlight);
+    }
+
+    protected void paintItemStackWithCount(final PoseStack matrix, final ItemStack stack, final int x, final int y, final boolean highlight) {
+
+        final Point screenXY = this.controlToScreen(x, y);
+
+        ModRenderHelper.paintItemStackWithCount(matrix, stack, screenXY.X, screenXY.Y, highlight);
     }
 
     //endregion

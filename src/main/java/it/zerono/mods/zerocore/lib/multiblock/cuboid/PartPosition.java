@@ -42,10 +42,10 @@
 package it.zerono.mods.zerocore.lib.multiblock.cuboid;
 
 import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -234,6 +234,14 @@ public enum PartPosition
 	public boolean isFace() {
 		return this._type == Type.Face;
 	}
+
+	public boolean isVerticalFace() {
+        return EastFace == this || WestFace == this || NorthFace == this || SouthFace == this;
+    }
+
+    public boolean isHorizontalFace() {
+        return TopFace == this || BottomFace == this;
+    }
 
 	public boolean isFrame() {
 		return this._type == Type.Frame;

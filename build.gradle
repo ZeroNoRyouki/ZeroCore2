@@ -107,6 +107,18 @@ processResources {
 
 repositories {
 
+    // jei
+    maven {
+        // location of the maven that hosts JEI files
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+
+    maven {
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
+
     // cc-tweaked
     maven {
         url 'https://squiddev.cc/maven/'
@@ -126,6 +138,10 @@ dependencies {
     // patchouli
 //    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
 //    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+
+    // JEI
+    compileOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}:${config.jei_version}:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}:${config.jei_version}")
 }
 
 jar {

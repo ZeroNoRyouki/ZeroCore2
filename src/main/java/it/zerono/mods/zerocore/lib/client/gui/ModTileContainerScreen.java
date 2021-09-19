@@ -22,10 +22,10 @@ import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModTileContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -44,6 +44,10 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
      * Override to handle this event
      */
     protected void onDataUpdated() {
+    }
+
+    protected boolean isDataUpdateInProgress() {
+        return this._dataUpdateInProgress;
     }
 
     //region Tile commands
@@ -127,11 +131,14 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
 
     private void raiseDataUpdated() {
 
+        this._dataUpdateInProgress = true;
         this.onDataUpdated();
         this.DataUpdated.raise(Runnable::run);
+        this._dataUpdateInProgress = false;
     }
 
     private final Runnable raiseDataUpdatedHandler;
+    private boolean _dataUpdateInProgress;
 
     //endregion
 }

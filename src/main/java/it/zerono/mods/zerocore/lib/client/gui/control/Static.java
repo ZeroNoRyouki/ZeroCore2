@@ -66,6 +66,19 @@ public class Static
         return this;
     }
 
+    public Static setStackWithCount(final ItemStack stack) {
+
+        this.setStackWithCount(stack, false);
+        return this;
+    }
+
+    public Static setStackWithCount(final ItemStack stack, final boolean highlight) {
+
+        this.clearBackground();
+        this._customPainter = (control, matrix) -> control.paintItemStackWithCount(matrix, stack, highlight);
+        return this;
+    }
+
     //region AbstractControl
 
     @Override

@@ -19,19 +19,18 @@
 package it.zerono.mods.zerocore.lib.recipe.holder;
 
 import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import net.minecraft.util.Mth;
+
+import java.util.Objects;
 
 public abstract class AbstractHeldRecipe<Recipe extends ModRecipe>
         implements IHeldRecipe<Recipe> {
 
     protected <Holder extends IRecipeHolder<Recipe>> AbstractHeldRecipe(final Recipe recipe, final Holder holder) {
 
-        this._recipe = recipe;
-        this._holder = holder;
+        this._recipe = Objects.requireNonNull(recipe);
+        this._holder = Objects.requireNonNull(holder);
         this._currentTick = 0;
-    }
-
-    protected Recipe getRecipe() {
-        return this._recipe;
     }
 
     //region IHeldRecipe
@@ -40,16 +39,17 @@ public abstract class AbstractHeldRecipe<Recipe extends ModRecipe>
      * Process the recipe
      */
     @Override
-    public void processRecipe() {
+    public boolean processRecipe() {
 
+        final Recipe recipe = this.getRecipe();
         final IRecipeHolder<Recipe> holder = this.getRecipeHolder();
-        final int requiredTicks = holder.getRequiredTicks(this.getRecipe());
+        final int requiredTicks = holder.getRequiredTicks(recipe);
 
-        if (!holder.canProcessRecipe() || requiredTicks < 1) {
+        if (!holder.canProcessRecipe(recipe) || requiredTicks < 1) {
 
             this._currentTick = 0;
             holder.onActiveStatusChanged(false);
-            return;
+            return false;
         }
 
         if (0 == this._currentTick) {
@@ -70,6 +70,17 @@ public abstract class AbstractHeldRecipe<Recipe extends ModRecipe>
             holder.onRecipeProcessed();
             holder.onActiveStatusChanged(false);
         }
+
+        return true;
+    }
+
+    /**
+     * Get the currently held recipe
+     *
+     * @return the recipe
+     */
+    public Recipe getRecipe() {
+        return this._recipe;
     }
 
     /**
@@ -90,6 +101,26 @@ public abstract class AbstractHeldRecipe<Recipe extends ModRecipe>
     @Override
     public int getCurrentTick() {
         return this._currentTick;
+    }
+
+    /**
+     * Load a previously saved processing state back in the recipe
+     *
+     * @param tick the new current tick
+     */
+    @Override
+    public void loadCurrentTick(int tick) {
+        this._currentTick = Mth.clamp(tick, 0, this.getRecipeHolder().getRequiredTicks(this.getRecipe()));
+    }
+
+    /**
+     * Get the current completion progress of this recipe
+     *
+     * @return the completion progress
+     */
+    @Override
+    public double getProgress() {
+        return (double)this.getCurrentTick() / this.getRecipeHolder().getRequiredTicks(this.getRecipe());
     }
 
     //endregion

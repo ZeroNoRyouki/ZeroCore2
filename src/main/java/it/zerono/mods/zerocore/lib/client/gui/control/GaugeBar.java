@@ -39,6 +39,7 @@ public class GaugeBar
         this._value = 0;
         this._barSprite = Preconditions.checkNotNull(barSprite);
         this._barSpriteTint = Colour.WHITE;
+        this._bottomUp = true;
     }
 
     public double getValue() {
@@ -57,6 +58,10 @@ public class GaugeBar
         this._barSpriteTint = tint;
     }
 
+    public void setTopDown(final boolean topDown) {
+        this._bottomUp = !topDown;
+    }
+
     //region AbstractGaugeBar
 
     @Override
@@ -66,9 +71,15 @@ public class GaugeBar
 
         final Rectangle area = this.getPaddingRect();
 
-        ModRenderHelper.paintVerticalProgressBarSprite(matrix, this._barSprite,
-                this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
-                this._barSpriteTint);
+        if (this._bottomUp) {
+            ModRenderHelper.paintVerticalProgressBarSprite(matrix, this._barSprite,
+                    this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
+                    this._barSpriteTint);
+        } else {
+            ModRenderHelper.paintFlippedVerticalProgressBarSprite(matrix, this._barSprite,
+                    this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
+                    this._barSpriteTint);
+        }
     }
 
     @Override
@@ -89,6 +100,7 @@ public class GaugeBar
     @Nonnull
     private ISprite _barSprite;
     private Colour _barSpriteTint;
+    private boolean _bottomUp;
 
     //endregion
 }

@@ -22,19 +22,22 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 
 import java.util.Objects;
 
 public final class FluidHelper {
+
+    public static final IFluidHandler EMPTY_FLUID_HANDLER = EmptyFluidHandler.INSTANCE;
 
     public static ResourceLocation getFluidId(final Fluid fluid) {
         return Objects.requireNonNull(fluid.getRegistryName());

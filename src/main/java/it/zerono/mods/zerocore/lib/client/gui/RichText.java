@@ -28,13 +28,13 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.Collections;
@@ -131,14 +131,13 @@ public class RichText
         richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
-    private static void paintItemStack(final RichText richText, final ItemStack chunk,
-                                       final PoseStack matrix, final int x, final int y) {
-        ModRenderHelper.renderItemStackWithCount(matrix, chunk, x, y, false);
+    private static void paintItemStack(final RichText richText, final ItemStack chunk, final PoseStack matrix, final int x, final int y) {
+        ModRenderHelper.paintItemStackWithCount(matrix, chunk, x, y, false);
     }
 
     private static void paintItemStackNoCount(final RichText richText, final ItemStack chunk,
                                               final PoseStack matrix, final int x, final int y) {
-        ModRenderHelper.renderItemStack(matrix, chunk, x, y, "", false);
+        ModRenderHelper.paintItemStack(matrix, chunk, x, y, "", false);
     }
 
     private static void paintSprite(final RichText richText, final ISprite chunk,

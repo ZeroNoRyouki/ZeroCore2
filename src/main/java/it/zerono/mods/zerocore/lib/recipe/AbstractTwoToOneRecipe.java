@@ -23,8 +23,10 @@ import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
@@ -76,6 +78,14 @@ public abstract class AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result,
     @Override
     public boolean test(final Ingredient1 stack1, final Ingredient2 stack2) {
         return this.getIngredient1().test(stack1) && this.getIngredient2().test(stack2);
+    }
+
+    //endregion
+    //region ModRecipe
+
+    @Override
+    public NonNullList<Ingredient> getIngredients() {
+        return buildVanillaIngredientsList(this.getIngredient1().asVanillaIngredients(), this.getIngredient2().asVanillaIngredients());
     }
 
     //endregion

@@ -19,9 +19,6 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.slot;
 
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneric;
-import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGhostInput;
-import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGhostOutput;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -72,18 +69,7 @@ public class SlotTemplate {
     }
 
     public Slot createSlot(final SlotFactory slotFactory, final IItemHandler inventory) {
-
-        switch (slotFactory.getSlotType()) {
-
-            case GhostInput:
-                return new SlotGhostInput(inventory, slotFactory);
-
-            case GhostOutput:
-                return new SlotGhostOutput(inventory, slotFactory);
-
-            default:
-                return new SlotGeneric(inventory, slotFactory);
-        }
+        return slotFactory.getSlotType().slot(inventory, slotFactory);
     }
 
     public boolean match(final int slotIndex, final ItemStack stack) {

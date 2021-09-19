@@ -41,9 +41,13 @@
 
 package it.zerono.mods.zerocore.lib.multiblock;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -356,4 +360,17 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
      * Subscribe to be notified by a controller data update.
      */
     void listenForControllerDataUpdates();
+
+    /**
+     * @return a set of default block properties for a multiblock part
+     */
+    static Block.Properties getDefaultBlockProperties() {
+        return Block.Properties.of(Material.METAL, MaterialColor.METAL)
+                .sound(SoundType.METAL)
+                .strength(5.0F, 6.0F)
+                .requiresCorrectToolForDrops()
+                .lightLevel(blockState -> 0)
+                .isValidSpawn((blockState, blockReader, pos, entity) -> false)
+                .isViewBlocking((blockState, blockReader, pos) -> true);
+    }
 }

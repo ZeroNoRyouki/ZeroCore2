@@ -19,17 +19,36 @@
 package it.zerono.mods.zerocore.lib.recipe;
 
 import it.zerono.mods.zerocore.lib.item.inventory.EmptyVanillaInventory;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
+import java.util.List;
 import java.util.Objects;
 
 public class ModRecipe
     implements Recipe<EmptyVanillaInventory> {
+
+    @SafeVarargs
+    protected static NonNullList<Ingredient> buildVanillaIngredientsList(final List<Ingredient>... lists) {
+
+        final NonNullList<Ingredient> ingredients = NonNullList.create();
+
+        for (final List<Ingredient> list : lists) {
+            if (null != list) {
+                list.stream()
+                        .filter(Objects::nonNull)
+                        .forEach(ingredients::add);
+            }
+        }
+
+        return ingredients;
+    }
 
     //region IRecipe
 
