@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public final class DebuggableHelper {
@@ -59,6 +60,18 @@ public final class DebuggableHelper {
 
         for (int i = 0; i < slots; ++i) {
             messages.add(handler.getStackInSlot(i), DebuggableHelper::getDebugMessagesFor,
+                    new StringTextComponent(String.format("[%d]", i)));
+        }
+    }
+
+    public static void getDebugMessagesFor(final IDebugMessages messages, final IFluidHandler handler) {
+
+        final int tanks = handler.getTanks();
+
+        messages.addUnlocalized("Tanks count: %1$d", tanks);
+
+        for (int i = 0; i < tanks; ++i) {
+            messages.add(handler.getFluidInTank(i), DebuggableHelper::getDebugMessagesFor,
                     new StringTextComponent(String.format("[%d]", i)));
         }
     }
