@@ -36,6 +36,8 @@ public interface IProxy {
 
     Optional<World> getClientWorld();
 
+    Optional<PlayerEntity> getClientPlayer();
+
     void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max);
 
     void sendPlayerStatusMessage(PlayerEntity player, ITextComponent message);

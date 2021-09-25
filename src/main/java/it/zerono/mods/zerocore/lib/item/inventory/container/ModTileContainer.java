@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container;
 
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
+import it.zerono.mods.zerocore.lib.data.nbt.IConditionallySyncableEntity;
 import it.zerono.mods.zerocore.lib.network.INetworkTileEntitySyncProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -45,6 +46,10 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
 
         super(factory, type, windowId);
         this._tile = tile;
+
+        if (tile instanceof IConditionallySyncableEntity) {
+            this.syncFrom((IConditionallySyncableEntity)tile);
+        }
     }
 
     /**

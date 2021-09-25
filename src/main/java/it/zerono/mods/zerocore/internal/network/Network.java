@@ -24,6 +24,8 @@ import it.zerono.mods.zerocore.lib.data.nbt.NBTBuilder;
 import it.zerono.mods.zerocore.lib.network.IModMessage;
 import it.zerono.mods.zerocore.lib.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 public final class Network {
@@ -52,6 +54,10 @@ public final class Network {
     public static void sendDebugGuiFrameCommand(final boolean enable) {
         sendToAllPlayers(new InternalCommandMessage(InternalCommand.DebugGuiFrame,
                 new NBTBuilder().addBoolean("enable", enable).build()));
+    }
+
+    public static void sendServerContainerDataSync(final ServerPlayerEntity player, final CompoundNBT data) {
+        HANDLER.sendToPlayer(new InternalCommandMessage(InternalCommand.ContainerDataSync, data), player);
     }
 
     static {

@@ -21,7 +21,11 @@ package it.zerono.mods.zerocore.lib.item.inventory.container;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.internal.network.Network;
+import it.zerono.mods.zerocore.lib.data.nbt.IConditionallySyncableEntity;
+import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
@@ -31,16 +35,17 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneri
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
+import net.minecraft.inventory.container.*;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +113,17 @@ public class ModContainer extends Container {
 
     public PlayerInventoryUsage getPlayPlayerInventoryUsage() {
         return this._factory.getPlayPlayerInventoryUsage();
+    }
+
+    public void syncFrom(@Nullable final IConditionallySyncableEntity entity) {
+        this._syncableEntity = entity;
+    }
+
+    public void onContainerDataSync(final CompoundNBT data) {
+
+        if (null != this._syncableEntity && this._syncableEntity.getSyncableEntityId().equals(new ResourceLocation(data.getString("id")))) {
+            this._syncableEntity.syncDataFrom(data.getCompound("payload"), ISyncableEntity.SyncReason.NetworkUpdate);
+        }
     }
 
     //region Container
@@ -358,6 +374,39 @@ public class ModContainer extends Container {
         return super.addSlot(slotIn);
     }
 
+    @Override
+    public void addSlotListener(final IContainerListener listener) {
+
+        super.addSlotListener(listener);
+
+        if (listener instanceof ServerPlayerEntity) {
+
+            if (null == this._dataUpdateListeners) {
+                this._dataUpdateListeners = new ObjectArrayList<>(4);
+            }
+
+            this._dataUpdateListeners.add((ServerPlayerEntity)listener);
+        }
+    }
+
+    @Override
+    public void broadcastChanges() {
+
+        super.broadcastChanges();
+
+        if (null != this._dataUpdateListeners && null != this._syncableEntity && this._syncableEntity.shouldSyncEntity()) {
+
+            final CompoundNBT envelope = new CompoundNBT();
+
+            envelope.putString("id", this._syncableEntity.getSyncableEntityId().toString());
+            envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundNBT(), ISyncableEntity.SyncReason.NetworkUpdate));
+
+            for (ServerPlayerEntity listener : this._dataUpdateListeners) {
+                Network.sendServerContainerDataSync(listener, envelope);
+            }
+        }
+    }
+
     //endregion
     //region internals
 
@@ -411,6 +460,8 @@ public class ModContainer extends Container {
     private final ContainerFactory _factory;
     private final Map<String, IItemHandler> _registeredInventories;
     private final Map<String, List<Slot>> _inventorySlotsGroups;
+    private IConditionallySyncableEntity _syncableEntity;
+    private List<ServerPlayerEntity> _dataUpdateListeners;
 
     //endregion
 }

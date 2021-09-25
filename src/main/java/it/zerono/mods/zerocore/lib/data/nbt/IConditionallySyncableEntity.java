@@ -1,6 +1,6 @@
 /*
  *
- * InternalCommand.java
+ * IConditionallySyncableEntity.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,12 +16,20 @@
  *
  */
 
-package it.zerono.mods.zerocore.internal;
+package it.zerono.mods.zerocore.lib.data.nbt;
 
-public enum InternalCommand {
+import net.minecraft.util.ResourceLocation;
 
-    ClearRecipes,
-    DebugGuiFrame,
-    ContainerDataSync,
+public interface IConditionallySyncableEntity
+        extends ISyncableEntity {
 
+    /**
+     * @return a unique identifier for this ISyncableEntity
+     */
+    ResourceLocation getSyncableEntityId();
+
+    /**
+     * @return true if this ISyncableEntity should be synced, false otherwise
+     */
+    boolean shouldSyncEntity();
 }

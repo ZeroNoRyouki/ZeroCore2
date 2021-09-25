@@ -28,6 +28,7 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
 import it.zerono.mods.zerocore.lib.client.model.BakedModelSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
@@ -96,6 +97,11 @@ public class ClientProxy
     @Override
     public Optional<World> getClientWorld() {
         return Optional.ofNullable(Minecraft.getInstance().level);
+    }
+
+    @Override
+    public Optional<PlayerEntity> getClientPlayer() {
+        return Optional.ofNullable(Minecraft.getInstance().player);
     }
 
     @Override
@@ -171,6 +177,14 @@ public class ClientProxy
 
             case DebugGuiFrame:
                 GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
+                break;
+
+            case ContainerDataSync:
+                this.getClientPlayer()
+                        .map(p -> p.containerMenu)
+                        .filter(c -> c instanceof ModContainer)
+                        .map(c -> (ModContainer)c)
+                        .ifPresent(mc -> mc.onContainerDataSync(data));
                 break;
 
             default:
