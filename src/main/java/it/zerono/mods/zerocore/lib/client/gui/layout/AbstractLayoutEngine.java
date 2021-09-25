@@ -24,7 +24,6 @@ import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 
-
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
         implements ILayoutEngine {
@@ -33,67 +32,61 @@ public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
         return this._controlsSpacing;
     }
 
-    @SuppressWarnings("unchecked")
     public E setControlsSpacing(final int spacing) {
 
         Preconditions.checkArgument(spacing >= 0, "The controls spacing must be equal or greater than zero");
         this._controlsSpacing = spacing;
-        return (E)this;
+        return this.self();
     }
 
     public int getHorizontalMargin() {
         return this._horizontalMargin;
     }
 
-    @SuppressWarnings("unchecked")
     public E setHorizontalMargin(final int horizontalMargin) {
 
         Preconditions.checkArgument(horizontalMargin >= 0, "The horizontal margin must be equal or greater than zero");
         this._horizontalMargin = horizontalMargin;
-        return (E)this;
+        return this.self();
     }
 
     public int getVerticalMargin() {
         return this._verticalMargin;
     }
 
-    @SuppressWarnings("unchecked")
     public E setVerticalMargin(final int verticalMargin) {
 
         Preconditions.checkArgument(verticalMargin >= 0, "The vertical margin must be equal or greater than zero");
         this._verticalMargin = verticalMargin;
-        return (E)this;
+        return this.self();
     }
 
     public HorizontalAlignment getHorizontalAlignment() {
         return this._horizontalAlignment;
     }
 
-    @SuppressWarnings("unchecked")
     public E setHorizontalAlignment(final HorizontalAlignment horizontalAlignment) {
 
         this._horizontalAlignment = horizontalAlignment;
-        return (E)this;
+        return this.self();
     }
 
     public VerticalAlignment getVerticalAlignment() {
         return this._verticalAlignment;
     }
 
-    @SuppressWarnings("unchecked")
     public E setVerticalAlignment(final VerticalAlignment verticalAlignment) {
 
         this._verticalAlignment = verticalAlignment;
-        return (E)this;
+        return this.self();
     }
 
-    @SuppressWarnings("unchecked")
     public E setZeroMargins() {
 
         this.setHorizontalMargin(0);
         this.setVerticalMargin(0);
         this.setControlsSpacing(0);
-        return (E)this;
+        return this.self();
     }
 
     //region internals
@@ -101,7 +94,7 @@ public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
     protected int getControlDesiredDimension(final IControl control, final DesiredDimension dimension,
                                              final int defaultValue) {
 
-        int value = control.getDesiredDimension(dimension);
+        final int value = control.getDesiredDimension(dimension);
 
         return DesiredDimension.UNDEFINED_VALUE == value ? defaultValue : value;
     }
@@ -109,8 +102,8 @@ public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
     protected Rectangle getControlAlignedBounds(final IControl control, final int x, final int y,
                                                 final int maxWidth, final int maxHeight) {
 
-        int desiredWidth = Math.min(maxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, maxWidth));
-        int desiredHeight = Math.min(maxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, maxHeight));
+        final int desiredWidth = Math.min(maxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, maxWidth));
+        final int desiredHeight = Math.min(maxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, maxHeight));
 
         return new Rectangle(
                 this._horizontalAlignment.align(x, desiredWidth, maxWidth),
@@ -155,9 +148,16 @@ public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
         return undefinedSize;
     }
 
+    private E self() {
+        //noinspection unchecked
+        return (E)this;
+    }
+
     private int _controlsSpacing = 5;
     private int _horizontalMargin = 5;
     private HorizontalAlignment _horizontalAlignment = HorizontalAlignment.Center;
     private int _verticalMargin = 2;
     private VerticalAlignment _verticalAlignment = VerticalAlignment.Center;
+
+    //endregion
 }

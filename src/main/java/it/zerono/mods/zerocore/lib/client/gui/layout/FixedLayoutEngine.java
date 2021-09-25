@@ -23,7 +23,6 @@ import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 
-
 @SuppressWarnings("unused")
 public class FixedLayoutEngine
         extends AbstractLayoutEngine<FixedLayoutEngine> {
@@ -47,6 +46,8 @@ public class FixedLayoutEngine
                 ));
     }
 
+    //region internals
+
     private static class FixedLayoutHint implements ILayoutEngineHint {
         
         FixedLayoutHint(final int x, final int y, final int width, final int height) {
@@ -69,4 +70,6 @@ public class FixedLayoutEngine
         private final int Width;
         private final int Height;
     }
+
+    //endregion
 }
