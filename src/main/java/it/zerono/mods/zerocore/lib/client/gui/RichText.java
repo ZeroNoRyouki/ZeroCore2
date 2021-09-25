@@ -494,6 +494,8 @@ public class RichText
             } else if (thing instanceof NonNullSupplier) {
                 //noinspection unchecked
                 return this.chunk((NonNullSupplier<ITextComponent>)thing);
+            } else if (thing instanceof ITextComponent) {
+                return this.chunk((ITextComponent)thing);
             } else if (thing instanceof ItemStack) {
                 return this.chunk((ItemStack)thing);
             } else if (thing instanceof Item) {
