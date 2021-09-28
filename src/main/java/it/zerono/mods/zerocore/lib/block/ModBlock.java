@@ -25,9 +25,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -38,8 +40,10 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.*;
 
 public class ModBlock
@@ -65,6 +69,63 @@ public class ModBlock
 
         return builder;
     }
+
+    //region extended properties
+
+    @FunctionalInterface
+    public interface IStackStorableTooltipBuilder {
+
+        void build(ItemStack stack, CompoundNBT data, @Nullable IBlockReader world,
+                   NonNullConsumer<ITextComponent> appender, ITooltipFlag flag);
+    }
+
+    public static class ExtendedProperties<T extends ExtendedProperties<T>> {
+
+        public ExtendedProperties() {
+
+            this._baseProperties = createProperties(Material.STONE, SoundType.STONE, 1.5f, 6.0f, false);
+            this.setAsStackStorable(false);
+        }
+
+        public T setBlockProperties(final Block.Properties properties) {
+
+            this._baseProperties = properties;
+            return this.self();
+        }
+
+        public T setAsStackStorable(final boolean storable) {
+
+            this._stackStorable = storable;
+            this._stackStorableTooltipBuilder = EMPTY_STACK_STORABLE_TOOLTIP_BUILDER;
+            return this.self();
+        }
+
+        /**
+         * Mark the block as having a stack-storable TileEntity (an ISyncableEntity) and set a tooltip builder for the associated ItemStack
+         * @param tooltipBuilder the builder
+         * @return this object
+         */
+        public T setAsStackStorable(final IStackStorableTooltipBuilder tooltipBuilder) {
+
+            this._stackStorable = true;
+            this._stackStorableTooltipBuilder = tooltipBuilder;
+            return this.self();
+        }
+
+        //region internals
+
+        private T self() {
+            //noinspection unchecked
+            return (T)this;
+        }
+
+        private Block.Properties _baseProperties;
+
+        private boolean _stackStorable;
+        private IStackStorableTooltipBuilder _stackStorableTooltipBuilder;
+
+        //endregion
+    }
     
     public static ITextComponent getNameForTranslation(final Block block) {
         return new TranslationTextComponent(block.getDescriptionId());
@@ -74,9 +135,20 @@ public class ModBlock
         return (int)(15.0F * value);
     }
 
+    @Deprecated // This constructor will be removed in future version in favor of the ExtendedProperties one
     public ModBlock(final Block.Properties properties) {
 
         super(properties);
+        this._stackStorable = false;
+        this._stackStorableTooltipBuilder = EMPTY_STACK_STORABLE_TOOLTIP_BUILDER;
+        this.registerDefaultState(this.buildDefaultState(this.getStateDefinition().any()));
+    }
+
+    public ModBlock(final ExtendedProperties extendedProperties) {
+
+        super(extendedProperties._baseProperties);
+        this._stackStorable = extendedProperties._stackStorable;
+        this._stackStorableTooltipBuilder = extendedProperties._stackStorableTooltipBuilder;
         this.registerDefaultState(this.buildDefaultState(this.getStateDefinition().any()));
     }
 
@@ -240,7 +312,6 @@ public class ModBlock
     //endregion
     //region Block
 
-
     @Override
     public VoxelShape getBlockSupportShape(BlockState state, IBlockReader reader, BlockPos pos) {
         return super.getBlockSupportShape(state, reader, pos);
@@ -270,6 +341,27 @@ public class ModBlock
         }
     }
 
+    @Override
+    public void appendHoverText(final ItemStack stack, final @Nullable IBlockReader world,
+                                final List<ITextComponent> tooltip, final ITooltipFlag flag) {
+
+        if (this._stackStorable && stack.hasTag()) {
+
+            CompoundNBT data = stack.getTag();
+
+            //noinspection ConstantConditions
+            if (data.contains("BlockEntityTag")) {
+                data = data.getCompound("BlockEntityTag");
+            }
+
+            if (data.contains("zcvase_payload")) {
+                data = data.getCompound("zcvase_payload");
+            }
+
+            this._stackStorableTooltipBuilder.build(stack, data, world, tooltip::add, flag);
+        }
+    }
+
     //endregion
     //region internals
 
@@ -284,6 +376,11 @@ public class ModBlock
     protected BlockState buildDefaultState(BlockState state) {
         return state;
     }
+
+    private static final IStackStorableTooltipBuilder EMPTY_STACK_STORABLE_TOOLTIP_BUILDER = (stack, data, world, appender, flag) -> {};
+
+    private final boolean _stackStorable;
+    private final IStackStorableTooltipBuilder _stackStorableTooltipBuilder;
 
     //endregion
 }

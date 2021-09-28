@@ -50,7 +50,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
 
     public MultiblockPartBlock(final MultiblockPartProperties<PartType> properties) {
 
-        super(properties._blockProperties);
+        super(properties);
         this._partType = properties._partType;
         this._multiblockVariant = properties._multiblockVariant;
     }
@@ -89,7 +89,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
      *
      * @param world the block world
      * @param state the block state
-     * @return A instance of a class extending TileEntity
+     * @return An instance of a class extending TileEntity
      */
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
@@ -97,7 +97,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
     }
 
     /**
-     * Called when the block is right clicked by a player.
+     * Called when the block is right-clicked by a player.
      */
     @Override
     @SuppressWarnings("deprecation")
@@ -153,7 +153,8 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
         return super.use(state, world, position, player, hand, hit);
     }
 
-    public static class MultiblockPartProperties<PartType extends Enum<PartType> & IMultiblockPartType> {
+    public static class MultiblockPartProperties<PartType extends Enum<PartType> & IMultiblockPartType>
+            extends ExtendedProperties<MultiblockPartProperties<PartType>> {
 
         public static <PartType extends Enum<PartType> & IMultiblockPartType> MultiblockPartProperties<PartType> create(
                 final PartType partType, final Block.Properties blockProperties) {
@@ -170,12 +171,11 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
 
         private MultiblockPartProperties(final PartType partType, final Block.Properties blockProperties) {
 
-            this._blockProperties = blockProperties;
             this._partType = partType;
             this._multiblockVariant = null;
+            this.setBlockProperties(blockProperties);
         }
 
-        private final Block.Properties _blockProperties;
         private final PartType _partType;
         private IMultiblockVariant _multiblockVariant;
 
