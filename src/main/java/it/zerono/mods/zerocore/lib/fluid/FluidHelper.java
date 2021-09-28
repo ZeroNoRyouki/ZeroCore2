@@ -27,6 +27,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -47,6 +50,14 @@ public final class FluidHelper {
         return Objects.requireNonNull(stack.getFluid().getRegistryName());
     }
 
+    public static IFormattableTextComponent getFluidName(final Fluid fluid) {
+        return new TranslationTextComponent(fluid.getAttributes().getTranslationKey());
+    }
+
+    public static IFormattableTextComponent getFluidName(final FluidStack stack) {
+        return stack.isEmpty() ? new StringTextComponent("") : getFluidName(stack.getFluid());
+    }
+
     /**
      * Fill a destination fluid handler from a source fluid handler with a max amount.
      * The destination fluid handler is loaded from the provided world at the specified position.
@@ -64,6 +75,10 @@ public final class FluidHelper {
         return FluidUtil.getFluidHandler(world, destinationPosition, fillDirection)
                 .map(destination -> FluidUtil.tryFluidTransfer(destination, source, maxAmount, action.execute()))
                 .orElse(FluidStack.EMPTY);
+    }
+
+    public static FluidStack stackFrom(final FluidStack stack, final int amount) {
+        return new FluidStack(stack.getFluid(), amount);
     }
 
     /**
