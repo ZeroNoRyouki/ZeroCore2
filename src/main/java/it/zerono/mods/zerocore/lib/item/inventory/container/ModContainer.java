@@ -212,23 +212,23 @@ public class ModContainer extends AbstractContainerMenu {
             final Slot slot = this.getSlot(clickedSlotIndex);
 
             if (slot.hasItem()) {
-                slot.set(ItemHelper.stackEmpty());
+                slot.set(ItemStack.EMPTY);
             }
         }
 
-        //TODO 1.17.1 todo
-//        final SlotType slotType = this._factory.getSlotType(clickedSlotIndex);
-//
-//        switch (slotType) {
-//
-//            case GhostOutput:
-//            case Static:
-//            case Unknown:
-//                return ItemStack.EMPTY;
-//
-//            default:
-//                return super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
-//        }
+        final SlotType slotType = this._factory.getSlotType(clickedSlotIndex);
+
+        switch (slotType) {
+
+            case GhostOutput:
+            case Static:
+            case Unknown:
+                break;
+
+            default:
+                super.clicked(clickedSlotIndex, dragType, clickTypeIn, player);
+                break;
+        }
     }
 
     /**
