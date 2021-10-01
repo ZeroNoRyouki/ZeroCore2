@@ -69,7 +69,7 @@ public class ItemStackHolder
 
     @Override
     public boolean isEmpty(final int index) {
-        return false;
+        return this.getStackInSlot(index).isEmpty();
     }
 
     //endregion
