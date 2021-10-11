@@ -35,6 +35,8 @@ import net.minecraft.nbt.NBTUtil;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
@@ -59,6 +61,14 @@ public final class ItemHelper {
 
     public static ResourceLocation getItemId(final ItemStack stack) {
         return Objects.requireNonNull(stack.getItem().getRegistryName());
+    }
+
+    public static IFormattableTextComponent getItemName(final Item item) {
+        return new TranslationTextComponent(item.getDescriptionId());
+    }
+
+    public static IFormattableTextComponent getItemName(final ItemStack stack) {
+        return new TranslationTextComponent(stack.getDescriptionId());
     }
 
     @Nullable
