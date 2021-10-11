@@ -18,6 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.data.stack;
 
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
+
 import java.util.function.ObjIntConsumer;
 
 public interface IStackHolder<Holder extends IStackHolder<Holder, Stack>, Stack> {
@@ -65,4 +67,23 @@ public interface IStackHolder<Holder extends IStackHolder<Holder, Stack>, Stack>
     Holder setOnContentsChangedListener(ObjIntConsumer<ChangeType> listener);
 
     Holder setOnLoadListener(Runnable listener);
+
+    default void setMaxCapacity(Int2IntFunction maxCapacityProvider) {
+    }
+
+    default void setMaxCapacity(int maxCapacity) {
+        this.setMaxCapacity($ -> maxCapacity);
+    }
+
+    default int getMaxCapacity(int index) {
+        return 0;
+    }
+
+    default int getAmount(int index) {
+        return 0;
+    }
+
+    default int getFreeSpace(int index) {
+        return this.getMaxCapacity(index) - this.getAmount(index);
+    }
 }
