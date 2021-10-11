@@ -40,7 +40,7 @@ public interface IRecipeHolder<Recipe extends ModRecipe>
     }
 
     /**
-     * Discard the currently held recipe (if any) and load a new one (if possibile)
+     * Discard the currently held recipe (if any) and load a new one (if possible)
      */
     default void refresh() {
         this.createHeldRecipe();

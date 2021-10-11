@@ -152,6 +152,18 @@ public abstract class ItemStackRecipeIngredient
         }
 
         @Override
+        public boolean isCompatible(final ItemStack... ingredients) {
+
+            for (final ItemStack stack : ingredients) {
+                if (this._ingredient.test(stack)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
         public ItemStack getMatchFrom(final ItemStack stack) {
             return this.test(stack) ? ItemHelper.stackFrom(stack, this._amount) : ItemStack.EMPTY;
         }
@@ -243,6 +255,11 @@ public abstract class ItemStackRecipeIngredient
         @Override
         public boolean isCompatible(final ItemStack stack) {
             return this._ingredients.stream().anyMatch(ingredient -> ingredient.isCompatible(stack));
+        }
+
+        @Override
+        public boolean isCompatible(final ItemStack... ingredients) {
+            return this._ingredients.stream().anyMatch(ingredient -> ingredient.isCompatible(ingredients));
         }
 
         @Override

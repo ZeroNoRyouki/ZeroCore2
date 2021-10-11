@@ -28,7 +28,6 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.tag.TagsHelper;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ITag;
@@ -36,7 +35,6 @@ import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -157,6 +155,18 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
+        public boolean isCompatible(final FluidStack... ingredients) {
+
+            for (final FluidStack stack : ingredients) {
+                if (stack.isFluidEqual(this._ingredient)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
         public FluidStack getMatchFrom(final FluidStack stack) {
             return this.test(stack) ? this._ingredient : FluidStack.EMPTY;
         }
@@ -231,6 +241,11 @@ public abstract class FluidStackRecipeIngredient
         @Override
         public boolean isCompatible(final FluidStack stack) {
             return this._ingredients.stream().anyMatch(ingredient -> ingredient.isCompatible(stack));
+        }
+
+        @Override
+        public boolean isCompatible(FluidStack... ingredients) {
+            return this._ingredients.stream().anyMatch(ingredient -> ingredient.isCompatible(ingredients));
         }
 
         @Override
@@ -324,6 +339,18 @@ public abstract class FluidStackRecipeIngredient
         @Override
         public boolean isCompatible(final FluidStack stack) {
             return Objects.requireNonNull(stack).getFluid().is(this._tag);
+        }
+
+        @Override
+        public boolean isCompatible(final FluidStack... ingredients) {
+
+            for (final FluidStack stack : ingredients) {
+                if (stack.getFluid().is(this._tag)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         @Override
