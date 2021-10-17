@@ -101,6 +101,7 @@ public final class ItemHelper {
         public static final EnumSet<MatchOption> MATCH_ALWAYS = EnumSet.noneOf(MatchOption.class);
         public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT, Capabilities, Tags);
         public static final EnumSet<MatchOption> MATCH_ITEM = EnumSet.of(Item);
+        public static final EnumSet<MatchOption> MATCH_ITEM_NBT = EnumSet.of(Item, NBT);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE = EnumSet.of(Item, Damage);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE_NBT = EnumSet.of(Item, Damage, NBT);
         public static final EnumSet<MatchOption> MATCH_EXISTING_STACK = EnumSet.of(Item, Damage, NBT, Capabilities, Tags);
@@ -139,11 +140,7 @@ public final class ItemHelper {
         }
 
         if (result && options.contains(MatchOption.NBT)) {
-
-            final CompoundNBT nbtA = stackA.getTag();
-            final CompoundNBT nbtB = stackB.getTag();
-
-            result = (nbtA == nbtB) || (null != nbtA && null != nbtB && NBTUtil.compareNbt(nbtA, nbtB, true));
+            result = ItemStack.tagMatches(stackA, stackB);
         }
 
         if (result && options.contains(MatchOption.Capabilities)) {
