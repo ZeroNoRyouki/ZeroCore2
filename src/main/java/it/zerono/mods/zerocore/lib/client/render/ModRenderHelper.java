@@ -52,6 +52,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.Style;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ModelLoader;
@@ -186,6 +189,15 @@ public final class ModRenderHelper {
         } else {
             return s;
         }
+    }
+
+    public static List<ITextProperties> wrapLines(final ITextProperties line, final int maxLineWidth, final FontRenderer font) {
+        return wrapLines(line, Style.EMPTY, maxLineWidth, font);
+    }
+
+    public static List<ITextProperties> wrapLines(final ITextProperties line, final Style lineStyle,
+                                                  final int maxLineWidth, final FontRenderer font) {
+        return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
     }
 
     public static List<String> wrapLines(final String text, final int maxLineWidth, final FontRenderer font) {

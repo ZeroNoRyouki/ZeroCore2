@@ -74,7 +74,7 @@ public final class FilterManager<T extends IFilterComponent> {
 
         if (!factory.isPresent()) {
 
-            Log.LOGGER.warn("Unable to load filter component: no factory found for %s", componentId);
+            Log.LOGGER.warn("Unable to load filter component: no factory found for {}", componentId);
             return Optional.empty();
         }
 

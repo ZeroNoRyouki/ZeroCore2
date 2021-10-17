@@ -89,6 +89,108 @@ public final class JSONHelper {
     }
 
     /**
+     * Get a long value from a JSON element
+     *
+     * @param json the JSON element
+     * @param elementName the name of the element
+     * @return the long value of the element
+     */
+    public static long jsonGetLong(final JsonElement json, final String elementName) {
+
+        if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isNumber()) {
+            return json.getAsLong();
+        } else {
+            throw new JsonSyntaxException("JSON element is not a integer: " + elementName);
+        }
+    }
+
+    /**
+     * Get a mandatory long from a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @return the long value of the element
+     */
+    public static long jsonGetLong(final JsonObject json, final String elementName) {
+        return jsonGetLong(jsonGetMandatoryElement(json, elementName), elementName);
+    }
+
+    /**
+     * Get an optional long from a JSON object.
+     * If the element if not present, return {@code defaultValue}
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param defaultValue the default value to use if the element is not found
+     * @return the element value or {@code defaultValue}
+     */
+    public static long jsonGetLong(final JsonObject json, final String elementName, final long defaultValue) {
+        return json.has(elementName) ? jsonGetLong(json.get(elementName), elementName) : defaultValue;
+    }
+
+    /**
+     * Set a long value in a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param value the value
+     */
+    public static void jsonSetLong(final JsonObject json, final String elementName, final long value) {
+        json.addProperty(elementName, value);
+    }
+
+    /**
+     * Get a short value from a JSON element
+     *
+     * @param json the JSON element
+     * @param elementName the name of the element
+     * @return the short value of the element
+     */
+    public static short jsonGetShort(final JsonElement json, final String elementName) {
+
+        if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isNumber()) {
+            return json.getAsShort();
+        } else {
+            throw new JsonSyntaxException("JSON element is not a integer: " + elementName);
+        }
+    }
+
+    /**
+     * Get a mandatory short from a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @return the short value of the element
+     */
+    public static short jsonGetShort(final JsonObject json, final String elementName) {
+        return jsonGetShort(jsonGetMandatoryElement(json, elementName), elementName);
+    }
+
+    /**
+     * Get an optional short from a JSON object.
+     * If the element if not present, return {@code defaultValue}
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param defaultValue the default value to use if the element is not found
+     * @return the element value or {@code defaultValue}
+     */
+    public static short jsonGetShort(final JsonObject json, final String elementName, final short defaultValue) {
+        return json.has(elementName) ? jsonGetShort(json.get(elementName), elementName) : defaultValue;
+    }
+
+    /**
+     * Set a short value in a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param value the value
+     */
+    public static void jsonSetShort(final JsonObject json, final String elementName, final short value) {
+        json.addProperty(elementName, value);
+    }
+
+    /**
      * Get a double value from a JSON element
      *
      * @param json the JSON element

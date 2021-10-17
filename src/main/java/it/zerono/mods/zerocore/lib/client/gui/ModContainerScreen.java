@@ -173,6 +173,10 @@ public class ModContainerScreen<C extends ModContainer>
         this.renderTooltip(matrix, this.getOriginalMouseX(), this.getOriginalMouseY());
     }
 
+    public int getTooltipsPopupMaxWidth() {
+        return RichText.NO_MAX_WIDTH;
+    }
+
     public int getOriginalMouseX() {
         return this._originalMouseX;
     }

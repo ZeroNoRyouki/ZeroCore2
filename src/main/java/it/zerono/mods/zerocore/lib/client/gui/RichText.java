@@ -34,6 +34,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 
@@ -48,13 +50,14 @@ public class RichText
     implements IRichText {
 
     public static final RichText EMPTY = new RichText();
+    public static final int NO_MAX_WIDTH = -1;
 
     public static Builder builder() {
         return new Builder();
     }
 
     public static Builder builder(final int maxWidth) {
-        return new WrappedBuilder(maxWidth);
+        return NO_MAX_WIDTH == maxWidth ? new Builder() : new WrappedBuilder(maxWidth);
     }
 
     //region IRichText
@@ -125,10 +128,10 @@ public class RichText
         richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
-    private static void paintString(final RichText richText, final ITextComponent chunk,
+    private static void paintString(final RichText richText, final ITextProperties chunk,
                                     final MatrixStack matrix, final int x, final int y) {
-//        richText._fontSupplier.get().drawStringWithShadow(matrix, chunk, x, y, richText._textColour.toARGB());
-        richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
+        richText._fontSupplier.get().drawShadow(matrix, LanguageMap.getInstance().getVisualOrder(chunk), x, y,
+                richText._textColour.toARGB());
     }
 
     private static void paintItemStack(final RichText richText, final ItemStack chunk,
@@ -343,7 +346,6 @@ public class RichText
 
         @Override
         public int getWidth() {
-//            return this._fontSupplier.get().getStringWidth(this.get().get()./*getFormattedText()*/getString());
             return this._fontSupplier.get().width(this.get().get());
         }
 
@@ -352,7 +354,6 @@ public class RichText
 
         private static void paintString(final RichText richText, final NonNullSupplier<ITextComponent> chunk,
                                         final MatrixStack matrix, final int x, final int y) {
-//            RichText.paintString(richText, chunk.get()./*getFormattedText()*/getString(), matrix, x, y);
             RichText.paintString(richText, chunk.get(), matrix, x, y);
         }
 
@@ -454,7 +455,7 @@ public class RichText
             return textLines;
         }
 
-        protected ITextChunk chunk(final ITextComponent text) {
+        protected ITextChunk chunk(final ITextProperties text) {
             return new TextChunk<>(text, this._fontSupplier.get().width(text),
                     this._fontSupplier.get().lineHeight, RichText::paintString);
         }
@@ -612,21 +613,21 @@ public class RichText
         private Stream<TextLine> splitTextOnlyLine(final ITextComponent line) {
 
             final FontRenderer font = this._fontSupplier.get();
-            final String text = line.getString();
 
-            if (this._maxWidth > font.width(text)) {
+            if (this._maxWidth > font.width(line)) {
                 // no need to split the line
-                return Stream.of(TextLine.from(this.chunk(text)));
+                return Stream.of(TextLine.from(this.chunk(line)));
             } else {
                 // split the line
-                return ModRenderHelper.wrapLines(text, this._maxWidth, font).stream().map(s -> TextLine.from(this.chunk(s)));
+                return ModRenderHelper.wrapLines(line, line.getStyle(), this._maxWidth, font).stream()
+                        .map(p -> TextLine.from(this.chunk(p)));
             }
         }
 
         private Stream<TextLine> splitFormattedLine(final ITextComponent line) {
 
             final List<ITextChunk> chunks = this.splitFormattedTextLineChunks(line);
-            final Integer[] chunksWidths = chunks.stream().map(ITextChunk::getWidth).toArray(Integer[]::new);
+            final int[] chunksWidths = chunks.stream().mapToInt(ITextChunk::getWidth).toArray();
 
             final List<TextLine> lines = Lists.newLinkedList();
             final List<ITextChunk> currentLineChunks = Lists.newLinkedList();

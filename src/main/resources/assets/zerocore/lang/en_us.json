@@ -22,5 +22,8 @@
 
     "_comment": "Miscellanea",
     "zerocore:gui.patchouli.missing": "The mod Patchouli need to be installed to use this feature",
-    "zerocore:gui.manual.open": "Open the manual page"
+    "zerocore:gui.manual.open": "Open the manual page",
+
+    "_comment": "GUI",
+    "zerocore:gui.base.ioport.mode": "Operational mode:"
 }

@@ -23,11 +23,11 @@ import it.zerono.mods.zerocore.lib.client.gui.CompositeRichText;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.RichText;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import it.zerono.mods.zerocore.lib.functional.NonNullIntFunction;
 import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.common.util.NonNullFunction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,7 +37,7 @@ import java.util.concurrent.locks.StampedLock;
 import java.util.function.Predicate;
 
 class GuiErrorData
-        implements Predicate<BlockPos>, NonNullFunction<Integer, IRichText> {
+        implements Predicate<BlockPos>, NonNullIntFunction<IRichText> {
 
     public GuiErrorData() {
 
@@ -86,11 +86,11 @@ class GuiErrorData
         this._lock.unlockWrite(stamp);
     }
 
-    //region NonNullFunction<Integer, IRichText>
+    //region NonNullIntFunction<IRichText>
 
     @Nonnull
     @Override
-    public IRichText apply(@Nonnull final Integer maxTextWidth) {
+    public IRichText apply(final int maxTextWidth) {
 
         long lockStamp = this._lock.readLock();
         final List<ITextComponent> errorMessages = this._errorMessages;

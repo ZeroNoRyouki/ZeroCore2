@@ -24,6 +24,7 @@ package it.zerono.mods.zerocore.lib.energy;
  * Based upon the IEnergyStorage from King Lemming's RedstoneFlux API
  */
 @SuppressWarnings("unused")
+@Deprecated //use IWideEnergyStorage2
 public interface IWideEnergyStorage
     extends IEnergySystemAware {
 

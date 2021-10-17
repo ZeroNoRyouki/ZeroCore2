@@ -28,7 +28,8 @@ public enum IoMode implements IDebuggable {
 
     Active,
     Passive,
-    Both;
+    Both,
+    None;
 
     public boolean isActive() {
         return this == Active || this == Both;
@@ -38,7 +39,10 @@ public enum IoMode implements IDebuggable {
         return this == Passive || this == Both;
     }
 
-    //TODO check "data" owner; for write too
+    public boolean isDisabled() {
+        return this == None;
+    }
+
     public static IoMode read(final CompoundNBT data, final String key, final IoMode defaultValue) {
 
         if (data.contains(key)) {

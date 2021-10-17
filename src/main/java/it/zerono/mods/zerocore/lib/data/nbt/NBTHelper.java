@@ -108,6 +108,17 @@ public final class NBTHelper {
     }
 
     /**
+     * Check if the provided NBT tag contains an Enum value saved by nbtSetEnum() with the given key
+     *
+     * @param nbt   the NBT tag to store the data into
+     * @param key   the key to be associated with the data
+     * @return true if an enum is present, false otherwise
+     */
+    public static boolean nbtContainsEnum(final CompoundNBT nbt, final String key) {
+        return nbt.contains(key, Constants.NBT.TAG_STRING);
+    }
+
+    /**
      * Get an Enum value from the provided NBT tag
      *
      * Please note that this method assume that the requested value is in the tag (i.e., that nbt.hasKey(key) is true)
@@ -151,6 +162,17 @@ public final class NBTHelper {
 
         nbt.put(key, tagList);
         return nbt;
+    }
+
+    /**
+     * Check if the provided NBT tag contains an Enum value saved by nbtSetEnum() with the given key
+     *
+     * @param nbt   the NBT tag to store the data into
+     * @param key   the key to be associated with the data
+     * @return true if an enum is present, false otherwise
+     */
+    public static boolean nbtContainsEnumSet(final CompoundNBT nbt, final String key) {
+        return nbt.contains(key, Constants.NBT.TAG_LIST);
     }
 
     /**
