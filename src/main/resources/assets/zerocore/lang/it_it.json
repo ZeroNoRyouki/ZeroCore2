@@ -22,5 +22,8 @@
 
     "_comment": "Miscellanea",
     "zerocore:gui.patchouli.missing": "Il mod Patchouli deve essere presente per utilizzare questa funzionalità",
-    "zerocore:gui.manual.open": "Apri la pagina del manuale"
+    "zerocore:gui.manual.open": "Apri la pagina del manuale",
+
+    "_comment": "GUI",
+    "zerocore:gui.base.ioport.mode": "Modalità operativa:"
 }
