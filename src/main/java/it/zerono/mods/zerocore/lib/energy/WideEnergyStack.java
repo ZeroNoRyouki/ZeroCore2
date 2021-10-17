@@ -58,7 +58,7 @@ public class WideEnergyStack
         return this.getEnergySystem() == other.getEnergySystem();
     }
 
-    public static boolean areItemStacksEqual(final WideEnergyStack stackA, final WideEnergyStack stackB) {
+    public static boolean areStacksEqual(final WideEnergyStack stackA, final WideEnergyStack stackB) {
 
         if (stackA.isEmpty() && stackB.isEmpty()) {
             return true;
@@ -76,15 +76,15 @@ public class WideEnergyStack
     }
 
     public void setAmount(final WideAmount amount) {
-        this._amount.set(amount);
+        this._amount = this._amount.set(amount);
     }
 
     public void grow(final WideAmount increment) {
-        this._amount.add(increment);
+        this._amount = this._amount.add(increment);
     }
 
     public void shrink(final WideAmount decrement) {
-        this._amount.subtract(decrement);
+        this._amount = this._amount.subtract(decrement);
     }
 
     public CompoundNBT serializeTo(final CompoundNBT nbt) {
@@ -183,7 +183,7 @@ public class WideEnergyStack
     }
 
     private final EnergySystem _system;
-    private final WideAmount _amount;
+    private WideAmount _amount;
 
     //endregion
 }

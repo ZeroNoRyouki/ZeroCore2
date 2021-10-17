@@ -517,7 +517,7 @@ public final class StackAdapters {
 
             @Override
             public boolean areIdentical(WideEnergyStack stack1, WideEnergyStack stack2) {
-                return WideEnergyStack.areItemStacksEqual(stack1, stack2);
+                return WideEnergyStack.areStacksEqual(stack1, stack2);
             }
 
             @Override
