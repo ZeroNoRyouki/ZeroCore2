@@ -61,11 +61,6 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 	//region AbstractMultiblockController
 
     @Override
-    protected CuboidBoundingBox buildBoundingBox() {
-        return this._connectedParts.boundingBox();
-    }
-
-    @Override
     protected NeighboringPositions getNeighboringPositionsToVisit() {
         return new NeighboringPositions(CodeHelper.POSITIVE_DIRECTIONS);
     }

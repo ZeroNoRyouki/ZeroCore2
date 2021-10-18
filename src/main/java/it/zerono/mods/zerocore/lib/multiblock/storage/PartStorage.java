@@ -321,7 +321,23 @@ public class PartStorage<Controller extends IMultiblockController<Controller>>
 
     @Override
     public CuboidBoundingBox boundingBox() {
-        return new CuboidBoundingBox(BlockPos.of(this._parts.firstLongKey()), BlockPos.of(this._parts.lastLongKey()));
+
+        if (this.size() <= 4096) {
+
+            CuboidBoundingBox bb = CuboidBoundingBox.EMPTY;
+
+            for (final IMultiblockPart<Controller> part : this._values) {
+                bb = bb.add(part.getWorldPosition());
+            }
+
+            return bb;
+
+        } else {
+
+            return this.parallelStream()
+                    .map(IMultiblockPart::getWorldPosition)
+                    .collect(CuboidBoundingBox::new, CuboidBoundingBox::add, CuboidBoundingBox::combine);
+        }
     }
 
     //endregion
