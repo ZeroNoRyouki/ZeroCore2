@@ -41,6 +41,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.lwjgl.system.CallbackI;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -101,6 +102,7 @@ public final class ItemHelper {
         public static final EnumSet<MatchOption> MATCH_ALWAYS = EnumSet.noneOf(MatchOption.class);
         public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT, Capabilities, Tags);
         public static final EnumSet<MatchOption> MATCH_ITEM = EnumSet.of(Item);
+        public static final EnumSet<MatchOption> MATCH_ITEM_SIZE = EnumSet.of(Item, Size);
         public static final EnumSet<MatchOption> MATCH_ITEM_NBT = EnumSet.of(Item, NBT);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE = EnumSet.of(Item, Damage);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE_NBT = EnumSet.of(Item, Damage, NBT);
