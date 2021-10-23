@@ -63,4 +63,20 @@ public interface IWideEnergyStorage2
      * @param system the {@link EnergySystem} used by the request
      */
     WideAmount getCapacity(EnergySystem system);
+
+    /**
+     * Returns if this storage can have energy extracted.
+     * If this is false, then any calls to extractEnergy will return 0.
+     */
+    default boolean canExtract() {
+        return true;
+    }
+
+    /**
+     * Used to determine if this storage can receive energy.
+     * If this is false, then any calls to insertEnergy will return 0.
+     */
+    default boolean canInsert() {
+        return true;
+    }
 }

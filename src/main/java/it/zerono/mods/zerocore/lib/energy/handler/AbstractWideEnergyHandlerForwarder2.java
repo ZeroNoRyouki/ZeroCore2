@@ -1,6 +1,6 @@
 /*
  *
- * AbstractWideEnergyHandlerForwarder.java
+ * AbstractWideEnergyHandlerForwarder2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,17 +18,17 @@
 
 package it.zerono.mods.zerocore.lib.energy.handler;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
-import it.zerono.mods.zerocore.lib.energy.IWideEnergyHandler;
+import it.zerono.mods.zerocore.lib.energy.IWideEnergyHandler2;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
-@Deprecated // use AbstractWideEnergyHandlerForwarder2
-public abstract class AbstractWideEnergyHandlerForwarder<T extends IWideEnergyHandler>
-        implements IWideEnergyHandler {
+public class AbstractWideEnergyHandlerForwarder2<T extends IWideEnergyHandler2>
+        implements IWideEnergyHandler2 {
 
-    protected AbstractWideEnergyHandlerForwarder(final T handler) {
+    protected AbstractWideEnergyHandlerForwarder2(final T handler) {
         this.setHandler(handler);
     }
 
@@ -40,7 +40,7 @@ public abstract class AbstractWideEnergyHandlerForwarder<T extends IWideEnergyHa
         this._handler = handler;
     }
 
-    //region IWideEnergyHandler
+    //region IWideEnergyHandler2
 
     /**
      * Get the {@link EnergySystem} used by this entity
@@ -70,7 +70,7 @@ public abstract class AbstractWideEnergyHandlerForwarder<T extends IWideEnergyHa
      * @param from   the direction the request is coming from, or null for any directions
      */
     @Override
-    public double getEnergyStored(final EnergySystem system, final @Nullable Direction from) {
+    public WideAmount getEnergyStored(final EnergySystem system, final @Nullable Direction from) {
         return this.getHandler().getEnergyStored(system, from);
     }
 
@@ -81,7 +81,7 @@ public abstract class AbstractWideEnergyHandlerForwarder<T extends IWideEnergyHa
      * @param from   the direction the request is coming from, or null for any directions
      */
     @Override
-    public double getCapacity(final EnergySystem system, final @Nullable Direction from) {
+    public WideAmount getCapacity(final EnergySystem system, final @Nullable Direction from) {
         return this.getHandler().getCapacity(system, from);
     }
 

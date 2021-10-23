@@ -1,6 +1,6 @@
 /*
  *
- * WideEnergyReceiverForwarder.java
+ * WideEnergyReceiverForwarder2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,36 +18,37 @@
 
 package it.zerono.mods.zerocore.lib.energy.handler;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
-import it.zerono.mods.zerocore.lib.energy.IWideEnergyReceiver;
+import it.zerono.mods.zerocore.lib.energy.IWideEnergyReceiver2;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
-@Deprecated //use WideEnergyReceiverForwarder2
-public class WideEnergyReceiverForwarder
-        extends AbstractWideEnergyHandlerForwarder<IWideEnergyReceiver>
-        implements IWideEnergyReceiver {
+public class WideEnergyReceiverForwarder2
+        extends AbstractWideEnergyHandlerForwarder2<IWideEnergyReceiver2>
+        implements IWideEnergyReceiver2 {
 
-    public WideEnergyReceiverForwarder(final IWideEnergyReceiver handler) {
+    public WideEnergyReceiverForwarder2(final IWideEnergyReceiver2 handler) {
         super(handler);
     }
 
-    //region IWideEnergyReceiver
+    //region IWideEnergyReceiver2
 
     /**
      * Add energy, expressed in the specified {@link EnergySystem}, to an IWideEnergyReceiver.
      * Internal distribution is left entirely to the IWideEnergyReceiver
      *
-     * @param system    the {@link EnergySystem} used by the request
-     * @param from      the direction the request is coming from, or null for any directions
+     * @param system the {@link EnergySystem} used by the request
+     * @param from the direction the request is coming from, or null for any directions
      * @param maxAmount maximum amount of energy to receive
-     * @param simulate  if true, the extraction will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) received
      */
     @Override
-    public double receiveEnergy(EnergySystem system, @Nullable Direction from, double maxAmount, boolean simulate) {
-        return this.getHandler().receiveEnergy(system, from, maxAmount, simulate);
+    public WideAmount receiveEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode) {
+        return this.getHandler().receiveEnergy(system, from, maxAmount, mode);
     }
 
     //endregion

@@ -1,6 +1,6 @@
 /*
  *
- * IWideEnergyProvider2.java
+ * WideEnergyProviderForwarder2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,22 +16,25 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.energy;
+package it.zerono.mods.zerocore.lib.energy.handler;
 
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
+import it.zerono.mods.zerocore.lib.energy.EnergySystem;
+import it.zerono.mods.zerocore.lib.energy.IWideEnergyProvider2;
 import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
-/**
- * Implement this interface on entities which should provide energy, generally storing it
- * in one or more internal {@link IWideEnergyStorage2} objects
- *
- * Based upon the IEnergyHandler from King Lemming's RedstoneFlux API
- */
-public interface IWideEnergyProvider2
-        extends IWideEnergyHandler2 {
+public class WideEnergyProviderForwarder2
+        extends AbstractWideEnergyHandlerForwarder2<IWideEnergyProvider2>
+        implements IWideEnergyProvider2 {
+
+    public WideEnergyProviderForwarder2(final IWideEnergyProvider2 handler) {
+        super(handler);
+    }
+
+    //region IWideEnergyProvider2
 
     /**
      * Remove energy, expressed in the specified {@link EnergySystem}, from an IWideEnergyProvider2.
@@ -43,5 +46,11 @@ public interface IWideEnergyProvider2
      * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) extracted
      */
-    WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode);
+    @Override
+    public WideAmount extractEnergy(final EnergySystem system, final @Nullable Direction from,
+                                    final WideAmount maxAmount, final OperationMode mode) {
+        return this.getHandler().extractEnergy(system, from, maxAmount, mode);
+    }
+
+    //endregion
 }

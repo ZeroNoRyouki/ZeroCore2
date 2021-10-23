@@ -1,6 +1,6 @@
 /*
  *
- * WideEnergyStorageForwarder.java
+ * WideEnergyStorageForwarder2.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,26 +18,27 @@
 
 package it.zerono.mods.zerocore.lib.energy.handler;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
-import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage;
+import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage2;
 
-@Deprecated //use WideEnergyStorageForwarder2
-public class WideEnergyStorageForwarder
-        implements IWideEnergyStorage {
+public class WideEnergyStorageForwarder2
+        implements IWideEnergyStorage2 {
 
-    public WideEnergyStorageForwarder(final IWideEnergyStorage handler) {
+    public WideEnergyStorageForwarder2(final IWideEnergyStorage2 handler) {
         this.setHandler(handler);
     }
 
-    public IWideEnergyStorage getHandler() {
+    public IWideEnergyStorage2 getHandler() {
         return this._handler;
     }
 
-    public void setHandler(final IWideEnergyStorage handler) {
+    public void setHandler(final IWideEnergyStorage2 handler) {
         this._handler = handler;
     }
 
-    //region IWideEnergyStorage
+    //region IWideEnergyStorage2
 
     /**
      * Get the {@link EnergySystem} used by this entity
@@ -52,27 +53,27 @@ public class WideEnergyStorageForwarder
     /**
      * Add energy, expressed in the specified {@link EnergySystem}, to the storage
      *
-     * @param system    the {@link EnergySystem} used by the request
+     * @param system the {@link EnergySystem} used by the request
      * @param maxAmount maximum amount of energy to be inserted
-     * @param simulate  if true, the insertion will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) inserted
      */
     @Override
-    public double insertEnergy(final EnergySystem system, final double maxAmount, final boolean simulate) {
-        return this.getHandler().insertEnergy(system, maxAmount, simulate);
+    public WideAmount insertEnergy(final EnergySystem system, final WideAmount maxAmount, final OperationMode mode) {
+        return this.getHandler().insertEnergy(system, maxAmount, mode);
     }
 
     /**
      * Remove energy, expressed in the specified {@link EnergySystem}, from the storage
      *
-     * @param system    the {@link EnergySystem} used by the request
+     * @param system the {@link EnergySystem} used by the request
      * @param maxAmount maximum amount of energy to be extracted
-     * @param simulate  if true, the extraction will only be simulated
+     * @param mode how the operation is carried out
      * @return amount of energy that was (or would have been, if simulated) extracted from the storage
      */
     @Override
-    public double extractEnergy(final EnergySystem system, final double maxAmount, final boolean simulate) {
-        return this.getHandler().extractEnergy(system, maxAmount, simulate);
+    public WideAmount extractEnergy(final EnergySystem system, final WideAmount maxAmount, final OperationMode mode) {
+        return this.getHandler().extractEnergy(system, maxAmount, mode);
     }
 
     /**
@@ -81,7 +82,7 @@ public class WideEnergyStorageForwarder
      * @param system the {@link EnergySystem} used by the request
      */
     @Override
-    public double getEnergyStored(final EnergySystem system) {
+    public WideAmount getEnergyStored(final EnergySystem system) {
         return this.getHandler().getEnergyStored(system);
     }
 
@@ -91,7 +92,7 @@ public class WideEnergyStorageForwarder
      * @param system the {@link EnergySystem} used by the request
      */
     @Override
-    public double getCapacity(final EnergySystem system) {
+    public WideAmount getCapacity(final EnergySystem system) {
         return this.getHandler().getCapacity(system);
     }
 
@@ -116,7 +117,7 @@ public class WideEnergyStorageForwarder
     //endregion
     //region internals
 
-    private IWideEnergyStorage _handler;
+    private IWideEnergyStorage2 _handler;
 
     //endregion
 }
