@@ -434,7 +434,7 @@ public class WideAmount
      * @return this {@link WideAmount} or a new {@link WideAmount} if this one is immutable or {@link WideAmount#MAX_VALUE} if the operation has overflown
      */
     public double percentage(final WideAmount total) {
-        return total.isZero() || this.greaterThan(total) ? 1.0 : this.divide(total).doubleValue();
+        return total.isZero() || this.greaterThan(total) ? 1.0 : this.copy().divide(total).doubleValue();
     }
 
     public String toString(int decimalPlaces) {
