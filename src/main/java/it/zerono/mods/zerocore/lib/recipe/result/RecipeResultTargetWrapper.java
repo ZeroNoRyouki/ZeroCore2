@@ -90,10 +90,8 @@ public class RecipeResultTargetWrapper {
                     return 0;
                 }
 
-                final int max = Integer.MAX_VALUE;
-
-                stack.setAmount(max);
-                return (max - inventory.fill(stack, IFluidHandler.FluidAction.SIMULATE)) / result.getAmount();
+                stack.setAmount(Integer.MAX_VALUE);
+                return (inventory.fill(stack, IFluidHandler.FluidAction.SIMULATE)) / result.getAmount();
             }
         };
     }
