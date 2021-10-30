@@ -22,12 +22,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.data.nbt.IConditionallySyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import it.zerono.mods.zerocore.lib.event.Event;
+import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotTemplate;
@@ -40,7 +44,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.PlayerInvWrapper;
@@ -52,7 +58,9 @@ import java.util.Map;
 import java.util.Optional;
 
 @SuppressWarnings({"WeakerAccess"})
-public class ModContainer extends Container {
+public class ModContainer
+        extends Container
+        implements IContainerData {
 
     public static final String INVENTORYNAME_PLAYER_INVENTORY = "playerinventory";
     public static final String INVENTORY_CONTAINER = "container";
@@ -92,6 +100,35 @@ public class ModContainer extends Container {
         this.addInventory(name, new PlayerInvWrapper(inventory));
     }
 
+    public void addContainerData(final IContainerData data) {
+
+        if (null == this._dataToSync) {
+            this._dataToSync = new ObjectArrayList<>(4);
+        }
+
+        if (Short.MAX_VALUE == this._dataToSync.size()) {
+            throw new IllegalStateException("Too many container data object added!");
+        }
+
+        this._dataToSync.add(data);
+    }
+
+    public Runnable subscribeContainerDataUpdate(final Runnable handler) {
+
+        if (null == this._dataUpdateEvent) {
+            this._dataUpdateEvent = new Event<>();
+        }
+
+        return this._dataUpdateEvent.subscribe(handler);
+    }
+
+    public void unsubscribeContainerDataUpdate(final Runnable handler) {
+
+        if (null != this._dataUpdateEvent) {
+            this._dataUpdateEvent.unsubscribe(handler);
+        }
+    }
+
     public void createSlots() {
 
         for (final SlotFactory slotFactory : this._factory.getSlots()) {
@@ -126,6 +163,63 @@ public class ModContainer extends Container {
         }
     }
 
+    //region IContainerData
+
+    /**
+     * Return a {@link PacketBuffer} consumer that will be used to write this {@code IContainerData}'s data to a packet.
+     * The consumer could either serialize the whole data to a packet or only the changes occurred since the last call to this method.
+     * <p>
+     * Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).
+     *
+     * @return the consumer, or {@code null}
+     */
+    @Nullable
+    @Override
+    public NonNullConsumer<PacketBuffer> getContainerDataWriter() {
+        return buffer -> {
+
+            buffer.writeInt(this.containerId);
+
+            if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
+                for (int idx = 0; idx < this._dataToSync.size(); ++idx) {
+
+                    final NonNullConsumer<PacketBuffer> writer = this._dataToSync.get(idx).getContainerDataWriter();
+
+                    if (null != writer) {
+
+                        buffer.writeShort(idx);
+                        writer.accept(buffer);
+                    }
+                }
+            }
+
+            buffer.writeShort(-1);
+        };
+    }
+
+    /**
+     * Read back the data that was serialized to a packet by a consumer provided by {@code getContainerDataWriter}
+     *
+     * @param dataSource the buffer containing the data
+     */
+    @Override
+    public void readContainerData(final PacketBuffer dataSource) {
+
+        if (this.containerId == dataSource.readInt() && null != this._dataToSync && !this._dataToSync.isEmpty()) {
+
+            short idx;
+
+            while (-1 != (idx = dataSource.readShort())) {
+                this._dataToSync.get(idx).readContainerData(dataSource);
+            }
+
+            if (null != this._dataUpdateEvent) {
+                this._dataUpdateEvent.raise(Runnable::run);
+            }
+        }
+    }
+
+    //endregion
     //region Container
 
     /**
@@ -228,7 +322,7 @@ public class ModContainer extends Container {
             final Slot slot = this.getSlot(clickedSlotIndex);
 
             if (slot.hasItem()) {
-                slot.set(ItemHelper.stackEmpty());
+                slot.set(ItemStack.EMPTY);
             }
         }
 
@@ -269,13 +363,13 @@ public class ModContainer extends Container {
         if (!clickedTemplate.isPresent()) {
 
             Log.LOGGER.warn("Unknown slot clicked in a ModContainer at index " + clickedSlotIndex);
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         final SlotGeneric clickedSlot = (SlotGeneric)this.getSlot(clickedSlotIndex);
 
         if (!clickedSlot.hasItem()) {
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         final ItemStack clickedStack = clickedSlot.getItem();
@@ -293,8 +387,7 @@ public class ModContainer extends Container {
                 if (!this.addStackToTargetSlots(clickedStack, SlotType.Special, false) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.PlayerInventory, true) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.PlayerHotbar, false)) {
-
-                    return ItemHelper.stackEmpty();
+                    return ItemStack.EMPTY;
                 }
 
                 clickedSlot.onQuickCraft(clickedStack, resultStack);
@@ -304,7 +397,7 @@ public class ModContainer extends Container {
             case GhostInput:
             case GhostOutput: {
                 // nothing can be taken out of a ghost slot
-                return ItemHelper.stackEmpty();
+                return ItemStack.EMPTY;
             }
 
             case PlayerInventory: {
@@ -312,8 +405,7 @@ public class ModContainer extends Container {
                 if (!this.addStackToTargetSlots(clickedStack, SlotType.Special, false) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.Input, false) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.PlayerHotbar, false)) {
-
-                    return ItemHelper.stackEmpty();
+                    return ItemStack.EMPTY;
                 }
                 break;
             }
@@ -323,8 +415,7 @@ public class ModContainer extends Container {
                 if (!this.addStackToTargetSlots(clickedStack, SlotType.Special, false) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.Input, false) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.PlayerInventory, false)) {
-
-                    return ItemHelper.stackEmpty();
+                    return ItemStack.EMPTY;
                 }
                 break;
             }
@@ -333,8 +424,7 @@ public class ModContainer extends Container {
 
                 if (!this.addStackToTargetSlots(clickedStack, SlotType.PlayerInventory, true) &&
                     !this.addStackToTargetSlots(clickedStack, SlotType.PlayerHotbar, false)) {
-
-                    return ItemHelper.stackEmpty();
+                    return ItemStack.EMPTY;
                 }
 
                 clickedSlot.onQuickCraft(clickedStack, resultStack);
@@ -343,13 +433,13 @@ public class ModContainer extends Container {
         }
 
         if (clickedStack.getCount() == 0) {
-            clickedSlot.set(ItemHelper.stackEmpty());
+            clickedSlot.set(ItemStack.EMPTY);
         } else {
             clickedSlot.setChanged();
         }
 
         if (clickedStack.getCount() == resultStack.getCount()) {
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         clickedSlot.onTake(player, clickedStack);
@@ -394,15 +484,19 @@ public class ModContainer extends Container {
 
         super.broadcastChanges();
 
-        if (null != this._dataUpdateListeners && null != this._syncableEntity && this._syncableEntity.shouldSyncEntity()) {
+        if (null != this._dataUpdateListeners && !this._dataUpdateListeners.isEmpty()) {
 
-            final CompoundNBT envelope = new CompoundNBT();
+            if (null != this._syncableEntity && this._syncableEntity.shouldSyncEntity()) {
 
-            envelope.putString("id", this._syncableEntity.getSyncableEntityId().toString());
-            envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundNBT(), ISyncableEntity.SyncReason.NetworkUpdate));
+                final CompoundNBT envelope = new CompoundNBT();
 
-            for (ServerPlayerEntity listener : this._dataUpdateListeners) {
-                Network.sendServerContainerDataSync(listener, envelope);
+                envelope.putString("id", this._syncableEntity.getSyncableEntityId().toString());
+                envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundNBT(), ISyncableEntity.SyncReason.NetworkUpdate));
+                Network.sendServerContainerDataSync(this._dataUpdateListeners, envelope);
+            }
+
+            if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
+                Network.sendServerContainerData(this._dataUpdateListeners, this);
             }
         }
     }
@@ -460,8 +554,10 @@ public class ModContainer extends Container {
     private final ContainerFactory _factory;
     private final Map<String, IItemHandler> _registeredInventories;
     private final Map<String, List<Slot>> _inventorySlotsGroups;
+    private IEvent<Runnable> _dataUpdateEvent;
     private IConditionallySyncableEntity _syncableEntity;
     private List<ServerPlayerEntity> _dataUpdateListeners;
+    private ObjectList<IContainerData> _dataToSync;
 
     //endregion
 }

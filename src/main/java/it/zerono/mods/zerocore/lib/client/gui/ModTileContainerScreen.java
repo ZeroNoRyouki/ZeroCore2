@@ -33,21 +33,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends ModTileContainer<T>>
     extends ModContainerScreen<C> {
 
-    public final IEvent<Runnable> DataUpdated;
-
     public T getTileEntity() {
         return this.getMenu().getTileEntity();
-    }
-
-    /**
-     * Called when this screen need to be updated after the TileEntity data changed.
-     * Override to handle this event
-     */
-    protected void onDataUpdated() {
-    }
-
-    protected boolean isDataUpdateInProgress() {
-        return this._dataUpdateInProgress;
     }
 
     //region Tile commands
@@ -102,20 +89,7 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
                                  final int guiWidth, final int guiHeight, boolean singleWindow) {
 
         super(container, inventory, title, guiWidth, guiHeight, singleWindow);
-        this.DataUpdated = new Event<>();
-        this.raiseDataUpdatedHandler = container.getTileEntity().DataUpdate.subscribe(this::raiseDataUpdated);
-    }
-
-    /**
-     * Called when this screen has being created.
-     * Override to handle this event
-     */
-    @Override
-    protected void onScreenCreated() {
-
-        super.onScreenCreated();
-        // force an update when the screen is fully created
-        this.raiseDataUpdated();
+        this._raiseDataUpdatedHandler = container.getTileEntity().DataUpdate.subscribe(this::raiseDataUpdated);
     }
 
     /**
@@ -125,20 +99,11 @@ public class ModTileContainerScreen<T extends AbstractModBlockEntity, C extends 
     @Override
     protected void onScreenClose() {
 
-        this.getMenu().getTileEntity().DataUpdate.unsubscribe(this.raiseDataUpdatedHandler);
+        this.getMenu().getTileEntity().DataUpdate.unsubscribe(this._raiseDataUpdatedHandler);
         super.onScreenClose();
     }
 
-    private void raiseDataUpdated() {
-
-        this._dataUpdateInProgress = true;
-        this.onDataUpdated();
-        this.DataUpdated.raise(Runnable::run);
-        this._dataUpdateInProgress = false;
-    }
-
-    private final Runnable raiseDataUpdatedHandler;
-    private boolean _dataUpdateInProgress;
+    private final Runnable _raiseDataUpdatedHandler;
 
     //endregion
 }
