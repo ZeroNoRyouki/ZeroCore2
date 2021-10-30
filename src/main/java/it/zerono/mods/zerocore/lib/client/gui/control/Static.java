@@ -24,6 +24,9 @@ import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.function.BiConsumer;
 
@@ -76,6 +79,22 @@ public class Static
 
         this.clearBackground();
         this._customPainter = (control, matrix) -> control.paintItemStackWithCount(matrix, stack, highlight);
+        return this;
+    }
+
+    public Static setStackAsInventory(final ItemStack stack) {
+
+        if (stack.getCount() > 1) {
+            this.setStackWithCount(stack);
+        } else {
+            this.setStack(stack);
+        }
+
+        if (!stack.isEmpty()) {
+            this.setTooltips(new StringTextComponent(String.format("%dx ", stack.getCount()))
+                    .append(new TranslationTextComponent(stack.getItem().getDescriptionId()).setStyle(Style.EMPTY.withBold(true))));
+        }
+
         return this;
     }
 
