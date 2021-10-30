@@ -20,6 +20,8 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import net.minecraftforge.common.util.NonNullPredicate;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface IPartCollection<Controller extends IMultiblockController<Controller>,
@@ -45,4 +47,8 @@ public interface IPartCollection<Controller extends IMultiblockController<Contro
     Stream<Part> stream();
 
     Stream<Part> parallelStream();
+
+    default List<Part> asList() {
+        return this.stream().collect(Collectors.toList());
+    }
 }

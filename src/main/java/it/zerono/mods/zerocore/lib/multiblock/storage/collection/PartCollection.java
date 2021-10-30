@@ -24,6 +24,7 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import net.minecraftforge.common.util.NonNullPredicate;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class PartCollection<Controller extends IMultiblockController<Controller>,
@@ -100,6 +101,11 @@ public class PartCollection<Controller extends IMultiblockController<Controller>
     @Override
     public boolean test(final IMultiblockPart<Controller> part) {
         return this._validator.test(part);
+    }
+
+    @Override
+    public List<Part> asList() {
+        return new ObjectArrayList<>(this._list);
     }
 
     //endregion
