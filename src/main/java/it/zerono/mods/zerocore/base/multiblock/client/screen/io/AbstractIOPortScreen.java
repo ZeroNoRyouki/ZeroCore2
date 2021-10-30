@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.base.multiblock.client.screen.io;
 
 import it.zerono.mods.zerocore.base.CommonConstants;
+import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
 import it.zerono.mods.zerocore.base.multiblock.client.screen.AbstractMultiblockScreen;
-import it.zerono.mods.zerocore.base.multiblock.client.screen.BaseIcons;
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
 import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;

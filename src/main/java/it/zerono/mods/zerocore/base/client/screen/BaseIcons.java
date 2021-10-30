@@ -16,7 +16,7 @@
  *
  */
 
-package it.zerono.mods.zerocore.base.multiblock.client.screen;
+package it.zerono.mods.zerocore.base.client.screen;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;

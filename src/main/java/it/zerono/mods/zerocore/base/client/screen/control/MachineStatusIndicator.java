@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.base.client.screen.control;
 
-import it.zerono.mods.zerocore.base.multiblock.client.screen.BaseIcons;
+import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
 import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
