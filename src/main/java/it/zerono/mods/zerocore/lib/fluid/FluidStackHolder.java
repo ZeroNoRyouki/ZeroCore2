@@ -23,7 +23,10 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
+import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.data.stack.StackAdapters;
+import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -36,7 +39,8 @@ import java.util.function.BiPredicate;
 
 public class FluidStackHolder
         extends AbstractStackHolder<FluidStackHolder, FluidStack>
-        implements IFluidHandler, INBTSerializable<CompoundNBT>, ISyncableEntity, IDebuggable {
+        implements IStackHolderAccess<FluidStackHolder, FluidStack>, IFluidHandler, INBTSerializable<CompoundNBT>,
+                    ISyncableEntity, IDebuggable {
 
     public FluidStackHolder(final int size) {
         this(NonNullList.withSize(size, FluidStack.EMPTY));
@@ -71,6 +75,21 @@ public class FluidStackHolder
     @Override
     public int getAmount(final int index) {
         return this.getFluidInTank(index).getAmount();
+    }
+
+    //endregion
+    //region IStackHolderAccess<FluidStackHolder, FluidStack>
+
+    @Override
+    public FluidStack getStackAt(final int index) {
+        return this.getFluidInTank(index);
+    }
+
+    @Override
+    public void setStackAt(final int index, final FluidStack stack) {
+
+        this.validateSlotIndex(index);
+        this._stacks.set(index, stack);
     }
 
     //endregion

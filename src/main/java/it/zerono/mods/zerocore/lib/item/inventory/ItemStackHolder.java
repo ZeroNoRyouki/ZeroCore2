@@ -23,6 +23,7 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
+import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.data.stack.StackAdapters;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -40,7 +41,8 @@ import java.util.function.BiPredicate;
 
 public class ItemStackHolder
         extends AbstractStackHolder<ItemStackHolder, ItemStack>
-        implements IItemHandler, IItemHandlerModifiable, INBTSerializable<CompoundNBT>, ISyncableEntity, IDebuggable {
+        implements IStackHolderAccess<ItemStackHolder, ItemStack>, IItemHandler, IItemHandlerModifiable,
+                    INBTSerializable<CompoundNBT>, ISyncableEntity, IDebuggable {
 
     public ItemStackHolder(final int size) {
         this(NonNullList.withSize(size, ItemStack.EMPTY));
@@ -75,6 +77,19 @@ public class ItemStackHolder
     @Override
     public int getAmount(final int index) {
         return this.getStackInSlot(index).getCount();
+    }
+
+    //endregion
+    //region IStackHolderAccess<ItemStackHolder, ItemStack>
+
+    @Override
+    public ItemStack getStackAt(final int index) {
+        return this.getStackInSlot(index);
+    }
+
+    @Override
+    public void setStackAt(final int index, final ItemStack stack) {
+        this.setStackInSlot(index, stack);
     }
 
     //endregion
