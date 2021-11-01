@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
@@ -39,7 +40,6 @@ public class GaugeBar
         this._value = 0;
         this._barSprite = Preconditions.checkNotNull(barSprite);
         this._barSpriteTint = Colour.WHITE;
-        this._bottomUp = true;
     }
 
     public double getValue() {
@@ -58,8 +58,9 @@ public class GaugeBar
         this._barSpriteTint = tint;
     }
 
+    @Deprecated //use IOrientationAware methods
     public void setTopDown(final boolean topDown) {
-        this._bottomUp = !topDown;
+        this.setOrientation(topDown ? Orientation.TopToBottom : Orientation.BottomToTop);
     }
 
     //region AbstractGaugeBar
@@ -71,14 +72,31 @@ public class GaugeBar
 
         final Rectangle area = this.getPaddingRect();
 
-        if (this._bottomUp) {
-            ModRenderHelper.paintVerticalProgressBarSprite(matrix, this._barSprite,
-                    this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
-                    this._barSpriteTint);
-        } else {
-            ModRenderHelper.paintFlippedVerticalProgressBarSprite(matrix, this._barSprite,
-                    this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
-                    this._barSpriteTint);
+        switch (this.getOrientation()) {
+
+            case LeftToRight:
+                ModRenderHelper.paintHorizontalProgressBarSprite(matrix, this._barSprite,
+                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
+                        this._barSpriteTint);
+                break;
+
+            case RightToLeft:
+                ModRenderHelper.paintFlippedHorizontalProgressBarSprite(matrix, this._barSprite,
+                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
+                        this._barSpriteTint);
+                break;
+
+            case TopToBottom:
+                ModRenderHelper.paintFlippedVerticalProgressBarSprite(matrix, this._barSprite,
+                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
+                        this._barSpriteTint);
+                break;
+
+            case BottomToTop:
+                ModRenderHelper.paintVerticalProgressBarSprite(matrix, this._barSprite,
+                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
+                        this._barSpriteTint);
+                break;
         }
     }
 
@@ -100,7 +118,6 @@ public class GaugeBar
     @Nonnull
     private ISprite _barSprite;
     private Colour _barSpriteTint;
-    private boolean _bottomUp;
 
     //endregion
 }
