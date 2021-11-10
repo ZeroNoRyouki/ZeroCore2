@@ -23,11 +23,12 @@ import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CuboidPartVariantsModelDataCache {
 
     public CuboidPartVariantsModelDataCache() {
-        this._cache = Maps.newHashMap();
+        _cache = Maps.newHashMap(new ConcurrentHashMap<>());
     }
 
     public CuboidPartVariantsModelData computeIfAbsent(final int blockId, final int variantIndex, final BlockFacings outwardFacing,
