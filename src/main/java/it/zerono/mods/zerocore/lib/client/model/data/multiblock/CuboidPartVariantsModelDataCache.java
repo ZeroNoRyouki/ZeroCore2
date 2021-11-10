@@ -18,20 +18,18 @@
 
 package it.zerono.mods.zerocore.lib.client.model.data.multiblock;
 
-import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CuboidPartVariantsModelDataCache {
 
     public CuboidPartVariantsModelDataCache() {
-        _cache = Maps.newHashMap(new ConcurrentHashMap<>());
+        _cache = new ConcurrentHashMap<>();
     }
 
-    public CuboidPartVariantsModelData computeIfAbsent(final int blockId, final int variantIndex, final BlockFacings outwardFacing,
+    public synchronized CuboidPartVariantsModelData computeIfAbsent(final int blockId, final int variantIndex, final BlockFacings outwardFacing,
                                                        final NonNullSupplier<CuboidPartVariantsModelData> missingDataSupplier) {
         return this._cache.computeIfAbsent(CuboidPartVariantsModelData.hash(blockId, variantIndex, outwardFacing),
                 k -> missingDataSupplier.get());
@@ -39,7 +37,7 @@ public class CuboidPartVariantsModelDataCache {
 
     //region internals
 
-    private final Map<Integer, CuboidPartVariantsModelData> _cache;
+    private final ConcurrentHashMap<Integer, CuboidPartVariantsModelData> _cache;
 
     //endregion
 }
