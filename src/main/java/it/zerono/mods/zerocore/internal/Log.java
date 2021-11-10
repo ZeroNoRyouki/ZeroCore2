@@ -32,4 +32,5 @@ public class Log {
     public static final Marker MULTIBLOCK = MarkerManager.getMarker("multiblock");
     public static final Marker NETWORK = MarkerManager.getMarker("network");
     public static final Marker COMPAT_COMPUTERS = MarkerManager.getMarker("compat.computers");
+    public static final Marker GUI = MarkerManager.getMarker("gui");
 }
