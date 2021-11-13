@@ -76,7 +76,7 @@ public class ModBlock
     public interface IStackStorableTooltipBuilder {
 
         void build(ItemStack stack, CompoundNBT data, @Nullable IBlockReader world,
-                   NonNullConsumer<ITextComponent> appender, ITooltipFlag flag);
+                   NonNullConsumer<ITextComponent> appender, boolean isAdvancedTooltip);
     }
 
     public static class ExtendedProperties<T extends ExtendedProperties<T>> {
@@ -160,7 +160,6 @@ public class ModBlock
         return ItemHelper.stackFrom(this, amount);
     }
 
-    @SuppressWarnings("ConstantConditions")
     public BlockItem createBlockItem(final Item.Properties properties) {
         return new BlockItem(this, properties);
     }
@@ -358,7 +357,7 @@ public class ModBlock
                 data = data.getCompound("zcvase_payload");
             }
 
-            this._stackStorableTooltipBuilder.build(stack, data, world, tooltip::add, flag);
+            this._stackStorableTooltipBuilder.build(stack, data, world, tooltip::add, flag.isAdvanced());
         }
     }
 
@@ -377,7 +376,7 @@ public class ModBlock
         return state;
     }
 
-    private static final IStackStorableTooltipBuilder EMPTY_STACK_STORABLE_TOOLTIP_BUILDER = (stack, data, world, appender, flag) -> {};
+    private static final IStackStorableTooltipBuilder EMPTY_STACK_STORABLE_TOOLTIP_BUILDER = (stack, data, world, appender, isAdvancedTooltip) -> {};
 
     private final boolean _stackStorable;
     private final IStackStorableTooltipBuilder _stackStorableTooltipBuilder;
