@@ -125,7 +125,7 @@ public abstract class AbstractIOPortScreen<Controller extends AbstractCuboidMult
 
         // -- label
 
-        final Label directionButtonsLabel = new Label(this, "directionButtonsLabel", new TranslationTextComponent("zerocore:gui.base.ioport.mode"));
+        final Label directionButtonsLabel = new Label(this, "directionButtonsLabel", new TranslationTextComponent("gui.zerocore.base.screen.ioport.mode"));
 
         directionButtonsLabel.setLayoutEngineHint(TabularLayoutEngine.hintBuilder()
                 .setColumnsSpan(2)

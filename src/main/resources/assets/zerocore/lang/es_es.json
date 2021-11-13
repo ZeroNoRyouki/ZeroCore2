@@ -25,7 +25,7 @@
     "zerocore:gui.manual.open": "Open the manual page",
 
     "_comment": "GUI",
-    "gui.zerocore.base.generic.empty": "Empty",
+    "gui.zerocore.base.generic.empty": "Vacío",
     "gui.zerocore.base.screen.ioport.mode": "Operational mode:",
     "gui.zerocore.base.control.energybar.line1": "Internal Energy Buffer",
     "gui.zerocore.base.control.energybar.line2a": "  @0",
