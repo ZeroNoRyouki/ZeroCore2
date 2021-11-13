@@ -72,32 +72,9 @@ public class GaugeBar
 
         final Rectangle area = this.getPaddingRect();
 
-        switch (this.getOrientation()) {
-
-            case LeftToRight:
-                ModRenderHelper.paintHorizontalProgressBarSprite(matrix, this._barSprite,
-                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
-                        this._barSpriteTint);
-                break;
-
-            case RightToLeft:
-                ModRenderHelper.paintFlippedHorizontalProgressBarSprite(matrix, this._barSprite,
-                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
-                        this._barSpriteTint);
-                break;
-
-            case TopToBottom:
-                ModRenderHelper.paintFlippedVerticalProgressBarSprite(matrix, this._barSprite,
-                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
-                        this._barSpriteTint);
-                break;
-
-            case BottomToTop:
-                ModRenderHelper.paintVerticalProgressBarSprite(matrix, this._barSprite,
-                        this.controlToScreen(area.Origin.X, area.Origin.Y), (int) this.getZLevel(), area, this.getFillRatio(),
-                        this._barSpriteTint);
-                break;
-        }
+        ModRenderHelper.paintOrientedProgressBarSprite(matrix, this.getOrientation(), this._barSprite,
+                this.controlToScreen(area.Origin.X, area.Origin.Y), (int)this.getZLevel(), area, this.getFillRatio(),
+                this._barSpriteTint);
     }
 
     @Override

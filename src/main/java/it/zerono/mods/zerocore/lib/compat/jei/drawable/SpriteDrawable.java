@@ -47,6 +47,10 @@ public class SpriteDrawable
         return this._padding;
     }
 
+    public int getZLevel() {
+        return this._zLevel;
+    }
+
     //region IDrawableStatic
 
     @Override
