@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import java.util.Optional;
 public class Sprite implements ISprite {
 
     public static final ISprite EMPTY = SpriteTextureMap.EMPTY.sprite().build();
+    public static final NonNullSupplier<ISprite> EMPTY_SUPPLIER = () -> EMPTY;
 
     public Sprite(final ISpriteTextureMap textureMap) {
         this(16, 16, textureMap, 0, 0, null);
