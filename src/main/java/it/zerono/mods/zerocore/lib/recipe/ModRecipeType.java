@@ -19,6 +19,8 @@
 package it.zerono.mods.zerocore.lib.recipe;
 
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.RecipeManager;
@@ -29,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ModRecipeType<Recipe extends ModRecipe>
@@ -57,11 +60,15 @@ public class ModRecipeType<Recipe extends ModRecipe>
             final RecipeManager manager = CodeHelper.getRecipeManager();
 
             if (null != manager) {
-                this._cache = manager.getAllRecipesFor(this);
+                this._cache = ObjectLists.unmodifiable(new ObjectArrayList<>(manager.getAllRecipesFor(this)));
             }
         }
 
         return this._cache;
+    }
+
+    public List<Recipe> getRecipes(final Predicate<Recipe> filter) {
+        return this.stream().filter(filter).collect(Collectors.toList());
     }
 
     public Stream<Recipe> stream() {
