@@ -24,6 +24,7 @@ import it.zerono.mods.zerocore.lib.event.SlimEvent;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Deprecated // use IBinding.from()
 public class MonoConsumerBinding<Source, Value>
     extends AbstractBinding<Source, Value> {
 

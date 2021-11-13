@@ -18,9 +18,23 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.databind;
 
+import it.zerono.mods.zerocore.internal.client.gui.databind.Binding;
+
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public interface IBinding {
 
     void update();
 
     void close();
+
+    static <Value> IBinding from(final Supplier<Value> supplier, final Consumer<Value> consumer) {
+        return Binding.from(supplier, consumer);
+    }
+
+    @SafeVarargs
+    static <Value> IBinding from(final Supplier<Value> supplier, final Consumer<Value>... consumers) {
+        return Binding.from(supplier, consumers);
+    }
 }

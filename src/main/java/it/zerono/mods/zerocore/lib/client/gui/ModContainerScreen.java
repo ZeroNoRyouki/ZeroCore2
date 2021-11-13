@@ -20,13 +20,12 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
 import it.zerono.mods.zerocore.lib.client.gui.control.SlotsGroup;
 import it.zerono.mods.zerocore.lib.client.gui.databind.BindingGroup;
 import it.zerono.mods.zerocore.lib.client.gui.databind.IBinding;
-import it.zerono.mods.zerocore.lib.client.gui.databind.MonoConsumerBinding;
-import it.zerono.mods.zerocore.lib.client.gui.databind.MultiConsumerBinding;
 import it.zerono.mods.zerocore.lib.client.gui.layout.FixedLayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
@@ -41,6 +40,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 @OnlyIn(Dist.CLIENT)
@@ -201,6 +201,23 @@ public class ModContainerScreen<C extends ModContainer>
         return RichText.NO_MAX_WIDTH;
     }
 
+    public static int parseTooltipsPopupMaxWidthFromLang(final String langKey, final int defaultValue) {
+
+        final ITextComponent text = new TranslationTextComponent(langKey);
+
+        try {
+
+            final int width = Integer.parseInt(text.getString());
+
+            return width > 0 ? width : defaultValue;
+
+        } catch (NumberFormatException ex) {
+            Log.LOGGER.error(Log.GUI, "Invalid integer value from lang file: {}", langKey);
+        }
+
+        return defaultValue;
+    }
+
     public int getOriginalMouseX() {
         return this._originalMouseX;
     }
@@ -289,17 +306,13 @@ public class ModContainerScreen<C extends ModContainer>
     //endregion
     //region bindings
 
-    public <DataSource, Value> void addDataBinding(final DataSource source,
-                                                   final Function<DataSource, Value> supplier,
-                                                   final Consumer<Value> consumer) {
-        this.addDataBinding(new MonoConsumerBinding<>(source, supplier, consumer));
+    public <Value> void addDataBinding(final Supplier<Value> supplier, final Consumer<Value> consumer) {
+        this.addDataBinding(IBinding.from(supplier, consumer));
     }
 
     @SafeVarargs
-    public final <DataSource, Value> void addDataBinding(final DataSource source,
-                                                         final Function<DataSource, Value> supplier,
-                                                         final Consumer<Value>... consumers) {
-        this.addDataBinding(new MultiConsumerBinding<>(source, supplier, consumers));
+    public final <Value> void addDataBinding(final Supplier<Value> supplier, final Consumer<Value>... consumers) {
+        this.addDataBinding(IBinding.from(supplier, consumers));
     }
 
     private void addDataBinding(final IBinding binding) {

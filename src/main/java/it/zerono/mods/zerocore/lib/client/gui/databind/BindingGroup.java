@@ -18,18 +18,29 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.databind;
 
-import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
-import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BindingGroup {
 
     public BindingGroup() {
-        this._bindings = Lists.newArrayList();
+        this._bindings = new ObjectArrayList<>(4);
     }
 
     public void addBinding(final IBinding binding) {
         this._bindings.add(binding);
+    }
+
+    public <Value> void addBinding(final Supplier<Value> supplier, final Consumer<Value> consumer) {
+        this._bindings.add(IBinding.from(supplier, consumer));
+    }
+
+    @SafeVarargs
+    public final <Value> void addBinding(final Supplier<Value> supplier, final Consumer<Value>... consumers) {
+        this._bindings.add(IBinding.from(supplier, consumers));
     }
 
     public void update() {
@@ -42,7 +53,7 @@ public class BindingGroup {
 
     //region internals
 
-    final List<IBinding> _bindings;
+    final ObjectList<IBinding> _bindings;
 
     //endregion
 }
