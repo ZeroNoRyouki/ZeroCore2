@@ -46,7 +46,11 @@ public enum BaseIcons
     MachineStatusOff(builder().from(0, 16).ofSize(10, 10).build()),
     MachineStatusOn(builder().from(16, 16).ofSize(10, 10).build()),
 
+    PowerBattery(builder().from(128, 96).build()),
     LabelEdit(builder().from(32, 16).build()),
+
+    BarBackground(builder().from(174, 126).ofSize(18, 66).build()),
+    PowerBar(builder().from(0, 112).ofSize(16, 64).build()),
 
     ;
 

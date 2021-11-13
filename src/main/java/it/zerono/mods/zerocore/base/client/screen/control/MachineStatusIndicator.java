@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.base.client.screen.control;
 
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
@@ -25,11 +26,14 @@ import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MachineStatusIndicator
-        extends AbstractCompositeControl {
+        extends AbstractCompositeControl
+        implements Consumer<Boolean> {
 
     public MachineStatusIndicator(final ModContainerScreen<? extends ModContainer> gui, final String name) {
 
@@ -58,6 +62,10 @@ public class MachineStatusIndicator
         }
     }
 
+    public void setTooltips(final boolean status, final String singleLineKey) {
+        this.setTooltips(status, ObjectLists.singleton(new TranslationTextComponent(singleLineKey)));
+    }
+
     public void setTooltips(final boolean status, final List<ITextComponent> lines, final List<Object> objects) {
 
         if (status) {
@@ -67,6 +75,14 @@ public class MachineStatusIndicator
         }
     }
 
+    //region Consumer<Boolean>
+
+    @Override
+    public void accept(final Boolean active) {
+        this.updateStatus(active);
+    }
+
+    //endregion
     //region AbstractCompoundControl
 
     @Override

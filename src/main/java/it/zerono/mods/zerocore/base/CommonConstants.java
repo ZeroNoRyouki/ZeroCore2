@@ -18,6 +18,11 @@
 
 package it.zerono.mods.zerocore.base;
 
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
+
 public final class CommonConstants {
 
     public static String COMMAND_ACTIVATE = "activate";
@@ -29,6 +34,26 @@ public final class CommonConstants {
     public static String COMMAND_DISABLE_SENSOR = "nosensor";
     public static String COMMAND_EJECT = "eject";
 
+    //region UI
+
+    public static final ITextComponent EMPTY_VALUE = new TranslationTextComponent("gui.zerocore.base.generic.empty");
+
+    //region UI styles
+
+    public static final Style STYLE_TOOLTIP_TITLE = Style.EMPTY
+            .withColor(TextFormatting.YELLOW)
+            .withBold(true);
+
+    public static final Style STYLE_TOOLTIP_VALUE = Style.EMPTY
+            .withColor(TextFormatting.DARK_AQUA)
+            .withBold(true);
+
+    public static final Style STYLE_TOOLTIP_INFO = Style.EMPTY
+            .withColor(TextFormatting.DARK_PURPLE)
+            .withItalic(true);
+
+    //endregion
+    //endregion
     //region internals
 
     private CommonConstants() {
