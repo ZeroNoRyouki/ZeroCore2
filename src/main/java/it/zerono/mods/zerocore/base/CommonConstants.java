@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.base;
 
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -36,7 +36,7 @@ public final class CommonConstants {
 
     //region UI
 
-    public static final ITextComponent EMPTY_VALUE = new TranslationTextComponent("gui.zerocore.base.generic.empty");
+    public static final IFormattableTextComponent EMPTY_VALUE = new TranslationTextComponent("gui.zerocore.base.generic.empty");
 
     //region UI styles
 

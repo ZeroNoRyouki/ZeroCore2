@@ -17,12 +17,12 @@
 package it.zerono.mods.zerocore.base;
 
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 public final class BaseHelper {
 
-    public static ITextComponent getFluidNameOrEmpty(final FluidStack stack) {
+    public static IFormattableTextComponent getFluidNameOrEmpty(final FluidStack stack) {
         return stack.isEmpty() ? CommonConstants.EMPTY_VALUE : FluidHelper.getFluidName(stack);
     }
 
