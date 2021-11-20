@@ -21,6 +21,8 @@ package it.zerono.mods.zerocore.lib.data.geometry;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 
+import java.util.Objects;
+
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Rectangle {
 
@@ -301,6 +303,11 @@ public class Rectangle {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.Origin, this.Width, this.Height);
     }
 
     @Override

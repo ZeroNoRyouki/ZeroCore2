@@ -21,6 +21,9 @@ package it.zerono.mods.zerocore.lib.data.geometry;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 
+import java.util.HashMap;
+import java.util.Objects;
+
 public class Point {
 
     public static final Point ZERO = new Point();
@@ -94,6 +97,11 @@ public class Point {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.X, this.Y);
     }
 
     @Override
