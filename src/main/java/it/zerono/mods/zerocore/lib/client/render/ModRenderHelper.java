@@ -725,11 +725,6 @@ public final class ModRenderHelper {
                                                       final int areaWidth, final int areaHeight,
                                                       final double progress, final Colour tint) {
 
-        blitSprite(matrix, x, x + areaWidth, y, y+areaHeight, zLevel, sprite.getWidth(), sprite.getHeight(),
-                sprite.getU(), sprite.getV(),
-                sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
-        if(true)return;
-
         if (progress < 0.01) {
             return;
         }
@@ -743,11 +738,7 @@ public final class ModRenderHelper {
 
         bindTexture(sprite);
 
-        if (sprite.getHeight() == areaHeight || true) {
-
-//            blitSprite(matrix, x, x + areaWidth, y1, y2, zLevel, sprite.getWidth(), filledHeight,
-//                    sprite.getU(), sprite.getV() + (sprite.getHeight() - filledHeight),
-//                    sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+        if (sprite.getHeight() == areaHeight) {
 
             blitSprite(matrix, x, x + sprite.getWidth(), y, y+sprite.getHeight(), zLevel, sprite.getWidth(), sprite.getHeight(),
                     sprite.getU(), sprite.getV(),
@@ -764,7 +755,7 @@ public final class ModRenderHelper {
                 final int sliceY2 = y2 - (verticalSliceIdx * spriteHeight/*16*/);
                 final int sliceY1 = sliceY2 - spriteHeight/*16*/;
 
-                blitSprite(matrix, x, x + areaWidth+16, sliceY1, sliceY2, zLevel, sprite.getWidth()*0+16, sprite.getHeight(),
+                blitSprite(matrix, x, x + areaWidth+16, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
                         sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
 
                 verticalSliceIdx  = 5;
