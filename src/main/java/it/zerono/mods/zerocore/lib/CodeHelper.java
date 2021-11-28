@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -28,7 +29,6 @@ import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
-import joptsimple.internal.Strings;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.crafting.RecipeManager;
