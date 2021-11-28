@@ -98,7 +98,7 @@ public class FluidBar
         } else {
 
             final Fluid fluid = stack.getFluid();
-            final ISprite fluidSprite = ModRenderHelper.getStillFluidSprite(fluid.getFluid());
+            final ISprite fluidSprite = ModRenderHelper.getStillFluidSprite(fluid);
             final Colour fluidTint = Colour.fromARGB(fluid.getAttributes().getColor());
 
             this._bar.setBarSprite(fluidSprite);
