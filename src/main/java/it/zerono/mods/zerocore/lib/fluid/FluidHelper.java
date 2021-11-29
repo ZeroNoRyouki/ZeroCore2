@@ -25,6 +25,9 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
@@ -47,6 +50,14 @@ public final class FluidHelper {
         return Objects.requireNonNull(stack.getFluid().getRegistryName());
     }
 
+    public static MutableComponent getFluidName(final Fluid fluid) {
+        return new TranslatableComponent(fluid.getAttributes().getTranslationKey());
+    }
+
+    public static MutableComponent getFluidName(final FluidStack stack) {
+        return stack.isEmpty() ? new TextComponent("") : getFluidName(stack.getFluid());
+    }
+
     /**
      * Fill a destination fluid handler from a source fluid handler with a max amount.
      * The destination fluid handler is loaded from the provided world at the specified position.
@@ -64,6 +75,10 @@ public final class FluidHelper {
         return FluidUtil.getFluidHandler(world, destinationPosition, fillDirection)
                 .map(destination -> FluidUtil.tryFluidTransfer(destination, source, maxAmount, action.execute()))
                 .orElse(FluidStack.EMPTY);
+    }
+
+    public static FluidStack stackFrom(final FluidStack stack, final int amount) {
+        return new FluidStack(stack.getFluid(), amount);
     }
 
     /**

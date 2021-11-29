@@ -19,17 +19,22 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.gui.Font;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,24 +42,24 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.util.NonNullSupplier;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class RichText
     implements IRichText {
 
     public static final RichText EMPTY = new RichText();
+    public static final int NO_MAX_WIDTH = -1;
 
     public static Builder builder() {
-        return new Builder();
+        return new Builder(Integer.MAX_VALUE);
     }
 
     public static Builder builder(final int maxWidth) {
-        return new WrappedBuilder(maxWidth);
+        return maxWidth < 1 ? new Builder(Integer.MAX_VALUE) : new Builder(maxWidth);
     }
 
     //region IRichText
@@ -125,10 +130,10 @@ public class RichText
         richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
     }
 
-    private static void paintString(final RichText richText, final Component chunk,
+    private static void paintString(final RichText richText, final FormattedText chunk,
                                     final PoseStack matrix, final int x, final int y) {
-//        richText._fontSupplier.get().drawStringWithShadow(matrix, chunk, x, y, richText._textColour.toARGB());
-        richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
+        richText._fontSupplier.get().drawShadow(matrix, Language.getInstance().getVisualOrder(chunk), x, y,
+                richText._textColour.toARGB());
     }
 
     private static void paintItemStack(final RichText richText, final ItemStack chunk, final PoseStack matrix, final int x, final int y) {
@@ -173,7 +178,7 @@ public class RichText
         private TextLine(final ITextChunk chunk) {
 
             Preconditions.checkNotNull(chunk);
-            this._chunks = ImmutableList.of(chunk);
+            this._chunks = ObjectLists.unmodifiable(ObjectLists.singleton(chunk));
             this._dynamic = false;
             this._maxWidth = chunk.getWidth();
             this._maxHeight = chunk.getHeight();
@@ -182,7 +187,7 @@ public class RichText
         private TextLine(final List<ITextChunk> chunks) {
 
             Preconditions.checkArgument(!chunks.isEmpty());
-            this._chunks = ImmutableList.copyOf(chunks);
+            this._chunks = ObjectLists.unmodifiable(new ObjectArrayList<>(chunks));
 
             this._dynamic = this._chunks.stream()
                     .anyMatch(c -> c instanceof DynamicTextChunk);
@@ -230,7 +235,7 @@ public class RichText
                     .sum();
         }
 
-        final List<ITextChunk> _chunks;
+        final ObjectList<ITextChunk> _chunks;
         final int _maxWidth;
         final int _maxHeight;
         final boolean _dynamic;
@@ -342,7 +347,6 @@ public class RichText
 
         @Override
         public int getWidth() {
-//            return this._fontSupplier.get().getStringWidth(this.get().get()./*getFormattedText()*/getString());
             return this._fontSupplier.get().width(this.get().get());
         }
 
@@ -351,7 +355,6 @@ public class RichText
 
         private static void paintString(final RichText richText, final NonNullSupplier<Component> chunk,
                                         final PoseStack matrix, final int x, final int y) {
-//            RichText.paintString(richText, chunk.get()./*getFormattedText()*/getString(), matrix, x, y);
             RichText.paintString(richText, chunk.get(), matrix, x, y);
         }
 
@@ -367,7 +370,7 @@ public class RichText
 
         public RichText build() {
 
-            final RichText rich = new RichText(this._fontSupplier, this.buildLines(this._lines, this._objects));
+            final RichText rich = new RichText(this._fontSupplier, this.buildLines());
 
             rich._textColour = this._textColour;
             rich._interline = this._interline;
@@ -422,8 +425,9 @@ public class RichText
 
         //region internals
 
-        protected Builder() {
+        protected Builder(final int maxWidth) {
 
+            this._maxWidth = maxWidth;
             this._lines = Collections.emptyList();
             this._objects = Collections.emptyList();
             this._fontSupplier = ModRenderHelper.DEFAULT_FONT_RENDERER;
@@ -431,31 +435,119 @@ public class RichText
             this._interline = 0;
         }
 
-        @SuppressWarnings("UnstableApiUsage")
-        protected List<TextLine> buildLines(final List<Component> lines, final List<Object> objects) {
+        protected List<TextLine> buildLines() {
 
-            final List<TextLine> textLines;
+            // splits the lines in chunks of the requested max width, also splitting lines at every \n
 
-            if (objects.isEmpty()) {
+            //noinspection UnstableApiUsage
+            return this._lines.stream()
+                    .map(this._objects.isEmpty() ? this::splitPlainText : this::splitFormattedText)
+                    .flatMap(Collection::stream)
+                    .collect(ImmutableList.toImmutableList());
+        }
 
-                // no objects to insert so ignore any placeholder and convert each line in a single chunk
-                textLines = lines.stream()
-                        .map(line -> TextLine.from(this.chunk(line)))
-                        .collect(ImmutableList.toImmutableList());
+        protected List<TextLine> splitPlainText(final Component component) {
 
+            final List<FormattedText> textProperties = this.split(component);
+
+            if (textProperties.isEmpty()) {
+                return EMPTY_LINE;
             } else {
-
-                textLines = lines.stream()
-                        .map(this::formattedTextLine)
+                //noinspection UnstableApiUsage
+                return textProperties.stream()
+                        .map(this::line)
                         .collect(ImmutableList.toImmutableList());
+            }
+        }
+
+        protected List<TextLine> splitFormattedText(final Component component) {
+
+            final List<FormattedText> textProperties = this.split(component);
+
+            if (textProperties.isEmpty()) {
+                return EMPTY_LINE;
+            }
+
+            final int objectsCount = this._objects.size();
+            final List<TextLine> textLines = Lists.newLinkedList();
+            StringBuilder sb = new StringBuilder();
+
+            for (final FormattedText tp : textProperties) {
+
+                final String text = tp.getString();
+
+                if (!text.contains("@")) {
+
+                    textLines.add(this.line(tp));
+                    continue;
+                }
+
+                final List<ITextChunk> chunks = Lists.newArrayList();
+                int index = 0;
+
+                while (index < text.length()) {
+
+                    final String currentChar = text.substring(index, index + 1);
+
+                    if ("@".equals(currentChar)) {
+
+                        final int objectIndex = text.charAt(++index) - '0';
+
+                        if ('@' - '0' == objectIndex) {
+
+                            // convert @@ to a single @
+                            sb.append('@');
+
+                        } else if (objectIndex < 0 || objectIndex > 9 || objectIndex >= objectsCount) {
+
+                            throw new IllegalArgumentException(text);
+
+                        } else {
+
+                            // replace the placeholder with the corresponding object
+
+                            if (sb.length() > 0) {
+
+                                // save the line so far
+                                chunks.add(this.chunk(sb, component.getStyle()));
+                                sb = new StringBuilder();
+                            }
+
+                            chunks.add(this.genericChunk(this._objects.get(objectIndex)));
+                        }
+                    } else {
+
+                        sb.append(currentChar);
+                    }
+
+                    ++index;
+                }
+
+                if (sb.length() > 0) {
+                    chunks.add(this.chunk(sb, component.getStyle()));
+                }
+
+                textLines.add(TextLine.from(chunks));
             }
 
             return textLines;
         }
 
-        protected ITextChunk chunk(final Component text) {
+        protected List<FormattedText> split(final Component component) {
+            return ModRenderHelper.splitLines(this._fontSupplier.get(), component, this._maxWidth, component.getStyle());
+        }
+
+        protected TextLine line(final FormattedText tp) {
+            return TextLine.from(this.chunk(tp));
+        }
+
+        protected ITextChunk chunk(final FormattedText text) {
             return new TextChunk<>(text, this._fontSupplier.get().width(text),
                     this._fontSupplier.get().lineHeight, RichText::paintString);
+        }
+
+        protected ITextChunk chunk(final StringBuilder builder, final Style style) {
+            return this.chunk(new TextComponent(builder.toString()).setStyle(style));
         }
 
         protected ITextChunk chunk(final String text) {
@@ -493,6 +585,8 @@ public class RichText
             } else if (thing instanceof NonNullSupplier) {
                 //noinspection unchecked
                 return this.chunk((NonNullSupplier<Component>)thing);
+            } else if (thing instanceof Component) {
+                return this.chunk((Component)thing);
             } else if (thing instanceof ItemStack) {
                 return this.chunk((ItemStack)thing);
             } else if (thing instanceof Item) {
@@ -503,155 +597,18 @@ public class RichText
                 return this.chunk((ISprite)thing);
             }
 
-            return this.chunk("");
+            return EMPTY;
         }
 
-        private TextLine formattedTextLine(final Component originalText) {
-            return TextLine.from(this.splitFormattedTextLineChunks(originalText));
-        }
+        private static final ITextChunk EMPTY = new TextChunk<>("", 5, 5, (richText, chunk, matrix, x, y) -> {});
+        private static final List<TextLine> EMPTY_LINE = ObjectLists.unmodifiable(ObjectLists.singleton(TextLine.from(EMPTY)));
 
-        protected List<ITextChunk> splitFormattedTextLineChunks(final Component originalText) {
-
-            final String line = originalText.getString();
-
-            if (Strings.isNullOrEmpty(line) || !line.contains("@")) {
-                return Lists.newArrayList(this.chunk(originalText));
-            }
-
-            final List<ITextChunk> lineChunks = Lists.newLinkedList();
-            StringBuilder sb = new StringBuilder();
-            int index = 0;
-
-            while (index < line.length()) {
-
-                final String currentChar = line.substring(index, index + 1);
-
-                if ("@".equals(currentChar)) {
-
-                    final int objectIndex = line.charAt(++index) - '0';
-
-                    if ('@' - '0' == objectIndex) {
-
-                        // convert @@ to a single @
-                        sb.append('@');
-
-                    } else if (objectIndex < 0 || objectIndex > 9 || objectIndex >= this._objects.size()) {
-
-                        throw new IllegalArgumentException(line);
-
-                    } else {
-
-                        // replace the placeholder with the corresponding object
-
-                        if (sb.length() > 0) {
-
-                            // save the line so far
-                            lineChunks.add(this.chunk(new TextComponent(sb.toString()).setStyle(originalText.getStyle())));
-                            sb = new StringBuilder();
-                        }
-
-                        lineChunks.add(this.genericChunk(this._objects.get(objectIndex)));
-                    }
-                } else {
-
-                    sb.append(currentChar);
-                }
-
-                ++index;
-            }
-
-            if (sb.length() > 0) {
-                lineChunks.add(this.chunk(new TextComponent(sb.toString()).setStyle(originalText.getStyle())));
-            }
-
-            return lineChunks;
-        }
-
+        private final int _maxWidth;
         protected List<Component> _lines;
         protected List<Object> _objects;
         protected NonNullSupplier<Font> _fontSupplier;
         protected Colour _textColour;
         protected int _interline;
-
-        //endregion
-    }
-
-    protected static class WrappedBuilder
-        extends Builder {
-
-        //region internals
-
-        protected WrappedBuilder(final int maxWidth) {
-
-            Preconditions.checkArgument(maxWidth > 0);
-            this._maxWidth = maxWidth;
-        }
-
-        @SuppressWarnings("UnstableApiUsage")
-        @Override
-        protected List<TextLine> buildLines(final List<Component> lines, final List<Object> objects) {
-
-            final Function<Component, Stream<TextLine>> mapper;
-
-            if (this._objects.isEmpty()) {
-                // no objects to insert so ignore any placeholder and convert each line in a single chunk
-                mapper = this::splitTextOnlyLine;
-            } else {
-                // insert objects and split the lines
-                mapper = this::splitFormattedLine;
-            }
-
-            return this._lines.stream()
-                    .flatMap(mapper)
-                    .collect(ImmutableList.toImmutableList());
-        }
-
-        private Stream<TextLine> splitTextOnlyLine(final Component line) {
-
-            final Font font = this._fontSupplier.get();
-            final String text = line.getString();
-
-            if (this._maxWidth > font.width(text)) {
-                // no need to split the line
-                return Stream.of(TextLine.from(this.chunk(text)));
-            } else {
-                // split the line
-                return ModRenderHelper.wrapLines(text, this._maxWidth, font).stream().map(s -> TextLine.from(this.chunk(s)));
-            }
-        }
-
-        private Stream<TextLine> splitFormattedLine(final Component line) {
-
-            final List<ITextChunk> chunks = this.splitFormattedTextLineChunks(line);
-            final Integer[] chunksWidths = chunks.stream().map(ITextChunk::getWidth).toArray(Integer[]::new);
-
-            final List<TextLine> lines = Lists.newLinkedList();
-            final List<ITextChunk> currentLineChunks = Lists.newLinkedList();
-            int lineWidth = 0;
-
-            for (int i = 0; i < chunks.size(); ++i) {
-
-                if (lineWidth + chunksWidths[i] > this._maxWidth) {
-
-                    lines.add(TextLine.from(currentLineChunks));
-                    currentLineChunks.clear();
-                    lineWidth = 0;
-
-                } else {
-
-                    currentLineChunks.add(chunks.get(i));
-                    lineWidth += chunksWidths[i];
-                }
-            }
-
-            if (!currentLineChunks.isEmpty()) {
-                lines.add(TextLine.from(currentLineChunks));
-            }
-
-            return lines.stream();
-        }
-
-        private final int _maxWidth;
 
         //endregion
     }

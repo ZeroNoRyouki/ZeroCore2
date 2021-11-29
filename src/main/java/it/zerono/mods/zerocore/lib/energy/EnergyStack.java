@@ -26,6 +26,7 @@ import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
+@Deprecated // use WideEnergyStack
 public final class EnergyStack
     implements IEnergySystemAware {
 

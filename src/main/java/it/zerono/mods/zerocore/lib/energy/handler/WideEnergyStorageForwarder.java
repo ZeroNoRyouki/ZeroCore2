@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.energy.handler;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage;
 
+@Deprecated //use WideEnergyStorageForwarder2
 public class WideEnergyStorageForwarder
         implements IWideEnergyStorage {
 

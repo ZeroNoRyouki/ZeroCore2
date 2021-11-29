@@ -577,7 +577,7 @@ public abstract class AbstractModBlockEntity
 //        if (this instanceof INamedContainerProvider && !(player instanceof FakePlayer) &&
 //                CodeHelper.calledByLogicalServer(player.getEntityWorld())) {
 //
-//            final Consumer<PacketBuffer> positionWriter = buffer -> buffer.writeBlockPos(this.getPos());
+//            final Consumer<FriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getPos());
 //
 //            NetworkHooks.openGui(player, (INamedContainerProvider) this, positionWriter.andThen(extraDataWriter));
 //            return true;

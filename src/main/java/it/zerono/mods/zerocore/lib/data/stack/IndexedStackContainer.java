@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.*;
 
-import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity.SyncReason;
-
 @SuppressWarnings({"WeakerAccess"})
 public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
         implements ISyncableEntity, IMergeableEntity, IDebuggable {
@@ -493,9 +491,9 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
     //region ISyncableEntity
 
     /**
-     * Sync the entity data from the given {@link CompoundNBT}
+     * Sync the entity data from the given {@link CompoundTag}
      *
-     * @param data       the {@link CompoundNBT} to read from
+     * @param data       the {@link CompoundTag} to read from
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
@@ -523,11 +521,11 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
     }
 
     /**
-     * Sync the entity data to the given {@link CompoundNBT}
+     * Sync the entity data to the given {@link CompoundTag}
      *
-     * @param data       the {@link CompoundNBT} to write to
+     * @param data       the {@link CompoundTag} to write to
      * @param syncReason the reason why the synchronization is necessary
-     * @return the {@link CompoundNBT} the data was written to (usually {@code data})
+     * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
     public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {

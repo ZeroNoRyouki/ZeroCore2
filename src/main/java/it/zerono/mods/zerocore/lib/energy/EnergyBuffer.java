@@ -25,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.LogicalSide;
 
 @SuppressWarnings({"unused", "WeakerAccess", "UnusedReturnValue"})
+@Deprecated //use WideEnergyBuffer
 public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebuggable {
 
     public EnergyBuffer(EnergySystem system, double capacity) {

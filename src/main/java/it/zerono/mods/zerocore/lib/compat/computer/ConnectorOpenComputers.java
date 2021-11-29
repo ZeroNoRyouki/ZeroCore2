@@ -27,7 +27,7 @@ import li.cil.oc.api.Network;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.*;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.common.Optional;
@@ -64,7 +64,7 @@ public class ConnectorOpenComputers extends Connector implements ManagedPeripher
     }
 
     @Override
-    public void syncDataFrom(CompoundNBT data, ModBlockEntity.SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, ModBlockEntity.SyncReason syncReason) {
 
         super.syncDataFrom(data, syncReason);
 
@@ -73,7 +73,7 @@ public class ConnectorOpenComputers extends Connector implements ManagedPeripher
     }
 
     @Override
-    public void syncDataTo(CompoundNBT data, ModBlockEntity.SyncReason syncReason) {
+    public void syncDataTo(CompoundTag data, ModBlockEntity.SyncReason syncReason) {
 
         super.syncDataTo(data, syncReason);
 
@@ -90,7 +90,7 @@ public class ConnectorOpenComputers extends Connector implements ManagedPeripher
 
                 li.cil.oc.api.Network.joinNewNetwork(this.node());
 
-                final CompoundNBT nodeTag = new CompoundNBT();
+                final CompoundTag nodeTag = new CompoundTag();
 
                 this.node().save(nodeTag);
                 data.setTag(NODE_TAG, nodeTag);
@@ -99,7 +99,7 @@ public class ConnectorOpenComputers extends Connector implements ManagedPeripher
 
             } else {
 
-                final CompoundNBT nodeTag = new CompoundNBT();
+                final CompoundTag nodeTag = new CompoundTag();
 
                 this.node().save(nodeTag);
                 data.setTag(NODE_TAG, nodeTag);

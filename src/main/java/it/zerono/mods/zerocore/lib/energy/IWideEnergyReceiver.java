@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
  * Based upon the IEnergyReceiver from King Lemming's RedstoneFlux API
  */
 @SuppressWarnings("unused")
+@Deprecated //use IWideEnergyReceiver2
 public interface IWideEnergyReceiver extends IWideEnergyHandler {
 
     /**

@@ -20,9 +20,9 @@ package it.zerono.mods.zerocore.lib.data.geometry;
 
 import it.unimi.dsi.fastutil.ints.IntComparator;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.AABB;
 
 import java.util.Objects;
 
@@ -69,7 +69,18 @@ public class CuboidBoundingBox {
 
     public CuboidBoundingBox add(final BlockPos position) {
 
-        if (adjustPosition(this._min, position, Math::min) || adjustPosition(this._max, position, Math::max)) {
+//        if (adjustPosition(this._min, position, Math::min) || adjustPosition(this._max, position, Math::max)) {
+//            this._aabb = null;
+//        }
+
+        if (position.compareTo(this._min) < 0) {
+
+            this._min.set(position);
+            this._aabb = null;
+
+        } else if (position.compareTo(this._max) > 0) {
+
+            this._max.set(position);
             this._aabb = null;
         }
 
@@ -100,19 +111,23 @@ public class CuboidBoundingBox {
     }
 
     public int getLengthX() {
-        return this._max.getX() - this._min.getX();
+        return this._max.getX() - this._min.getX() + 1;
     }
 
     public int getLengthY() {
-        return this._max.getY() - this._min.getY();
+        return this._max.getY() - this._min.getY() + 1;
     }
 
     public int getLengthZ() {
-        return this._max.getZ() - this._min.getZ();
+        return this._max.getZ() - this._min.getZ() + 1;
     }
 
     public int getVolume() {
         return this.isEmpty() ? 0 : CodeHelper.mathVolume(this._min, this._max);
+    }
+
+    public int getInternalVolume() {
+        return this.isEmpty() ? 0 : CodeHelper.mathVolume(this._min.offset(1, 1, 1), this._max.offset(-1, -1, -1));
     }
 
     public BlockPos getCenter() {

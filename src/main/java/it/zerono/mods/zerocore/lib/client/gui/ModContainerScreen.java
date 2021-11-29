@@ -21,9 +21,12 @@ package it.zerono.mods.zerocore.lib.client.gui;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
 import it.zerono.mods.zerocore.lib.client.gui.control.SlotsGroup;
+import it.zerono.mods.zerocore.lib.client.gui.databind.BindingGroup;
+import it.zerono.mods.zerocore.lib.client.gui.databind.IBinding;
 import it.zerono.mods.zerocore.lib.client.gui.layout.FixedLayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
@@ -34,6 +37,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,6 +47,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 @OnlyIn(Dist.CLIENT)
@@ -52,6 +58,7 @@ public class ModContainerScreen<C extends ModContainer>
     public final IEvent<Runnable> Create;
     public final IEvent<Runnable> Close;
     public final IEvent<Runnable> Created;
+    public final IEvent<Runnable> DataUpdated;
 
     protected ModContainerScreen(final C container, final Inventory inventory, final Component title,
                                  final int guiWidth, final int guiHeight) {
@@ -73,6 +80,9 @@ public class ModContainerScreen<C extends ModContainer>
         this.Create = new Event<>();
         this.Close = new ConcurrentEvent<>();
         this.Created = new Event<>();
+        this.DataUpdated = new Event<>();
+
+        this._raiseContainerDataUpdatedHandler = container.subscribeContainerDataUpdate(this::raiseDataUpdated);
 
         // always create the windows manger after the events are in place so it can subscribe them
         this._windowsManager = singleWindow ? new WindowsManagerSingleWindow<>(this) : new WindowsManagerMultiWindow<>(this);
@@ -82,6 +92,10 @@ public class ModContainerScreen<C extends ModContainer>
         if (null != Minecraft.getInstance().player) {
             Minecraft.getInstance().player.closeContainer();
         }
+    }
+
+    protected boolean isDataUpdateInProgress() {
+        return this._dataUpdateInProgress;
     }
 
     /**
@@ -96,6 +110,8 @@ public class ModContainerScreen<C extends ModContainer>
      * Override to handle this event
      */
     protected void onScreenCreated() {
+        // force an update when the screen is fully created
+        this.raiseDataUpdated();
     }
 
     /**
@@ -103,6 +119,14 @@ public class ModContainerScreen<C extends ModContainer>
      * Override to handle this event
      */
     protected void onScreenClose() {
+        this.getMenu().unsubscribeContainerDataUpdate(this._raiseContainerDataUpdatedHandler);
+    }
+
+    /**
+     * Called when this screen need to be updated after a data update.
+     * Override to handle this event
+     */
+    protected void onDataUpdated() {
     }
 
     /**
@@ -171,6 +195,27 @@ public class ModContainerScreen<C extends ModContainer>
 
     public void renderHoveredSlotToolTip(final PoseStack matrix) {
         this.renderTooltip(matrix, this.getOriginalMouseX(), this.getOriginalMouseY());
+    }
+
+    public int getTooltipsPopupMaxWidth() {
+        return RichText.NO_MAX_WIDTH;
+    }
+
+    public static int parseTooltipsPopupMaxWidthFromLang(final String langKey, final int defaultValue) {
+
+        final Component text = new TranslatableComponent(langKey);
+
+        try {
+
+            final int width = Integer.parseInt(text.getString());
+
+            return width > 0 ? width : defaultValue;
+
+        } catch (NumberFormatException ex) {
+            Log.LOGGER.error(Log.GUI, "Invalid integer value from lang file: {}", langKey);
+        }
+
+        return defaultValue;
     }
 
     public int getOriginalMouseX() {
@@ -256,6 +301,27 @@ public class ModContainerScreen<C extends ModContainer>
 
         control.setPadding(borderSize);
         return control;
+    }
+
+    //endregion
+    //region bindings
+
+    public <Value> void addDataBinding(final Supplier<Value> supplier, final Consumer<Value> consumer) {
+        this.addDataBinding(IBinding.from(supplier, consumer));
+    }
+
+    @SafeVarargs
+    public final <Value> void addDataBinding(final Supplier<Value> supplier, final Consumer<Value>... consumers) {
+        this.addDataBinding(IBinding.from(supplier, consumers));
+    }
+
+    private void addDataBinding(final IBinding binding) {
+
+        if (null == this._bindings) {
+            this._bindings = new BindingGroup();
+        }
+
+        this._bindings.addBinding(binding);
     }
 
     //endregion
@@ -431,15 +497,35 @@ public class ModContainerScreen<C extends ModContainer>
 
         this.Close.raise(Runnable::run);
         this.onScreenClose();
+
+        if (null != this._bindings) {
+            this._bindings.close();
+        }
+    }
+
+    protected void raiseDataUpdated() {
+
+        this._dataUpdateInProgress = true;
+
+        if (null != this._bindings) {
+            this._bindings.update();
+        }
+
+        this.onDataUpdated();
+        this.DataUpdated.raise(Runnable::run);
+        this._dataUpdateInProgress = false;
     }
 
     private final AbstractWindowsManager<C> _windowsManager;
     private final List<Runnable> _tickHandlers;
     private final Queue<Runnable> _deferred;
+    private final Runnable _raiseContainerDataUpdatedHandler;
+    private boolean _dataUpdateInProgress;
     private int _originalMouseX;
     private int _originalMouseY;
     private boolean _ignoreCloseOnInventoryKey;
     private int _nextBogusId;
+    private BindingGroup _bindings;
 
     //endregion
 }

@@ -19,7 +19,12 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
+import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalLayoutEngine;
+import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
+import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalLayoutEngine;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 
 import java.util.Objects;
@@ -40,4 +45,36 @@ public class Panel
     public void setCustomBackgroundPainter(final BiConsumer<AbstractControl, PoseStack> painter) {
         this.setCustomBackgroundHandler(Objects.requireNonNull(painter));
     }
+
+    //region standard Panels
+
+    public static Panel verticalStrip(final ModContainerScreen<? extends ModContainer> gui, final int width,
+                                      final int controlSpacing) {
+
+        final Panel p = new Panel(gui);
+
+        p.setDesiredDimension(DesiredDimension.Width, width);
+        p.setLayoutEngine(new VerticalLayoutEngine()
+                .setHorizontalAlignment(HorizontalAlignment.Center)
+                .setZeroMargins()
+                .setControlsSpacing(controlSpacing));
+
+        return p;
+    }
+
+    public static Panel horizontalStrip(final ModContainerScreen<? extends ModContainer> gui, final int height,
+                                        final int controlSpacing) {
+
+        final Panel p = new Panel(gui);
+
+        p.setDesiredDimension(DesiredDimension.Height, height);
+        p.setLayoutEngine(new HorizontalLayoutEngine()
+                .setVerticalAlignment(VerticalAlignment.Center)
+                .setZeroMargins()
+                .setControlsSpacing(controlSpacing));
+
+        return p;
+    }
+
+    //endregion
 }

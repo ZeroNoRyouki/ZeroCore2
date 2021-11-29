@@ -152,15 +152,15 @@ public interface IStackAdapter<StackType, ContentType> {
     /**
      * Create a stack from the provided NBT data
      *
-     * @param data the {@list CompoundNBT} that contains the data for the new stack
+     * @param data the {@link CompoundTag} that contains the data for the new stack
      * @return the new stack
      */
     StackType readFrom(CompoundTag data);
 
     /**
-     * Save the specified stack in the provided {@list CompoundNBT}
+     * Save the specified stack in the provided {@link CompoundTag}
      * @param stack the stack used by the operation
-     * @param data the {@list CompoundNBT} to save to stack into
+     * @param data the {@link CompoundTag} to save to stack into
      * @return the data
      */
     CompoundTag writeTo(StackType stack, CompoundTag data);

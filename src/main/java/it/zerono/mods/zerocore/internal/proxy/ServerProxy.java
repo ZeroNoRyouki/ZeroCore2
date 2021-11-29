@@ -50,6 +50,11 @@ public class ServerProxy implements IProxy {
     }
 
     @Override
+    public Optional<Player> getClientPlayer() {
+        return Optional.empty();
+    }
+
+    @Override
     public void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
         // do nothing
     }

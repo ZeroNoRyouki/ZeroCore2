@@ -27,7 +27,7 @@
 //import it.zerono.mods.zerocore.lib.block.pattern.BlocksMatcher;
 //import net.minecraft.block.BlockState;
 //import net.minecraft.block.Blocks;
-//import net.minecraft.util.ResourceLocation;
+//import net.minecraft.resources.ResourceLocation;
 //import net.minecraft.world.IWorld;
 //import net.minecraft.world.gen.feature.IFeatureConfig;
 //

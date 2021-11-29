@@ -54,7 +54,7 @@ public class NetworkHandler {
      * Usage: registerMessage(YourModMessage.class, YourModMessage::new);
      *
      * @param messageType    the message class
-     * @param messageFactory a factory to create a message from a PacketBuffer containing the message data
+     * @param messageFactory a factory to create a message from a FriendlyByteBuf containing the message data
      */
     public <T extends IModMessage> void registerMessage(final Class<T> messageType,
                                                         final Function<FriendlyByteBuf, T> messageFactory) {

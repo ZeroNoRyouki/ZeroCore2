@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.compat.jei.drawable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
@@ -30,7 +31,7 @@ public class ProgressBarDrawable
         extends SpriteDrawable {
 
     public static ProgressBarDrawable empty() {
-        return new ProgressBarDrawable(() -> Sprite.EMPTY, 0, Padding.ZERO, 0, 0) {
+        return new ProgressBarDrawable(() -> Sprite.EMPTY, 0, Padding.ZERO, 0, 0, Orientation.BottomToTop) {
 
             @Override
             public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
@@ -43,54 +44,16 @@ public class ProgressBarDrawable
         };
     }
 
+    @Deprecated // use the constructor
     public static ProgressBarDrawable vertical(final NonNullSupplier<ISprite> sprite, final int zLevel,
                                                final Padding padding, final int areaWidth, final int areaHeight) {
-        return new ProgressBarDrawable(sprite, zLevel, padding, areaWidth, areaHeight) {
-
-            @Override
-            public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
-                ModRenderHelper.paintVerticalProgressBarSprite(matrix, this.getSprite(), xOffset + this.getPadding().getLeft(),
-                        yOffset + this.getPadding().getTop(), zLevel, areaWidth, areaHeight, this.getProgress(), this._tint);
-            }
-
-            @Override
-            public void draw(final PoseStack matrix, final int xOffset, final int yOffset, final int maskTop,
-                             final int maskBottom, final int maskLeft, final int maskRight) {
-
-                final int x = xOffset + this.getPadding().getLeft() + maskLeft;
-                final int y = yOffset + this.getPadding().getTop() + maskTop;
-                final int paintWidth = this._areaWidth - maskRight - maskLeft;
-                final int paintHeight = this._areaHeight - maskBottom - maskTop;
-
-                ModRenderHelper.paintVerticalProgressBarSprite(matrix, this.getSprite(), x, y, zLevel, paintWidth,
-                        paintHeight, this.getProgress(), this._tint);
-            }
-        };
+        return new ProgressBarDrawable(sprite, zLevel, padding, areaWidth, areaHeight, Orientation.BottomToTop);
     }
 
+    @Deprecated // use the constructor
     public static ProgressBarDrawable flippedVertical(final NonNullSupplier<ISprite> sprite, final int zLevel, final Padding padding,
                                                       final int areaWidth, final int areaHeight) {
-        return new ProgressBarDrawable(sprite, zLevel, padding, areaWidth, areaHeight) {
-
-            @Override
-            public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
-                ModRenderHelper.paintFlippedVerticalProgressBarSprite(matrix, this.getSprite(), xOffset + this.getPadding().getLeft(),
-                        yOffset + this.getPadding().getTop(), zLevel, areaWidth, areaHeight, this.getProgress(), this._tint);
-            }
-
-            @Override
-            public void draw(final PoseStack matrix, final int xOffset, final int yOffset, final int maskTop,
-                             final int maskBottom, final int maskLeft, final int maskRight) {
-
-                final int x = xOffset + this.getPadding().getLeft() + maskLeft;
-                final int y = yOffset + this.getPadding().getTop() + maskTop;
-                final int paintWidth = this._areaWidth - maskRight - maskLeft;
-                final int paintHeight = this._areaHeight - maskBottom - maskTop;
-
-                ModRenderHelper.paintFlippedVerticalProgressBarSprite(matrix, this.getSprite(), x, y, zLevel, paintWidth,
-                        paintHeight, this.getProgress(), this._tint);
-            }
-        };
+        return new ProgressBarDrawable(sprite, zLevel, padding, areaWidth, areaHeight, Orientation.TopToBottom);
     }
 
     public void setProgress(final double progress) {
@@ -109,20 +72,41 @@ public class ProgressBarDrawable
         this._tint = tint;
     }
 
-    protected ProgressBarDrawable(final NonNullSupplier<ISprite> sprite, final int zLevel, final Padding padding,
-                                  final int areaWidth, final int areaHeight) {
+    public ProgressBarDrawable(final NonNullSupplier<ISprite> sprite, final int zLevel, final Padding padding,
+                               final int areaWidth, final int areaHeight, final Orientation orientation) {
 
         super(sprite, zLevel, padding);
         this._tint = Colour.WHITE;
         this._areaWidth = areaWidth;
         this._areaHeight = areaHeight;
+        this._orientation = orientation;
         this._progress = 0.0d;
     }
 
+    //region SpriteDrawable
+
+    @Override
+    public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
+        ModRenderHelper.paintOrientedProgressBarSprite(matrix, this._orientation, this.getSprite(),
+                xOffset + this.getPadding().getLeft(), yOffset + this.getPadding().getTop(), this.getZLevel(),
+                this._areaWidth, this._areaHeight, this.getProgress(), this._tint);
+    }
+
+    @Override
+    public void draw(final PoseStack matrix, final int xOffset, final int yOffset, final int maskTop,
+                     final int maskBottom, final int maskLeft, final int maskRight) {
+        ModRenderHelper.paintOrientedProgressBarSprite(matrix, this._orientation, this.getSprite(),
+                xOffset + this.getPadding().getLeft() + maskLeft, yOffset + this.getPadding().getTop() + maskTop,
+                this.getZLevel(), this._areaWidth - maskRight - maskLeft, this._areaHeight - maskBottom - maskTop,
+                this.getProgress(), this._tint);
+    }
+
+    //endregion
     //region internals
 
     protected final int _areaWidth;
     protected final int _areaHeight;
+    protected final Orientation _orientation;
     protected Colour _tint;
     protected double _progress;
 

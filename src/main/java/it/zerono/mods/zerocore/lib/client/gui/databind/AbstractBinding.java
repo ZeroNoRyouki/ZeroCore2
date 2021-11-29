@@ -23,6 +23,7 @@ import it.zerono.mods.zerocore.lib.event.IEvent;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+@Deprecated // use IBinding.from()
 public abstract class AbstractBinding<Source, Value> implements IBinding {
 
     public AbstractBinding(final Source source, final Function<Source, Value> supplier,

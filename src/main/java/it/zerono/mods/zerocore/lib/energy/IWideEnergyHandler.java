@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
  *
  * Based upon the IEnergyHandler from King Lemming's RedstoneFlux API
  */
+@Deprecated // use IWideEnergyHandler2
 public interface IWideEnergyHandler extends IWideEnergyConnection {
 
     /**

@@ -18,8 +18,14 @@
 
 package it.zerono.mods.zerocore.lib.data.stack;
 
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
+import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraftforge.common.util.Constants;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.ObjIntConsumer;
@@ -38,13 +44,54 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
         this._onLoadListener = CodeHelper.VOID_RUNNABLE;
      }
 
-     protected void onLoad() {
-        this._onLoadListener.run();
-     }
+    protected void onLoad() {
+    this._onLoadListener.run();
+    }
 
-     protected void onChange(final ChangeType change, final int index) {
-        this._onChangeListener.accept(change, index);
-     }
+    protected void onChange(final ChangeType change, final int index) {
+    this._onChangeListener.accept(change, index);
+    }
+
+    protected <StackType, ContentType> void syncFrom(final CompoundTag data, final IStackAdapter<StackType, ContentType> adapter,
+                                                     final Int2ObjectFunction<List<StackType>> itemsListSupplier) {
+
+        final List<StackType> stacks = itemsListSupplier.get(data.getInt("Size"));
+        final ListTag tagList = data.getList("Items", Constants.NBT.TAG_COMPOUND);
+
+        for (int i = 0; i < tagList.size(); ++i) {
+
+            final CompoundTag itemTags = tagList.getCompound(i);
+            final int slot = itemTags.getInt("Slot");
+
+            if (slot >= 0 && slot < stacks.size()) {
+                stacks.set(slot, adapter.readFrom(itemTags));
+            }
+        }
+
+        this.onLoad();
+    }
+
+    protected <StackType, ContentType> CompoundTag syncTo(final CompoundTag data, final List<StackType> items,
+                                                          final IStackAdapter<StackType, ContentType> adapter) {
+
+        final ListTag nbtTagList = new ListTag();
+
+        for (int i = 0; i < items.size(); ++i) {
+
+            if (!adapter.isEmpty(items.get(i))) {
+
+                final CompoundTag itemTag = new CompoundTag();
+
+                itemTag.putInt("Slot", i);
+                adapter.writeTo(items.get(i), itemTag);
+                nbtTagList.add(itemTag);
+            }
+        }
+
+        data.put("Items", nbtTagList);
+        data.putInt("Size", items.size());
+        return data;
+    }
 
     //region IStackHolder
 
@@ -69,6 +116,16 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
         return (Holder)this;
     }
 
+    @Override
+    public void setMaxCapacity(final Int2IntFunction maxCapacity) {
+        this._maxCapacityProvider = maxCapacity;
+    }
+
+    @Override
+    public int getMaxCapacity(final int index) {
+        return this._maxCapacityProvider.applyAsInt(index);
+    }
+
     //endregion
     //region internals
 
@@ -79,6 +136,7 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
     private final BiPredicate<Integer, Stack> _stackValidator;
     private ObjIntConsumer<ChangeType> _onChangeListener;
     private Runnable _onLoadListener;
+    private Int2IntFunction _maxCapacityProvider;
 
     //endregion
 }

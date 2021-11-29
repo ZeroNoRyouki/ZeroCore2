@@ -29,7 +29,7 @@ public interface IRecipeProcessing {
     /**
      * Called at the beginning of every processing tick
      *
-     * @param tick the tick begin processed
+     * @param tick the tick being processed
      */
     default void onRecipeTickProcessed(int tick) {
     }

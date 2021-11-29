@@ -152,6 +152,18 @@ public abstract class FluidStackRecipeIngredient
         }
 
         @Override
+        public boolean isCompatible(final FluidStack... ingredients) {
+
+            for (final FluidStack stack : ingredients) {
+                if (stack.isFluidEqual(this._ingredient)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        @Override
         public FluidStack getMatchFrom(final FluidStack stack) {
             return this.test(stack) ? this._ingredient : FluidStack.EMPTY;
         }
@@ -226,6 +238,11 @@ public abstract class FluidStackRecipeIngredient
         @Override
         public boolean isCompatible(final FluidStack stack) {
             return this._ingredients.stream().anyMatch(ingredient -> ingredient.isCompatible(stack));
+        }
+
+        @Override
+        public boolean isCompatible(FluidStack... ingredients) {
+            return this._ingredients.stream().anyMatch(ingredient -> ingredient.isCompatible(ingredients));
         }
 
         @Override
@@ -319,6 +336,18 @@ public abstract class FluidStackRecipeIngredient
         @Override
         public boolean isCompatible(final FluidStack stack) {
             return Objects.requireNonNull(stack).getFluid().is(this._tag);
+        }
+
+        @Override
+        public boolean isCompatible(final FluidStack... ingredients) {
+
+            for (final FluidStack stack : ingredients) {
+                if (stack.getFluid().is(this._tag)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         @Override

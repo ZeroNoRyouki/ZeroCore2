@@ -18,11 +18,15 @@
 
 package it.zerono.mods.zerocore.lib.energy.handler;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage;
+import it.zerono.mods.zerocore.lib.energy.IWideEnergyStorage2;
 
 public class WideEnergyStoragePolicyWrapper {
 
+    @Deprecated //use IWideEnergyStorage2
     public static IWideEnergyStorage inputOnly(final IWideEnergyStorage original) {
 
         return new WideEnergyStorageForwarder(original) {
@@ -34,12 +38,34 @@ public class WideEnergyStoragePolicyWrapper {
         };
     }
 
+    @Deprecated //use IWideEnergyStorage2
     public static IWideEnergyStorage outputOnly(final IWideEnergyStorage original) {
         return new WideEnergyStorageForwarder(original) {
 
             @Override
             public double insertEnergy(EnergySystem system, double maxAmount, boolean simulate) {
                 return 0;
+            }
+        };
+    }
+
+    public static IWideEnergyStorage2 inputOnly(final IWideEnergyStorage2 original) {
+
+        return new WideEnergyStorageForwarder2(original) {
+
+            @Override
+            public WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode) {
+                return WideAmount.ZERO;
+            }
+        };
+    }
+
+    public static IWideEnergyStorage2 outputOnly(final IWideEnergyStorage2 original) {
+        return new WideEnergyStorageForwarder2(original) {
+
+            @Override
+            public WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode) {
+                return WideAmount.ZERO;
             }
         };
     }

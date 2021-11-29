@@ -22,5 +22,6 @@ public enum InternalCommand {
 
     ClearRecipes,
     DebugGuiFrame,
+    ContainerDataSync,
 
 }

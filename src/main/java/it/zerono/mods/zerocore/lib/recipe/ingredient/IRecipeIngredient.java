@@ -30,6 +30,13 @@ public interface IRecipeIngredient<T>
 
     boolean isCompatible(T ingredient);
 
+    /**
+     * Check if this ingredient is compatible with at least one of the provided ingredients
+     * @param ingredients the ingredients to check
+     * @return true if this ingredient is compatible with at least one of the provided ingredients, false otherwise
+     */
+    boolean isCompatible(T... ingredients);
+
     T getMatchFrom(T ingredient);
 
     long getAmount(T ingredient);

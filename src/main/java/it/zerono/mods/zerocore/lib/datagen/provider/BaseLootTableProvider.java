@@ -24,15 +24,17 @@ import com.google.gson.GsonBuilder;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.datagen.LootTableType;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.HashCache;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.LootTables;
-import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings("unsued")
 public class BaseLootTableProvider
@@ -52,6 +54,10 @@ public class BaseLootTableProvider
     protected void generateTables() {
     }
 
+    protected void add(final Block block, final LootTable.Builder builder) {
+        this.add(Objects.requireNonNull(block.getRegistryName()), builder);
+    }
+
     protected void add(final ResourceLocation id, final LootTable.Builder builder) {
 
         if (null != this._tables.put(id, builder)) {
@@ -67,8 +73,6 @@ public class BaseLootTableProvider
 
     /**
      * Performs this provider's action.
-     *
-     * @param cache
      */
     @Override
     public void run(HashCache cache) {
@@ -88,23 +92,6 @@ public class BaseLootTableProvider
 
     //endregion
     //region internals
-/*
-    protected LootTable.Builder createStandardTable(String name, Block block) {
-
-        LootPool.Builder builder = LootPool.builder()
-                .name(name)
-                .rolls(ConstantRange.of(1))
-                .addEntry(ItemLootEntry.builder(block)
-                        .acceptFunction(CopyName.builder(CopyName.Source.BLOCK_ENTITY))
-                        .acceptFunction(CopyNbt.builder(CopyNbt.Source.BLOCK_ENTITY)
-                                .addOperation("inv", "BlockEntityTag.inv", CopyNbt.Action.REPLACE)
-                                .addOperation("energy", "BlockEntityTag.energy", CopyNbt.Action.REPLACE))
-                        .acceptFunction(SetContents.setContents()
-                                .withEntry(DynamicLootEntry.dynamicEntry(new ResourceLocation("minecraft", "contents"))))
-                );
-
-        return LootTable.builder().addLootPool(builder);
-    }*/
 
     private void writeTable(final HashCache cache, final ResourceLocation id, final LootTable table) {
 

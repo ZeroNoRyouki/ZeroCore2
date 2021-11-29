@@ -452,6 +452,10 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         }
 
         controller.getLastError().ifPresent(error -> messages.add(side, error, "Last validation error: "));
+
+        if (controller instanceof IDebuggable) {
+            ((IDebuggable)controller).getDebugMessages(side, messages);
+        }
     }
 
     //endregion

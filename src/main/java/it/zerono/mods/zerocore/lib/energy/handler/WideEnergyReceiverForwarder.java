@@ -24,6 +24,7 @@ import net.minecraft.core.Direction;
 
 import javax.annotation.Nullable;
 
+@Deprecated //use WideEnergyReceiverForwarder2
 public class WideEnergyReceiverForwarder
         extends AbstractWideEnergyHandlerForwarder<IWideEnergyReceiver>
         implements IWideEnergyReceiver {

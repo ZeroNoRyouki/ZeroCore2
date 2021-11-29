@@ -507,7 +507,8 @@ public abstract class AbstractControl
 
             final List<Component> lines = this._tooltipsSource.getTooltips();
 
-            return lines.isEmpty() ? RichText.EMPTY : buildTooltipsRichText(lines, this._tooltipsSource.getTooltipsObjects());
+            return lines.isEmpty() ? RichText.EMPTY : buildTooltipsRichText(lines, this._tooltipsSource.getTooltipsObjects(),
+                    this.getTooltipsPopupMaxWidth());
         }
 
         if (null == this._tooltipsRichText) {
@@ -515,16 +516,17 @@ public abstract class AbstractControl
             final List<Component> lines = this.getTooltips();
 
             if (!lines.isEmpty()) {
-                this._tooltipsRichText = buildTooltipsRichText(lines, this.getTooltipsObjects());
+                this._tooltipsRichText = buildTooltipsRichText(lines, this.getTooltipsObjects(), this.getTooltipsPopupMaxWidth());
             }
         }
 
         return null != this._tooltipsRichText ? this._tooltipsRichText : RichText.EMPTY;
     }
 
-    private static RichText buildTooltipsRichText(final List<Component> lines, final List<Object> objects) {
+    private static RichText buildTooltipsRichText(final List<Component> lines, final List<Object> objects,
+                                                  final int popupMaxWidth) {
 
-        return RichText.builder()
+        return RichText.builder(popupMaxWidth)
                 .textLines(lines)
                 .objects(objects)
                 .defaultColour(Colour.WHITE)

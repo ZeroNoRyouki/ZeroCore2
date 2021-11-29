@@ -199,10 +199,14 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         if (this._connectedParts.isEmpty()) {
 
+            this._boundingBox = CuboidBoundingBox.EMPTY;
+
             // Destroy/unregister
             this.getRegistry().addDeadController(mySelf);
             return;
         }
+
+        this._needBuildingBoxRebuild = true;
 
         if (null == this._detachedParts) {
             this._detachedParts = this.createPartStorage();
@@ -228,6 +232,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this._connectedParts.forEach(this::onDetachPart, part -> this.getWorld().hasChunkAt(part.getWorldPosition()));
         this._connectedParts = this.createPartStorage();
+        this._boundingBox = CuboidBoundingBox.EMPTY;
         return detachedParts;
     }
 
@@ -417,7 +422,9 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         // Trim any blocks that were invalid, or were removed.
 
         if (!deadParts.isEmpty()) {
+
             this._connectedParts.removeAll(deadParts);
+            this._needBuildingBoxRebuild = true;
         }
 
         // We've run the checks from here on out.
@@ -581,7 +588,12 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      */
     @Override
     public void recalculateCoords() {
-        this._boundingBox = this.isEmpty() ? CuboidBoundingBox.EMPTY : this.buildBoundingBox();
+
+        if (this._needBuildingBoxRebuild) {
+
+            this._boundingBox = this.isEmpty() ? CuboidBoundingBox.EMPTY : this.buildBoundingBox();
+            this._needBuildingBoxRebuild = false;
+        }
     }
 
     /**
@@ -808,6 +820,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         this._syncProvider = NetworkTileEntitySyncProvider.create(
                 () -> this.getReferenceCoord().orElseGet(() -> new BlockPos(0, 0, 0)), this);
         this._requestDataUpdateNotification = false;
+        this._needBuildingBoxRebuild = false;
 
         this.DataUpdated = new Event<>();
 	}
@@ -1021,9 +1034,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     protected CuboidBoundingBox buildBoundingBox() {
-        return this._connectedParts.parallelStream()
-                .map(IMultiblockPart::getWorldPosition)
-                .collect(CuboidBoundingBox::new, CuboidBoundingBox::add, CuboidBoundingBox::combine);
+        return this._connectedParts.boundingBox();
     }
 
     /*
@@ -1480,6 +1491,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
     private final INetworkTileEntitySyncProvider _syncProvider;
     private boolean _requestDataUpdateNotification;
+    private boolean _needBuildingBoxRebuild;
 
     //endregion
 }

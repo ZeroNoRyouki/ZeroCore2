@@ -27,6 +27,7 @@ import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -98,6 +99,11 @@ public class ClientProxy
     }
 
     @Override
+    public Optional<Player> getClientPlayer() {
+        return Optional.ofNullable(Minecraft.getInstance().player);
+    }
+
+    @Override
     public void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
         Minecraft.getInstance().levelRenderer.setBlocksDirty(min.getX(), min.getY(), min.getZ(),
                 max.getX(), max.getY(), max.getZ());
@@ -163,9 +169,26 @@ public class ClientProxy
     public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
 
         switch (command) {
-            case ClearRecipes -> ModRecipeType.invalidate();
-            case DebugGuiFrame -> GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
-            default -> IProxy.super.handleInternalCommand(command, data, direction);
+
+            case ClearRecipes:
+                ModRecipeType.invalidate();
+                break;
+
+            case DebugGuiFrame:
+                GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
+                break;
+
+            case ContainerDataSync:
+                this.getClientPlayer()
+                        .map(p -> p.containerMenu)
+                        .filter(c -> c instanceof ModContainer)
+                        .map(c -> (ModContainer)c)
+                        .ifPresent(mc -> mc.onContainerDataSync(data));
+                break;
+
+            default:
+                IProxy.super.handleInternalCommand(command, data, direction);
+                break;
         }
     }
 

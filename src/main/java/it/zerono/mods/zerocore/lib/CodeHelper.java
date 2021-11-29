@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -28,7 +29,6 @@ import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
-import joptsimple.internal.Strings;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
@@ -70,7 +70,7 @@ public final class CodeHelper {
 
     public static final Object[] EMPTY_GENERIC_ARRAY = new Object[0];
 
-    public static final Component TEXT_EMPTY_LINE = new TextComponent("");
+    public static final Component TEXT_EMPTY_LINE = TextComponent.EMPTY;
 
     public static final Direction[] DIRECTIONS = Direction.values();
     public static final Direction[] POSITIVE_DIRECTIONS;
@@ -861,6 +861,39 @@ public final class CodeHelper {
         return Ints.saturatedCast(value);
     }
 
+    public static int mathClampUnsignedToInt(final long value) {
+        return (value < 0 || value > Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int)value;
+    }
+
+    public static long mathClampUnsignedToLong(final long value) {
+        return value < 0 ? Long.MAX_VALUE : value;
+    }
+
+    public static float mathUnsignedLongToFloat(final long value) {
+
+        float fValue = (float) (value & UNSIGNED_MASK);
+
+        if (value < 0) {
+            fValue += 0x1.0p63F;
+        }
+
+        return fValue;
+    }
+
+    public static double mathUnsignedLongToDouble(final long value) {
+
+        double dValue = (double) (value & UNSIGNED_MASK);
+
+        if (value < 0) {
+            dValue += 0x1.0p63;
+        }
+        return dValue;
+    }
+
+    public static boolean mathUnsignedLongMultiplicationWillOverFlow(final long a, final long b) {
+        return (a != 0 && b != 0 && Long.compareUnsigned(b, Long.divideUnsigned(-1, a)) > 0);
+    }
+
     public static int commonVertices(final Vec3i a, final Vec3i b) {
         return (a.getX() == b.getX() ? 1 : 0) + (a.getY() == b.getY() ? 1 : 0) + (a.getZ() == b.getZ() ? 1 : 0);
     }
@@ -948,8 +981,18 @@ public final class CodeHelper {
         return String.format(format, value);
     }
 
+    public static String zeroFilled(final int count) {
+
+        final char[] zeros = new char[count];
+
+        Arrays.fill(zeros, '0');
+        return new String(zeros);
+    }
+
     //endregion
     //region internals
+
+    private static final long UNSIGNED_MASK = 0x7FFFFFFFFFFFFFFFL;
 
     private static final Map<Integer, String> s_siPrefixes;
     private static final Random s_fakeRandom;

@@ -26,8 +26,9 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.Item;
@@ -61,6 +62,14 @@ public final class ItemHelper {
         return Objects.requireNonNull(stack.getItem().getRegistryName());
     }
 
+    public static MutableComponent getItemName(final Item item) {
+        return new TranslatableComponent(item.getDescriptionId());
+    }
+
+    public static MutableComponent getItemName(final ItemStack stack) {
+        return new TranslatableComponent(stack.getDescriptionId());
+    }
+
     @Nullable
     public static Item getItemFrom(final String id) {
         return getItemFrom(new ResourceLocation(id));
@@ -91,6 +100,8 @@ public final class ItemHelper {
         public static final EnumSet<MatchOption> MATCH_ALWAYS = EnumSet.noneOf(MatchOption.class);
         public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT, Capabilities, Tags);
         public static final EnumSet<MatchOption> MATCH_ITEM = EnumSet.of(Item);
+        public static final EnumSet<MatchOption> MATCH_ITEM_SIZE = EnumSet.of(Item, Size);
+        public static final EnumSet<MatchOption> MATCH_ITEM_NBT = EnumSet.of(Item, NBT);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE = EnumSet.of(Item, Damage);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE_NBT = EnumSet.of(Item, Damage, NBT);
         public static final EnumSet<MatchOption> MATCH_EXISTING_STACK = EnumSet.of(Item, Damage, NBT, Capabilities, Tags);
@@ -129,11 +140,7 @@ public final class ItemHelper {
         }
 
         if (result && options.contains(MatchOption.NBT)) {
-
-            final CompoundTag nbtA = stackA.getTag();
-            final CompoundTag nbtB = stackB.getTag();
-
-            result = (nbtA == nbtB) || (null != nbtA && null != nbtB && NbtUtils.compareNbt(nbtA, nbtB, true));
+            result = ItemStack.tagMatches(stackA, stackB);
         }
 
         if (result && options.contains(MatchOption.Capabilities)) {

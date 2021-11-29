@@ -23,11 +23,11 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
+import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
+import it.zerono.mods.zerocore.lib.data.stack.StackAdapters;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -41,7 +41,8 @@ import java.util.function.BiPredicate;
 
 public class ItemStackHolder
         extends AbstractStackHolder<ItemStackHolder, ItemStack>
-        implements IItemHandler, IItemHandlerModifiable, INBTSerializable<CompoundTag>, ISyncableEntity, IDebuggable {
+        implements IStackHolderAccess<ItemStackHolder, ItemStack>, IItemHandler, IItemHandlerModifiable,
+                    INBTSerializable<CompoundTag>, ISyncableEntity, IDebuggable {
 
     public ItemStackHolder(final int size) {
         this(NonNullList.withSize(size, ItemStack.EMPTY));
@@ -59,6 +60,7 @@ public class ItemStackHolder
 
         super(stackValidator);
         this._stacks = stacks;
+        this.setMaxCapacity(64);
     }
 
     public void setSize(final int size) {
@@ -69,7 +71,25 @@ public class ItemStackHolder
 
     @Override
     public boolean isEmpty(final int index) {
-        return false;
+        return this.getStackInSlot(index).isEmpty();
+    }
+
+    @Override
+    public int getAmount(final int index) {
+        return this.getStackInSlot(index).getCount();
+    }
+
+    //endregion
+    //region IStackHolderAccess<ItemStackHolder, ItemStack>
+
+    @Override
+    public ItemStack getStackAt(final int index) {
+        return this.getStackInSlot(index);
+    }
+
+    @Override
+    public void setStackAt(final int index, final ItemStack stack) {
+        this.setStackInSlot(index, stack);
     }
 
     //endregion
@@ -239,7 +259,7 @@ public class ItemStackHolder
      */
     @Override
     public int getSlotLimit(final int slot) {
-        return 64;
+        return this.getMaxCapacity(slot);
     }
 
     /**
@@ -320,22 +340,14 @@ public class ItemStackHolder
      */
     @Override
     public void syncDataFrom(final CompoundTag data, final SyncReason syncReason) {
+        this.syncFrom(data, StackAdapters.ITEMSTACK, size -> {
 
-        this.setSize(data.contains("Size", Constants.NBT.TAG_INT) ? data.getInt("Size") : this._stacks.size());
-
-        final ListTag tagList = data.getList("Items", Constants.NBT.TAG_COMPOUND);
-
-        for (int i = 0; i < tagList.size(); ++i) {
-
-            final CompoundTag itemTags = tagList.getCompound(i);
-            final int slot = itemTags.getInt("Slot");
-
-            if (slot >= 0 && slot < this._stacks.size()) {
-                this._stacks.set(slot, ItemStack.of(itemTags));
+            if (size > 0) {
+                this.setSize(size);
             }
-        }
 
-        this.onLoad();
+            return this._stacks;
+        });
     }
 
     /**
@@ -347,24 +359,7 @@ public class ItemStackHolder
      */
     @Override
     public CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
-
-        final ListTag nbtTagList = new ListTag();
-
-        for (int i = 0; i < this._stacks.size(); ++i) {
-
-            if (!this._stacks.get(i).isEmpty()) {
-
-                final CompoundTag itemTag = new CompoundTag();
-
-                itemTag.putInt("Slot", i);
-                this._stacks.get(i).save(itemTag);
-                nbtTagList.add(itemTag);
-            }
-        }
-
-        data.put("Items", nbtTagList);
-        data.putInt("Size", this._stacks.size());
-        return data;
+        return this.syncTo(data, this._stacks, StackAdapters.ITEMSTACK);
     }
 
     //endregion

@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.lib.data.nbt;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraftforge.common.util.Constants;
 
 import java.io.File;
@@ -38,10 +38,10 @@ public final class NBTHelper {
     public static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
 
     /**
-     * Load an CompoundNBT from the given file
+     * Load an CompoundTag from the given file
      *
      * @param file the file to read from
-     * @return the CompoundNBT read from the file or null if, for whatever reason, the operation fails
+     * @return the CompoundTag read from the file or null if, for whatever reason, the operation fails
      */
     public static Optional<CompoundTag> nbtFrom(final File file) {
 
@@ -58,7 +58,7 @@ public final class NBTHelper {
     }
 
     /**
-     * Save an CompoundNBT to the given file
+     * Save an CompoundTag to the given file
      *
      * @param file the file to write the data to
      * @param data the data to store in the file
@@ -108,6 +108,17 @@ public final class NBTHelper {
     }
 
     /**
+     * Check if the provided NBT tag contains an Enum value saved by nbtSetEnum() with the given key
+     *
+     * @param nbt   the NBT tag to store the data into
+     * @param key   the key to be associated with the data
+     * @return true if an enum is present, false otherwise
+     */
+    public static boolean nbtContainsEnum(final CompoundTag nbt, final String key) {
+        return nbt.contains(key, Constants.NBT.TAG_STRING);
+    }
+
+    /**
      * Get an Enum value from the provided NBT tag
      *
      * Please note that this method assume that the requested value is in the tag (i.e., that nbt.hasKey(key) is true)
@@ -151,6 +162,17 @@ public final class NBTHelper {
 
         nbt.put(key, tagList);
         return nbt;
+    }
+
+    /**
+     * Check if the provided NBT tag contains an Enum value saved by nbtSetEnum() with the given key
+     *
+     * @param nbt   the NBT tag to store the data into
+     * @param key   the key to be associated with the data
+     * @return true if an enum is present, false otherwise
+     */
+    public static boolean nbtContainsEnumSet(final CompoundTag nbt, final String key) {
+        return nbt.contains(key, Constants.NBT.TAG_LIST);
     }
 
     /**

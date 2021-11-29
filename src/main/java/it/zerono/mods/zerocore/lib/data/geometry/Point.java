@@ -18,8 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+
+import java.util.Objects;
 
 public class Point {
 
@@ -94,6 +96,11 @@ public class Point {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.X, this.Y);
     }
 
     @Override

@@ -24,6 +24,7 @@ import net.minecraft.core.Direction;
 
 import javax.annotation.Nullable;
 
+@Deprecated // use AbstractWideEnergyHandlerForwarder2
 public abstract class AbstractWideEnergyHandlerForwarder<T extends IWideEnergyHandler>
         implements IWideEnergyHandler {
 
@@ -81,7 +82,7 @@ public abstract class AbstractWideEnergyHandlerForwarder<T extends IWideEnergyHa
      */
     @Override
     public double getCapacity(final EnergySystem system, final @Nullable Direction from) {
-        return this.getCapacity(system, from);
+        return this.getHandler().getCapacity(system, from);
     }
 
     //endregion

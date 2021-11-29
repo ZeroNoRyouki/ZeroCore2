@@ -18,7 +18,7 @@
 //
 //package it.zerono.mods.zerocore.lib.world;
 //
-//import net.minecraft.util.math.BlockPos;
+//import net.minecraft.core.BlockPos;
 //import net.minecraft.util.math.MathHelper;
 //import net.minecraft.world.IWorld;
 //import net.minecraft.world.gen.ChunkGenerator;

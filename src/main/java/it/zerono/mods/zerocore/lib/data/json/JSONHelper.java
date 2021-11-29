@@ -24,13 +24,13 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
@@ -85,6 +85,108 @@ public final class JSONHelper {
      * @param value the value
      */
     public static void jsonSetInt(final JsonObject json, final String elementName, final int value) {
+        json.addProperty(elementName, value);
+    }
+
+    /**
+     * Get a long value from a JSON element
+     *
+     * @param json the JSON element
+     * @param elementName the name of the element
+     * @return the long value of the element
+     */
+    public static long jsonGetLong(final JsonElement json, final String elementName) {
+
+        if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isNumber()) {
+            return json.getAsLong();
+        } else {
+            throw new JsonSyntaxException("JSON element is not a integer: " + elementName);
+        }
+    }
+
+    /**
+     * Get a mandatory long from a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @return the long value of the element
+     */
+    public static long jsonGetLong(final JsonObject json, final String elementName) {
+        return jsonGetLong(jsonGetMandatoryElement(json, elementName), elementName);
+    }
+
+    /**
+     * Get an optional long from a JSON object.
+     * If the element if not present, return {@code defaultValue}
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param defaultValue the default value to use if the element is not found
+     * @return the element value or {@code defaultValue}
+     */
+    public static long jsonGetLong(final JsonObject json, final String elementName, final long defaultValue) {
+        return json.has(elementName) ? jsonGetLong(json.get(elementName), elementName) : defaultValue;
+    }
+
+    /**
+     * Set a long value in a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param value the value
+     */
+    public static void jsonSetLong(final JsonObject json, final String elementName, final long value) {
+        json.addProperty(elementName, value);
+    }
+
+    /**
+     * Get a short value from a JSON element
+     *
+     * @param json the JSON element
+     * @param elementName the name of the element
+     * @return the short value of the element
+     */
+    public static short jsonGetShort(final JsonElement json, final String elementName) {
+
+        if (json.isJsonPrimitive() && json.getAsJsonPrimitive().isNumber()) {
+            return json.getAsShort();
+        } else {
+            throw new JsonSyntaxException("JSON element is not a integer: " + elementName);
+        }
+    }
+
+    /**
+     * Get a mandatory short from a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @return the short value of the element
+     */
+    public static short jsonGetShort(final JsonObject json, final String elementName) {
+        return jsonGetShort(jsonGetMandatoryElement(json, elementName), elementName);
+    }
+
+    /**
+     * Get an optional short from a JSON object.
+     * If the element if not present, return {@code defaultValue}
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param defaultValue the default value to use if the element is not found
+     * @return the element value or {@code defaultValue}
+     */
+    public static short jsonGetShort(final JsonObject json, final String elementName, final short defaultValue) {
+        return json.has(elementName) ? jsonGetShort(json.get(elementName), elementName) : defaultValue;
+    }
+
+    /**
+     * Set a short value in a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param value the value
+     */
+    public static void jsonSetShort(final JsonObject json, final String elementName, final short value) {
         json.addProperty(elementName, value);
     }
 
@@ -236,22 +338,22 @@ public final class JSONHelper {
     }
 
     /**
-     * Get a mandatory CompoundNBT from a JSON object
+     * Get a mandatory CompoundTag from a JSON object
      *
      * @param json the JSON object
      * @param elementName the name of the element
-     * @return the CompoundNBT value of the element
+     * @return the CompoundTag value of the element
      */
     public static CompoundTag jsonGetNBT(final JsonObject json, final String elementName) {
         try {
             return TagParser.parseTag(jsonGetString(json, elementName));
         } catch (CommandSyntaxException ex) {
-            throw new JsonSyntaxException("JSON element is not a valid CompoundNBT tag: " + elementName);
+            throw new JsonSyntaxException("JSON element is not a valid CompoundTag tag: " + elementName);
         }
     }
 
     /**
-     * Get an optional CompoundNBT from a JSON object.
+     * Get an optional CompoundTag from a JSON object.
      * If the element if not present, return {@code defaultValue}
      *
      * @param json the JSON object
@@ -263,12 +365,12 @@ public final class JSONHelper {
         try {
             return json.has(elementName) ? TagParser.parseTag(jsonGetString(json.get(elementName), elementName)) : defaultValue;
         } catch (CommandSyntaxException ex) {
-            throw new JsonSyntaxException("JSON element is not a valid CompoundNBT tag: " + elementName);
+            throw new JsonSyntaxException("JSON element is not a valid CompoundTag tag: " + elementName);
         }
     }
 
     /**
-     * Set a CompoundNBT value in a JSON object
+     * Set a CompoundTag value in a JSON object
      *
      * @param json the JSON object
      * @param elementName the name of the element

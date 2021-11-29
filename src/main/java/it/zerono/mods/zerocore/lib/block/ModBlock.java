@@ -22,11 +22,13 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -39,8 +41,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.*;
 
 public class ModBlock
@@ -66,6 +70,63 @@ public class ModBlock
 
         return builder;
     }
+
+    //region extended properties
+
+    @FunctionalInterface
+    public interface IStackStorableTooltipBuilder {
+
+        void build(ItemStack stack, CompoundTag data, @Nullable BlockGetter world,
+                   NonNullConsumer<Component> appender, boolean isAdvancedTooltip);
+    }
+
+    public static class ExtendedProperties<T extends ExtendedProperties<T>> {
+
+        public ExtendedProperties() {
+
+            this._baseProperties = createProperties(Material.STONE, SoundType.STONE, 1.5f, 6.0f, false);
+            this.setAsStackStorable(false);
+        }
+
+        public T setBlockProperties(final Block.Properties properties) {
+
+            this._baseProperties = properties;
+            return this.self();
+        }
+
+        public T setAsStackStorable(final boolean storable) {
+
+            this._stackStorable = storable;
+            this._stackStorableTooltipBuilder = EMPTY_STACK_STORABLE_TOOLTIP_BUILDER;
+            return this.self();
+        }
+
+        /**
+         * Mark the block as having a stack-storable TileEntity (an ISyncableEntity) and set a tooltip builder for the associated ItemStack
+         * @param tooltipBuilder the builder
+         * @return this object
+         */
+        public T setAsStackStorable(final IStackStorableTooltipBuilder tooltipBuilder) {
+
+            this._stackStorable = true;
+            this._stackStorableTooltipBuilder = tooltipBuilder;
+            return this.self();
+        }
+
+        //region internals
+
+        private T self() {
+            //noinspection unchecked
+            return (T)this;
+        }
+
+        private Block.Properties _baseProperties;
+
+        private boolean _stackStorable;
+        private IStackStorableTooltipBuilder _stackStorableTooltipBuilder;
+
+        //endregion
+    }
     
     public static Component getNameForTranslation(final Block block) {
         return new TranslatableComponent(block.getDescriptionId());
@@ -75,9 +136,20 @@ public class ModBlock
         return (int)(15.0F * value);
     }
 
+    @Deprecated // This constructor will be removed in future version in favor of the ExtendedProperties one
     public ModBlock(final Block.Properties properties) {
 
         super(properties);
+        this._stackStorable = false;
+        this._stackStorableTooltipBuilder = EMPTY_STACK_STORABLE_TOOLTIP_BUILDER;
+        this.registerDefaultState(this.buildDefaultState(this.getStateDefinition().any()));
+    }
+
+    public ModBlock(final ExtendedProperties extendedProperties) {
+
+        super(extendedProperties._baseProperties);
+        this._stackStorable = extendedProperties._stackStorable;
+        this._stackStorableTooltipBuilder = extendedProperties._stackStorableTooltipBuilder;
         this.registerDefaultState(this.buildDefaultState(this.getStateDefinition().any()));
     }
 
@@ -89,7 +161,6 @@ public class ModBlock
         return ItemHelper.stackFrom(this, amount);
     }
 
-    @SuppressWarnings("ConstantConditions")
     public BlockItem createBlockItem(final Item.Properties properties) {
         return new BlockItem(this, properties);
     }
@@ -241,7 +312,6 @@ public class ModBlock
     //endregion
     //region Block
 
-
     @Override
     public VoxelShape getBlockSupportShape(BlockState state, BlockGetter reader, BlockPos pos) {
         return super.getBlockSupportShape(state, reader, pos);
@@ -271,6 +341,27 @@ public class ModBlock
         }
     }
 
+    @Override
+    public void appendHoverText(final ItemStack stack, final @Nullable BlockGetter world,
+                                final List<Component> tooltip, final TooltipFlag flag) {
+
+        if (this._stackStorable && stack.hasTag()) {
+
+            CompoundTag data = stack.getTag();
+
+            //noinspection ConstantConditions
+            if (data.contains("BlockEntityTag")) {
+                data = data.getCompound("BlockEntityTag");
+            }
+
+            if (data.contains("zcvase_payload")) {
+                data = data.getCompound("zcvase_payload");
+            }
+
+            this._stackStorableTooltipBuilder.build(stack, data, world, tooltip::add, flag.isAdvanced());
+        }
+    }
+
     //endregion
     //region internals
 
@@ -285,6 +376,11 @@ public class ModBlock
     protected BlockState buildDefaultState(BlockState state) {
         return state;
     }
+
+    private static final IStackStorableTooltipBuilder EMPTY_STACK_STORABLE_TOOLTIP_BUILDER = (stack, data, world, appender, isAdvancedTooltip) -> {};
+
+    private final boolean _stackStorable;
+    private final IStackStorableTooltipBuilder _stackStorableTooltipBuilder;
 
     //endregion
 }

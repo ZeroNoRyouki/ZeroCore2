@@ -22,5 +22,19 @@
 
     "_comment": "Miscellanea",
     "zerocore:gui.patchouli.missing": "The mod Patchouli need to be installed to use this feature",
-    "zerocore:gui.manual.open": "Open the manual page"
+    "zerocore:gui.manual.open": "Open the manual page",
+
+    "_comment": "GUI",
+    "gui.zerocore.base.generic.empty": "Empty",
+    "gui.zerocore.base.screen.ioport.mode": "Operational mode:",
+    "gui.zerocore.base.control.energybar.line1": "Internal Energy Buffer",
+    "gui.zerocore.base.control.energybar.line2a": "  @0",
+    "gui.zerocore.base.control.energybar.line2b": " / %1$s",
+    "gui.zerocore.base.control.energybar.line3a": "  @1",
+    "gui.zerocore.base.control.energybar.line3b": "% full",
+    "gui.zerocore.base.control.fluidbar.line2": "  @0",
+    "gui.zerocore.base.control.fluidbar.line3a": "  @1",
+    "gui.zerocore.base.control.fluidbar.line3b": " / %1$s",
+    "gui.zerocore.base.control.fluidbar.line4a": "  @2",
+    "gui.zerocore.base.control.fluidbar.line4b": "% full"
 }

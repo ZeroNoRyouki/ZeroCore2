@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
@@ -34,6 +35,8 @@ public class OneToOneRecipeBuilder<RecipeIngredient, RecipeResult>
                                  final IRecipeResult<RecipeResult> result) {
 
         super(serializerId);
+        Preconditions.checkArgument(!ingredient.isEmpty(), "An ingredient cannot be empty");
+        Preconditions.checkArgument(!result.isEmpty(), "A result cannot be empty");
         this._ingredient = ingredient;
         this._result = result;
     }

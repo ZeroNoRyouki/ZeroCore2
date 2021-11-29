@@ -19,12 +19,12 @@
 package it.zerono.mods.zerocore.lib.tag;
 
 import com.google.common.collect.Iterables;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagCollection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.ForgeTagHandler;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.util.NonNullFunction;
@@ -41,6 +41,7 @@ public final class TagsHelper<T>
     public static final TagsHelper<Block> BLOCKS = new TagsHelper<>(CollectionProviders.BLOCKS_PROVIDER,
             id -> ForgeTagHandler.makeWrapperTag(ForgeRegistries.BLOCKS, id),
             rl -> ForgeTagHandler.createOptionalTag(ForgeRegistries.BLOCKS, rl));
+
     public static final TagsHelper<Item> ITEMS = new TagsHelper<>(CollectionProviders.ITEMS_PROVIDER,
             id -> ForgeTagHandler.makeWrapperTag(ForgeRegistries.ITEMS, id),
             rl -> ForgeTagHandler.createOptionalTag(ForgeRegistries.ITEMS, rl));
@@ -48,6 +49,8 @@ public final class TagsHelper<T>
     public static final TagsHelper<Fluid> FLUIDS = new TagsHelper<>(CollectionProviders.FLUIDS_PROVIDER,
             id -> ForgeTagHandler.makeWrapperTag(ForgeRegistries.FLUIDS, id),
             rl -> ForgeTagHandler.createOptionalTag(ForgeRegistries.FLUIDS, rl));
+
+    public static final Tag.Named<Item> TAG_WRENCH = ITEMS.createForgeOptionalTag("tools/wrench");
 
     public static <T> T getTagFirstElement(final Tag<T> tag) {
         return Iterables.get(tag.getValues(), 0);

@@ -18,12 +18,14 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
@@ -202,10 +204,13 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this.forEachWindow(window -> window.onPaint(matrix, partialTicks, mouseX, mouseY));
         this.forEachWindow(window -> window.onPaintOverlay(matrix, partialTicks, mouseX, mouseY));
 
-        // ... and the tool tips ...
+        // ... and the tool tips (skip them if ALT is pressed) ...
 
-        this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
-        com.mojang.blaze3d.platform.Lighting.setupForFlatItems();
+        if (!Screen.hasAltDown()) {
+
+            this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
+            Lighting.setupForFlatItems();
+        }
 
         // ... and the dragged object
 
@@ -250,6 +255,10 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
         if (this.isDragging()) {
             this.stopDragging(mx, my);
+        }
+
+        if (s_debugFrame && CodeHelper.MOUSE_BUTTON_RIGHT == mouseButton) {
+            this.forEachInteractiveWindow(Window::onDisplayDebugFrameControlName);
         }
 
         if (-1 != mouseButton) {

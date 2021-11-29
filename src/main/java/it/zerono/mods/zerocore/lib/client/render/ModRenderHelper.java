@@ -26,6 +26,7 @@ import com.mojang.math.Matrix4f;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
+import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
@@ -45,6 +46,8 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -190,6 +193,36 @@ public final class ModRenderHelper {
         }
     }
 
+    public static List<FormattedText> splitLines(final Font font, final String line, final int maxLineWidth) {
+        return splitLines(font, line, maxLineWidth, Style.EMPTY);
+    }
+
+    public static List<FormattedText> splitLines(final Font font, final String line, final int maxLineWidth,
+                                                   final Style lineStyle) {
+        return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
+    }
+
+    public static List<FormattedText> splitLines(final Font font, final FormattedText line, final int maxLineWidth) {
+        return splitLines(font, line, maxLineWidth, Style.EMPTY);
+    }
+
+    public static List<FormattedText> splitLines(final Font font, final FormattedText line, final int maxLineWidth,
+                                                   final Style lineStyle) {
+        return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
+    }
+
+    @Deprecated // use splitLines(Font, FormattedText, int)
+    public static List<FormattedText> wrapLines(final FormattedText line, final int maxLineWidth, final Font font) {
+        return wrapLines(line, Style.EMPTY, maxLineWidth, font);
+    }
+
+    @Deprecated // use splitLines(Font, FormattedText, int, Style)
+    public static List<FormattedText> wrapLines(final FormattedText line, final Style lineStyle,
+                                                  final int maxLineWidth, final Font font) {
+        return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
+    }
+
+    @Deprecated // use splitLines(Font, String, int, Style)
     public static List<String> wrapLines(final String text, final int maxLineWidth, final Font font) {
 
         final List<String> lines = Lists.newLinkedList();
@@ -465,7 +498,7 @@ public final class ModRenderHelper {
     /**
      * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the sprite
@@ -480,7 +513,7 @@ public final class ModRenderHelper {
     /**
      * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
      * @param y painting coordinates relative to the top-left corner of the screen
@@ -509,7 +542,7 @@ public final class ModRenderHelper {
      *
      * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param xOffset painting coordinates relative to the top-left corner of the screen
      * @param yOffset painting coordinates relative to the top-left corner of the screen
@@ -560,7 +593,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param tint the colour to tint the sprite with
      * @param screenXY painting coordinates relative to the top-left corner of the screen
@@ -582,7 +615,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param tint the colour to tint the sprite with
      * @param x painting coordinates relative to the top-left corner of the screen
@@ -616,14 +649,14 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the rectangle
      * @param area the maximum area to be filled (the origin is ignored)
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
                                                       final int zLevel, final Rectangle area, final double progress) {
         paintVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
@@ -635,15 +668,15 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the rectangle
      * @param area the maximum area to be filled (the origin is ignored)
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @param tint the colour to tint the sprite with
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
                                                       final int zLevel, final Rectangle area, final double progress,
                                                       final Colour tint) {
@@ -656,7 +689,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
      * @param y painting coordinates relative to the top-left corner of the screen
@@ -664,8 +697,8 @@ public final class ModRenderHelper {
      * @param areaWidth the width of the maximum area to be filled
      * @param areaHeight the height of the maximum area to be filled
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
                                                       final int x, final int y, final int zLevel,
                                                       final int areaWidth, final int areaHeight,
@@ -678,7 +711,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
      * @param y painting coordinates relative to the top-left corner of the screen
@@ -687,8 +720,8 @@ public final class ModRenderHelper {
      * @param areaHeight the height of the maximum area to be filled
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @param tint the colour to tint the sprite with
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
                                                       final int x, final int y, final int zLevel,
                                                       final int areaWidth, final int areaHeight,
@@ -709,30 +742,33 @@ public final class ModRenderHelper {
 
         if (sprite.getHeight() == areaHeight) {
 
-            blitSprite(matrix, x, x + areaWidth, y1, y2, zLevel, sprite.getWidth(), filledHeight,
-                    sprite.getU(), sprite.getV() + (sprite.getHeight() - filledHeight),
+            blitSprite(matrix, x, x + sprite.getWidth(), y, y+sprite.getHeight(), zLevel, sprite.getWidth(), sprite.getHeight(),
+                    sprite.getU(), sprite.getV(),
                     sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
 
         } else {
 
-            final float verticalSlices = filledHeight / 16.0f;
+            final int spriteHeight = sprite.getHeight();
+            final float verticalSlices = filledHeight / (float)spriteHeight/*16.0f*/;
             int verticalSliceIdx = 0;
 
             for (; verticalSliceIdx <= verticalSlices - 1.0f; ++verticalSliceIdx) {
 
-                final int sliceY2 = y2 - (verticalSliceIdx * 16);
-                final int sliceY1 = sliceY2 - 16;
+                final int sliceY2 = y2 - (verticalSliceIdx * spriteHeight/*16*/);
+                final int sliceY1 = sliceY2 - spriteHeight/*16*/;
 
-                blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
+                blitSprite(matrix, x, x + areaWidth+16, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
                         sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
+
+                verticalSliceIdx  = 5;
             }
 
             final float missing = verticalSlices - verticalSliceIdx;
 
             if (missing > 0.0f) {
 
-                final int sliceY2 = y2 - (verticalSliceIdx * 16);
-                final int sliceY1 = sliceY2 - (int)Math.ceil(16 * missing);
+                final int sliceY2 = y2 - (verticalSliceIdx * spriteHeight/*16*/);
+                final int sliceY1 = sliceY2 - (int)Math.ceil(spriteHeight/*16*/ * missing);
 
                 blitSprite(matrix, x, x + areaWidth, sliceY1, sliceY2, zLevel, sprite.getWidth(), sprite.getHeight(),
                         sprite.getU(), sprite.getV(), sprite.getTextureMap().getWidth(), sprite.getTextureMap().getHeight(), tint);
@@ -749,14 +785,14 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the rectangle
      * @param area the maximum area to be filled (the origin is ignored)
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
                                                              final int zLevel, final Rectangle area, final double progress) {
         paintFlippedVerticalProgressBarSprite(matrix, sprite, screenXY.X, screenXY.Y, zLevel,
@@ -768,15 +804,15 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the rectangle
      * @param area the maximum area to be filled (the origin is ignored)
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @param tint the colour to tint the sprite with
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite, final Point screenXY,
                                                              final int zLevel, final Rectangle area, final double progress,
                                                              final Colour tint) {
@@ -789,7 +825,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
      * @param y painting coordinates relative to the top-left corner of the screen
@@ -797,8 +833,8 @@ public final class ModRenderHelper {
      * @param areaWidth the width of the maximum area to be filled
      * @param areaHeight the height of the maximum area to be filled
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
                                                              final int x, final int y, final int zLevel,
                                                              final int areaWidth, final int areaHeight,
@@ -811,7 +847,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
      * @param y painting coordinates relative to the top-left corner of the screen
@@ -820,8 +856,8 @@ public final class ModRenderHelper {
      * @param areaHeight the height of the maximum area to be filled
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @param tint the colour to tint the sprite with
-     * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static void paintFlippedVerticalProgressBarSprite(final PoseStack matrix, final ISprite sprite,
                                                              final int x, final int y, final int zLevel,
                                                              final int areaWidth, final int areaHeight,
@@ -884,7 +920,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param tint the colour to tint the sprite with
      * @param screenXY painting coordinates relative to the top-left corner of the screen
@@ -894,6 +930,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the height of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static int paintHorizontalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                                     final Point screenXY, final int zLevel, final Rectangle area,
                                                     final int skip, final double progress) {
@@ -906,7 +943,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param matrix the PoseStack for the current paint operation
      * @param sprite the sprite to paint
      * @param tint the colour to tint the sprite with
      * @param x painting coordinates relative to the top-left corner of the screen
@@ -918,6 +955,7 @@ public final class ModRenderHelper {
      * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
      * @return the width of the painted sprite
      */
+    @Deprecated // use paintOrientedProgressBarSprite()
     public static int paintHorizontalProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                                     final int x, final int y, final int zLevel,
                                                     final int areaWidth, final int areaHeight, final int skip,
@@ -935,6 +973,7 @@ public final class ModRenderHelper {
         return filledWidth;
     }
 
+    @Deprecated
     private static void paintProgressSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
                                             final int x1, final int y1, final int x2, final int y2, final int zLevel) {
 
@@ -942,6 +981,344 @@ public final class ModRenderHelper {
         blitSprite(matrix.last().pose(), x1, x2, y1, y2, zLevel, sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV(), tint);
 
         sprite.applyOverlay(o -> paintProgressSprite(matrix, o, tint, x1, y1, x2, y2, zLevel));
+    }
+
+    /**
+     * Paint a progress bar with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the PoseStack for the current paint operation
+     * @param orientation the {@link Orientation} of the progress bar
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param area the maximum area to be filled (the origin is ignored)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     */
+    public static void paintOrientedProgressBarSprite(final PoseStack matrix, final Orientation orientation,
+                                                      final ISprite sprite, final Point screenXY, final int zLevel,
+                                                      final Rectangle area, final double progress, final Colour tint) {
+
+        switch (orientation) {
+
+            case BottomToTop:
+                paintBottomToTopTiledSprite(matrix, sprite, tint, screenXY.X, screenXY.Y + area.Height, zLevel, area.Width, (int)(area.Height * progress));
+                break;
+
+            case TopToBottom:
+                paintTopToBottomTiledSprite(matrix, sprite, tint, screenXY.X, screenXY.Y, zLevel, area.Width, (int)(area.Height * progress));
+                break;
+
+            case LeftToRight:
+                paintLeftToRightTiledSprite(matrix, sprite, tint, screenXY.X, screenXY.Y, zLevel, (int)(area.Width * progress), area.Height);
+                break;
+
+            case RightToLeft:
+                paintRightToLeftTiledSprite(matrix, sprite, tint, screenXY.X + area.Width, screenXY.Y, zLevel, (int)(area.Width * progress), area.Height);
+                break;
+        }
+    }
+
+    /**
+     * Paint a progress bar with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param matrix the PoseStack for the current paint operation
+     * @param orientation the {@link Orientation} of the progress bar
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param areaWidth the width of the maximum area to be filled
+     * @param areaHeight the height of the maximum area to be filled
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     */
+    public static void paintOrientedProgressBarSprite(final PoseStack matrix, final Orientation orientation,
+                                                      final ISprite sprite, final int x, final int y, final int zLevel,
+                                                      final int areaWidth, final int areaHeight, final double progress,
+                                                      final Colour tint) {
+
+        switch (orientation) {
+
+            case BottomToTop:
+                paintBottomToTopTiledSprite(matrix, sprite, tint, x, y + areaHeight, zLevel, areaWidth, (int)(areaHeight * progress));
+                break;
+
+            case TopToBottom:
+                paintTopToBottomTiledSprite(matrix, sprite, tint, x, y, zLevel, areaWidth, (int)(areaHeight * progress));
+                break;
+
+            case LeftToRight:
+                paintLeftToRightTiledSprite(matrix, sprite, tint, x, y, zLevel, (int)(areaWidth * progress), areaHeight);
+                break;
+
+            case RightToLeft:
+                paintRightToLeftTiledSprite(matrix, sprite, tint, x + areaWidth, y, zLevel, (int)(areaWidth * progress), areaHeight);
+                break;
+        }
+    }
+
+    public static void paintTopToBottomTiledSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+
+        final BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+        final float spriteMinU = sprite.getMinU();
+        final float spriteMaxU = sprite.getMaxU();
+        final float spriteMinV = sprite.getMinV();
+        final float spriteMaxV = sprite.getMaxV();
+        final float deltaU = spriteMaxU - spriteMinU;
+        final float deltaV = spriteMaxV - spriteMinV;
+
+        final int spriteWidth = sprite.getWidth();
+        final int spriteHeight = sprite.getHeight();
+        final int horizontalTiles = paintWidth / spriteWidth;
+        final int verticalTiles = paintHeight / spriteHeight;
+        final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
+        final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
+
+        RenderSystem.enableBlend();
+//        RenderSystem.enableAlphaTest();
+        bindTexture(sprite);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+
+        for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
+
+            final int width = (horizontalTile == horizontalTiles) ? leftoverWidth : spriteWidth;
+
+            if (0 == width) {
+                break;
+            }
+
+            final int skippedWidth = spriteWidth - width;
+            final float tileMaxU = spriteMaxU - (deltaU * skippedWidth / spriteWidth);
+            final int tileX1 = x + (horizontalTile * spriteWidth);
+            final int tileX2 = tileX1 + spriteWidth - skippedWidth;
+
+            for (int verticalTile = 0; verticalTile <= verticalTiles; ++verticalTile) {
+
+                final int height = (verticalTile == verticalTiles) ? leftoverHeight : spriteHeight;
+
+                if (0 == height) {
+                    break;
+                }
+
+                final int skippedHeight = spriteHeight - height;
+                final float tileMaxV = spriteMaxV - (deltaV * skippedHeight / spriteHeight);
+                final int tileY1 = y + (verticalTile * spriteHeight);
+                final int tileY2 = tileY1 + height;
+
+                bufferBuilder.vertex(pose, tileX1, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMinU, tileMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMaxU, tileMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMaxU, spriteMinV).endVertex();
+                bufferBuilder.vertex(pose, tileX1, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMinU, spriteMinV).endVertex();
+            }
+        }
+
+        bufferBuilder.end();
+        BufferUploader.end(bufferBuilder);
+//        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
+    }
+
+    public static void paintBottomToTopTiledSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+
+        final BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+        final float spriteMinU = sprite.getMinU();
+        final float spriteMaxU = sprite.getMaxU();
+        final float spriteMinV = sprite.getMinV();
+        final float spriteMaxV = sprite.getMaxV();
+        final float deltaU = spriteMaxU - spriteMinU;
+        final float deltaV = spriteMaxV - spriteMinV;
+
+        final int spriteWidth = sprite.getWidth();
+        final int spriteHeight = sprite.getHeight();
+        final int horizontalTiles = paintWidth / spriteWidth;
+        final int verticalTiles = paintHeight / spriteHeight;
+        final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
+        final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
+
+        RenderSystem.enableBlend();
+//        RenderSystem.enableAlphaTest();
+        bindTexture(sprite);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+
+        for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
+
+            final int width = (horizontalTile == horizontalTiles) ? leftoverWidth : spriteWidth;
+
+            if (0 == width) {
+                break;
+            }
+
+            final int skippedWidth = spriteWidth - width;
+            final float tileMaxU = spriteMaxU - (deltaU * skippedWidth / spriteWidth);
+            final int tileX1 = x + (horizontalTile * spriteWidth);
+            final int tileX2 = tileX1 + spriteWidth - skippedWidth;
+
+            for (int verticalTile = 0; verticalTile <= verticalTiles; ++verticalTile) {
+
+                final int height = (verticalTile == verticalTiles) ? leftoverHeight : spriteHeight;
+
+                if (0 == height) {
+                    break;
+                }
+
+                final int skippedHeight = spriteHeight - height;
+                final float tileMinV = spriteMaxV - (deltaV * height / spriteHeight);
+                final int baseY = y - ((verticalTile + 1) * spriteHeight);
+                final int tileY1 = baseY + skippedHeight;
+                final int tileY2 = baseY + spriteHeight;
+
+                bufferBuilder.vertex(pose, tileX1, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMinU, spriteMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMaxU, spriteMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMaxU, tileMinV).endVertex();
+                bufferBuilder.vertex(pose, tileX1, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMinU, tileMinV).endVertex();
+            }
+        }
+
+        bufferBuilder.end();
+        BufferUploader.end(bufferBuilder);
+//        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
+    }
+
+    public static void paintLeftToRightTiledSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+
+        final BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+        final float spriteMinU = sprite.getMinU();
+        final float spriteMaxU = sprite.getMaxU();
+        final float spriteMinV = sprite.getMinV();
+        final float spriteMaxV = sprite.getMaxV();
+        final float deltaU = spriteMaxU - spriteMinU;
+        final float deltaV = spriteMaxV - spriteMinV;
+
+        final int spriteWidth = sprite.getWidth();
+        final int spriteHeight = sprite.getHeight();
+        final int horizontalTiles = paintWidth / spriteWidth;
+        final int verticalTiles = paintHeight / spriteHeight;
+        final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
+        final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
+
+        RenderSystem.enableBlend();
+//        RenderSystem.enableAlphaTest();
+        bindTexture(sprite);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+
+        for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
+
+            final int width = (horizontalTile == horizontalTiles) ? leftoverWidth : spriteWidth;
+
+            if (0 == width) {
+                break;
+            }
+
+            final int skippedWidth = spriteWidth - width;
+            final float tileMaxU = spriteMaxU - (deltaU * skippedWidth / spriteWidth);
+            final int tileX1 = x + (horizontalTile * spriteWidth);
+            final int tileX2 = tileX1 + spriteWidth - skippedWidth;
+
+            for (int verticalTile = 0; verticalTile <= verticalTiles; ++verticalTile) {
+
+                final int height = (verticalTile == verticalTiles) ? leftoverHeight : spriteHeight;
+
+                if (0 == height) {
+                    break;
+                }
+
+                final int skippedHeight = spriteHeight - height;
+                final float tileMaxV = spriteMaxV - (deltaV * skippedHeight / spriteHeight);
+                final int baseY = y + (verticalTile * spriteHeight);
+                final int tileY1 = baseY + skippedHeight;
+                final int tileY2 = baseY + spriteHeight;
+
+                bufferBuilder.vertex(pose, tileX1, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMinU, tileMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMaxU, tileMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMaxU, spriteMinV).endVertex();
+                bufferBuilder.vertex(pose, tileX1, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMinU, spriteMinV).endVertex();
+            }
+        }
+
+        bufferBuilder.end();
+        BufferUploader.end(bufferBuilder);
+//        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
+    }
+
+    public static void paintRightToLeftTiledSprite(final PoseStack matrix, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+
+        final BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+        final float spriteMinU = sprite.getMinU();
+        final float spriteMaxU = sprite.getMaxU();
+        final float spriteMinV = sprite.getMinV();
+        final float spriteMaxV = sprite.getMaxV();
+        final float deltaU = spriteMaxU - spriteMinU;
+        final float deltaV = spriteMaxV - spriteMinV;
+
+        final int spriteWidth = sprite.getWidth();
+        final int spriteHeight = sprite.getHeight();
+        final int horizontalTiles = paintWidth / spriteWidth;
+        final int verticalTiles = paintHeight / spriteHeight;
+        final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
+        final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
+
+        RenderSystem.enableBlend();
+//        RenderSystem.enableAlphaTest();
+        bindTexture(sprite);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+
+        for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
+
+            final int width = (horizontalTile == horizontalTiles) ? leftoverWidth : spriteWidth;
+
+            if (0 == width) {
+                break;
+            }
+
+            final int skippedWidth = spriteWidth - width;
+            final float tileMinU = spriteMaxU - (deltaU * width / spriteWidth);
+            final int tileX2 = x - (horizontalTile * spriteWidth);
+            final int tileX1 = tileX2 - spriteWidth + skippedWidth;
+
+            for (int verticalTile = 0; verticalTile <= verticalTiles; ++verticalTile) {
+
+                final int height = (verticalTile == verticalTiles) ? leftoverHeight : spriteHeight;
+
+                if (0 == height) {
+                    break;
+                }
+
+                final int skippedHeight = spriteHeight - height;
+                final float tileMaxV = spriteMaxV - (deltaV * skippedHeight / spriteHeight);
+                final int baseY = y + (verticalTile * spriteHeight);
+                final int tileY1 = baseY + skippedHeight;
+                final int tileY2 = baseY + spriteHeight;
+
+                bufferBuilder.vertex(pose, tileX1, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMinU, tileMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY2, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMaxU, tileMaxV).endVertex();
+                bufferBuilder.vertex(pose, tileX2, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(spriteMaxU, spriteMinV).endVertex();
+                bufferBuilder.vertex(pose, tileX1, tileY1, zLevel).color(tint.R, tint.G, tint.B, tint.A).uv(tileMinU, spriteMinV).endVertex();
+            }
+        }
+
+        bufferBuilder.end();
+        BufferUploader.end(bufferBuilder);
+//        RenderSystem.disableAlphaTest();
+        RenderSystem.disableBlend();
     }
 
     //endregion
@@ -1225,7 +1602,7 @@ public final class ModRenderHelper {
         BufferUploader.end(bufferbuilder);
     }
 
-    // copied from AbstractGui::innerBlit(MatrixStack matrixStack, int x1, int x2, int y1, int y2, int blitOffset, int uWidth, int vHeight, float uOffset, float vOffset, int textureWidth, int textureHeight)
+    // copied from AbstractGui::innerBlit(PoseStack matrixStack, int x1, int x2, int y1, int y2, int blitOffset, int uWidth, int vHeight, float uOffset, float vOffset, int textureWidth, int textureHeight)
     private static void blitSprite(final PoseStack matrix, final int x1, final int x2, final int y1, final int y2, final int blitOffset,
                                    final int spriteWidth, final int spriteHeight, final float u, final float v,
                                    final int textureWidth, final int textureHeight) {

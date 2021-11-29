@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
  * Implement this interface on entities which should connect to energy transportation blocks.
  * This is intended for blocks which generate energy but do not accept it; otherwise just use IWideEnergyHandler.
  *
- * Note that {@link IWideEnergyHandler} is an extension of this.
+ * Note that {@link IWideEnergyHandler2} is an extension of this.
  *
  * Based upon the IEnergyConnection from King Lemming's RedstoneFlux API
  */

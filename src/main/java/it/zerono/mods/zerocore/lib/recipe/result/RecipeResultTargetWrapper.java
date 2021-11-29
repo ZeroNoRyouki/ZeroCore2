@@ -21,6 +21,8 @@ package it.zerono.mods.zerocore.lib.recipe.result;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.item.inventory.IInventorySlot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public class RecipeResultTargetWrapper {
@@ -66,6 +68,30 @@ public class RecipeResultTargetWrapper {
 
                 stack.setCount(max);
                 return (max - inventory.insertItem(slot, stack, true).getCount()) / result.getAmount();
+            }
+        };
+    }
+
+    public static IRecipeResultTarget<FluidStackRecipeResult> wrap(final IFluidHandler inventory) {
+
+        return new IRecipeResultTarget<FluidStackRecipeResult>() {
+
+            @Override
+            public long setResult(final FluidStackRecipeResult result, final OperationMode mode) {
+                return inventory.fill(result.getResult(), mode.toFluidAction());
+            }
+
+            @Override
+            public long countStorableResults(final FluidStackRecipeResult result) {
+
+                final FluidStack stack = result.getResult();
+
+                if (stack.isEmpty()) {
+                    return 0;
+                }
+
+                stack.setAmount(Integer.MAX_VALUE);
+                return (inventory.fill(stack, IFluidHandler.FluidAction.SIMULATE)) / result.getAmount();
             }
         };
     }

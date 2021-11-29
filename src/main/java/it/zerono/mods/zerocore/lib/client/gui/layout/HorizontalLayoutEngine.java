@@ -23,7 +23,6 @@ import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 
-
 public class HorizontalLayoutEngine
         extends AbstractLayoutEngine<HorizontalLayoutEngine> {
 
@@ -36,11 +35,6 @@ public class HorizontalLayoutEngine
         int left = this.getHorizontalMargin();
 
         for (final IControl control : controlsContainer) {
-
-//            final int controlWidth = this.getControlDesiredDimension(control, DesiredDimension.Width, undefined);
-
-//            control.setBounds(this.getControlAlignedBounds(control, left, this.getVerticalMargin(),
-//                    controlWidth, parentBounds.Height - this.getVerticalMargin() * 2));
 
             final int controlWidth = Math.min(parentBounds.Width - left, this.getControlDesiredDimension(control, DesiredDimension.Width, undefined));
             final Rectangle newBounds = this.getControlAlignedBounds(control, left, this.getVerticalMargin(),

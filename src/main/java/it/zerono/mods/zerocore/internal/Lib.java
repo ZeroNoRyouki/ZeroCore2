@@ -21,8 +21,6 @@ package it.zerono.mods.zerocore.internal;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
-import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockClientRegistry;
-import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -56,7 +54,7 @@ public final class Lib {
     }
 
     public static <Controller extends IMultiblockController<Controller>> IMultiblockRegistry<Controller> createMultiblockRegistry() {
-        return DistExecutor.safeRunForDist(() -> MultiblockClientRegistry::new, () -> MultiblockRegistry::new);
+        return DistExecutor.safeRunForDist(() -> MultiblockRegistrySafeReferent::client, () -> MultiblockRegistrySafeReferent::server);
     }
 
     //region common constants

@@ -18,6 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.energy;
 
+import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import net.minecraft.core.Direction;
 
 import javax.annotation.Nullable;
@@ -25,6 +27,117 @@ import javax.annotation.Nullable;
 @SuppressWarnings({"WeakerAccess"})
 public final class NullEnergyHandlers {
 
+    @SuppressWarnings("unused")
+    public static final IWideEnergyHandler2 WIDE_HANDLER = new IWideEnergyHandler2() {
+
+        @Override
+        public EnergySystem getEnergySystem() {
+            return EnergySystem.REFERENCE;
+        }
+
+        @Override
+        public boolean canConnectEnergy(EnergySystem system, @Nullable Direction from) {
+            return false;
+        }
+
+        @Override
+        public WideAmount getEnergyStored(EnergySystem system, @Nullable Direction from) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount getCapacity(EnergySystem system, @Nullable Direction from) {
+            return WideAmount.ZERO;
+        }
+    };
+
+    public static final IWideEnergyProvider2 WIDE_PROVIDER = new IWideEnergyProvider2() {
+
+        @Override
+        public EnergySystem getEnergySystem() {
+            return EnergySystem.REFERENCE;
+        }
+
+        @Override
+        public boolean canConnectEnergy(EnergySystem system, @Nullable Direction from) {
+            return false;
+        }
+
+        @Override
+        public WideAmount getEnergyStored(EnergySystem system, @Nullable Direction from) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount getCapacity(EnergySystem system, @Nullable Direction from) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount extractEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode) {
+            return WideAmount.ZERO;
+        }
+    };
+
+    @SuppressWarnings("unused")
+    public static final IWideEnergyReceiver2 WIDE_RECEIVER = new IWideEnergyReceiver2() {
+
+        @Override
+        public EnergySystem getEnergySystem() {
+            return EnergySystem.REFERENCE;
+        }
+
+        @Override
+        public boolean canConnectEnergy(EnergySystem system, @Nullable Direction from) {
+            return false;
+        }
+
+        @Override
+        public WideAmount getEnergyStored(EnergySystem system, @Nullable Direction from) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount getCapacity(EnergySystem system, @Nullable Direction from) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount receiveEnergy(EnergySystem system, @Nullable Direction from, WideAmount maxAmount, OperationMode mode) {
+            return WideAmount.ZERO;
+        }
+    };
+
+    @SuppressWarnings("unused")
+    public static final IWideEnergyStorage2 WIDE_STORAGE = new IWideEnergyStorage2() {
+
+        @Override
+        public EnergySystem getEnergySystem() {
+            return EnergySystem.REFERENCE;
+        }
+
+        @Override
+        public WideAmount insertEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount extractEnergy(EnergySystem system, WideAmount maxAmount, OperationMode mode) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount getEnergyStored(EnergySystem system) {
+            return WideAmount.ZERO;
+        }
+
+        @Override
+        public WideAmount getCapacity(EnergySystem system) {
+            return WideAmount.ZERO;
+        }
+    };
+
+    @Deprecated // use WIDE_HANDLER
     public static final IWideEnergyHandler HANDLER = new IWideEnergyHandler() {
 
         @Override
@@ -48,6 +161,7 @@ public final class NullEnergyHandlers {
         }
     };
 
+    @Deprecated // use WIDE_PROVIDER
     public static final IWideEnergyProvider PROVIDER = new IWideEnergyProvider() {
 
         @Override
@@ -76,6 +190,7 @@ public final class NullEnergyHandlers {
         }
     };
 
+    @Deprecated // use WIDE_RECEIVER
     public static final IWideEnergyReceiver RECEIVER = new IWideEnergyReceiver() {
 
         @Override
@@ -104,6 +219,7 @@ public final class NullEnergyHandlers {
         }
     };
 
+    @Deprecated // use WIDE_STORAGE
     public static final IWideEnergyStorage STORAGE = new IWideEnergyStorage() {
 
         @Override
@@ -136,4 +252,6 @@ public final class NullEnergyHandlers {
 
     private NullEnergyHandlers() {
     }
+
+    //endregion
 }

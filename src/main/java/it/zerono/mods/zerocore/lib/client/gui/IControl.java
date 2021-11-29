@@ -26,8 +26,8 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -158,6 +158,15 @@ public interface IControl {
      * @return a list of objects or an empty list if no objects are available
      */
     List<Object> getTooltipsObjects();
+
+    /**
+     * Return the maximum width for the tooltips popup of this control
+     *
+     * @return the maximum width in pixels or -1 to not wrap the tooltips text
+    */
+    default int getTooltipsPopupMaxWidth() {
+        return this.getGui().getTooltipsPopupMaxWidth();
+    }
 
     void paintToolTips(PoseStack matrix, int screenX, int screenY);
 

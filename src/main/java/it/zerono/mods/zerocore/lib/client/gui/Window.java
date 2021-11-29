@@ -19,20 +19,24 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.Mth;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -205,6 +209,14 @@ public class Window<C extends ModContainer>
 
         if (null != this._mouseOver) {
             this._mouseOver.onPaintDebugFrame(matrix, colour);
+        }
+    }
+
+    void onDisplayDebugFrameControlName() {
+
+        if (null != this._mouseOver) {
+            CodeHelper.reportErrorToPlayer(Objects.requireNonNull(Minecraft.getInstance().player), null,
+                    new TextComponent(this._mouseOver.getName()));
         }
     }
 

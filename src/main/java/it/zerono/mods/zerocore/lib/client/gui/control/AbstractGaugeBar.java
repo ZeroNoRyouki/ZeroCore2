@@ -19,17 +19,21 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.zerono.mods.zerocore.lib.client.gui.IOrientationAware;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 
 public abstract class AbstractGaugeBar
-        extends AbstractControl {
+        extends AbstractControl
+        implements IOrientationAware {
 
     public AbstractGaugeBar(final ModContainerScreen<? extends ModContainer> gui, final String name, final double maxValue) {
 
         super(gui, name);
         this._maxValue = maxValue;
+        this._orientation = Orientation.BottomToTop;
     }
 
     public double getMaxValue() {
@@ -44,6 +48,19 @@ public abstract class AbstractGaugeBar
         this._overlay = overlay;
     }
 
+    //region IOrientationAware
+
+    @Override
+    public Orientation getOrientation() {
+        return this._orientation;
+    }
+
+    @Override
+    public void setOrientation(final Orientation orientation) {
+        this._orientation = orientation;
+    }
+
+    //endregion
     //region AbstractControl
 
     @Override
@@ -68,6 +85,7 @@ public abstract class AbstractGaugeBar
 
     private double _maxValue;
     private ISprite _overlay;
+    private Orientation _orientation;
 
     //endregion
 }

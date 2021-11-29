@@ -49,21 +49,16 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Constants;
 
 public abstract class AbstractCuboidMultiblockController<Controller extends AbstractCuboidMultiblockController<Controller>>
         extends AbstractMultiblockController<Controller> {
 
 	//region AbstractMultiblockController
-
-    @Override
-    protected CuboidBoundingBox buildBoundingBox() {
-        return this._connectedParts.boundingBox();
-    }
 
     @Override
     protected NeighboringPositions getNeighboringPositionsToVisit() {

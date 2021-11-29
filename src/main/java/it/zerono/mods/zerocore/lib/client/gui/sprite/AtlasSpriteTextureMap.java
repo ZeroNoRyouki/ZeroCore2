@@ -213,8 +213,8 @@ public class AtlasSpriteTextureMap
 
         if (this._atlasHeight < 0 || this._atlasWidth < 0) {
 
-            this._atlasWidth = (int)(spriteX / sprite.getU0());
-            this._atlasHeight = (int)(spriteY / sprite.getV0());
+            this._atlasWidth = (int)(sprite.getWidth() / (sprite.getU1() - sprite.getU0()));
+            this._atlasHeight = (int)(sprite.getHeight() / (sprite.getV1() - sprite.getV0()));
         }
 
         return new AtlasSprite(this, sprite, spriteX, spriteY, overlay);
