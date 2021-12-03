@@ -49,7 +49,9 @@ public class FluidStackHolder
     }
 
     public FluidStackHolder(final NonNullList<FluidStack> stacks) {
+
         this._stacks = stacks;
+        this.setMaxCapacity(Integer.MAX_VALUE);
     }
 
     public FluidStackHolder(final NonNullList<FluidStack> stacks, final BiPredicate<Integer, FluidStack> stackValidator) {

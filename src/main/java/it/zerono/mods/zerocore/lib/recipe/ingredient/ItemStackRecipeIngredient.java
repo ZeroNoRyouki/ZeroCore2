@@ -221,6 +221,11 @@ public abstract class ItemStackRecipeIngredient
             return this.isCompatible(stack) && this._amount <= stack.getCount();
         }
 
+        @Override
+        public boolean testIgnoreAmount(final ItemStack stack) {
+            return this.isCompatible(stack);
+        }
+
         //endregion
         //region Object
 
@@ -309,6 +314,11 @@ public abstract class ItemStackRecipeIngredient
         @Override
         public boolean test(final ItemStack stack) {
             return this._ingredients.stream().anyMatch(ingredient -> ingredient.test(stack));
+        }
+
+        @Override
+        public boolean testIgnoreAmount(final ItemStack stack) {
+            return this._ingredients.stream().anyMatch(ingredient -> ingredient.testIgnoreAmount(stack));
         }
 
         @Override

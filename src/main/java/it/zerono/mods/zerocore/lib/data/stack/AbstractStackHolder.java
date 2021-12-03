@@ -42,6 +42,7 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
         this._stackValidator = Objects.requireNonNull(stackValidator);
         this._onChangeListener = (change, index) -> {};
         this._onLoadListener = CodeHelper.VOID_RUNNABLE;
+        this._maxCapacityProvider = $ -> 0;
      }
 
     protected void onLoad() {
@@ -118,7 +119,7 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
 
     @Override
     public void setMaxCapacity(final Int2IntFunction maxCapacity) {
-        this._maxCapacityProvider = maxCapacity;
+        this._maxCapacityProvider = Objects.requireNonNull(maxCapacity);
     }
 
     @Override

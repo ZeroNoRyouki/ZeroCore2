@@ -53,14 +53,16 @@ public class ItemStackHolder
     }
 
     public ItemStackHolder(final NonNullList<ItemStack> stacks) {
+
         this._stacks = stacks;
+        this.setMaxCapacity(this::getSlotMaxCapacityFromStack);
     }
 
     public ItemStackHolder(final NonNullList<ItemStack> stacks, final BiPredicate<Integer, ItemStack> stackValidator) {
 
         super(stackValidator);
         this._stacks = stacks;
-        this.setMaxCapacity(64);
+        this.setMaxCapacity(this::getSlotMaxCapacityFromStack);
     }
 
     public void setSize(final int size) {
@@ -386,6 +388,10 @@ public class ItemStackHolder
 
     protected int getStackLimit(final int slot, final ItemStack stack) {
         return Math.min(getSlotLimit(slot), stack.getMaxStackSize());
+    }
+
+    private int getSlotMaxCapacityFromStack(final int slot) {
+        return this.getStackAt(slot).getMaxStackSize();
     }
 
     protected NonNullList<ItemStack> _stacks;
