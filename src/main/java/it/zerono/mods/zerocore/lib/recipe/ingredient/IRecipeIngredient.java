@@ -48,4 +48,8 @@ public interface IRecipeIngredient<T>
     default List<Ingredient> asVanillaIngredients() {
         return ObjectLists.emptyList();
     }
+
+    default boolean testIgnoreAmount(T ingredient) {
+        return this.test(ingredient);
+    }
 }

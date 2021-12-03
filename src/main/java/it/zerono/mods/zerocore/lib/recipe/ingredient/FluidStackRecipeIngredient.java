@@ -212,6 +212,11 @@ public abstract class FluidStackRecipeIngredient
             return this.isCompatible(stack) && stack.getAmount() >= this._ingredient.getAmount();
         }
 
+        @Override
+        public boolean testIgnoreAmount(final FluidStack stack) {
+            return this.isCompatible(stack);
+        }
+
         //endregion
         //region Object
 
@@ -288,6 +293,11 @@ public abstract class FluidStackRecipeIngredient
         @Override
         public boolean test(final FluidStack stack) {
             return this._ingredients.stream().anyMatch(ingredient -> ingredient.test(stack));
+        }
+
+        @Override
+        public boolean testIgnoreAmount(final FluidStack stack) {
+            return this._ingredients.stream().anyMatch(ingredient -> ingredient.testIgnoreAmount(stack));
         }
 
         @Override
@@ -385,6 +395,11 @@ public abstract class FluidStackRecipeIngredient
         @Override
         public boolean test(final FluidStack stack) {
             return this.isCompatible(stack) && stack.getAmount() >= this._amount;
+        }
+
+        @Override
+        public boolean testIgnoreAmount(final FluidStack stack) {
+            return this.isCompatible(stack);
         }
 
         @Override
