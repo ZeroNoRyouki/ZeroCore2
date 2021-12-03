@@ -25,8 +25,6 @@ import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
 import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.data.stack.StackAdapters;
-import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -51,7 +49,9 @@ public class FluidStackHolder
     }
 
     public FluidStackHolder(final NonNullList<FluidStack> stacks) {
+
         this._stacks = stacks;
+        this.setMaxCapacity(Integer.MAX_VALUE);
     }
 
     public FluidStackHolder(final NonNullList<FluidStack> stacks, final BiPredicate<Integer, FluidStack> stackValidator) {
