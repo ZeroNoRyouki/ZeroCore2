@@ -24,7 +24,7 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 
 public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
 
@@ -44,7 +44,7 @@ public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
     @Override
     public void onRegisterModels() {
 
-        ModelLoader.addSpecialModel(this._templateId);
+        ForgeModelBakery.addSpecialModel(this._templateId);
         super.onRegisterModels();
     }
 

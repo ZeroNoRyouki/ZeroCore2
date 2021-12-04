@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.world;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.zerono.mods.zerocore.internal.Log;
-import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
@@ -32,14 +31,15 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fmlserverevents.FMLServerStoppedEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedList;
@@ -97,33 +97,39 @@ public class WorldReGenHandler
         return biome -> Biome.BiomeCategory.THEEND != biome.getBiomeCategory();
     }
 
-    public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                                                     final int clustersAmount, final int oresPerCluster,
-                                                     final int placementBottomOffset, final int placementTopOffset,
-                                                     final int placementMaximum) {
-        return oreFeature(Content.FEATURE_ORE_REGEN, oreBlock, matchRule,clustersAmount, oresPerCluster, placementBottomOffset,
-                placementTopOffset, placementMaximum);
+    public static OreGenRegisteredFeature oreVein(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
+                                                  final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                  final int oresPerVein, final int veinsPerChunk, final int minY, final int maxY) {
+        return OreGenRegisteredFeature.regeneration(name, idFactory, oreBlock, matchRule, oresPerVein)
+                .standardVein(veinsPerChunk, minY, maxY);
     }
 
-    public static Pair<ConfiguredFeature<?, ?>, ConfiguredFeature<?, ?>>
-        oreGenAndRegenFeatures(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                               final int clustersAmount, final int oresPerCluster, final int placementBottomOffset,
-                               final int placementTopOffset, final int placementMaximum) {
-
-        final ConfiguredFeature<?, ?> gen = WorldGenManager.oreFeature(oreBlock, matchRule, clustersAmount, oresPerCluster,
-                placementBottomOffset, placementTopOffset,placementMaximum);
-
-        final ConfiguredFeature<?, ?> regen = oreFeature(oreBlock, matchRule, clustersAmount, oresPerCluster,
-                placementBottomOffset, placementTopOffset,placementMaximum);
-
-        return Pair.of(gen, regen);
+    public static OreGenRegisteredFeature oreDeepVein(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
+                                                      final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                      final int oresPerVein, final int veinsPerChunk) {
+        return OreGenRegisteredFeature.regeneration(name, idFactory, oreBlock, matchRule, oresPerVein)
+                .deepVein(veinsPerChunk);
     }
 
-    public void addGenAndRegenOre(final Pair<ConfiguredFeature<?, ?>, ConfiguredFeature<?, ?>> suppliers,
-                                  final Predicate<BiomeLoadingEvent> genBiomeMatcher, final Predicate<Biome> reGenBiomeMatcher) {
+    public static Pair<OreGenRegisteredFeature, OreGenRegisteredFeature> oreVeinWithRegen(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
+                                                                                          final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                                                          final int oresPerVein, final int veinsPerChunk, final int minY, final int maxY) {
+        return Pair.of(WorldGenManager.oreVein(name, idFactory, oreBlock, matchRule, oresPerVein, veinsPerChunk, minY, maxY),
+                oreVein(name, idFactory, oreBlock, matchRule, oresPerVein, veinsPerChunk, minY, maxY));
+    }
 
-        WorldGenManager.INSTANCE.addOre(genBiomeMatcher, suppliers.getLeft());
-        this.addOre(reGenBiomeMatcher, suppliers.getRight());
+    public static Pair<OreGenRegisteredFeature, OreGenRegisteredFeature> oreDeepVeinWithRegen(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
+                                                                                              final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                                                              final int oresPerVein, final int veinsPerChunk) {
+        return Pair.of(WorldGenManager.oreDeepVein(name, idFactory, oreBlock, matchRule, oresPerVein, veinsPerChunk),
+                oreDeepVein(name, idFactory, oreBlock, matchRule, oresPerVein, veinsPerChunk));
+    }
+
+    public void addOreVein(final Pair<OreGenRegisteredFeature, OreGenRegisteredFeature> veins,
+                           final Predicate<BiomeLoadingEvent> genBiomeMatcher, final Predicate<Biome> reGenBiomeMatcher) {
+
+        WorldGenManager.INSTANCE.addOreVein(genBiomeMatcher, veins.getLeft());
+        this.addOreVein(reGenBiomeMatcher, veins.getRight());
     }
 
     //region internals
@@ -154,7 +160,7 @@ public class WorldReGenHandler
         }
     }
 
-    private void onServerStopped(final FMLServerStoppedEvent event) {
+    private void onServerStopped(final ServerStoppedEvent event) {
 
         if (null != this._chunksToRegen) {
             this._chunksToRegen.clear();
@@ -230,10 +236,10 @@ public class WorldReGenHandler
 
             boolean processed = false;
 
-            for (Pair<Predicate<Biome>, ConfiguredFeature<?, ?>> pair : this._entries.get(stage)) {
+            for (Pair<Predicate<Biome>, Supplier<PlacedFeature>> pair : this._entries.get(stage)) {
 
                 if (pair.getKey().test(biome)) {
-                    processed |= pair.getValue().place(world, chunkGenerator, random, position);
+                    processed |= pair.getValue().get().place(world, chunkGenerator, random, position);
                 }
             }
 

@@ -18,20 +18,14 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import it.zerono.mods.zerocore.lib.block.ModBlock;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.RangeDecoratorConfiguration;
-import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
-import net.minecraft.world.level.levelgen.placement.FeatureDecorator;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockStateMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
@@ -60,36 +54,28 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
         return new BlockStateMatchTest(state);
     }
 
-    public void addOre(final Predicate<PredicateObject> biomeMatcher, final ConfiguredFeature<?, ?> configSupplier) {
-        this.add(GenerationStep.Decoration.UNDERGROUND_ORES, biomeMatcher, configSupplier);
+    public void addOreVein(final Predicate<PredicateObject> biomeMatcher, final OreGenRegisteredFeature feature) {
+        this.add(GenerationStep.Decoration.UNDERGROUND_ORES, biomeMatcher, feature);
     }
 
     protected AbstractWorldGenFeaturesMap() {
 
-        this._entries = Maps.newHashMap();
+        this._entries = new Object2ObjectArrayMap<>(16);
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(Feature.class, EventPriority.HIGHEST, this::clearItems);
     }
 
     protected void add(final GenerationStep.Decoration stage, final Predicate<PredicateObject> biomeMatcher,
-                       final ConfiguredFeature<?, ?> configSupplier) {
-        this._entries.computeIfAbsent(stage, s -> Lists.newLinkedList()).add(Pair.of(biomeMatcher, configSupplier));
-    }
-
-    protected static ConfiguredFeature<?, ?> oreFeature(final Supplier<Feature<OreConfiguration>> oreFeature,
-                                                        final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                                                        final int clustersAmount, final int oresPerCluster,
-                                                        final int placementBottomOffset, final int placementTopOffset,
-                                                        final int placementMaximum) {
-        return oreFeature.get().configured(new OreConfiguration(matchRule, oreBlock.get().defaultBlockState(), oresPerCluster))
-                .decorated(FeatureDecorator.RANGE.configured(new RangeDecoratorConfiguration(
-                        UniformHeight.of(VerticalAnchor.aboveBottom(placementBottomOffset), VerticalAnchor.absolute(placementMaximum - placementTopOffset))))
-                        .squared()
-                        .count(clustersAmount));
+                       final Supplier<PlacedFeature> featureSupplier) {
+        this._entries.computeIfAbsent(stage, s -> new ObjectArrayList<>(8)).add(Pair.of(biomeMatcher, featureSupplier));
     }
 
     public void clearItems(final RegistryEvent.Register<Feature<?>> event) {
         this._entries.clear();
     }
 
-    protected final Map<GenerationStep.Decoration, List<Pair<Predicate<PredicateObject>, ConfiguredFeature<?, ?>>>> _entries;
+    //region internals
+
+    protected final Map<GenerationStep.Decoration, List<Pair<Predicate<PredicateObject>, Supplier<PlacedFeature>>>> _entries;
+
+    //endregion
 }

@@ -28,7 +28,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -175,8 +176,7 @@ public class PowerPortHandlerForgeEnergy<Controller extends AbstractCuboidMultib
     //region internals
 
     @SuppressWarnings("FieldMayBeFinal")
-    @CapabilityInject(IEnergyStorage.class)
-    private static Capability<IEnergyStorage> CAPAP_FORGE_ENERGYSTORAGE = null;
+    private static Capability<IEnergyStorage> CAPAP_FORGE_ENERGYSTORAGE = CapabilityManager.get(new CapabilityToken<>(){});
 
     private IEnergyStorage _consumer;
     private final LazyOptional<IEnergyStorage> _capability;

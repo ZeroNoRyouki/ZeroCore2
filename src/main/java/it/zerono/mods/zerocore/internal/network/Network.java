@@ -27,7 +27,7 @@ import it.zerono.mods.zerocore.lib.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Collection;
 

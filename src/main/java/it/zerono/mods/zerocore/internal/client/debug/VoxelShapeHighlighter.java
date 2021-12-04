@@ -50,7 +50,7 @@ public class VoxelShapeHighlighter {
             return;
         }
 
-        final Level world = event.getInfo().getEntity().getCommandSenderWorld();
+        final Level world = event.getCamera().getEntity().getCommandSenderWorld();
         final BlockPos position = result.getBlockPos();
         final DebugHelper.VoxelShapeType voxelType = DebugHelper.getBlockVoxelShapeHighlight(world, position);
 
@@ -64,10 +64,10 @@ public class VoxelShapeHighlighter {
             return;
         }
 
-        final Camera renderInfo = event.getInfo();
+        final Camera renderInfo = event.getCamera();
         final CollisionContext selection = CollisionContext.of(renderInfo.getEntity());
-        final VertexConsumer builder = event.getBuffers().getBuffer(RenderType.lines());
-        final PoseStack matrixStack = event.getMatrix();
+        final VertexConsumer builder = event.getMultiBufferSource().getBuffer(RenderType.lines());
+        final PoseStack matrixStack = event.getPoseStack();
         final double x = position.getX() - renderInfo.getPosition().x();
         final double y = position.getY() - renderInfo.getPosition().y();
         final double z = position.getZ() - renderInfo.getPosition().z();

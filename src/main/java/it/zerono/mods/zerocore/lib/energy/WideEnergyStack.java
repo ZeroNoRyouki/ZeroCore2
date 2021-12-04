@@ -23,8 +23,8 @@ import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.util.Constants;
 
 public class WideEnergyStack
         implements IEnergySystemAware {
@@ -96,7 +96,7 @@ public class WideEnergyStack
 
     public static WideEnergyStack from(final CompoundTag nbt) {
 
-        if (NBTHelper.nbtContainsEnum(nbt, "sys") && nbt.contains("amount", Constants.NBT.TAG_COMPOUND)) {
+        if (NBTHelper.nbtContainsEnum(nbt, "sys") && nbt.contains("amount", Tag.TAG_COMPOUND)) {
             return new WideEnergyStack(NBTHelper.nbtGetEnum(nbt, "sys", EnergySystem.class),
                     WideAmount.from(nbt.getCompound("amount")));
         }

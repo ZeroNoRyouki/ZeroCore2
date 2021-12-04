@@ -45,18 +45,16 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.client.event.DrawSelectionEvent;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.fmllegacy.LogicalSidedProvider;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.network.NetworkDirection;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -159,9 +157,7 @@ public class ClientProxy
 
         } else {
 
-            final MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
-
-            return null != server ? server.getRecipeManager() : null;
+            return CodeHelper.getMinecraftServer().map(MinecraftServer::getRecipeManager).orElse(null);
         }
     }
 
@@ -215,10 +211,10 @@ public class ClientProxy
         }
     }
 
-    private void onGuiDrawScreenEventPost(final GuiScreenEvent.DrawScreenEvent.Post event) {
+    private void onGuiDrawScreenEventPost(final ScreenEvent.DrawScreenEvent.Post event) {
 
         if (isGuiOpen()) {
-            this.paintErrorMessage(event.getMatrixStack());
+            this.paintErrorMessage(event.getPoseStack());
         }
     }
 
@@ -229,10 +225,10 @@ public class ClientProxy
 
         if (HitResult.Type.BLOCK == result.getType() && this._guiErrorData.test(position)) {
 
-            final Vec3 projectedView = event.getInfo().getPosition();
+            final Vec3 projectedView = event.getCamera().getPosition();
 
-            ModRenderHelper.paintVoxelShape(event.getMatrix(), Shapes.block(),
-                    event.getBuffers().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
+            ModRenderHelper.paintVoxelShape(event.getPoseStack(), Shapes.block(),
+                    event.getMultiBufferSource().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
                     position.getX() - projectedView.x(), position.getY() - projectedView.y(),
                     position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
         }

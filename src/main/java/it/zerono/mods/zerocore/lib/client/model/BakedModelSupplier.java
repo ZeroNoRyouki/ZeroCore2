@@ -25,7 +25,7 @@
 //import net.minecraft.resources.ResourceLocation;
 //import net.minecraftforge.client.event.ModelBakeEvent;
 //import net.minecraftforge.client.event.ModelRegistryEvent;
-//import net.minecraftforge.client.model.ModelLoader;
+//import net.minecraftforge.client.model.ForgeModelBakery;
 //import net.minecraftforge.eventbus.api.SubscribeEvent;
 //
 //import java.util.List;

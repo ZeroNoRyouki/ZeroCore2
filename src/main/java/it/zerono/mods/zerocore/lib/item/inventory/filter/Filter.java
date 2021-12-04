@@ -21,10 +21,10 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -126,7 +126,7 @@ public abstract class Filter implements IFilter {
 
         if (nbt.contains(NBT_CONDITIONS_KEY)) {
 
-            final ListTag conditionsList = nbt.getList(NBT_CONDITIONS_KEY, Constants.NBT.TAG_COMPOUND);
+            final ListTag conditionsList = nbt.getList(NBT_CONDITIONS_KEY, Tag.TAG_COMPOUND);
 
             this._conditions.clear();
             for (int i = 0; i < conditionsList.size(); i = i + 2) {

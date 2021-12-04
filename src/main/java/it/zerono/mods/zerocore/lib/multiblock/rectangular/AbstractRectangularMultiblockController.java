@@ -45,13 +45,13 @@ import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
@@ -326,7 +326,7 @@ public abstract class AbstractRectangularMultiblockController<Controller extends
                     final BlockPos pos = new BlockPos(x, y, z);
                     final BlockState state = world.getBlockState(pos);
 
-                    world.sendBlockUpdated(pos, state, state, Constants.BlockFlags.DEFAULT);
+                    world.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 }
             }
         }

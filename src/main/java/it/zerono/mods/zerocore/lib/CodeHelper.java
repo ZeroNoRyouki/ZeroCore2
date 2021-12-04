@@ -45,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fml.LogicalSide;
@@ -52,7 +53,7 @@ import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fmllegacy.LogicalSidedProvider;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -487,7 +488,7 @@ public final class CodeHelper {
     }
 
     public static Optional<MinecraftServer> getMinecraftServer() {
-        return Optional.ofNullable(LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER));
+        return Optional.ofNullable(ServerLifecycleHooks.getCurrentServer());
     }
 
     public static void addResourceReloadListener(final PreparableReloadListener listener) {
@@ -989,7 +990,7 @@ public final class CodeHelper {
         return new String(zeros);
     }
 
-    public static String toString(final Vector3i value) {
+    public static String toString(final Vec3i value) {
         return String.format("(%d, %d, %d)", value.getX(), value.getY(), value.getZ());
     }
 

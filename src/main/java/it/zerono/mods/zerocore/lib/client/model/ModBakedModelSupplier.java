@@ -25,7 +25,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -59,7 +59,7 @@ public class ModBakedModelSupplier {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onRegisterModels(final ModelRegistryEvent event) {
-        this._toBeRegistered.forEach(ModelLoader::addSpecialModel);
+        this._toBeRegistered.forEach(ForgeModelBakery::addSpecialModel);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

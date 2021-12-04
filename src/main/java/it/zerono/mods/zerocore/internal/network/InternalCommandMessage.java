@@ -23,7 +23,7 @@ import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class InternalCommandMessage
         extends AbstractModMessage {

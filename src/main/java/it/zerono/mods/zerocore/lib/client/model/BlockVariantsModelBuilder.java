@@ -26,7 +26,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 
 import java.util.Collections;
 import java.util.List;
@@ -131,7 +131,7 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
                 .filter(list -> list.size() > 1)
                 .flatMap(List::stream)
                 .filter(resourceLocation -> !(resourceLocation instanceof ModelResourceLocation))
-                .forEach(ModelLoader::addSpecialModel);
+                .forEach(ForgeModelBakery::addSpecialModel);
     }
 
     @Override

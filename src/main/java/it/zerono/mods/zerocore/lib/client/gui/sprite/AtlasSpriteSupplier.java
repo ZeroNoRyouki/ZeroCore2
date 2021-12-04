@@ -62,7 +62,7 @@ public class AtlasSpriteSupplier implements ResourceManagerReloadListener {
     @SubscribeEvent
     public void onPreTextureStitch(TextureStitchEvent.Pre evt) {
         
-        final ResourceLocation atlasName = evt.getMap().location();
+        final ResourceLocation atlasName = evt.getAtlas().location();
 
         if (this._toBeStitched.containsKey(atlasName)) {
             this._toBeStitched.get(atlasName).forEach(evt::addSprite);

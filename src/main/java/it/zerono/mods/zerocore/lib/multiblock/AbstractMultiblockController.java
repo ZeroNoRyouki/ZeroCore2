@@ -556,7 +556,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
                 for (int x = minChunkX; x <= maxChunkX; ++x) {
                     for(int z = minChunkZ; z <= maxChunkZ; ++z) {
                         // Ensure that we save our data, even if our save delegate has no TEs.
-                        myWorld.getChunk(x, z).markUnsaved();
+                        myWorld.getChunk(x, z).setUnsaved(true);
                     }
                 }
             }

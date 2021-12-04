@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -115,7 +115,7 @@ public final class NBTHelper {
      * @return true if an enum is present, false otherwise
      */
     public static boolean nbtContainsEnum(final CompoundTag nbt, final String key) {
-        return nbt.contains(key, Constants.NBT.TAG_STRING);
+        return nbt.contains(key, Tag.TAG_STRING);
     }
 
     /**
@@ -172,7 +172,7 @@ public final class NBTHelper {
      * @return true if an enum is present, false otherwise
      */
     public static boolean nbtContainsEnumSet(final CompoundTag nbt, final String key) {
-        return nbt.contains(key, Constants.NBT.TAG_LIST);
+        return nbt.contains(key, Tag.TAG_LIST);
     }
 
     /**
@@ -188,7 +188,7 @@ public final class NBTHelper {
      */
     public static <E extends Enum<E>> EnumSet<E> nbtGetEnumSet(CompoundTag nbt, String key, Class<E> enumClass) throws IllegalArgumentException {
 
-        final ListTag tagList = nbt.getList(key, Constants.NBT.TAG_STRING);
+        final ListTag tagList = nbt.getList(key, Tag.TAG_STRING);
         final List<E> valueList = Lists.newArrayList();
 
         for (int i = 0; i < tagList.size(); ++i) {

@@ -57,7 +57,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
@@ -88,7 +88,7 @@ public final class ModRenderHelper {
 
     @SuppressWarnings("ConstantConditions")
     public static UnbakedModel getModel(final ResourceLocation location) {
-        return ModelLoader.instance().getModelOrMissing(location);
+        return ForgeModelBakery.instance().getModelOrMissing(location);
     }
 
     public static BakedModel getModel(final BlockState state) {

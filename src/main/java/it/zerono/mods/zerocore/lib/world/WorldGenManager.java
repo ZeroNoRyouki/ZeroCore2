@@ -18,14 +18,14 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import it.zerono.mods.zerocore.internal.gamecontent.Content;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -69,12 +69,18 @@ public class WorldGenManager
         return event -> Biome.BiomeCategory.THEEND != event.getCategory();
     }
 
-    public static ConfiguredFeature<?, ?> oreFeature(final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
-                                                     final int clustersAmount, final int oresPerCluster,
-                                                     final int placementBottomOffset, final int placementTopOffset,
-                                                     final int placementMaximum) {
-        return oreFeature(Content.FEATURE_ORE, oreBlock, matchRule,clustersAmount, oresPerCluster, placementBottomOffset,
-                placementTopOffset, placementMaximum);
+    public static OreGenRegisteredFeature oreVein(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
+                                                  final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                  final int oresPerVein, final int veinsPerChunk, final int minY, final int maxY) {
+        return OreGenRegisteredFeature.generation(name, idFactory, oreBlock, matchRule, oresPerVein)
+                .standardVein(veinsPerChunk, minY, maxY);
+    }
+
+    public static OreGenRegisteredFeature oreDeepVein(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
+                                                      final Supplier<ModBlock> oreBlock, final RuleTest matchRule,
+                                                      final int oresPerVein, final int veinsPerChunk) {
+        return OreGenRegisteredFeature.generation(name, idFactory, oreBlock, matchRule, oresPerVein)
+                .deepVein(veinsPerChunk);
     }
 
     //region internals
@@ -90,11 +96,11 @@ public class WorldGenManager
 
         for (final GenerationStep.Decoration stage : this._entries.keySet()) {
 
-            final List<Supplier<ConfiguredFeature<?, ?>>> biomeFeatures = builder.getFeatures(stage);
+            final List<Supplier<PlacedFeature>> biomeFeatures = builder.getFeatures(stage);
 
             this._entries.getOrDefault(stage, Collections.emptyList()).stream()
                     .filter(p -> p.getKey().test(event))
-                    .forEach(p -> biomeFeatures.add(p::getValue));
+                    .forEach(p -> biomeFeatures.add(p.getValue()));
         }
     }
 

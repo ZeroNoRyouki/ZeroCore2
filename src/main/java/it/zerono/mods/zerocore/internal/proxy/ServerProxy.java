@@ -34,9 +34,7 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fmllegacy.LogicalSidedProvider;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.network.NetworkDirection;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -100,10 +98,7 @@ public class ServerProxy implements IProxy {
     @Nullable
     @Override
     public RecipeManager getRecipeManager() {
-
-        final MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
-
-        return null != server ? server.getRecipeManager() : null;
+        return CodeHelper.getMinecraftServer().map(MinecraftServer::getRecipeManager).orElse(null);
     }
 
     @SuppressWarnings("SwitchStatementWithTooFewBranches")

@@ -24,7 +24,8 @@ import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -89,8 +90,7 @@ public class ChargingPortHandlerForgeEnergy<Controller extends AbstractCuboidMul
     }
 
     @SuppressWarnings("FieldMayBeFinal")
-    @CapabilityInject(IEnergyStorage.class)
-    private static Capability<IEnergyStorage> CAPAP_FORGE_ENERGYSTORAGE = null;
+    private static Capability<IEnergyStorage> CAPAP_FORGE_ENERGYSTORAGE = CapabilityManager.get(new CapabilityToken<>(){});
 
     //endregion
 }

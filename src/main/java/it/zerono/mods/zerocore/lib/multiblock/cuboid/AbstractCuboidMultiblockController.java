@@ -52,8 +52,8 @@ import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.Constants;
 
 public abstract class AbstractCuboidMultiblockController<Controller extends AbstractCuboidMultiblockController<Controller>>
         extends AbstractMultiblockController<Controller> {
@@ -378,7 +378,7 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
 
                     final BlockState state = world.getBlockState(pos.set(x, y ,z));
 
-                    world.sendBlockUpdated(pos, state, state, Constants.BlockFlags.DEFAULT);
+                    world.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 }
             }
         }

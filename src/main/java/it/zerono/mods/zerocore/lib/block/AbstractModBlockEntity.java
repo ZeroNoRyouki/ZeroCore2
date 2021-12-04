@@ -45,7 +45,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -336,8 +336,7 @@ public abstract class AbstractModBlockEntity
     @Nullable
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0,
-                this.syncEntityDataTo(new CompoundTag(), SyncReason.NetworkUpdate));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     protected void onDataUpdate() {

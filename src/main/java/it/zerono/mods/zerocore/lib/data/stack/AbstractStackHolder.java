@@ -23,7 +23,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.Tag;
 
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +57,7 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
                                                      final Int2ObjectFunction<List<StackType>> itemsListSupplier) {
 
         final List<StackType> stacks = itemsListSupplier.get(data.getInt("Size"));
-        final ListTag tagList = data.getList("Items", Constants.NBT.TAG_COMPOUND);
+        final ListTag tagList = data.getList("Items", Tag.TAG_COMPOUND);
 
         for (int i = 0; i < tagList.size(); ++i) {
 
