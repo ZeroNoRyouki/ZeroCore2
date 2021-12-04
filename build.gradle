@@ -133,7 +133,7 @@ dependencies {
 	minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
 
 	// cc-tweaked
-//    implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
+    implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
 
     // patchouli
 //    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
