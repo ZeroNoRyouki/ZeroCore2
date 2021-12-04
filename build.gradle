@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -24,7 +23,7 @@ version = "${config.minecraft_version}-${config.mod_version_major}.${config.mod_
 group = 'it.zerono.mods.zerocore'
 archivesBaseName = 'ZeroCore2'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
 
@@ -96,7 +95,7 @@ processResources {
 
     from(sourceSets.main.resources.srcDirs) {
 	
-        include 'ZeroCore2-1.17/src/main/resources/META-INF/mods.toml'
+        include 'ZeroCore2-1.18/src/main/resources/META-INF/mods.toml'
         expand 'mod_version': version, 
 				'mod_name': config.mod_name,
 				'minecraft_versionrange': config.minecraft_versionrange,
@@ -133,15 +132,16 @@ repositories {
 dependencies {
 	minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
 
-    implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
+	// cc-tweaked
+//    implementation fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
 
     // patchouli
 //    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
 //    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
 
     // JEI
-    compileOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}:${config.jei_version}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}:${config.jei_version}")
+//    compileOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}:${config.jei_version}:api")
+//    runtimeOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}:${config.jei_version}")
 }
 
 jar {
