@@ -165,7 +165,7 @@ public class CuboidBoundingBox {
     }
 
     public String toString() {
-        return String.format("Cuboid (%s) -> (%s)", this._min.toString(), this._max.toString());
+        return String.format("Bounding box %s -> %s", CodeHelper.toString(this._min), CodeHelper.toString(this._max));
     }
 
     //endregion

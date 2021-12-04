@@ -445,6 +445,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
         messages.addUnlocalized("Attached parts: %1$d; Assembled: %2$s", controller.getPartsCount(), controller.isAssembled());
 
         controller.getReferenceCoord().ifPresent(position -> messages.addUnlocalized("Reference coordinates %s", position.toString()));
+        messages.addUnlocalized(controller.getBoundingBox().toString());
 
         if (controller instanceof IActivableMachine) {
             //noinspection AutoBoxing
