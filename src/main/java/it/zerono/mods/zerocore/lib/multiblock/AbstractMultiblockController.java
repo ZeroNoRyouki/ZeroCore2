@@ -157,7 +157,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
         this._connectedParts.addOrReplace(part);
         part.onAttached(mySelf);
-        this.onPartAdded(part);
+        this.partAdded(part);
 
         if (part.hasMultiblockSaveData()) {
 
@@ -169,7 +169,6 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         }
 
         this.getReferenceTracker().accept(part);
-        this._boundingBox = this._boundingBox.add(part.getWorldPosition());
         this.getRegistry().addDirtyController(mySelf);
 
         this.callOnLogicalClient(CodeHelper::clearErrorReport);
@@ -267,7 +266,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             other.prepareAssimilation(this);
             this._connectedParts.addOrReplace(acquiredPart);
             acquiredPart.onAssimilated(this.castSelf());
-            this.onPartAdded(acquiredPart);
+            this.partAdded(acquiredPart);
 
         } else {
 
@@ -281,7 +280,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
             otherParts.forEachValidPart(acquiredPart -> {
 
                 acquiredPart.onAssimilated(mySelf);
-                this.onPartAdded(acquiredPart);
+                this.partAdded(acquiredPart);
             });
 
             if (export) {
@@ -1303,6 +1302,17 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     //endregion
     //endregion
     //region internals
+
+
+    /**
+     * A new part was added to this controller
+     * @param newPart the new part
+     */
+    private void partAdded(final IMultiblockPart<Controller> newPart) {
+
+        this._boundingBox = this._boundingBox.add(newPart.getWorldPosition());
+        this.onPartAdded(newPart);
+    }
 
     /**
      * Called when a machine becomes "whole" and should begin

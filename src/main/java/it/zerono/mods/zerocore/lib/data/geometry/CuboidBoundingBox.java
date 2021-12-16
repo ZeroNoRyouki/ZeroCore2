@@ -69,16 +69,14 @@ public class CuboidBoundingBox {
 
     public CuboidBoundingBox add(final BlockPos position) {
 
-//        if (adjustPosition(this._min, position, Math::min) || adjustPosition(this._max, position, Math::max)) {
-//            this._aabb = null;
-//        }
-
         if (position.compareTo(this._min) < 0) {
 
             this._min.set(position);
             this._aabb = null;
 
-        } else if (position.compareTo(this._max) > 0) {
+        }
+
+        if (position.compareTo(this._max) > 0) {
 
             this._max.set(position);
             this._aabb = null;
