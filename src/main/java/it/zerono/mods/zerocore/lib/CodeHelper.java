@@ -989,7 +989,7 @@ public final class CodeHelper {
         return new String(zeros);
     }
 
-    public static String toString(final Vector3i value) {
+    public static String toString(final Vec3i value) {
         return String.format("(%d, %d, %d)", value.getX(), value.getY(), value.getZ());
     }
 
