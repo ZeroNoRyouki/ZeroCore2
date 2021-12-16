@@ -29,8 +29,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
-import java.util.Collection;
-
 public final class Network {
 
     public static final NetworkHandler HANDLER;
@@ -60,18 +58,12 @@ public final class Network {
                 new NBTBuilder().addBoolean("enable", enable).build()));
     }
 
-    public static void sendServerContainerDataSync(final Collection<ServerPlayer> players, final CompoundTag data) {
-
-        final InternalCommandMessage message = new InternalCommandMessage(InternalCommand.ContainerDataSync, data);
-
-        players.forEach(player -> HANDLER.sendToPlayer(message, player));
+    public static void sendServerContainerDataSync(final ServerPlayer player, final CompoundTag data) {
+        HANDLER.sendToPlayer( new InternalCommandMessage(InternalCommand.ContainerDataSync, data), player);
     }
 
-    public static void sendServerContainerData(final Collection<ServerPlayer> players, final ModContainer container) {
-
-        final ContainerDataMessage message = new ContainerDataMessage(container);
-
-        players.forEach(player -> HANDLER.sendToPlayer(message, player));
+    public static void sendServerContainerData(final ServerPlayer player, final ModContainer container) {
+        HANDLER.sendToPlayer(new ContainerDataMessage(container), player);
     }
 
     static {

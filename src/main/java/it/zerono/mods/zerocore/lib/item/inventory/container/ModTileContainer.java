@@ -23,6 +23,7 @@ import it.zerono.mods.zerocore.lib.data.nbt.IConditionallySyncableEntity;
 import it.zerono.mods.zerocore.lib.network.INetworkTileEntitySyncProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
@@ -39,12 +40,13 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param factory
      * @param type      the registered {@link MenuType} for this container
      * @param windowId
+     * @param playerInventory the player inventory
      * @param tile      the TileEntity to link with
      */
     public ModTileContainer(final ContainerFactory factory, final MenuType<? extends ModTileContainer<T>> type,
-                            final int windowId, final T tile) {
+                            final int windowId, final Inventory playerInventory, final T tile) {
 
-        super(factory, type, windowId);
+        super(factory, type, windowId, playerInventory);
         this._tile = tile;
 
         if (tile instanceof IConditionallySyncableEntity) {
@@ -65,7 +67,7 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
     public ModTileContainer(final ContainerFactory factory, final MenuType<? extends ModTileContainer<T>> type,
                             final int windowId, final T tile, final ServerPlayer player) {
 
-        this(factory, type, windowId, tile);
+        this(factory, type, windowId, player.getInventory(), tile);
 
         if (this._tile instanceof INetworkTileEntitySyncProvider) {
             ((INetworkTileEntitySyncProvider)this._tile).enlistForUpdates(player, true);
@@ -73,8 +75,9 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
     }
 
     public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
-                                                                                  final int windowId, final T tile) {
-        return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile) {
+                                                                               final int windowId, final Inventory playerInventory,
+                                                                               final T tile) {
+        return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, playerInventory, tile) {
             @Override
             public void setItem(int slotID, int stateId, ItemStack stack) {
             }
@@ -82,8 +85,8 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
     }
 
     public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
-                                                                                  final int windowId, final T tile,
-                                                                                  final ServerPlayer player) {
+                                                                               final int windowId, final T tile,
+                                                                               final ServerPlayer player) {
         return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile, player) {
             @Override
             public void setItem(int slotID, int stateId, ItemStack stack) {
@@ -92,8 +95,9 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
     }
 
     public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
-                                                                                  final int windowId, final FriendlyByteBuf data) {
-        return empty(type, windowId, AbstractModBlockEntity.getGuiClientBlockEntity(data));
+                                                                               final int windowId, final Inventory playerInventory,
+                                                                               final FriendlyByteBuf data) {
+        return empty(type, windowId, playerInventory, AbstractModBlockEntity.getGuiClientBlockEntity(data));
     }
 
     public T getTileEntity() {
