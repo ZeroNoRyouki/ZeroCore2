@@ -1083,7 +1083,7 @@ public final class ModRenderHelper {
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
         RenderSystem.enableBlend();
-//        RenderSystem.enableAlphaTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         bindTexture(sprite);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 
@@ -1122,7 +1122,6 @@ public final class ModRenderHelper {
 
         bufferBuilder.end();
         BufferUploader.end(bufferBuilder);
-//        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
     }
 
@@ -1147,7 +1146,7 @@ public final class ModRenderHelper {
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
         RenderSystem.enableBlend();
-//        RenderSystem.enableAlphaTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         bindTexture(sprite);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 
@@ -1187,7 +1186,6 @@ public final class ModRenderHelper {
 
         bufferBuilder.end();
         BufferUploader.end(bufferBuilder);
-//        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
     }
 
@@ -1212,7 +1210,7 @@ public final class ModRenderHelper {
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
         RenderSystem.enableBlend();
-//        RenderSystem.enableAlphaTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         bindTexture(sprite);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 
@@ -1252,7 +1250,6 @@ public final class ModRenderHelper {
 
         bufferBuilder.end();
         BufferUploader.end(bufferBuilder);
-//        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
     }
 
@@ -1277,7 +1274,7 @@ public final class ModRenderHelper {
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
         RenderSystem.enableBlend();
-//        RenderSystem.enableAlphaTest();
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         bindTexture(sprite);
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 
@@ -1317,7 +1314,6 @@ public final class ModRenderHelper {
 
         bufferBuilder.end();
         BufferUploader.end(bufferBuilder);
-//        RenderSystem.disableAlphaTest();
         RenderSystem.disableBlend();
     }
 
