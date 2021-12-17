@@ -1670,20 +1670,27 @@ public final class ModRenderHelper {
             return false;
         }
 
+        if (highlight) {
+            fill(matrix.last().pose(), x, y, x + 16, y + 16, GUI_ITEM_Z - 1, -2130706433);
+        }
+
         final Minecraft mc = Minecraft.getInstance();
         final ItemRenderer itemRenderer = mc.getItemRenderer();
         float saveZ = itemRenderer.blitOffset;
+        final PoseStack viewModelMatrix = RenderSystem.getModelViewStack();
 
-        if (highlight) {
-            fill(matrix.last().pose(), x, y, x + 16, y + 16, GUI_ITEM_Z - 1, -2130706433);
-
-        }
+        viewModelMatrix.pushPose();
+        viewModelMatrix.mulPoseMatrix(matrix.last().pose());
+        RenderSystem.applyModelViewMatrix();
 
         itemRenderer.blitOffset = GUI_ITEM_Z;
         RenderSystem.enableDepthTest();
         itemRenderer.renderAndDecorateItem(stack, x, y);
         itemRenderer.renderGuiItemDecorations(mc.font, stack, x + 4, y, text);
         itemRenderer.blitOffset = saveZ;
+
+        viewModelMatrix.popPose();
+        RenderSystem.applyModelViewMatrix();
 
         return true;
     }

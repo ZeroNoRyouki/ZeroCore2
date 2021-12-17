@@ -65,7 +65,8 @@ public class Static
     public Static setStack(final ItemStack stack, final boolean highlight) {
 
         this.clearBackground();
-        this._customPainter = (control, matrix) -> control.paintItemStack(matrix, stack, highlight);
+        this._customPainter = (control, matrix) -> control.paintItemStack(matrix, stack, this.getPadding().getLeft(),
+                this.getPadding().getTop(), highlight);
         return this;
     }
 
@@ -78,7 +79,8 @@ public class Static
     public Static setStackWithCount(final ItemStack stack, final boolean highlight) {
 
         this.clearBackground();
-        this._customPainter = (control, matrix) -> control.paintItemStackWithCount(matrix, stack, highlight);
+        this._customPainter = (control, matrix) -> control.paintItemStackWithCount(matrix, stack, this.getPadding().getLeft(),
+                this.getPadding().getTop(), highlight);
         return this;
     }
 
