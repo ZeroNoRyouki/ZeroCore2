@@ -44,7 +44,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.*;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.items.IItemHandler;
@@ -68,16 +71,17 @@ public class ModContainer
     public static final String SLOTGROUPNAME_PLAYER_INVENTORY = "playerinventory_main";
     public static final String SLOTGROUPNAME_PLAYER_HOTBAR = "playerinventory_hotbar";
 
-    public ModContainer(final ContainerFactory factory, final MenuType<?> type, final int windowId) {
+    public ModContainer(final ContainerFactory factory, final MenuType<?> type, final int windowId, final Inventory playerInventory) {
 
         super(type, windowId);
         this._factory = factory;
         this._registeredInventories = Maps.newHashMap();
         this._inventorySlotsGroups = Maps.newHashMap();
+        this._player = playerInventory.player;
     }
 
-    public static ModContainer empty(final MenuType<?> type, final int windowId) {
-        return new ModContainer(ContainerFactory.EMPTY, type, windowId) {
+    public static ModContainer empty(final MenuType<?> type, final int windowId, final Inventory playerInventory) {
+        return new ModContainer(ContainerFactory.EMPTY, type, windowId, playerInventory) {
             @Override
             public void setItem(int slotID, int p_182408_, ItemStack stack) {
             }
@@ -161,6 +165,10 @@ public class ModContainer
         if (null != this._syncableEntity && this._syncableEntity.getSyncableEntityId().equals(new ResourceLocation(data.getString("id")))) {
             this._syncableEntity.syncDataFrom(data.getCompound("payload"), ISyncableEntity.SyncReason.NetworkUpdate);
         }
+    }
+
+    public Player getPlayer() {
+        return this._player;
     }
 
     //region IContainerData
@@ -466,26 +474,11 @@ public class ModContainer
     }
 
     @Override
-    public void addSlotListener(final ContainerListener listener) {
-
-        super.addSlotListener(listener);
-
-        if (listener instanceof ServerPlayer) {
-
-            if (null == this._dataUpdateListeners) {
-                this._dataUpdateListeners = new ObjectArrayList<>(4);
-            }
-
-            this._dataUpdateListeners.add((ServerPlayer)listener);
-        }
-    }
-
-    @Override
     public void broadcastChanges() {
 
         super.broadcastChanges();
 
-        if (null != this._dataUpdateListeners && !this._dataUpdateListeners.isEmpty()) {
+        if (this._player instanceof ServerPlayer) {
 
             if (null != this._syncableEntity && this._syncableEntity.shouldSyncEntity()) {
 
@@ -493,11 +486,11 @@ public class ModContainer
 
                 envelope.putString("id", this._syncableEntity.getSyncableEntityId().toString());
                 envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundTag(), ISyncableEntity.SyncReason.NetworkUpdate));
-                Network.sendServerContainerDataSync(this._dataUpdateListeners, envelope);
+                Network.sendServerContainerDataSync((ServerPlayer)this._player, envelope);
             }
 
             if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
-                Network.sendServerContainerData(this._dataUpdateListeners, this);
+                Network.sendServerContainerData((ServerPlayer)this._player, this);
             }
         }
     }
@@ -555,9 +548,9 @@ public class ModContainer
     private final ContainerFactory _factory;
     private final Map<String, IItemHandler> _registeredInventories;
     private final Map<String, List<Slot>> _inventorySlotsGroups;
+    private final Player _player;
     private IEvent<Runnable> _dataUpdateEvent;
     private IConditionallySyncableEntity _syncableEntity;
-    private List<ServerPlayer> _dataUpdateListeners;
     private ObjectList<IContainerData> _dataToSync;
 
     //endregion

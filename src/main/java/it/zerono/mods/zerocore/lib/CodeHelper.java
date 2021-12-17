@@ -52,6 +52,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -122,10 +123,7 @@ public final class CodeHelper {
     }
 
     public static boolean isDevEnv() {
-
-        final String target = System.getenv("target");
-
-        return !Strings.isNullOrEmpty(target) && target.startsWith("fmluserdev");
+        return !FMLEnvironment.production;
     }
 
     //region misc

@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
-import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
@@ -56,11 +55,6 @@ public class GaugeBar
 
     public void setBarSpriteTint(final Colour tint) {
         this._barSpriteTint = tint;
-    }
-
-    @Deprecated //use IOrientationAware methods
-    public void setTopDown(final boolean topDown) {
-        this.setOrientation(topDown ? Orientation.TopToBottom : Orientation.BottomToTop);
     }
 
     //region AbstractGaugeBar
