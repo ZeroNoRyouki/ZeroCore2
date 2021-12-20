@@ -288,8 +288,10 @@ public abstract class AbstractModBlockEntity
     }
 
     @Override
-    public CompoundTag save(final CompoundTag data) {
-        return this.syncEntityDataTo(super.save(data), SyncReason.FullSync);
+    protected void saveAdditional(final CompoundTag data) {
+
+        super.saveAdditional(data);
+        this.syncEntityDataTo(data, SyncReason.FullSync);
     }
 
     /**
