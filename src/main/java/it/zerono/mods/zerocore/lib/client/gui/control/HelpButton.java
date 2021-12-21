@@ -25,7 +25,7 @@ import it.zerono.mods.zerocore.lib.compat.Mods;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
-//import vazkii.patchouli.api.PatchouliAPI;
+import vazkii.patchouli.api.PatchouliAPI;
 
 public class HelpButton
     extends Button {
@@ -40,8 +40,7 @@ public class HelpButton
             button.Clicked.subscribe((control, mb) -> control.enqueueTask(() -> {
 
                 try {
-                    //TODO 1.17 re-add Patchouli support
-                    //PatchouliAPI.get().openBookEntry(bookId, entryId, pageNum);
+                    PatchouliAPI.get().openBookEntry(bookId, entryId, pageNum);
                 } catch (Exception ex) {
                     Log.LOGGER.error(Log.CORE, "Exception while opening Patchouli book.", ex);
                 }
