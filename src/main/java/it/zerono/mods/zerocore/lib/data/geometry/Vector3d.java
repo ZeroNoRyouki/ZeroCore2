@@ -28,6 +28,8 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.math.vector.Vector4f;
 
+import java.util.Objects;
+
 @SuppressWarnings({"WeakerAccess"})
 public class Vector3d
     implements IPosition {
@@ -248,6 +250,11 @@ public class Vector3d
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.X, this.Y, this.Z);
     }
 
     @Override

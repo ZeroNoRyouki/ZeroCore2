@@ -25,6 +25,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector4f;
 
+import java.util.Objects;
+
 public class Vector3i {
 
     public static final Vector3i ZERO = new Vector3i();
@@ -192,6 +194,11 @@ public class Vector3i {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.X, this.Y, this.Z);
     }
 
     @Override

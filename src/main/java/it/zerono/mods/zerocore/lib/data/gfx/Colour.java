@@ -20,6 +20,8 @@ package it.zerono.mods.zerocore.lib.data.gfx;
 
 import net.minecraft.item.DyeColor;
 
+import java.util.Objects;
+
 @SuppressWarnings({"WeakerAccess"})
 public class Colour {
 
@@ -181,13 +183,22 @@ public class Colour {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(this.R, this.G, this.B, this.A);
+    }
+
+    @Override
     public String toString() {
         return String.format("Colour R 0x%02x, G 0x%02x, B 0x%02x, A 0x%02x", this.R, this.G, this.B, this.A);
     }
+
+    //region internals
 
     private Colour() {
 
         this.R = this.G = this.B = 0;
         this.A = (byte)255;
     }
+
+    //endregion
 }

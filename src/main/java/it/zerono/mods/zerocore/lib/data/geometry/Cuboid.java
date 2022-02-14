@@ -24,6 +24,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 
+import java.util.Objects;
+
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class Cuboid {
 
@@ -194,6 +196,11 @@ public class Cuboid {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(Min, Max);
+    }
+
+    @Override
     public String toString() {
         return String.format("Cuboid (%f, %f, %f), (%f, %f, %f)", this.Min.X, this.Min.Y, this.Min.Z,
                 this.Max.X, this.Max.Y, this.Max.Z);
@@ -311,6 +318,11 @@ public class Cuboid {
             }
 
             return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.A, this.B, this.C, this.D, this.FACING);
         }
 
         @Override
