@@ -23,8 +23,11 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
+import net.minecraftforge.common.util.NonNullFunction;
 
 import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public class CuboidBoundingBox {
 
@@ -134,6 +137,24 @@ public class CuboidBoundingBox {
 
     public int commonVertices(final Vector3i position) {
         return CodeHelper.commonVertices(position, this._min) + CodeHelper.commonVertices(position, this._max);
+    }
+
+    public <R> R map(final BiFunction<BlockPos, BlockPos, R> mapper) {
+        return mapper.apply(this.getMin(), this.getMax());
+    }
+
+    public <R> R map(final BiFunction<BlockPos, BlockPos, R> mapper, final NonNullFunction<BlockPos, BlockPos> minRemapper,
+                     final NonNullFunction<BlockPos, BlockPos> maxRemapper) {
+        return mapper.apply(minRemapper.apply(this.getMin()), maxRemapper.apply(this.getMax()));
+    }
+
+    public void accept(final BiConsumer<BlockPos, BlockPos> consumer) {
+        consumer.accept(this.getMin(), this.getMax());
+    }
+
+    public void accept(final BiConsumer<BlockPos, BlockPos> consumer, final NonNullFunction<BlockPos, BlockPos> minRemapper,
+                       final NonNullFunction<BlockPos, BlockPos> maxRemapper) {
+        consumer.accept(minRemapper.apply(this.getMin()), maxRemapper.apply(this.getMax()));
     }
 
     //region Object
