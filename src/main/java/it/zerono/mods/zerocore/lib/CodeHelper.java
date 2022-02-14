@@ -23,6 +23,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
@@ -997,7 +1000,7 @@ public final class CodeHelper {
 
     private static final long UNSIGNED_MASK = 0x7FFFFFFFFFFFFFFFL;
 
-    private static final Map<Integer, String> s_siPrefixes;
+    private static final Int2ObjectMap<String> s_siPrefixes;
     private static final Random s_fakeRandom;
     private static final Map<Direction, List<Direction>> s_perpendicularDirections;
 
@@ -1025,7 +1028,7 @@ public final class CodeHelper {
         prefixes.put(-21, "z"); // zepto, 10^-21
         prefixes.put(-24, "y"); // yocto, 10^-24
 
-        s_siPrefixes = Collections.unmodifiableMap(prefixes);
+        s_siPrefixes = Int2ObjectMaps.unmodifiable(new Int2ObjectArrayMap<>(prefixes));
 
         // perpendicular directions
 

@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.data.geometry;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.IntFunction;
 
@@ -254,6 +255,16 @@ public class Polygon {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = Objects.hash(this._pointsCount);
+
+        result = 31 * result + Arrays.hashCode(this._xs);
+        result = 31 * result + Arrays.hashCode(this._ys);
+        return result;
     }
 
     @Override

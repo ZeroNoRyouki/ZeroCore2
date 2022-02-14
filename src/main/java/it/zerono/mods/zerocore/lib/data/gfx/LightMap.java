@@ -18,6 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.data.gfx;
 
+import java.util.Objects;
+
 @SuppressWarnings({"WeakerAccess"})
 public class LightMap {
 
@@ -38,22 +40,6 @@ public class LightMap {
         this(other.U, other.V);
     }
 
-//    public static LightMap fromCombinedLight(final int combinedLight) {
-//        return new LightMap(getSkyLightFromCombined(combinedLight), getBlockLightFromCombined(combinedLight));
-//    }
-//
-//    public static int getSkyLightFromCombined(final int combinedLight) {
-//        return combinedLight >> 16 & 0xffff;
-//    }
-//
-//    public static int getBlockLightFromCombined(final int combinedLight) {
-//        return combinedLight & 0xffff;
-//    }
-//
-//    public static int getCombinedLight(final int skyLight, final int blockLight) {
-//        return skyLight << 20 | blockLight << 4;
-//    }
-
     @Override
     public boolean equals(Object other) {
 
@@ -65,6 +51,11 @@ public class LightMap {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.U, this.V);
     }
 
     @Override
