@@ -18,15 +18,17 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import net.minecraft.core.Position;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
 import com.mojang.math.Vector3f;
-import net.minecraft.core.Vec3i;
 import com.mojang.math.Vector4f;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Position;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.Objects;
 
 @SuppressWarnings({"WeakerAccess"})
 public class Vector3d
@@ -248,6 +250,11 @@ public class Vector3d
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.X, this.Y, this.Z);
     }
 
     @Override
