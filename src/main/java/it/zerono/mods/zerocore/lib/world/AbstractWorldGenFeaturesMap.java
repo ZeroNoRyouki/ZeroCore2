@@ -20,7 +20,8 @@ package it.zerono.mods.zerocore.lib.world;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.tags.Tag;
+import net.minecraft.core.Holder;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -46,7 +47,7 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
         return new BlockMatchTest(block);
     }
 
-    public static RuleTest oreMatch(final Tag<Block> tag) {
+    public static RuleTest oreMatch(final TagKey<Block> tag) {
         return new TagMatchTest(tag);
     }
 
@@ -65,7 +66,7 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
     }
 
     protected void add(final GenerationStep.Decoration stage, final Predicate<PredicateObject> biomeMatcher,
-                       final Supplier<PlacedFeature> featureSupplier) {
+                       final Supplier<Holder<PlacedFeature>> featureSupplier) {
         this._entries.computeIfAbsent(stage, s -> new ObjectArrayList<>(8)).add(Pair.of(biomeMatcher, featureSupplier));
     }
 
@@ -75,7 +76,7 @@ abstract class AbstractWorldGenFeaturesMap<PredicateObject> {
 
     //region internals
 
-    protected final Map<GenerationStep.Decoration, List<Pair<Predicate<PredicateObject>, Supplier<PlacedFeature>>>> _entries;
+    protected final Map<GenerationStep.Decoration, List<Pair<Predicate<PredicateObject>, Supplier<Holder<PlacedFeature>>>>> _entries;
 
     //endregion
 }

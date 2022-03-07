@@ -20,59 +20,57 @@ package it.zerono.mods.zerocore.lib.world;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import net.minecraft.core.Registry;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import net.minecraft.core.Holder;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraftforge.common.util.NonNullFunction;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public abstract class AbstractWorldGenRegisteredFeature<T extends AbstractWorldGenRegisteredFeature>
-    implements Supplier<PlacedFeature> {
+public abstract class AbstractWorldGenRegisteredFeature<T extends AbstractWorldGenRegisteredFeature<T, FC, F>,
+        FC extends FeatureConfiguration, F extends Feature<FC>>
+    implements Supplier<Holder<PlacedFeature>> {
 
     protected AbstractWorldGenRegisteredFeature(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
-                                                final ConfiguredFeature<?, ?> configuredFeature) {
+                                                final Supplier<F> featureSupplier, final Supplier<FC> configurationSupplier) {
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
         this.name = name;
         this._idFactory = Objects.requireNonNull(idFactory);
-        this._configured = Objects.requireNonNull(configuredFeature);
+        this._featureSupplier = Objects.requireNonNull(featureSupplier);
+        this._configurationSupplier = Objects.requireNonNull(configurationSupplier);
+        this._placementModifiers = ObjectLists.emptyList();
+        this._placed = null;
     }
 
     public void register() {
 
-        ResourceLocation key;
+        final Holder<ConfiguredFeature<?, ?>> configuredFeatureHolder = BuiltinRegistries.register(BuiltinRegistries.CONFIGURED_FEATURE,
+                this._idFactory.apply(this.name + "_conf"), new ConfiguredFeature<>(this._featureSupplier.get(), this._configurationSupplier.get()));
 
-        key = this._idFactory.apply(this.name + "_conf");
-        if (!BuiltinRegistries.CONFIGURED_FEATURE.containsKey(key)) {
-            Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, key, this._configured);
-        }
-
-        key = this._idFactory.apply(this.name + "_placed");
-        Registry.register(BuiltinRegistries.PLACED_FEATURE, key, Objects.requireNonNull(this._placed));
-    }
-
-
-    public T placement(final PlacedFeature feature) {
-
-        this._placed = Objects.requireNonNull(feature);
-        return this.self();
+        this._placed = BuiltinRegistries.register(BuiltinRegistries.PLACED_FEATURE, this._idFactory.apply(this.name + "_placed"),
+                new PlacedFeature(Holder.hackyErase(configuredFeatureHolder), this._placementModifiers));
     }
 
     public T placement(final PlacementModifier... modifiers) {
 
-        this.placement(this._configured.placed(modifiers));
+        this._placementModifiers = ObjectLists.unmodifiable(new ObjectArrayList<>(modifiers));
         return this.self();
     }
 
-    //region Supplier<PlacedFeature>
+    //region Supplier<Holder<PlacedFeature>>
 
     @Override
-    public PlacedFeature get() {
+    public Holder<PlacedFeature> get() {
         return this._placed;
     }
 
@@ -86,8 +84,10 @@ public abstract class AbstractWorldGenRegisteredFeature<T extends AbstractWorldG
 
     private final String name;
     private final NonNullFunction<String, ResourceLocation> _idFactory;
-    private final ConfiguredFeature<?, ?> _configured;
-    private PlacedFeature _placed;
+    private final Supplier<F> _featureSupplier;
+    private final Supplier<FC> _configurationSupplier;
+    private List<PlacementModifier> _placementModifiers;
+    private Holder<PlacedFeature> _placed;
 
     //endregion
 }

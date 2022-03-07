@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.block.ModBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -52,7 +53,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class WorldReGenHandler
-    extends AbstractWorldGenFeaturesMap<Biome> {
+    extends AbstractWorldGenFeaturesMap<Holder<Biome>> {
 
     public WorldReGenHandler(final String worldGenVersionTagName, final IntSupplier worldGenCurrentVersionSupplier,
                              final BooleanSupplier enabledCheck) {
@@ -69,32 +70,32 @@ public class WorldReGenHandler
         bus.addListener(this::onWorldTick);
     }
 
-    public static Predicate<Biome> matchAll() {
+    public static Predicate<Holder<Biome>> matchAll() {
         return biome -> true;
     }
 
-    public static Predicate<Biome> matchOnly(final ResourceLocation biomeId) {
-        return biome -> biome.getRegistryName().equals(biomeId);
+    public static Predicate<Holder<Biome>> matchOnly(final ResourceLocation biomeId) {
+        return biomeHolder -> biomeHolder.is(biomeId);
     }
 
-    public static Predicate<Biome> anyExcept(final ResourceLocation biomeId) {
-        return biome -> !biome.getRegistryName().equals(biomeId);
+    public static Predicate<Holder<Biome>> anyExcept(final ResourceLocation biomeId) {
+        return biomeHolder -> !biomeHolder.is(biomeId);
     }
 
-    public static Predicate<Biome> onlyNether() {
-        return biome -> Biome.BiomeCategory.NETHER == biome.getBiomeCategory();
+    public static Predicate<Holder<Biome>> onlyNether() {
+        return biomeHolder -> Biome.BiomeCategory.NETHER == Biome.getBiomeCategory(biomeHolder);
     }
 
-    public static Predicate<Biome> exceptNether() {
-        return biome -> Biome.BiomeCategory.NETHER != biome.getBiomeCategory();
+    public static Predicate<Holder<Biome>> exceptNether() {
+        return biomeHolder -> Biome.BiomeCategory.NETHER != Biome.getBiomeCategory(biomeHolder);
     }
 
-    public static Predicate<Biome> onlyTheEnd() {
-        return biome -> Biome.BiomeCategory.THEEND == biome.getBiomeCategory();
+    public static Predicate<Holder<Biome>> onlyTheEnd() {
+        return biomeHolder -> Biome.BiomeCategory.THEEND == Biome.getBiomeCategory(biomeHolder);
     }
 
-    public static Predicate<Biome> exceptTheEnd() {
-        return biome -> Biome.BiomeCategory.THEEND != biome.getBiomeCategory();
+    public static Predicate<Holder<Biome>> exceptTheEnd() {
+        return biomeHolder -> Biome.BiomeCategory.THEEND != Biome.getBiomeCategory(biomeHolder);
     }
 
     public static OreGenRegisteredFeature oreVein(final String name, final NonNullFunction<String, ResourceLocation> idFactory,
@@ -126,7 +127,7 @@ public class WorldReGenHandler
     }
 
     public void addOreVein(final Pair<OreGenRegisteredFeature, OreGenRegisteredFeature> veins,
-                           final Predicate<BiomeLoadingEvent> genBiomeMatcher, final Predicate<Biome> reGenBiomeMatcher) {
+                           final Predicate<BiomeLoadingEvent> genBiomeMatcher, final Predicate<Holder<Biome>> reGenBiomeMatcher) {
 
         WorldGenManager.INSTANCE.addOreVein(genBiomeMatcher, veins.getLeft());
         this.addOreVein(reGenBiomeMatcher, veins.getRight());
@@ -230,16 +231,16 @@ public class WorldReGenHandler
 
         final ChunkGenerator chunkGenerator = world.getChunkSource().getGenerator();
         final BlockPos position = new BlockPos(chunkX * 16, 0, chunkZ * 16);
-        final Biome biome = world.getBiome(position);
+        final Holder<Biome> biome = world.getBiome(position);
 
         for (final GenerationStep.Decoration stage : this._entries.keySet()) {
 
             boolean processed = false;
 
-            for (Pair<Predicate<Biome>, Supplier<PlacedFeature>> pair : this._entries.get(stage)) {
+            for (Pair<Predicate<Holder<Biome>>, Supplier<Holder<PlacedFeature>>> pair : this._entries.get(stage)) {
 
                 if (pair.getKey().test(biome)) {
-                    processed |= pair.getValue().get().place(world, chunkGenerator, random, position);
+                    processed |= pair.getValue().get().value().place(world, chunkGenerator, random, position);
                 }
             }
 

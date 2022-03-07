@@ -1,6 +1,6 @@
 /*
  *
- * PatchouliSetup.java
+ * Patchouli.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *

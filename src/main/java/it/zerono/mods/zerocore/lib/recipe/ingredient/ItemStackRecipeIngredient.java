@@ -30,7 +30,7 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -131,11 +131,11 @@ public abstract class ItemStackRecipeIngredient
         return from(new ItemStack(item), amount);
     }
 
-    public static ItemStackRecipeIngredient from(final Tag<Item> tag) {
+    public static ItemStackRecipeIngredient from(final TagKey<Item> tag) {
         return from(tag, 1);
     }
 
-    public static ItemStackRecipeIngredient from(final Tag<Item> tag, final int amount) {
+    public static ItemStackRecipeIngredient from(final TagKey<Item> tag, final int amount) {
         return from(Ingredient.of(tag), amount);
     }
 

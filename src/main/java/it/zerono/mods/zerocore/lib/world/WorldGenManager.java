@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.world;
 
 import it.zerono.mods.zerocore.lib.block.ModBlock;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -46,11 +47,11 @@ public class WorldGenManager
     }
 
     public static Predicate<BiomeLoadingEvent> matchOnly(final ResourceLocation biomeId) {
-        return event -> event.getName().equals(biomeId);
+        return event -> null != event.getName() && event.getName().equals(biomeId);
     }
 
     public static Predicate<BiomeLoadingEvent> anyExcept(final ResourceLocation biomeId) {
-        return event -> !event.getName().equals(biomeId);
+        return event -> null == event.getName() || !event.getName().equals(biomeId);
     }
 
     public static Predicate<BiomeLoadingEvent> onlyNether() {
@@ -96,11 +97,11 @@ public class WorldGenManager
 
         for (final GenerationStep.Decoration stage : this._entries.keySet()) {
 
-            final List<Supplier<PlacedFeature>> biomeFeatures = builder.getFeatures(stage);
+            final List<Holder<PlacedFeature>> biomeFeatures = builder.getFeatures(stage);
 
             this._entries.getOrDefault(stage, Collections.emptyList()).stream()
                     .filter(p -> p.getKey().test(event))
-                    .forEach(p -> biomeFeatures.add(p.getValue()));
+                    .forEach(p -> biomeFeatures.add(p.getValue().get()));
         }
     }
 

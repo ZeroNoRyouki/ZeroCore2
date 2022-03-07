@@ -29,7 +29,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -370,11 +370,11 @@ public final class WorldHelper {
         world.addFreshEntity(entity);
     }
 
-    public static boolean isFluidStateTagged(BlockGetter access, BlockPos position, Tag.Named<Fluid> tag) {
+    public static boolean isFluidStateTagged(BlockGetter access, BlockPos position, TagKey<Fluid> tag) {
         return access.getFluidState(position).is(tag);
     }
 
-    public static boolean isFluidStateTagged(BlockState blockState, Tag.Named<Fluid> tag) {
+    public static boolean isFluidStateTagged(BlockState blockState, TagKey<Fluid> tag) {
         return blockState.getFluidState().is(tag);
     }
 

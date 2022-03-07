@@ -27,13 +27,8 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.tag.TagsHelper;
-import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -51,7 +46,7 @@ public abstract class FluidStackRecipeIngredient
         return new FluidStackRecipeIngredient.Impl(stack);
     }
 
-    public static FluidStackRecipeIngredient from(final Tag<Fluid> tag, final int amount) {
+    public static FluidStackRecipeIngredient from(final TagKey<Fluid> tag, final int amount) {
         return new FluidStackRecipeIngredient.TaggedImpl(tag, amount);
     }
 
@@ -79,7 +74,7 @@ public abstract class FluidStackRecipeIngredient
                 return new CompositeImpl(ingredients);
 
             case 3:
-                return new TaggedImpl(FluidTags.bind(buffer.readResourceLocation().toString()), buffer.readVarInt());
+                return new TaggedImpl(TagsHelper.FLUIDS.createKey(buffer.readResourceLocation()), buffer.readVarInt());
         }
 
         throw new IllegalArgumentException("Invalid fluid ingredient data from then network");
@@ -99,9 +94,7 @@ public abstract class FluidStackRecipeIngredient
             return switch (size) {
                 case 0 -> throw new JsonSyntaxException("No ingredients found, at least one is required");
                 case 1 -> from(json.get(0));
-                default ->
-                        //noinspection UnstableApiUsage
-                        from(Streams.stream(json)
+                default -> from(Streams.stream(json)
                                 .map(FluidStackRecipeIngredient::from)
                                 .toArray(FluidStackRecipeIngredient[]::new));
             };
@@ -125,14 +118,7 @@ public abstract class FluidStackRecipeIngredient
                     throw new JsonSyntaxException("The amount entry of a fluid ingredient must be a number greater than zero");
                 }
 
-                final ResourceLocation tagId = JSONHelper.jsonGetResourceLocation(json, Lib.NAME_TAG);
-                final Tag<Fluid> tag = getFluidTagsCollection().getTag(tagId);
-
-                if (null == tag) {
-                    throw new JsonSyntaxException("Unknown fluid ingredient Tag: " + tagId);
-                }
-
-                return from(tag, amount);
+                return from(TagsHelper.FLUIDS.createKey(JSONHelper.jsonGetResourceLocation(json, Lib.NAME_TAG)), amount);
             }
         }
 
@@ -272,8 +258,6 @@ public abstract class FluidStackRecipeIngredient
         public List<FluidStack> getMatchingElements() {
 
             if (null == this._cachedMatchingElements) {
-
-                //noinspection UnstableApiUsage
                 this._cachedMatchingElements = this._ingredients.stream()
                         .flatMap(ingredient -> ingredient.getMatchingElements().stream())
                         .collect(ImmutableList.toImmutableList());
@@ -374,9 +358,7 @@ public abstract class FluidStackRecipeIngredient
         public List<FluidStack> getMatchingElements() {
 
             if (null == this._cachedMatchingElements) {
-
-                //noinspection UnstableApiUsage
-                this._cachedMatchingElements = TagsHelper.FLUIDS.getMatchingElements(this._tag).stream()
+                this._cachedMatchingElements = TagsHelper.FLUIDS.getObjects(this._tag).stream()
                         .map(fluid -> new FluidStack(fluid, this._amount))
                         .collect(ImmutableList.toImmutableList());
             }
@@ -403,7 +385,7 @@ public abstract class FluidStackRecipeIngredient
         public void serializeTo(final FriendlyByteBuf buffer) {
 
             buffer.writeByte(3);
-            buffer.writeResourceLocation(Objects.requireNonNull(getFluidTagsCollection().getId(this._tag)));
+            buffer.writeResourceLocation(this._tag.location());
             buffer.writeVarInt(this._amount);
         }
 
@@ -412,7 +394,7 @@ public abstract class FluidStackRecipeIngredient
 
             final JsonObject json = new JsonObject();
 
-            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, Objects.requireNonNull(getFluidTagsCollection().getId(this._tag)));
+            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TAG, this._tag.location());
             JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, this._amount);
             return json;
         }
@@ -428,24 +410,17 @@ public abstract class FluidStackRecipeIngredient
         //endregion
         //region internals
 
-        protected TaggedImpl(final Tag<Fluid> tag, final int amount) {
+        protected TaggedImpl(final TagKey<Fluid> tag, final int amount) {
 
             this._tag = tag;
             this._amount = amount;
         }
 
-        private final Tag<Fluid> _tag;
+        private final TagKey<Fluid> _tag;
         private final int _amount;
         private List<FluidStack> _cachedMatchingElements;
 
         //endregion
-    }
-
-    //endregion
-    //region internals
-
-    private static TagCollection<Fluid> getFluidTagsCollection() {
-        return SerializationTags.getInstance().getOrEmpty(Registry.FLUID_REGISTRY);
     }
 
     //endregion

@@ -19,7 +19,7 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -167,8 +167,8 @@ public abstract class BaseRecipeProvider
 
     protected static void recipeWithAlternativeTag(final Consumer<FinishedRecipe> c,
                                                    final ResourceLocation name, @Nullable final ResourceLocation alternativeName,
-                                                   final Tag.Named<Item> tag, @Nullable final Tag.Named<Item> alternativeTag,
-                                                   final Function<Tag.Named<Item>, ShapedRecipeBuilder> recipe) {
+                                                   final TagKey<Item> tag, @Nullable final TagKey<Item> alternativeTag,
+                                                   final Function<TagKey<Item>, ShapedRecipeBuilder> recipe) {
 
         if (null == alternativeTag || null == alternativeName) {
 
@@ -176,11 +176,11 @@ public abstract class BaseRecipeProvider
 
         } else {
 
-            conditionalBuilder(not(new TagEmptyCondition(tag.getName())))
+            conditionalBuilder(not(new TagEmptyCondition(tag.location())))
                     .addRecipe(recipe.apply(tag)::save)
                     .build(c, name);
 
-            conditionalBuilder(new TagEmptyCondition(tag.getName()))
+            conditionalBuilder(new TagEmptyCondition(tag.location()))
                     .addRecipe(recipe.apply(alternativeTag)::save)
                     .build(c, alternativeName);
         }

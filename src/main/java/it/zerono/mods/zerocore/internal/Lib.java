@@ -22,6 +22,7 @@ import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
+import it.zerono.mods.zerocore.lib.tag.TagList;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegistryEvent;
@@ -47,6 +48,8 @@ public final class Lib {
         bus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
         bus.addListener(Lib::onAddReloadListener);
         bus.addListener(Lib::onWorldTick);
+
+        TagList.initialize();
     }
 
     public static boolean shouldInvalidateResourceCache() {
