@@ -65,6 +65,9 @@
         ,
         "1.18.1-2.1.11":"- Restored Patchouli support\r\n- Updated Patchouli to version 1.18.1-61\r\n- Bumped version to 2.1.11"
     },
+    "1.18.2":{
+        "1.18.2-2.1.15":"API: many changes related to Tags and worldgen/regen\r\nPorted to Minecraft 1.18.2\r\nUpdated Forge version to 40.0.12\r\nUpdated CC:Tweaked version to 1.100.3\r\nUpdated Patchouli version to 1.18.2-66\r\nUpdated JEI version to 9.4.3.123\r\nBumped version to 2.1.15"
+    },
     "promos":{
         "1.16.3-latest":"1.16.4-2.0.19",
         "1.16.3-recommended":"1.16.4-2.0.19",
@@ -77,6 +80,8 @@
         "1.18.0-latest":"1.18-2.1.8",
         "1.18.0-recommended":"1.18-2.1.8",
         "1.18.1-latest":"1.18.1-2.1.11",
-        "1.18.1-recommended":"1.18.1-2.1.11"
+        "1.18.1-recommended":"1.18.1-2.1.11",
+        "1.18.2-latest":"1.18.2-2.1.15",
+        "1.18.2-recommended":"1.18.2-2.1.15"
     }
 }
