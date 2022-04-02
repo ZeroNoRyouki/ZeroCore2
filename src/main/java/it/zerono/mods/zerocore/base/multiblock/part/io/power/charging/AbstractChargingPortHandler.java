@@ -103,7 +103,7 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
     }
 
     protected int getOutputSlotsCount() {
-        return this._input.getSlots();
+        return this._output.getSlots();
     }
 
     //region IChargingPortHandler
