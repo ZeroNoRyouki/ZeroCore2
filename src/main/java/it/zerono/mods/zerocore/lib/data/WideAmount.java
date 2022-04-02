@@ -149,6 +149,10 @@ public class WideAmount
         return a.greaterThan(b) ? a : b;
     }
 
+    public static WideAmount clamp(final WideAmount value, final WideAmount min, final WideAmount max) {
+        return WideAmount.max(WideAmount.min(max, value), min);
+    }
+
     public boolean smallerThan(final WideAmount other) {
         return this.compareTo(other) < 0;
     }
