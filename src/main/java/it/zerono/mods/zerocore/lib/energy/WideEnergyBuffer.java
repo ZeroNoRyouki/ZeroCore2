@@ -83,13 +83,13 @@ public class WideEnergyBuffer
 
     public WideEnergyBuffer setMaxInsert(final WideAmount maxInsert) {
 
-        this._maxInsert = this._maxInsert.set(maxInsert);
+        this._maxInsert = this._maxInsert.set(WideAmount.clamp(maxInsert, WideAmount.ZERO, WideAmount.MAX_VALUE));
         return this;
     }
 
     public WideEnergyBuffer setMaxExtract(final WideAmount maxExtract) {
 
-        this._maxExtract = this._maxExtract.set(maxExtract);
+        this._maxExtract = this._maxExtract.set(WideAmount.clamp(maxExtract, WideAmount.ZERO, WideAmount.MAX_VALUE));
         return this;
     }
 
@@ -105,11 +105,27 @@ public class WideEnergyBuffer
         return this._energy.copy();
     }
 
+    @Deprecated // use the IWideEnergyStorage2 version
     public WideEnergyBuffer setEnergyStored(final WideAmount amount) {
 
-        this._energy = this._energy.set(amount.greaterThan(this._capacity) ? this._capacity : amount);
-        this._modified = true;
+        this.setEnergyStored(amount, this.getEnergySystem());
         return this;
+    }
+
+    public WideEnergyBuffer grow(final WideAmount amount) {
+        return this.setEnergyStored(this._energy.add(amount));
+    }
+
+    public WideEnergyBuffer grow(final double amount) {
+        return this.setEnergyStored(this._energy.add(amount));
+    }
+
+    public WideEnergyBuffer shrink(final WideAmount amount) {
+        return this.setEnergyStored(this._energy.subtract(amount));
+    }
+
+    public WideEnergyBuffer shrink(final double amount) {
+        return this.setEnergyStored(this._energy.subtract(amount));
     }
 
     public void merge(final WideEnergyBuffer other) {
@@ -122,6 +138,24 @@ public class WideEnergyBuffer
     }
 
     //region IWideEnergyStorage2
+
+    /**
+     * Returns if this storage can have energy extracted.
+     * If this is false, then any calls to extractEnergy will return 0.
+     */
+    @Override
+    public boolean canExtract() {
+        return this._maxExtract.greaterThan(WideAmount.ZERO);
+    }
+
+    /**
+     * Used to determine if this storage can receive energy.
+     * If this is false, then any calls to insertEnergy will return 0.
+     */
+    @Override
+    public boolean canInsert() {
+        return this._maxInsert.greaterThan(WideAmount.ZERO);
+    }
 
     /**
      * Get the {@code EnergySystem} used natively the the IWideEnergyStorage
@@ -142,6 +176,10 @@ public class WideEnergyBuffer
      */
     @Override
     public WideAmount insertEnergy(final EnergySystem system, WideAmount maxAmount, final OperationMode mode) {
+
+        if (!this.canInsert()) {
+            return WideAmount.ZERO;
+        }
 
         final EnergySystem localSystem = this.getEnergySystem();
 
@@ -172,6 +210,10 @@ public class WideEnergyBuffer
     @Override
     public WideAmount extractEnergy(final EnergySystem system, WideAmount maxAmount, final OperationMode mode) {
 
+        if (!this.canExtract()) {
+            return WideAmount.ZERO;
+        }
+
         final EnergySystem localSystem = this.getEnergySystem();
 
         // convert the requested amount to the local energy system
@@ -197,6 +239,22 @@ public class WideEnergyBuffer
     @Override
     public WideAmount getEnergyStored(final EnergySystem system) {
         return this.convertIf(system, this._energy);
+    }
+
+    /**
+     * Replace the amount of energy currently stored with the provided value expressed in the specified {@link EnergySystem}
+     *
+     * @param energy the new energy amount
+     * @param system the {@link EnergySystem} used by the request
+     */
+    @Override
+    public void setEnergyStored(final WideAmount energy, final EnergySystem system) {
+
+        final EnergySystem localSystem = this.getEnergySystem();
+        final WideAmount newAmount = localSystem == system ? energy : system.convertTo(localSystem, energy);
+
+        this._energy = WideAmount.clamp(newAmount, WideAmount.ZERO, this._capacity).copy();
+        this._modified = true;
     }
 
     /**
