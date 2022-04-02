@@ -58,11 +58,30 @@ public interface IWideEnergyStorage2
     WideAmount getEnergyStored(EnergySystem system);
 
     /**
+     * Replace the amount of energy currently stored with the provided value expressed in the specified {@link EnergySystem}
+     *
+     * @param energy the new energy amount
+     * @param system the {@link EnergySystem} used by the request
+     */
+    default void setEnergyStored(WideAmount energy, EnergySystem system) {
+    }
+
+    /**
      * Returns the maximum amount of energy that can be stored expressed in the specified {@link EnergySystem}
      *
      * @param system the {@link EnergySystem} used by the request
      */
     WideAmount getCapacity(EnergySystem system);
+
+    /**
+     * Return the amount of free space in the storage expressed in the specified {@link EnergySystem}
+     *
+     * @param system the {@link EnergySystem} used by the request
+     * @return the amount of free space
+     */
+    default WideAmount getFreeSpace(EnergySystem system) {
+        return this.getCapacity(system).subtract(this.getEnergyStored(system));
+    }
 
     /**
      * Returns if this storage can have energy extracted.
