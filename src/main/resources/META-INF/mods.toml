@@ -30,8 +30,8 @@ logoFile="logo.png"
 	
 [[dependencies.zerocore]]
 
-	modId="forge"
-	mandatory=true
-	versionRange="[36.2.20,37)"
-	ordering="NONE"
-	side="BOTH"
+    modId="forge"
+    mandatory=true
+    versionRange="[36.2.27,37)"
+    ordering="NONE"
+    side="BOTH"
