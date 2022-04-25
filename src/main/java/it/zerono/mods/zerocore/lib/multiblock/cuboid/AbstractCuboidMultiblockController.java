@@ -41,14 +41,12 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.cuboid;
 
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.data.geometry.CuboidBoundingBox;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
-import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -59,11 +57,6 @@ public abstract class AbstractCuboidMultiblockController<Controller extends Abst
         extends AbstractMultiblockController<Controller> {
 
 	//region AbstractMultiblockController
-
-    @Override
-    protected NeighboringPositions getNeighboringPositionsToVisit() {
-        return new NeighboringPositions(CodeHelper.POSITIVE_DIRECTIONS);
-    }
 
     @Override
     protected boolean isMachineWhole(final IMultiblockValidator validatorCallback) {
