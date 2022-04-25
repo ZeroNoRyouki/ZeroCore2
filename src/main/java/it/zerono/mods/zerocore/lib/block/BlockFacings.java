@@ -401,6 +401,20 @@ public final class BlockFacings {
         return this._value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (o instanceof BlockFacings) {
+            return this._value == ((BlockFacings)o)._value;
+        }
+
+        return false;
+    }
+
     //endregion
     //region internals
 
