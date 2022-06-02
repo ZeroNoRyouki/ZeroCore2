@@ -231,6 +231,8 @@ public class ClientProxy
                     event.getMultiBufferSource().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
                     position.getX() - projectedView.x(), position.getY() - projectedView.y(),
                     position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
+
+            event.setCanceled(true);
         }
     }
 
