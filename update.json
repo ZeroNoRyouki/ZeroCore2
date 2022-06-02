@@ -41,7 +41,9 @@
         ,
         "1.16.5-2.1.9":"- Multiblock API: Fix bounding box not being updated on assimilation\r\n- Updated Forge to version 36.2.20 (cfr [CVE-2021-44228])\r\n- Bumped version to 2.1.9"
         ,
-        "1.16.5-2.1.16":"- Fix multiblock assembly in corer cases before opt2 is merged in\n- Updated Forge to version 36.2.27\n- Bumped version to 2.1.16"
+        "1.16.5-2.1.16":"- Fix multiblock assembly in corer cases before opt2 is merged in\r\n- Updated Forge to version 36.2.27\r\n- Bumped version to 2.1.16"
+        ,
+        "1.16.5-2.1.17":"- This should fix the crash that happens after a block is highlighted when a error is displayed in the GUI. Probable fix for ER #83, 81, 63\r\n- Bumped version to 2.1.17"
     },
     "1.17.1":{
         "1.17.1-2.1.2":"- First 1.17.1 release\r\n- See 1.16.5-2.1.0 for a full changelog\r\n- Bumped version to 2.1.2\r\n- Updated Minecraft to version 1.17.1\r\n- Updated Forge to version 37.0.27",
@@ -75,8 +77,8 @@
         "1.16.3-recommended":"1.16.4-2.0.19",
         "1.16.4-latest":"1.16.4-2.0.21",
         "1.16.4-recommended":"1.16.4-2.0.21",
-        "1.16.5-latest":"1.16.5-2.1.16",
-        "1.16.5-recommended":"1.16.5-2.1.16",
+        "1.16.5-latest":"1.16.5-2.1.17",
+        "1.16.5-recommended":"1.16.5-2.1.17",
         "1.17.1-latest":"1.17.1-2.1.11",
         "1.17.1-recommended":"1.17.1-2.1.11",
         "1.18.0-latest":"1.18-2.1.8",
