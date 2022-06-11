@@ -327,8 +327,15 @@ public abstract class AbstractModBlockEntity
      * @param packet The data packet
      */
     @Override
-    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
+    public final void onDataPacket(final Connection net, final ClientboundBlockEntityDataPacket packet) {
+
+        final CompoundTag data = packet.getTag();
+
+        if (null != data) {
+
+            super.load(data);
+            this.syncEntityDataFrom(data, SyncReason.NetworkUpdate);
+        }
     }
 
     /**
