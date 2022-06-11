@@ -19,9 +19,9 @@
 package it.zerono.mods.zerocore.base;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public final class CommonConstants {
 
@@ -36,7 +36,7 @@ public final class CommonConstants {
 
     //region UI
 
-    public static final MutableComponent EMPTY_VALUE = new TranslatableComponent("gui.zerocore.base.generic.empty");
+    public static final MutableComponent EMPTY_VALUE = Component.translatable("gui.zerocore.base.generic.empty");
 
     //region UI styles
 

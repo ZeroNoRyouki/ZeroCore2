@@ -27,8 +27,8 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.Item;
@@ -55,19 +55,19 @@ public final class ItemHelper {
     public static final IItemHandlerModifiable EMPTY_ITEM_HANDLER = (IItemHandlerModifiable)EmptyHandler.INSTANCE;
 
     public static ResourceLocation getItemId(final ItemLike item) {
-        return Objects.requireNonNull(item.asItem().getRegistryName());
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.asItem()));
     }
 
     public static ResourceLocation getItemId(final ItemStack stack) {
-        return Objects.requireNonNull(stack.getItem().getRegistryName());
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem()));
     }
 
     public static MutableComponent getItemName(final Item item) {
-        return new TranslatableComponent(item.getDescriptionId());
+        return Component.translatable(item.getDescriptionId());
     }
 
     public static MutableComponent getItemName(final ItemStack stack) {
-        return new TranslatableComponent(stack.getDescriptionId());
+        return Component.translatable(stack.getDescriptionId());
     }
 
     @Nullable

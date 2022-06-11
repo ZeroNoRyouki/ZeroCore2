@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,7 +37,6 @@ import net.minecraftforge.client.model.data.IModelData;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockVariantsModel
@@ -62,7 +62,7 @@ public class BlockVariantsModel
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction renderSide,
-                                    Random rand, IModelData data) {
+                                    RandomSource rand, IModelData data) {
 
         if (data.hasProperty(GenericProperties.ID) && data.hasProperty(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
             return this.getBlock(data).getQuads(GenericProperties.getVariantIndex(data), state, renderSide, rand, data);
@@ -109,7 +109,7 @@ public class BlockVariantsModel
         }
 
         List<BakedQuad> getQuads(final int variantIndex, @Nullable BlockState state, @Nullable Direction renderSide,
-                                 Random rand, IModelData data) {
+                                 RandomSource rand, IModelData data) {
 
             if (null == renderSide && this._noGeneralQuads) {
                 return Collections.emptyList();

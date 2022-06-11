@@ -1120,8 +1120,7 @@ public final class ModRenderHelper {
             }
         }
 
-        bufferBuilder.end();
-        BufferUploader.end(bufferBuilder);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
@@ -1184,8 +1183,7 @@ public final class ModRenderHelper {
             }
         }
 
-        bufferBuilder.end();
-        BufferUploader.end(bufferBuilder);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
@@ -1248,8 +1246,7 @@ public final class ModRenderHelper {
             }
         }
 
-        bufferBuilder.end();
-        BufferUploader.end(bufferBuilder);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
@@ -1312,8 +1309,7 @@ public final class ModRenderHelper {
             }
         }
 
-        bufferBuilder.end();
-        BufferUploader.end(bufferBuilder);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         RenderSystem.disableBlend();
     }
 
@@ -1576,9 +1572,7 @@ public final class ModRenderHelper {
         bufferbuilder.vertex(matrix, (float)x2, (float)y2, (float)blitOffset).uv(maxU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y1, (float)blitOffset).uv(maxU, minV).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)blitOffset).uv(minU, minV).endVertex();
-        bufferbuilder.end();
-        //RenderSystem.enableAlphaTest();
-        BufferUploader.end(bufferbuilder);
+        BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
     private static void blitSprite(final Matrix4f matrix, final int x1, final int x2, final int y1, final int y2,
@@ -1593,9 +1587,7 @@ public final class ModRenderHelper {
         bufferbuilder.vertex(matrix, (float)x2, (float)y2, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(maxU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y1, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(maxU, minV).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(minU, minV).endVertex();
-        bufferbuilder.end();
-        //RenderSystem.enableAlphaTest();
-        BufferUploader.end(bufferbuilder);
+        BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
     // copied from AbstractGui::innerBlit(PoseStack matrixStack, int x1, int x2, int y1, int y2, int blitOffset, int uWidth, int vHeight, float uOffset, float vOffset, int textureWidth, int textureHeight)
@@ -1647,8 +1639,7 @@ public final class ModRenderHelper {
         bufferbuilder.vertex(matrix, (float)maxX, (float)maxY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.vertex(matrix, (float)maxX, (float)minY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.vertex(matrix, (float)minX, (float)minY, zLevel).color(r, g, b, a).endVertex();
-        bufferbuilder.end();
-        BufferUploader.end(bufferbuilder);
+        BufferUploader.drawWithShader(bufferbuilder.end());
         RenderSystem.enableTexture();
         RenderSystem.disableBlend();
     }

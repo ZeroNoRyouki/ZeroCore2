@@ -29,7 +29,6 @@ import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -39,7 +38,6 @@ import java.util.function.IntFunction;
 public class ManyToOneRecipeSerializer<IngredientT, Result, RecipeIngredient extends IRecipeIngredient<IngredientT>,
                                         RecipeResult extends IRecipeResult<Result>,
                                         Recipe extends AbstractManyToOneRecipe<IngredientT, Result, RecipeIngredient, RecipeResult>>
-        extends ForgeRegistryEntry<RecipeSerializer<?>>
         implements RecipeSerializer<Recipe> {
 
     public ManyToOneRecipeSerializer(final AbstractManyToOneRecipe.IRecipeFactory<IngredientT, Result, RecipeIngredient, RecipeResult, Recipe> recipeFactory,

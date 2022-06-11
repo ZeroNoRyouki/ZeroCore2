@@ -19,13 +19,12 @@
 package it.zerono.mods.zerocore.lib.recipe.result;
 
 import com.google.gson.JsonElement;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.Objects;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 public class ItemStackRecipeResult
     implements IRecipeResult<ItemStack> {
@@ -57,7 +56,7 @@ public class ItemStackRecipeResult
      */
     @Override
     public ResourceLocation getId() {
-        return Objects.requireNonNull(this._result.getItem().getRegistryName());
+        return CodeHelper.getObjectId(this._result.getItem());
     }
 
     /**

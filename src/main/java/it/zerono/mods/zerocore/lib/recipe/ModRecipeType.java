@@ -22,7 +22,6 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -30,6 +29,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,8 +49,8 @@ public class ModRecipeType<Recipe extends ModRecipe>
         s_types.forEach(ModRecipeType::invalidateCache);
     }
 
-    public static void onRegisterRecipes() {
-        s_types.forEach(type -> Registry.register(Registry.RECIPE_TYPE, type._id, type));
+    public static <Recipe extends ModRecipe> void onRegisterRecipes(final BiConsumer<ResourceLocation, RecipeType<?>> register) {
+        s_types.forEach(type -> register.accept(type._id, type));
     }
 
     public List<Recipe> getRecipes() {

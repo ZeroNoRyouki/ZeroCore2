@@ -19,12 +19,11 @@
 package it.zerono.mods.zerocore.lib.recipe.result;
 
 import com.google.gson.JsonElement;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
-
-import java.util.Objects;
 
 public class FluidStackRecipeResult
         implements IRecipeResult<FluidStack> {
@@ -48,7 +47,7 @@ public class FluidStackRecipeResult
      */
     @Override
     public ResourceLocation getId() {
-        return Objects.requireNonNull(this._result.getFluid().getRegistryName());
+        return CodeHelper.getObjectId(this._result.getFluid());
     }
 
     /**

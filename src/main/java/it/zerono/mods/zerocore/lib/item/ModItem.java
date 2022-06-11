@@ -18,10 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.item;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 @SuppressWarnings({"WeakerAccess"})
 public class ModItem extends Item {
@@ -39,6 +38,6 @@ public class ModItem extends Item {
     }
 
     public static Component getNameForTranslation(final Item item) {
-        return new TranslatableComponent(item.getDescriptionId());
+        return Component.translatable(item.getDescriptionId());
     }
 }

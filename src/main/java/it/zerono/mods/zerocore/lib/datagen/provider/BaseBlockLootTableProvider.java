@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.datagen.provider;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.datagen.LootTableType;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -39,7 +40,6 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public class BaseBlockLootTableProvider
@@ -108,7 +108,7 @@ public class BaseBlockLootTableProvider
 
     private void addDrop(final Block block, final LootPoolEntryContainer.Builder<?> entry) {
 
-        final ResourceLocation id = Objects.requireNonNull(block.getRegistryName());
+        final ResourceLocation id = CodeHelper.getObjectId(block);
 
         this.add(id, LootTable.lootTable()
                 .withPool(LootPool.lootPool()

@@ -38,13 +38,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -57,6 +61,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
@@ -75,7 +80,7 @@ public final class CodeHelper {
 
     public static final Object[] EMPTY_GENERIC_ARRAY = new Object[0];
 
-    public static final Component TEXT_EMPTY_LINE = TextComponent.EMPTY;
+    public static final Component TEXT_EMPTY_LINE = Component.empty();
 
     public static final Direction[] DIRECTIONS = Direction.values();
     public static final Direction[] POSITIVE_DIRECTIONS;
@@ -131,6 +136,18 @@ public final class CodeHelper {
 
     //region misc
 
+    public static ResourceLocation getObjectId(final Block object) {
+        return Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(object));
+    }
+
+    public static ResourceLocation getObjectId(final Item object) {
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(object));
+    }
+
+    public static ResourceLocation getObjectId(final Fluid object) {
+        return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(object));
+    }
+
     /**
      * Return a reference time for the system
      */
@@ -138,7 +155,7 @@ public final class CodeHelper {
         return Util.getNanos();
     }
 
-    public static Random fakeRandom() {
+    public static RandomSource fakeRandom() {
 
         s_fakeRandom.setSeed(42);
         return s_fakeRandom;
@@ -792,14 +809,14 @@ public final class CodeHelper {
 
     @OnlyIn(Dist.CLIENT)
     public static Component i18nFormatComponent(final String translateKey, Object... parameters) {
-        return new TextComponent(I18n.get(translateKey, parameters));
+        return Component.literal(I18n.get(translateKey, parameters));
     }
 
     /**
      * MC-Version independent wrapper around PlayerEntity::addChatMessage()
      */
     public static void sendChatMessage(final Player sender, final Component component) {
-        sender.sendMessage(component, sender.getUUID());
+        sender.sendSystemMessage(component);
     }
 
     /**
@@ -1001,12 +1018,12 @@ public final class CodeHelper {
     private static final long UNSIGNED_MASK = 0x7FFFFFFFFFFFFFFFL;
 
     private static final Int2ObjectMap<String> s_siPrefixes;
-    private static final Random s_fakeRandom;
+    private static final RandomSource s_fakeRandom;
     private static final Map<Direction, List<Direction>> s_perpendicularDirections;
 
     static {
 
-        s_fakeRandom = new Random();
+        s_fakeRandom = RandomSource.create();
 
         final Map<Integer, String> prefixes = Maps.newHashMap();
 

@@ -22,10 +22,11 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.datagen.LootTableType;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -34,7 +35,6 @@ import net.minecraft.world.level.storage.loot.LootTables;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Objects;
 
 @SuppressWarnings("unsued")
 public class BaseLootTableProvider
@@ -55,7 +55,7 @@ public class BaseLootTableProvider
     }
 
     protected void add(final Block block, final LootTable.Builder builder) {
-        this.add(Objects.requireNonNull(block.getRegistryName()), builder);
+        this.add(CodeHelper.getObjectId(block), builder);
     }
 
     protected void add(final ResourceLocation id, final LootTable.Builder builder) {
@@ -75,7 +75,7 @@ public class BaseLootTableProvider
      * Performs this provider's action.
      */
     @Override
-    public void run(HashCache cache) {
+    public void run(CachedOutput cache) {
 
         this.generateTables();
         this._tables.forEach((id, builder) -> this.writeTable(cache, id,
@@ -93,13 +93,13 @@ public class BaseLootTableProvider
     //endregion
     //region internals
 
-    private void writeTable(final HashCache cache, final ResourceLocation id, final LootTable table) {
+    private void writeTable(final CachedOutput cache, final ResourceLocation id, final LootTable table) {
 
         final Path path = this._generator.getOutputFolder().resolve("data/" + id.getNamespace() +
                 "/loot_tables/" + this.getType().getSubFolderName() + "/" + id.getPath() + ".json");
 
         try {
-            DataProvider.save(GSON, cache, LootTables.serialize(table), path);
+            DataProvider.saveStable(cache, LootTables.serialize(table), path);
         } catch (IOException ex) {
             Log.LOGGER.error(Log.CORE, "Loot table provider - couldn't write tables at {}", path, ex);
         }

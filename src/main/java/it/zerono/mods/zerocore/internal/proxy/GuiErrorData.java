@@ -26,7 +26,6 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.functional.NonNullIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
@@ -123,7 +122,7 @@ class GuiErrorData
 
                         if (null != errorPosition) {
                             builder.add(RichText.builder(maxTextWidth)
-                                    .textLines(Lists.newArrayList(new TextComponent(String.format("@0 %d, %d, %d",
+                                    .textLines(Lists.newArrayList(Component.literal(String.format("@0 %d, %d, %d",
                                             errorPosition.getX(), errorPosition.getY(), errorPosition.getZ()))))
                                     .objects(Lists.newArrayList(Items.COMPASS))
                                     .defaultColour(Colour.WHITE)

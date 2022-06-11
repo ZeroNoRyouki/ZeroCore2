@@ -31,6 +31,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -49,7 +50,6 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -287,7 +287,7 @@ public final class WorldHelper {
                                                                        int x, int y, int z,
                                                                        int offsetX, int offsetY, int offsetZ) {
 
-        final Random rand = world.random;
+        final RandomSource rand = world.random;
         int howMany = Mth.nextInt(rand, minCount, maxCount);
         double motionX, motionY, motionZ, pX, pY, pZ, px1, px2, py1, py2, pz1, pz2;
 

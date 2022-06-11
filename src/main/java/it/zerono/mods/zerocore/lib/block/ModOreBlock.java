@@ -18,14 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.block;
 
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-
-import java.util.Random;
-
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
-
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 public class ModOreBlock
     extends ModBlock {
 
@@ -39,14 +36,14 @@ public class ModOreBlock
     //region Block
 
     @Override
-    public int getExpDrop(BlockState state, net.minecraft.world.level.LevelReader reader, BlockPos pos, int fortune, int silktouch) {
-        return silktouch == 0 ? this.getExperience(RANDOM) : 0;
+    public int getExpDrop(BlockState state, LevelReader reader, RandomSource random, BlockPos pos, int fortune, int silktouch) {
+        return silktouch == 0 ? this.getExperience(random) : 0;
     }
 
     //endregion
     //region internals
 
-    protected int getExperience(Random rand) {
+    protected int getExperience(final RandomSource rand) {
         return Mth.nextInt(rand, this._minXP, this._maxXP);
     }
 

@@ -31,8 +31,6 @@ import it.zerono.mods.zerocore.lib.client.text.BindableTextComponent;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
@@ -57,18 +55,18 @@ public class FluidBar
         final ImmutableList.Builder<Component> tipsBuilder = ImmutableList.builder();
 
         tipsBuilder.add(
-                new TranslatableComponent(titleTooltipLine).setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
+                Component.translatable(titleTooltipLine).setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
                 CodeHelper.TEXT_EMPTY_LINE,
-                new TranslatableComponent("gui.zerocore.base.control.fluidbar.line2").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE),
-                new TranslatableComponent("gui.zerocore.base.control.fluidbar.line3a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslatableComponent("gui.zerocore.base.control.fluidbar.line3b",
+                Component.translatable("gui.zerocore.base.control.fluidbar.line2").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE),
+                Component.translatable("gui.zerocore.base.control.fluidbar.line3a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
+                        .append(Component.translatable("gui.zerocore.base.control.fluidbar.line3b",
                                 CodeHelper.formatAsMillibuckets((float)maxValue))),
-                new TranslatableComponent("gui.zerocore.base.control.fluidbar.line4a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslatableComponent("gui.zerocore.base.control.fluidbar.line4b"))
+                Component.translatable("gui.zerocore.base.control.fluidbar.line4a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
+                        .append(Component.translatable("gui.zerocore.base.control.fluidbar.line4b"))
         );
 
         if (!Strings.isNullOrEmpty(optionalTooltipLine)) {
-            tipsBuilder.add(new TranslatableComponent(optionalTooltipLine));
+            tipsBuilder.add(Component.translatable(optionalTooltipLine));
         }
 
         this._bar.setTooltips(tipsBuilder.build(), ImmutableList.of(fluidNameText, valueText, percentageText));
@@ -81,11 +79,11 @@ public class FluidBar
     //region internals
 
     private Component getValueText(final double amount) {
-        return new TextComponent(CodeHelper.formatAsMillibuckets((float)amount)).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
+        return Component.literal(CodeHelper.formatAsMillibuckets((float)amount)).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
     }
 
     private Component getPercentageText(final double amount) {
-        return new TextComponent(String.format("%d", (int)((amount / this._bar.getMaxValue()) * 100))).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
+        return Component.literal(String.format("%d", (int)((amount / this._bar.getMaxValue()) * 100))).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
     }
 
     private void setFluidSprite(final FluidStack stack) {

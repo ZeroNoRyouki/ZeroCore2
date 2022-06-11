@@ -25,9 +25,8 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
@@ -35,6 +34,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
@@ -43,19 +43,19 @@ public final class FluidHelper {
     public static final IFluidHandler EMPTY_FLUID_HANDLER = EmptyFluidHandler.INSTANCE;
 
     public static ResourceLocation getFluidId(final Fluid fluid) {
-        return Objects.requireNonNull(fluid.getRegistryName());
+        return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(fluid));
     }
 
     public static ResourceLocation getFluidId(final FluidStack stack) {
-        return Objects.requireNonNull(stack.getFluid().getRegistryName());
+        return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(stack.getFluid()));
     }
 
     public static MutableComponent getFluidName(final Fluid fluid) {
-        return new TranslatableComponent(fluid.getAttributes().getTranslationKey());
+        return Component.translatable(fluid.getAttributes().getTranslationKey());
     }
 
     public static MutableComponent getFluidName(final FluidStack stack) {
-        return stack.isEmpty() ? new TextComponent("") : getFluidName(stack.getFluid());
+        return stack.isEmpty() ? Component.literal("") : getFluidName(stack.getFluid());
     }
 
     /**
@@ -142,7 +142,7 @@ public final class FluidHelper {
     }
 
     public static String toStringHelper(final FluidStack stack) {
-        return "FluidStack: " + stack.getAmount() + ' ' + stack.getFluid().getRegistryName();
+        return "FluidStack: " + stack.getAmount() + ' ' + getFluidId(stack.getFluid());
     }
 
     //region internals

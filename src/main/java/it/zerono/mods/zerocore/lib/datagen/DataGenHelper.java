@@ -18,8 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.datagen;
 
-import net.minecraft.world.item.Item;
+import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 
@@ -68,8 +69,8 @@ public final class DataGenHelper {
 
     //region internals
 
-    private static String itemName(Item item) {
-        return item.getRegistryName().getPath();
+    private static String itemName(final Item item) {
+        return ItemHelper.getItemId(item).getPath();
     }
 
     private static ResourceLocation defaultItemTexture(ItemModelProvider provider, final Item item) {

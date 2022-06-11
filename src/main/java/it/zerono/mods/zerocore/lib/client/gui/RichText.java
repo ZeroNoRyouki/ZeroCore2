@@ -35,7 +35,6 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -547,7 +546,7 @@ public class RichText
         }
 
         protected ITextChunk chunk(final StringBuilder builder, final Style style) {
-            return this.chunk(new TextComponent(builder.toString()).setStyle(style));
+            return this.chunk(Component.literal(builder.toString()).setStyle(style));
         }
 
         protected ITextChunk chunk(final String text) {

@@ -25,10 +25,9 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.recipe.AbstractOneToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;
@@ -36,7 +35,6 @@ import java.util.function.Function;
 public class OneToOneRecipeSerializer<Ingredient, Result, RecipeIngredient extends IRecipeIngredient<Ingredient>,
                                       RecipeResult extends IRecipeResult<Result>,
                                       Recipe extends AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
-        extends ForgeRegistryEntry<RecipeSerializer<?>>
         implements RecipeSerializer<Recipe> {
 
     public OneToOneRecipeSerializer(final AbstractOneToOneRecipe.IRecipeFactory<Ingredient, Result, RecipeIngredient, RecipeResult, Recipe> recipeFactory,

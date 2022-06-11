@@ -23,10 +23,11 @@ import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
 import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundChatPacket;
+import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -60,8 +61,11 @@ public class ServerProxy implements IProxy {
     @Override
     public void sendPlayerStatusMessage(final Player player, final Component message) {
 
-        if (player instanceof ServerPlayer) {
-            ((ServerPlayer) player).connection.send(new ClientboundChatPacket(message, ChatType.GAME_INFO, player.getUUID()));
+        if (player instanceof ServerPlayer sp) {
+
+            final Registry<ChatType> registry = sp.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
+
+            sp.connection.send(new ClientboundSystemChatPacket(message, registry.getId(registry.get(ChatType.GAME_INFO))));
         }
     }
 

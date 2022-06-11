@@ -28,8 +28,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -74,9 +72,9 @@ public class DebugToolItem
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
 
-        tooltip.add(new TranslatableComponent("zerocore:debugTool.block.tooltip1"));
-        tooltip.add(new TranslatableComponent("zerocore:debugTool.block.tooltip2", ChatFormatting.ITALIC.toString()));
-        tooltip.add(new TranslatableComponent("zerocore:debugTool.block.tooltip3", ChatFormatting.GREEN,
+        tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip1"));
+        tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip2", ChatFormatting.ITALIC.toString()));
+        tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip3", ChatFormatting.GREEN,
                 ChatFormatting.GRAY.toString() + ChatFormatting.ITALIC.toString()));
     }
 
@@ -114,7 +112,7 @@ public class DebugToolItem
                 .map(te -> (IDebuggable)te)
                 .map(debuggee -> MessagesPool.build(debuggee, side))
                 .map(pool -> this.sendMessages(player,
-                        new TextComponent(String.format("%1$s side debug analysis report of Tile Entity at %2$d, %3$d, %4$d",
+                        Component.literal(String.format("%1$s side debug analysis report of Tile Entity at %2$d, %3$d, %4$d",
                                 CodeHelper.getWorldSideName(world), pos.getX(), pos.getY(), pos.getZ())), pool))
                 .filter(result -> result)
                 .isPresent()) {
@@ -136,7 +134,7 @@ public class DebugToolItem
 
         if (pool.isNotEmpty()) {
 
-            CodeHelper.sendChatMessage(player, new TextComponent("--------------------------------------------------"));
+            CodeHelper.sendChatMessage(player, Component.literal("--------------------------------------------------"));
             CodeHelper.sendChatMessage(player, header);
             pool.forEach(message -> CodeHelper.sendChatMessage(player, message));
             return true;
@@ -259,7 +257,7 @@ public class DebugToolItem
 
             if (1 == other._messages.size()) {
 
-                this.add(new TextComponent("").append(label).append(" ").append(other._messages.get(0)));
+                this.add(Component.literal("").append(label).append(" ").append(other._messages.get(0)));
 
             } else {
 
@@ -269,15 +267,15 @@ public class DebugToolItem
         }
 
         private MutableComponent createPadding(final int depth) {
-            return new TextComponent("                    ".substring(0, Math.min(20, depth)));
+            return Component.literal("                    ".substring(0, Math.min(20, depth)));
         }
 
         private Component getFormattedTextComponent(final String format, final Object... parameters) {
 
             if (parameters.length > 0) {
-                return new TranslatableComponent(format, parameters);
+                return Component.translatable(format, parameters);
             } else {
-                return new TextComponent(format);
+                return Component.literal(format);
             }
         }
 

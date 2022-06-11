@@ -46,7 +46,6 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.fml.LogicalSide;
 
 import javax.annotation.Nullable;
@@ -65,7 +64,7 @@ public class ValidationError implements IDebuggable {
     }
 
     public Component getChatMessage() {
-        return new TranslatableComponent(this._resourceKey, _parameters);
+        return Component.translatable(this._resourceKey, _parameters);
     }
 
     @Nullable

@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.render.buffer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 public class VertexBuilderWrapper
     implements VertexConsumer {
@@ -72,6 +73,11 @@ public class VertexBuilderWrapper
     @Override
     public void unsetDefaultColor() {
         this._builder.unsetDefaultColor();
+    }
+
+    @Override
+    public VertexFormat getVertexFormat() {
+        return this._builder.getVertexFormat();
     }
 
     //endregion

@@ -28,7 +28,6 @@ import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -216,7 +215,7 @@ public class Window<C extends ModContainer>
 
         if (null != this._mouseOver) {
             CodeHelper.reportErrorToPlayer(Objects.requireNonNull(Minecraft.getInstance().player), null,
-                    new TextComponent(this._mouseOver.getName()));
+                    Component.literal(this._mouseOver.getName()));
         }
     }
 

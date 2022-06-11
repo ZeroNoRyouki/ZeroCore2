@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -118,10 +117,6 @@ public enum Mods {
 
     public <T> Optional<T> flatMap(Supplier<Optional<T>> supplier) {
         return this.isPresent() ? supplier.get() : Optional.empty();
-    }
-
-    public boolean owns(IForgeRegistryEntry<?> entry) {
-        return this.isPresent() && null != entry.getRegistryName() && this.match(entry.getRegistryName().getNamespace());
     }
 
     public void imc(Mods sender, String method, Supplier<?> thing) {

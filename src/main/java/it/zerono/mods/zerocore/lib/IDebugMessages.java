@@ -19,7 +19,6 @@
 package it.zerono.mods.zerocore.lib;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.function.BiConsumer;
@@ -32,7 +31,7 @@ public interface IDebugMessages {
      * @param text the unlocalized text to add
      */
     default void addUnlocalized(String text) {
-        this.add(new TextComponent(text));
+        this.add(Component.literal(text));
     }
 
     /**
@@ -76,7 +75,7 @@ public interface IDebugMessages {
      * @param label      the unlocalized label for the other IDebuggable messages
      */
     default void add(LogicalSide side, IDebuggable debuggable, String label) {
-        this.add(side, debuggable, new TextComponent(label));
+        this.add(side, debuggable, Component.literal(label));
     }
 
     /**
@@ -106,7 +105,7 @@ public interface IDebugMessages {
     void add(LogicalSide side, IDebuggable debuggable, String labelFormatStringResourceKey, Object... labelParameters);
 
     default <T> void add(T debuggee, BiConsumer<IDebugMessages, T> consumer, String label) {
-        this.add(debuggee, consumer, new TextComponent(label));
+        this.add(debuggee, consumer, Component.literal(label));
     }
 
     <T> void add(T debuggee, BiConsumer<IDebugMessages, T> consumer, Component label);

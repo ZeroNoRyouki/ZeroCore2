@@ -24,7 +24,6 @@ import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -129,7 +128,7 @@ public class ModBlock
     }
     
     public static Component getNameForTranslation(final Block block) {
-        return new TranslatableComponent(block.getDescriptionId());
+        return Component.translatable(block.getDescriptionId());
     }
 
     public static int lightValueFrom(final float value) {

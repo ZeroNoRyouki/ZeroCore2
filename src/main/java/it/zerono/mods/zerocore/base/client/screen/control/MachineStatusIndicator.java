@@ -26,7 +26,6 @@ import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -63,7 +62,7 @@ public class MachineStatusIndicator
     }
 
     public void setTooltips(final boolean status, final String singleLineKey) {
-        this.setTooltips(status, ObjectLists.singleton(new TranslatableComponent(singleLineKey)));
+        this.setTooltips(status, ObjectLists.singleton(Component.translatable(singleLineKey)));
     }
 
     public void setTooltips(final boolean status, final List<Component> lines, final List<Object> objects) {

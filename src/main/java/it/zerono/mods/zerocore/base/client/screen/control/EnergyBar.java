@@ -29,8 +29,6 @@ import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -52,17 +50,17 @@ public class EnergyBar
         final ImmutableList.Builder<Component> tipsBuilder = ImmutableList.builder();
 
         tipsBuilder.add(
-                new TranslatableComponent("gui.zerocore.base.control.energybar.line1").setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
+                Component.translatable("gui.zerocore.base.control.energybar.line1").setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
                 CodeHelper.TEXT_EMPTY_LINE,
-                new TranslatableComponent("gui.zerocore.base.control.energybar.line2a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslatableComponent("gui.zerocore.base.control.energybar.line2b",
+                Component.translatable("gui.zerocore.base.control.energybar.line2a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
+                        .append(Component.translatable("gui.zerocore.base.control.energybar.line2b",
                                 CodeHelper.formatAsHumanReadableNumber(maxValue.doubleValue(), system.getUnit()))),
-                new TranslatableComponent("gui.zerocore.base.control.energybar.line3a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslatableComponent("gui.zerocore.base.control.energybar.line3b"))
+                Component.translatable("gui.zerocore.base.control.energybar.line3a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
+                        .append(Component.translatable("gui.zerocore.base.control.energybar.line3b"))
         );
 
         if (!Strings.isNullOrEmpty(optionalTooltipLine)) {
-            tipsBuilder.add(new TranslatableComponent(optionalTooltipLine));
+            tipsBuilder.add(Component.translatable(optionalTooltipLine));
         }
 
         this._bar.setTooltips(tipsBuilder.build(), ImmutableList.of(valueText, percentageText));
@@ -74,7 +72,7 @@ public class EnergyBar
     //region internals
 
     private Component getValueText(final WideAmount amount) {
-        return new TextComponent(CodeHelper.formatAsHumanReadableNumber(amount.doubleValue(),
+        return Component.literal(CodeHelper.formatAsHumanReadableNumber(amount.doubleValue(),
                 this._system.getUnit())).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
     }
 
@@ -82,7 +80,7 @@ public class EnergyBar
 
         final double percentage = amount.percentage(WideAmount.from(this._bar.getMaxValue()));
 
-        return new TextComponent(String.format("%d", (int)(percentage * 100))).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
+        return Component.literal(String.format("%d", (int)(percentage * 100))).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
     }
 
     private final EnergySystem _system;

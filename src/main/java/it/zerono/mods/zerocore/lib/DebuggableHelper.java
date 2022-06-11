@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib;
 
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -31,7 +31,7 @@ public final class DebuggableHelper {
         if (stack.isEmpty()) {
             messages.addUnlocalized("ItemStack: EMPTY");
         } else {
-            messages.add(new TextComponent("ItemStack: [")
+            messages.add(Component.literal("ItemStack: [")
                     .append(stack.getHoverName())
                     .append("] ")
                     .append(Integer.toString(stack.getCount()))
@@ -45,7 +45,7 @@ public final class DebuggableHelper {
         if (stack.isEmpty()) {
             messages.addUnlocalized("FluidStack: EMPTY");
         } else {
-            messages.add(new TextComponent("FluidStack: [")
+            messages.add(Component.literal("FluidStack: [")
                     .append(stack.getDisplayName())
                     .append("] ")
                     .append(Integer.toString(stack.getAmount())));
@@ -60,7 +60,7 @@ public final class DebuggableHelper {
 
         for (int i = 0; i < slots; ++i) {
             messages.add(handler.getStackInSlot(i), DebuggableHelper::getDebugMessagesFor,
-                    new TextComponent(String.format("[%d]", i)));
+                    Component.literal(String.format("[%d]", i)));
         }
     }
 
@@ -72,7 +72,7 @@ public final class DebuggableHelper {
 
         for (int i = 0; i < tanks; ++i) {
             messages.add(handler.getFluidInTank(i), DebuggableHelper::getDebugMessagesFor,
-                    new TextComponent(String.format("[%d]", i)));
+                    Component.literal(String.format("[%d]", i)));
         }
     }
 }

@@ -41,7 +41,6 @@ import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModTileContainer;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -125,7 +124,7 @@ public abstract class AbstractIOPortScreen<Controller extends AbstractCuboidMult
 
         // -- label
 
-        final Label directionButtonsLabel = new Label(this, "directionButtonsLabel", new TranslatableComponent("gui.zerocore.base.screen.ioport.mode"));
+        final Label directionButtonsLabel = new Label(this, "directionButtonsLabel", Component.translatable("gui.zerocore.base.screen.ioport.mode"));
 
         directionButtonsLabel.setLayoutEngineHint(TabularLayoutEngine.hintBuilder()
                 .setColumnsSpan(2)

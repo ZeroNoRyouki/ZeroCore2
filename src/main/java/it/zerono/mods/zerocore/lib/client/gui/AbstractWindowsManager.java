@@ -27,7 +27,6 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
@@ -139,7 +138,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
         if (null != Minecraft.getInstance().player) {
             CodeHelper.sendStatusMessage(Minecraft.getInstance().player,
-                    new TextComponent(String.format("GUI debug hover-frame is now %s", s_debugFrame ? "enabled" : "disabled")));
+                    Component.literal(String.format("GUI debug hover-frame is now %s", s_debugFrame ? "enabled" : "disabled")));
         }
     }
 

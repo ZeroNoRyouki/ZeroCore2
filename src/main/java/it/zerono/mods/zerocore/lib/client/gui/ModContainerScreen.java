@@ -37,7 +37,6 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -203,7 +202,7 @@ public class ModContainerScreen<C extends ModContainer>
 
     public static int parseTooltipsPopupMaxWidthFromLang(final String langKey, final int defaultValue) {
 
-        final Component text = new TranslatableComponent(langKey);
+        final Component text = Component.translatable(langKey);
 
         try {
 

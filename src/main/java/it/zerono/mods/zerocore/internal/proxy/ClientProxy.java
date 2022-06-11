@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.internal.proxy;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.internal.InternalCommand;
-import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.GuiHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
@@ -31,6 +30,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -207,7 +207,7 @@ public class ClientProxy
     private void onGameOverlayRender(final RenderGameOverlayEvent.Post event) {
 
         if (!isGuiOpen()) {
-            this.paintErrorMessage(event.getMatrixStack());
+            this.paintErrorMessage(event.getPoseStack());
         }
     }
 
@@ -228,7 +228,7 @@ public class ClientProxy
             final Vec3 projectedView = event.getCamera().getPosition();
 
             ModRenderHelper.paintVoxelShape(event.getPoseStack(), Shapes.block(),
-                    event.getMultiBufferSource().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
+                    event.getMultiBufferSource().getBuffer(RenderType.lines()/*RenderTypes.ERROR_BLOCK_HIGHLIGHT*/),
                     position.getX() - projectedView.x(), position.getY() - projectedView.y(),
                     position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
 

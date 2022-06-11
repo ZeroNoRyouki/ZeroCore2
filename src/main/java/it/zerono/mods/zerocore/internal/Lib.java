@@ -23,14 +23,14 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import it.zerono.mods.zerocore.lib.tag.TagList;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -43,7 +43,7 @@ public final class Lib {
         IEventBus bus;
 
         bus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
-        bus.addGenericListener(RecipeSerializer.class, Lib::onRegisterRecipeSerializer);
+        bus.addListener(Lib::onRegisterRecipeSerializer);
 
         bus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
         bus.addListener(Lib::onAddReloadListener);
@@ -93,8 +93,8 @@ public final class Lib {
     }
 
     @SubscribeEvent
-    public static void onRegisterRecipeSerializer(final RegistryEvent.Register<RecipeSerializer<?>> event) {
-        ModRecipeType.onRegisterRecipes();
+    public static void onRegisterRecipeSerializer(final RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.RECIPE_TYPES, helper -> ModRecipeType.onRegisterRecipes(helper::register));
     }
 
     @SubscribeEvent
