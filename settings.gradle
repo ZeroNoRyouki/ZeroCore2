@@ -1,1 +1,8 @@
-rootProject.name = "ZeroCore2-1.18"
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+}
+
+rootProject.name = "ZeroCore2-1.19"
