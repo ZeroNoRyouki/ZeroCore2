@@ -29,18 +29,15 @@ public final class RenderTypes
     extends RenderType {
 
     public static final RenderType ERROR_BLOCK_HIGHLIGHT = create("zc_mb_error_block",
-            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.LINES, 256, false, false,
+            DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 256, false, false,
             RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_LINES_SHADER)
                     .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(8)))
+                    .setLayeringState(VIEW_OFFSET_Z_LAYERING)
                     .setTransparencyState(NO_TRANSPARENCY)
-//                    .setAlphaState(DEFAULT_ALPHA)
-                    .setTextureState(NO_TEXTURE)
-                    .setLightmapState(NO_LIGHTMAP)
-                    .setOverlayState(NO_OVERLAY)
-                    .setCullState(CULL)
-                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .setOutputState(ITEM_ENTITY_TARGET)
                     .setWriteMaskState(COLOR_DEPTH_WRITE)
-//                    .setFogState(NO_FOG)
+                    .setCullState(NO_CULL)
                     .createCompositeState(false));
 
     //region internals

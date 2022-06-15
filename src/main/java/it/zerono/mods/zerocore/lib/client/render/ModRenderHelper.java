@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
@@ -37,6 +38,8 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -475,10 +478,13 @@ public final class ModRenderHelper {
     //endregion
     //region voxel shapes helpers
 
-    public static void paintVoxelShape(final PoseStack matrix, final VoxelShape shape,  final VertexConsumer vertexBuilder,
-                                       final double originX, final double originY, final double originZ, final Colour colour) {
+    public static void paintVoxelShape(final VoxelShape shape, final PoseStack matrix, final MultiBufferSource bufferSource,
+                                       final RenderType renderType, final double originX, final double originY,
+                                       final double originZ, final Colour colour) {
 
+        final VertexConsumer buffer = bufferSource.getBuffer(renderType);
         final Matrix4f m = matrix.last().pose();
+        final Matrix3f normal = matrix.last().normal();
         final float red = colour.glRed();
         final float green = colour.glGreen();
         final float blue = colour.glBlue();
@@ -486,8 +492,22 @@ public final class ModRenderHelper {
 
         shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
 
-            vertexBuilder.vertex(m, (float)(x1 + originX), (float)(y1 + originY), (float)(z1 + originZ)).color(red, green, blue, alpha).endVertex();
-            vertexBuilder.vertex(m, (float)(x2 + originX), (float)(y2 + originY), (float)(z2 + originZ)).color(red, green, blue, alpha).endVertex();
+            float deltaX = (float) (x2 - x1);
+            float deltaY = (float) (y2 - y1);
+            float deltaZ = (float) (z2 - z1);
+            float len = Mth.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+            deltaX = deltaX / len;
+            deltaY = deltaY / len;
+            deltaZ = deltaZ / len;
+
+            buffer.vertex(m, (float) (x1 + originX), (float) (y1 + originY), (float) (z1 + originZ))
+                    .color(red, green, blue, alpha)
+                    .normal(normal, deltaX, deltaY, deltaZ)
+                    .endVertex();
+            buffer.vertex(m, (float) (x2 + originX), (float) (y2 + originY), (float) (z2 + originZ))
+                    .color(red, green, blue, alpha)
+                    .normal(normal, deltaX, deltaY, deltaZ)
+                    .endVertex();
         });
     }
 
