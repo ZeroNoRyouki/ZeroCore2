@@ -227,9 +227,8 @@ public class ClientProxy
 
             final Vec3 projectedView = event.getCamera().getPosition();
 
-            ModRenderHelper.paintVoxelShape(event.getPoseStack(), Shapes.block(),
-                    event.getMultiBufferSource().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT),
-                    position.getX() - projectedView.x(), position.getY() - projectedView.y(),
+            ModRenderHelper.paintVoxelShape(Shapes.block(), event.getPoseStack(), event.getMultiBufferSource(),
+                    RenderTypes.ERROR_BLOCK_HIGHLIGHT, position.getX() - projectedView.x(), position.getY() - projectedView.y(),
                     position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
 
             event.setCanceled(true);
