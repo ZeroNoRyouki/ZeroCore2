@@ -60,6 +60,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -68,6 +69,7 @@ import net.minecraftforge.fluids.FluidStack;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.IntFunction;
 
 @OnlyIn(Dist.CLIENT)
@@ -130,19 +132,19 @@ public final class ModRenderHelper {
     }
 
     public static TextureAtlasSprite getFluidStillSprite(final Fluid fluid) {
-        return ModRenderHelper.getTextureSprite(fluid.getAttributes().getStillTexture());
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(fluid).getStillTexture()));
     }
 
-    public static TextureAtlasSprite getFluidStillSprite(final FluidStack fluid) {
-        return ModRenderHelper.getTextureSprite(fluid.getFluid().getAttributes().getStillTexture(fluid));
+    public static TextureAtlasSprite getFluidStillSprite(final FluidStack stack) {
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(stack.getFluid()).getStillTexture(stack)));
     }
 
     public static TextureAtlasSprite getFluidFlowingSprite(final Fluid fluid) {
-        return ModRenderHelper.getTextureSprite(fluid.getAttributes().getFlowingTexture());
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(fluid).getFlowingTexture()));
     }
 
-    public static TextureAtlasSprite getFluidFlowingSprite(final FluidStack fluid) {
-        return ModRenderHelper.getTextureSprite(fluid.getFluid().getAttributes().getFlowingTexture(fluid));
+    public static TextureAtlasSprite getFluidFlowingSprite(final FluidStack stack) {
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(stack.getFluid()).getFlowingTexture(stack)));
     }
 
     public static TextureAtlasSprite getMissingTexture(final ResourceLocation atlasName) {
@@ -156,33 +158,64 @@ public final class ModRenderHelper {
     @Nullable
     public static TextureAtlasSprite getFluidOverlaySprite(final Fluid fluid) {
 
-        final ResourceLocation rl = fluid.getAttributes().getOverlayTexture();
+        final ResourceLocation rl = RenderProperties.get(fluid).getOverlayTexture();
 
         return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
     }
 
     @Nullable
-    public static TextureAtlasSprite getFluidOverlaySprite(final FluidStack fluid) {
+    public static TextureAtlasSprite getFluidOverlaySprite(final FluidStack stack) {
 
-        final ResourceLocation rl = fluid.getFluid().getAttributes().getOverlayTexture();
+        final ResourceLocation rl = RenderProperties.get(stack.getFluid()).getOverlayTexture(stack);
 
         return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
+    }
+
+    public static int getFluidTint(final Fluid fluid) {
+        return RenderProperties.get(fluid).getColorTint();
+    }
+
+    public static int getFluidTint(final FluidStack stack) {
+        return RenderProperties.get(stack.getFluid()).getColorTint(stack);
+    }
+    public static Colour getFluidTintColour(final Fluid fluid) {
+        return Colour.fromARGB(getFluidTint(fluid));
+    }
+
+    public static Colour getFluidTintColour(final FluidStack stack) {
+        return Colour.fromARGB(getFluidTint(stack));
     }
 
     public static ISprite getStillFluidSprite(final Fluid fluid) {
         return buildSprite(getFluidStillSprite(fluid), null);
     }
 
+    public static ISprite getStillFluidSprite(final FluidStack stack) {
+        return buildSprite(getFluidStillSprite(stack), null);
+    }
+
     public static ISprite getStillFluidSpriteWithOverlay(final Fluid fluid) {
         return buildSprite(getFluidStillSprite(fluid), getFluidOverlaySprite(fluid));
+    }
+
+    public static ISprite getStillFluidSpriteWithOverlay(final FluidStack stack) {
+        return buildSprite(getFluidStillSprite(stack), getFluidOverlaySprite(stack));
     }
 
     public static ISprite getFlowingFluidSprite(final Fluid fluid) {
         return buildSprite(getFluidFlowingSprite(fluid), null);
     }
 
+    public static ISprite getFlowingFluidSprite(final FluidStack stack) {
+        return buildSprite(getFluidFlowingSprite(stack), null);
+    }
+
     public static ISprite getFlowingFluidSpriteWithOverlay(final Fluid fluid) {
         return buildSprite(getFluidFlowingSprite(fluid), getFluidOverlaySprite(fluid));
+    }
+
+    public static ISprite getFlowingFluidSpriteWithOverlay(final FluidStack stack) {
+        return buildSprite(getFluidFlowingSprite(stack), getFluidOverlaySprite(stack));
     }
 
     private static ISprite buildSprite(final TextureAtlasSprite main, @Nullable final TextureAtlasSprite overlay) {

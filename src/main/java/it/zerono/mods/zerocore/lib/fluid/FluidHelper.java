@@ -31,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
@@ -41,6 +42,7 @@ import java.util.Objects;
 public final class FluidHelper {
 
     public static final IFluidHandler EMPTY_FLUID_HANDLER = EmptyFluidHandler.INSTANCE;
+    public static final int BUCKET_VOLUME = FluidType.BUCKET_VOLUME;
 
     public static ResourceLocation getFluidId(final Fluid fluid) {
         return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(fluid));
@@ -51,11 +53,11 @@ public final class FluidHelper {
     }
 
     public static MutableComponent getFluidName(final Fluid fluid) {
-        return Component.translatable(fluid.getAttributes().getTranslationKey());
+        return Component.translatable(fluid.getFluidType().getDescriptionId());
     }
 
     public static MutableComponent getFluidName(final FluidStack stack) {
-        return stack.isEmpty() ? Component.literal("") : getFluidName(stack.getFluid());
+        return Component.translatable(stack.getFluid().getFluidType().getDescriptionId(stack));
     }
 
     /**

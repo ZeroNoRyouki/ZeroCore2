@@ -32,6 +32,7 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -97,7 +98,7 @@ public class FluidBar
 
             final Fluid fluid = stack.getFluid();
             final ISprite fluidSprite = ModRenderHelper.getStillFluidSprite(fluid);
-            final Colour fluidTint = Colour.fromARGB(fluid.getAttributes().getColor());
+            final Colour fluidTint = Colour.fromARGB(ModRenderHelper.getFluidTint(stack));
 
             this._bar.setBarSprite(fluidSprite);
             this._bar.setBarSpriteTint(fluidTint);
