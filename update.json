@@ -86,6 +86,8 @@
         "1.19-2.1.19":"- This REALLY fix the crash that happens after a block is highlighted when a error is displayed in the GUI.\r\n- Bumped version to 2.1.19"
         ,
         "1.19-2.1.20":"- Added back CC-Tweaked support\r\n- Support for the Fluids API of Forge\r\n- Updated Forge to version 41.0.38\r\n- Updated CC-Tweaked to version 1.19-1.100.7\r\n- Bumped version to 2.1.20"
+        ,
+        "1.19-2.1.21":"- Added back Patchouli support\r\n- Updated Patchouli to version 1.19-72\r\n- Bumped version to 2.1.21"
     },
     "promos":{
         "1.16.3-latest":"1.16.4-2.0.19",
@@ -102,7 +104,7 @@
         "1.18.1-recommended":"1.18.1-2.1.11",
         "1.18.2-latest":"1.18.2-2.1.17",
         "1.18.2-recommended":"1.18.2-2.1.17",
-        "1.19-latest":"1.19-2.1.20",
-        "1.19-recommended":"1.19-2.1.20"
+        "1.19-latest":"1.19-2.1.21",
+        "1.19-recommended":"1.19-2.1.21"
     }
 }
