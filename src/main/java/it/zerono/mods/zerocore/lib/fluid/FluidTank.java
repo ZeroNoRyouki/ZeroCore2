@@ -55,7 +55,7 @@ public class FluidTank
             return;
         }
 
-        this._content = Objects.requireNonNull(stack);
+        this._content = stack;
         this.onChange(wasEmpty ? ChangeType.Added : (isNowEmpty ? ChangeType.Removed : ChangeType.Replaced), 0);
     }
 
