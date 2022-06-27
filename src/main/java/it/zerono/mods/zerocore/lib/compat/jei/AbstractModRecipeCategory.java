@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.compat.jei;
 
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.category.IRecipeCategory;
@@ -26,7 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
-public abstract class AbstractModRecipeCategory<T extends ModRecipe>
+public abstract class AbstractModRecipeCategory<T>
         implements IRecipeCategory<T> {
 
     protected AbstractModRecipeCategory(final ResourceLocation id, final ITextComponent title, final ItemStack icon,
