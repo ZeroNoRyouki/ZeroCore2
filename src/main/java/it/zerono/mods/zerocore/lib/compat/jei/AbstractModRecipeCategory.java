@@ -1,6 +1,6 @@
 /*
  *
- * ModRecipeCategory.java
+ * AbstractModRecipeCategory.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.compat.jei;
 
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.category.IRecipeCategory;
@@ -26,7 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-public abstract class AbstractModRecipeCategory<T extends ModRecipe>
+public abstract class AbstractModRecipeCategory<T>
         implements IRecipeCategory<T> {
 
     protected AbstractModRecipeCategory(final ResourceLocation id, final Component title, final ItemStack icon,
