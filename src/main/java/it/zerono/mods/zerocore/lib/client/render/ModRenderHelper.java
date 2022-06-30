@@ -109,17 +109,14 @@ public final class ModRenderHelper {
     }
 
     public static void bindTexture(final ResourceLocation textureLocation) {
-//        Minecraft.getInstance().getTextureManager().bindForSetup(textureLocation);
         RenderSystem.setShaderTexture(0, textureLocation);
     }
 
     public static void bindTexture(final ISprite sprite) {
-//        Minecraft.getInstance().getTextureManager().bindForSetup(sprite.getTextureMap().getTextureLocation());
         RenderSystem.setShaderTexture(0, sprite.getTextureMap().getTextureLocation());
     }
 
     public static void bindBlocksTexture() {
-//        ModRenderHelper.bindTexture(InventoryMenu.BLOCK_ATLAS);
         RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
     }
 
@@ -1454,9 +1451,7 @@ public final class ModRenderHelper {
 
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
-        //RenderSystem.disableAlphaTest();
         RenderSystem.defaultBlendFunc();
-//        RenderSystem.shadeModel(GL11.GL_SMOOTH);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         Tesselator tessellator = Tesselator.getInstance();
@@ -1483,9 +1478,7 @@ public final class ModRenderHelper {
 
         tessellator.end();
 
-//        RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
-        //RenderSystem.enableAlphaTest();
         RenderSystem.enableTexture();
     }
 
@@ -1640,6 +1633,7 @@ public final class ModRenderHelper {
         bufferbuilder.vertex(matrix, (float)x2, (float)y2, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(maxU, maxV).endVertex();
         bufferbuilder.vertex(matrix, (float)x2, (float)y1, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(maxU, minV).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)blitOffset).color(tint.R, tint.G, tint.B, tint.A).uv(minU, minV).endVertex();
+
         BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
@@ -1700,8 +1694,6 @@ public final class ModRenderHelper {
     //endregion
     //endregion
     //region common paint tasks
-
-    private static final Colour ITEMSTACK_HIGHLIGHT = Colour.fromARGB(0x80ffffff);
 
     public static boolean paintItemStack(final PoseStack matrix, final ItemStack stack, final int x, final int y,
                                          final String text, final boolean highlight) {
@@ -1947,10 +1939,8 @@ public final class ModRenderHelper {
 
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
-        //RenderSystem.disableAlphaTest();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
-        //RenderSystem.shadeModel(GL11.GL_SMOOTH);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -1962,9 +1952,7 @@ public final class ModRenderHelper {
 
         tessellator.end();
 
-        //RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
-        //RenderSystem.enableAlphaTest();
         RenderSystem.enableTexture();
     }
 
@@ -1998,10 +1986,8 @@ public final class ModRenderHelper {
 
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
-        //RenderSystem.disableAlphaTest();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
-        //RenderSystem.shadeModel(GL11.GL_SMOOTH);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -2013,9 +1999,7 @@ public final class ModRenderHelper {
 
         tessellator.end();
 
-        //RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
-        //RenderSystem.enableAlphaTest();
         RenderSystem.enableTexture();
     }
 
@@ -2037,11 +2021,9 @@ public final class ModRenderHelper {
 
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
-        //RenderSystem.disableAlphaTest();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
                 GlStateManager.DestFactor.ZERO.value);
-        //RenderSystem.shadeModel(GL11.GL_SMOOTH);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         final Tesselator tessellator = Tesselator.getInstance();
@@ -2065,9 +2047,7 @@ public final class ModRenderHelper {
 
         tessellator.end();
 
-        //RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
-        //RenderSystem.enableAlphaTest();
         RenderSystem.enableTexture();
     }
 
@@ -2090,11 +2070,9 @@ public final class ModRenderHelper {
 
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
-        //RenderSystem.disableAlphaTest();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
                 GlStateManager.DestFactor.ZERO.value);
-        //RenderSystem.shadeModel(GL11.GL_SMOOTH);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         final Tesselator tessellator = Tesselator.getInstance();
@@ -2111,19 +2089,13 @@ public final class ModRenderHelper {
 
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
 
-//        builder.vertex(pose, (float)x1, (float)y1, (float)zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-//        builder.vertex(pose, (float)x2, (float)y2, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
-//        builder.vertex(pose, (float)x3, (float)y3, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
-
         builder.vertex(pose, (float)x2, (float)y2, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
         builder.vertex(pose, (float)x1, (float)y1, (float)zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(pose, (float)x3, (float)y3, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
 
         tessellator.end();
 
-        //RenderSystem.shadeModel(GL11.GL_FLAT);
         RenderSystem.disableBlend();
-        //RenderSystem.enableAlphaTest();
         RenderSystem.enableTexture();
     }
 
@@ -2178,7 +2150,6 @@ public final class ModRenderHelper {
     //region GL helpers
 
     public static void glSetColour(final Colour colour) {
-//        RenderSystem.color4f(colour.glRed(), colour.glGreen(), colour.glBlue(), colour.glAlpha());
         RenderSystem.setShaderColor(colour.glRed(), colour.glGreen(), colour.glBlue(), colour.glAlpha());
     }
 
@@ -2198,10 +2169,6 @@ public final class ModRenderHelper {
     public static Matrix4f glPerspectiveMatrix(final float fov, final float aspect, final float zNear, final float zFar) {
         return Matrix4f.perspective(fov, aspect, zNear, zFar);
     }
-
-//    public static void glPerspective(final float fov, final float aspect, final float zNear, final float zFar) {
-//        RenderSystem.multMatrix(glPerspectiveMatrix(fov, aspect, zNear, zFar));
-//    }
 
     //region internals
 

@@ -29,7 +29,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.LogicalSide;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 import java.util.function.BiPredicate;
 
 public class FluidTank
@@ -55,7 +54,7 @@ public class FluidTank
             return;
         }
 
-        this._content = Objects.requireNonNull(stack);
+        this._content = stack;
         this.onChange(wasEmpty ? ChangeType.Added : (isNowEmpty ? ChangeType.Removed : ChangeType.Replaced), 0);
     }
 
