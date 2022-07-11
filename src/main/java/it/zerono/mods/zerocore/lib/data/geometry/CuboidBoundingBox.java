@@ -18,18 +18,22 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
+import com.google.common.collect.AbstractIterator;
 import it.unimi.dsi.fastutil.ints.IntComparator;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraftforge.common.util.NonNullFunction;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
-public class CuboidBoundingBox {
+public class CuboidBoundingBox
+        implements Iterable<BlockPos> {
 
     public static final CuboidBoundingBox EMPTY;
 
@@ -50,54 +54,78 @@ public class CuboidBoundingBox {
     }
 
     public BlockPos getMin() {
-        return this._min;
+        return this._min.immutable();
     }
 
     public BlockPos getMax() {
-        return this._max;
+        return this._max.immutable();
+    }
+
+    public int getMinX() {
+        return this._min.getX();
+    }
+
+    public int getMinY() {
+        return this._min.getY();
+    }
+
+    public int getMinZ() {
+        return this._min.getZ();
+    }
+
+    public int getMaxX() {
+        return this._max.getX();
+    }
+
+    public int getMaxY() {
+        return this._max.getY();
+    }
+
+    public int getMaxZ() {
+        return this._max.getZ();
     }
 
     public AxisAlignedBB getAABB() {
-
-        if (null == this._aabb) {
-            this._aabb = new AxisAlignedBB(this._min, this._max);
-        }
-
-        return this._aabb;
+        return new AxisAlignedBB(this._min, this._max);
     }
 
     public boolean isEmpty() {
-        return this == EMPTY || 0 == this._min.compareTo(this._max);
+        return this == EMPTY;
     }
 
+    /**
+     * Add a position to this bounding box.
+     *
+     * @param position the position to add.
+     * @return the modified bounding box.
+     */
     public CuboidBoundingBox add(final BlockPos position) {
 
-        if (position.compareTo(this._min) < 0) {
-
-            this._min.set(position);
-            this._aabb = null;
-
-        }
-
-        if (position.compareTo(this._max) > 0) {
-
-            this._max.set(position);
-            this._aabb = null;
-        }
-
+        adjustPosition(this._min, position, Math::min);
+        adjustPosition(this._max, position, Math::max);
         return this;
     }
 
+    /**
+     * Remove a position from the bounding box.
+     *
+     * @param position the position to remove.
+     * @return the modified bounding box.
+     */
+    public CuboidBoundingBox remove(final BlockPos position) {
+        return EMPTY;
+    }
+
+    /**
+     * Combine the provided bounding box with this one.
+     *
+     * @param other the bounding box to combine.
+     * @return the modified bounding box.
+     */
     public CuboidBoundingBox combine(final CuboidBoundingBox other) {
 
-        if (other._min.compareTo(this._min) < 0) {
-            this._min.set(other._min);
-        }
-
-        if (other._max.compareTo(this._max) > 0) {
-            this._max.set(other._max);
-        }
-
+        adjustPosition(this._min, other._min, Math::min);
+        adjustPosition(this._max, other._max, Math::max);
         return this;
     }
 
@@ -106,9 +134,9 @@ public class CuboidBoundingBox {
     }
 
     public boolean contains(final int x, final int y, final int z) {
-        return x >= this._min.getX() && x < this._max.getX() &&
-                y >= this._min.getY() && y < this._max.getY() &&
-                z >= this._min.getZ() && z < this._max.getZ();
+        return x >= this._min.getX() && x <= this._max.getX() &&
+                y >= this._min.getY() && y <= this._max.getY() &&
+                z >= this._min.getZ() && z <= this._max.getZ();
     }
 
     public int getLengthX() {
@@ -121,6 +149,22 @@ public class CuboidBoundingBox {
 
     public int getLengthZ() {
         return this._max.getZ() - this._min.getZ() + 1;
+    }
+
+    public int getLength(final Direction.Axis axis) {
+
+        switch (axis) {
+
+            default:
+            case X:
+                return this.getLengthX();
+
+            case Y:
+                return this.getLengthY();
+
+            case Z:
+                return this.getLengthZ();
+        }
     }
 
     public int getVolume() {
@@ -157,6 +201,53 @@ public class CuboidBoundingBox {
         consumer.accept(minRemapper.apply(this.getMin()), maxRemapper.apply(this.getMax()));
     }
 
+    //region Iterable<BlockPos>
+
+    @Override
+    public Iterator<BlockPos> iterator() {
+        return new AbstractIterator<BlockPos>() {
+
+            @Override
+            protected BlockPos computeNext() {
+
+                ++this._currentX;
+                if (this._currentX > this._maxX) {
+
+                    this._currentX = this._minX;
+                    ++this._currentZ;
+
+                    if (this._currentZ > this._maxZ) {
+
+                        this._currentZ = this._minZ;
+                        ++this._currentY;
+
+                        if (this._currentY > this._maxY) {
+                            return this.endOfData();
+                        }
+                    }
+                }
+
+                return this._cursor.set(this._currentX, this._currentY, this._currentZ);
+            }
+
+            //region internals
+
+            final BlockPos.Mutable _cursor = new BlockPos.Mutable();
+            final int _minX = _min.getX();
+            final int _minY = _min.getY();
+            final int _minZ = _min.getZ();
+            final int _maxX = _max.getX();
+            final int _maxY = _max.getY();
+            final int _maxZ = _max.getZ();
+            int _currentX = _minX - 1;
+            int _currentY = _minY;
+            int _currentZ = _minZ;
+
+            //endregion
+        };
+    }
+
+    //endregion
     //region Object
 
     @Override
@@ -184,7 +275,7 @@ public class CuboidBoundingBox {
     }
 
     public String toString() {
-        return String.format("Bounding box %s -> %s", CodeHelper.toString(this._min), CodeHelper.toString(this._max));
+        return this.isEmpty() ? "EMPTY" : String.format("%s -> %s", CodeHelper.toString(this._min), CodeHelper.toString(this._max));
     }
 
     //endregion
@@ -210,7 +301,6 @@ public class CuboidBoundingBox {
 
     private final BlockPos.Mutable _min;
     private final BlockPos.Mutable _max;
-    private AxisAlignedBB _aabb;
 
     static {
 
@@ -224,6 +314,16 @@ public class CuboidBoundingBox {
             @Override
             public CuboidBoundingBox add(final BlockPos position) {
                 return new CuboidBoundingBox(position, position);
+            }
+
+            @Override
+            public CuboidBoundingBox remove(final BlockPos position) {
+                return EMPTY;
+            }
+
+            @Override
+            public CuboidBoundingBox combine(final CuboidBoundingBox other) {
+                return new CuboidBoundingBox(other._min, other._max);
             }
 
             @Override
