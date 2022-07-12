@@ -1,13 +1,13 @@
 package it.zerono.mods.zerocore.lib.fluid;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.IFluidTypeRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
 public class SimpleFluidTypeRenderProperties
-        implements IFluidTypeRenderProperties {
+        implements IClientFluidTypeExtensions {
 
     public SimpleFluidTypeRenderProperties(final int tint, final ResourceLocation stillTexture, final ResourceLocation flowingTexture,
                                            final @Nullable ResourceLocation overlayTexture) {
@@ -37,7 +37,7 @@ public class SimpleFluidTypeRenderProperties
     }
 
     @Override
-    public int getColorTint() {
+    public int getTintColor() {
         return this._tint;
     }
 

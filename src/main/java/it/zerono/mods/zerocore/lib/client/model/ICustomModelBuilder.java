@@ -18,11 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
-import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 
 public interface ICustomModelBuilder {
 
-    void onRegisterModels();
+    void onRegisterModels(ModelEvent.RegisterAdditional event);
 
-    void onBakeModels(ModelBakeEvent event);
+    void onBakeModels(BakingCompleted event);
 }

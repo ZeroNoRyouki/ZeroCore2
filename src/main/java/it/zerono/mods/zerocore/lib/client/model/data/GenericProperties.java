@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.model.data;
 
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 
 import java.util.Objects;
@@ -36,13 +36,13 @@ public final class GenericProperties {
     public static final ModelProperty<Integer> VARIANT_INDEX = new NamedModelProperty<>("VARIANT_INDEX", Objects::nonNull);
 
     @SuppressWarnings("ConstantConditions")
-    public static int getId(final IModelData data) {
-        return data.getData(ID);
+    public static int getId(final ModelData data) {
+        return data.get(ID);
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static int getVariantIndex(final IModelData data) {
-        return data.getData(VARIANT_INDEX);
+    public static int getVariantIndex(final ModelData data) {
+        return data.get(VARIANT_INDEX);
     }
 
     private GenericProperties() {

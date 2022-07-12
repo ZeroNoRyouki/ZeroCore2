@@ -19,13 +19,11 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 public class ISpriteAwareVertexBuilder implements VertexConsumer {
 
-    public ISpriteAwareVertexBuilder(final VertexFormat format, final VertexConsumer buffer, final ISprite sprite) {
+    public ISpriteAwareVertexBuilder(final VertexConsumer buffer, final ISprite sprite) {
 
-        this._format = format;
         this._builder = buffer;
         this._sprite = sprite;
     }
@@ -75,14 +73,8 @@ public class ISpriteAwareVertexBuilder implements VertexConsumer {
         this._builder.unsetDefaultColor();
     }
 
-    @Override
-    public VertexFormat getVertexFormat() {
-        return this._format;
-    }
-
     //region internals
 
-    private final VertexFormat _format;
     private final VertexConsumer _builder;
     private final ISprite _sprite;
 

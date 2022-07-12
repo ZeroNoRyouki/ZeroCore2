@@ -23,6 +23,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.zerono.mods.zerocore.lib.client.model.data.GenericProperties;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -31,8 +32,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -62,33 +62,33 @@ public class BlockVariantsModel
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction renderSide,
-                                    RandomSource rand, IModelData data) {
+                                    RandomSource rand, ModelData data, @Nullable RenderType renderType) {
 
-        if (data.hasProperty(GenericProperties.ID) && data.hasProperty(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
-            return this.getBlock(data).getQuads(GenericProperties.getVariantIndex(data), state, renderSide, rand, data);
+        if (data.has(GenericProperties.ID) && data.has(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
+            return this.getBlock(data).getQuads(GenericProperties.getVariantIndex(data), state, renderSide, rand, data, renderType);
         }
 
-        return ModRenderHelper.getMissingModel().getQuads(state, renderSide, rand, EmptyModelData.INSTANCE);
+        return ModRenderHelper.getMissingModel().getQuads(state, renderSide, rand, ModelData.EMPTY, renderType);
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon(final IModelData data) {
+    public TextureAtlasSprite getParticleIcon(final ModelData data) {
 
-        if (data.hasProperty(GenericProperties.ID) && data.hasProperty(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
+        if (data.has(GenericProperties.ID) && data.has(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
             return this.getBlock(data).getParticleTexture(GenericProperties.getVariantIndex(data), data);
         }
 
-        return ModRenderHelper.getMissingModel().getParticleIcon(EmptyModelData.INSTANCE);
+        return ModRenderHelper.getMissingModel().getParticleIcon(ModelData.EMPTY);
     }
 
     //endregion
     //region internals
 
-    private boolean containsBlock(final IModelData data) {
-        return data.hasProperty(GenericProperties.ID) && this._entries.containsKey(GenericProperties.getId(data));
+    private boolean containsBlock(final ModelData data) {
+        return data.has(GenericProperties.ID) && this._entries.containsKey(GenericProperties.getId(data));
     }
 
-    private BlockEntry getBlock(final IModelData data) {
+    private BlockEntry getBlock(final ModelData data) {
         return this._entries.get(GenericProperties.getId(data));
     }
 
@@ -109,16 +109,16 @@ public class BlockVariantsModel
         }
 
         List<BakedQuad> getQuads(final int variantIndex, @Nullable BlockState state, @Nullable Direction renderSide,
-                                 RandomSource rand, IModelData data) {
+                                 RandomSource rand, ModelData data, @Nullable RenderType renderType) {
 
             if (null == renderSide && this._noGeneralQuads) {
                 return Collections.emptyList();
             } else {
-                return this._variants.get(variantIndex).getQuads(state, renderSide, rand, data);
+                return this._variants.get(variantIndex).getQuads(state, renderSide, rand, data, renderType);
             }
         }
 
-        TextureAtlasSprite getParticleTexture(final int variantIndex, IModelData data) {
+        TextureAtlasSprite getParticleTexture(final int variantIndex, ModelData data) {
             return this._variants.get(variantIndex).getParticleIcon(data);
         }
 

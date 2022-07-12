@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.render;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -60,17 +59,17 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.RenderProperties;
-import net.minecraftforge.client.model.ForgeModelBakery;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.IntFunction;
+
+;
 
 @OnlyIn(Dist.CLIENT)
 @SuppressWarnings("WeakerAccess")
@@ -91,9 +90,8 @@ public final class ModRenderHelper {
         return Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getModelManager();
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static UnbakedModel getModel(final ResourceLocation location) {
-        return ForgeModelBakery.instance().getModelOrMissing(location);
+        return Minecraft.getInstance().getModelManager().getModelBakery().getModel(location);
     }
 
     public static BakedModel getModel(final BlockState state) {
@@ -129,19 +127,19 @@ public final class ModRenderHelper {
     }
 
     public static TextureAtlasSprite getFluidStillSprite(final Fluid fluid) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(fluid).getStillTexture()));
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(fluid).getStillTexture()));
     }
 
     public static TextureAtlasSprite getFluidStillSprite(final FluidStack stack) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(stack.getFluid()).getStillTexture(stack)));
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(stack.getFluid()).getStillTexture(stack)));
     }
 
     public static TextureAtlasSprite getFluidFlowingSprite(final Fluid fluid) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(fluid).getFlowingTexture()));
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(fluid).getFlowingTexture()));
     }
 
     public static TextureAtlasSprite getFluidFlowingSprite(final FluidStack stack) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(RenderProperties.get(stack.getFluid()).getFlowingTexture(stack)));
+        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(stack.getFluid()).getFlowingTexture(stack)));
     }
 
     public static TextureAtlasSprite getMissingTexture(final ResourceLocation atlasName) {
@@ -155,7 +153,7 @@ public final class ModRenderHelper {
     @Nullable
     public static TextureAtlasSprite getFluidOverlaySprite(final Fluid fluid) {
 
-        final ResourceLocation rl = RenderProperties.get(fluid).getOverlayTexture();
+        final ResourceLocation rl = IClientFluidTypeExtensions.of(fluid).getOverlayTexture();
 
         return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
     }
@@ -163,17 +161,17 @@ public final class ModRenderHelper {
     @Nullable
     public static TextureAtlasSprite getFluidOverlaySprite(final FluidStack stack) {
 
-        final ResourceLocation rl = RenderProperties.get(stack.getFluid()).getOverlayTexture(stack);
+        final ResourceLocation rl = IClientFluidTypeExtensions.of(stack.getFluid()).getOverlayTexture(stack);
 
         return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
     }
 
     public static int getFluidTint(final Fluid fluid) {
-        return RenderProperties.get(fluid).getColorTint();
+        return IClientFluidTypeExtensions.of(fluid).getTintColor();
     }
 
     public static int getFluidTint(final FluidStack stack) {
-        return RenderProperties.get(stack.getFluid()).getColorTint(stack);
+        return IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(stack);
     }
     public static Colour getFluidTintColour(final Fluid fluid) {
         return Colour.fromARGB(getFluidTint(fluid));
@@ -244,61 +242,6 @@ public final class ModRenderHelper {
         return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
     }
 
-    @Deprecated // use splitLines(Font, FormattedText, int)
-    public static List<FormattedText> wrapLines(final FormattedText line, final int maxLineWidth, final Font font) {
-        return wrapLines(line, Style.EMPTY, maxLineWidth, font);
-    }
-
-    @Deprecated // use splitLines(Font, FormattedText, int, Style)
-    public static List<FormattedText> wrapLines(final FormattedText line, final Style lineStyle,
-                                                  final int maxLineWidth, final Font font) {
-        return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
-    }
-
-    @Deprecated // use splitLines(Font, String, int, Style)
-    public static List<String> wrapLines(final String text, final int maxLineWidth, final Font font) {
-
-        final List<String> lines = Lists.newLinkedList();
-        final int spaceWidth = font.width(" ");
-
-        final String[] tokens = text.split("\\s+");
-        final Integer[] tokenWidths = Arrays.stream(tokens).map(font::width).toArray(Integer[]::new);
-
-        StringBuilder wrappedLine = new StringBuilder(text.length());
-        int lineWidth = 0;
-
-        for (int i = 0; i < tokens.length; ++i) {
-
-            final String token = tokens[i];
-            final int tokenWidth = tokenWidths[i];
-
-            if (lineWidth + tokenWidth + spaceWidth > maxLineWidth) {
-
-                lines.add(wrappedLine.toString());
-                wrappedLine = new StringBuilder(text.length());
-                lineWidth = 0;
-            }
-
-            if (i < tokens.length - 1 && (lineWidth + tokenWidth + spaceWidth + tokenWidths[i + 1] <= maxLineWidth)) {
-
-                wrappedLine.append(token);
-                wrappedLine.append(" ");
-                lineWidth += tokenWidth + spaceWidth;
-
-            } else {
-
-                wrappedLine.append(token);
-                lineWidth += tokenWidth;
-            }
-        }
-
-        if (wrappedLine.length() > 0) {
-            lines.add(wrappedLine.toString());
-        }
-
-        return lines;
-    }
-
     //region render BakedQuad(s)
 
     /**
@@ -316,7 +259,7 @@ public final class ModRenderHelper {
         final PoseStack.Pose entry = matrix.last();
 
         for (final BakedQuad quad : quads) {
-            builder.putBulkData(entry, quad, 1, 1, 1, combinedLight, combinedOverlay, true);
+            builder.putBulkData(entry, quad, 1.0f, 1.0f, 1.0f, 1.0f, combinedLight, combinedOverlay, true);
         }
     }
 
@@ -338,7 +281,7 @@ public final class ModRenderHelper {
 
         for (final BakedQuad quad : quads) {
 
-            float red, green, blue;
+            float red, green, blue, alpha;
 
             if (quad.isTinted()) {
 
@@ -347,13 +290,14 @@ public final class ModRenderHelper {
                 red = tint.R;
                 green = tint.G;
                 blue = tint.B;
+                alpha = tint.A;
 
             } else {
 
-                red = green = blue = 1;
+                red = green = blue = alpha = 1.0f;
             }
 
-            builder.putBulkData(entry, quad, red, green, blue, combinedLight, combinedOverlay, true);
+            builder.putBulkData(entry, quad, red, green, blue, alpha, combinedLight, combinedOverlay, true);
         }
     }
 
@@ -370,15 +314,16 @@ public final class ModRenderHelper {
      * @param combinedLight
      * @param combinedOverlay
      */
-    public static void renderModel(final BakedModel model, final IModelData data, final PoseStack matrix,
-                                   final VertexConsumer builder, final int combinedLight, final int combinedOverlay) {
+    public static void renderModel(final BakedModel model, final ModelData data, final PoseStack matrix,
+                                   final VertexConsumer builder, final int combinedLight, final int combinedOverlay,
+                                   @Nullable RenderType renderType) {
 
         for (final Direction direction : CodeHelper.DIRECTIONS) {
-            renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data),
+            renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data, renderType),
                     combinedLight, combinedOverlay);
         }
 
-        renderQuads(matrix, builder, model.getQuads(null, null, CodeHelper.fakeRandom(), data),
+        renderQuads(matrix, builder, model.getQuads(null, null, CodeHelper.fakeRandom(), data, renderType),
                 combinedLight, combinedOverlay);
     }
 
@@ -393,16 +338,16 @@ public final class ModRenderHelper {
      * @param combinedOverlay
      * @param quadTintGetter get a Colour to use as a tint for the quad tint index
      */
-    public static void renderModel(final BakedModel model, final IModelData data, final PoseStack matrix,
+    public static void renderModel(final BakedModel model, final ModelData data, final PoseStack matrix,
                                    final VertexConsumer builder, final int combinedLight, final int combinedOverlay,
-                                   final IntFunction<Colour> quadTintGetter) {
+                                   final IntFunction<Colour> quadTintGetter, @Nullable RenderType renderType) {
 
         for (final Direction direction : CodeHelper.DIRECTIONS) {
-            renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data),
+            renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data, renderType),
                     combinedLight, combinedOverlay, quadTintGetter);
         }
 
-        renderQuads(matrix, builder, model.getQuads(null, null, CodeHelper.fakeRandom(), data),
+        renderQuads(matrix, builder, model.getQuads(null, null, CodeHelper.fakeRandom(), data, renderType),
                 combinedLight, combinedOverlay, quadTintGetter);
     }
 

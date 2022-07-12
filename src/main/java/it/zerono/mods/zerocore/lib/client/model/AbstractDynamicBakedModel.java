@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.Flags;
@@ -30,9 +29,11 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
+import net.minecraftforge.client.model.IDynamicBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.pipeline.QuadBakingVertexConsumer;
+
+import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractDynamicBakedModel
@@ -54,14 +55,15 @@ public abstract class AbstractDynamicBakedModel
                                    final ISprite sprite, final Colour colour, final int tintIndex,
                                    final short lightMapU, final short lightMapV) {
 
-        final BakedQuadBuilder builder = builder(sprite, normal, tintIndex);
+        final BakedQuad[] result = new BakedQuad[1];
+        final QuadBakingVertexConsumer builder = builder(quad -> result[0] = quad, sprite, normal, tintIndex);
 
-        createVertex(builder, v1.X, v1.Y, v1.Z, normal, 16, 16, sprite, colour, lightMapU, lightMapV);
-        createVertex(builder, v2.X, v2.Y, v2.Z, normal, 0, 16, sprite, colour, lightMapU, lightMapV);
-        createVertex(builder, v3.X, v3.Y, v3.Z, normal, 0, 0, sprite, colour, lightMapU, lightMapV);
-        createVertex(builder, v4.X, v4.Y, v4.Z, normal, 16, 0, sprite, colour, lightMapU, lightMapV);
+        this.createVertex(builder, v1.X, v1.Y, v1.Z, normal, 16, 16, sprite, colour, lightMapU, lightMapV);
+        this.createVertex(builder, v2.X, v2.Y, v2.Z, normal, 0, 16, sprite, colour, lightMapU, lightMapV);
+        this.createVertex(builder, v3.X, v3.Y, v3.Z, normal, 0, 0, sprite, colour, lightMapU, lightMapV);
+        this.createVertex(builder, v4.X, v4.Y, v4.Z, normal, 16, 0, sprite, colour, lightMapU, lightMapV);
 
-        return builder.build();
+        return result[0];
     }
 
     protected BakedQuad createQuad(final Vector3d v1, final Vector3d v2, final Vector3d v3, final Vector3d v4,
@@ -103,55 +105,16 @@ public abstract class AbstractDynamicBakedModel
                 tintIndex, lightMapU, lightMapV);
     }
 
-    protected void createVertex(BakedQuadBuilder builder, double x, double y, double z, Vector3d normal,
+    protected void createVertex(QuadBakingVertexConsumer builder, double x, double y, double z, Vector3d normal,
                                 float u, float v, ISprite sprite, Colour colour, short lightMapU, short lightMapV) {
 
-        int elementIndex = 0;
+        builder.vertex(x, y, z);
+        builder.color(colour.R, colour.G, colour.B, colour.A);
+        builder.uv(sprite.getInterpolatedU(u), sprite.getInterpolatedV(v));
 
-        for (final VertexFormatElement element : builder.getVertexFormat().getElements()) {
-
-            switch (element.getUsage()) {
-
-                case POSITION:
-                    builder.put(elementIndex, (float)x, (float)y, (float)z);
-                    break;
-
-                case COLOR:
-                    builder.put(elementIndex, colour.R, colour.G, colour.B, colour.A);
-                    break;
-
-                case UV:
-
-                    switch (element.getIndex()) {
-
-                        case 0:
-                            // texture
-                            builder.put(elementIndex, sprite.getInterpolatedU(u), sprite.getInterpolatedV(v));
-                            break;
-
-                        case 2:
-                            // light map
-                            builder.put(elementIndex, lightMapU, lightMapV);
-                            break;
-
-                        default:
-                            builder.put(elementIndex);
-                            break;
-                    }
-
-                    break;
-
-                case NORMAL:
-                    builder.put(elementIndex, (float)normal.X, (float)normal.Y, (float)normal.Z);
-                    break;
-
-                default:
-                    builder.put(elementIndex);
-                    break;
-            }
-
-            ++elementIndex;
-        }
+        builder.uv2(lightMapU, lightMapV);
+        builder.normal((float)normal.X, (float)normal.Y, (float)normal.Z);
+        builder.endVertex();
     }
 
     //region IDynamicBakedModel
@@ -178,7 +141,7 @@ public abstract class AbstractDynamicBakedModel
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return ModRenderHelper.getMissingModel().getParticleIcon(EmptyModelData.INSTANCE);
+        return ModRenderHelper.getMissingModel().getParticleIcon(ModelData.EMPTY);
     }
 
     @Override
@@ -189,16 +152,21 @@ public abstract class AbstractDynamicBakedModel
     //endregion
     //region internals
 
-    protected static BakedQuadBuilder builder(ISprite sprite) {
-        return new BakedQuadBuilder(sprite.getAtlasSprite().orElse(ModRenderHelper.getMissingTexture()));
+    protected static QuadBakingVertexConsumer builder(final Consumer<BakedQuad> quadConsumer, final ISprite sprite) {
+
+        final var builder = new QuadBakingVertexConsumer(quadConsumer);
+
+        builder.setSprite(sprite.getAtlasSprite().orElse(ModRenderHelper.getMissingTexture()));
+        return builder;
     }
 
-    protected static BakedQuadBuilder builder(final ISprite sprite, final Vector3d normal, final int tintIndex) {
+    protected static QuadBakingVertexConsumer builder(final Consumer<BakedQuad> quadConsumer, final ISprite sprite,
+                                                      final Vector3d normal, final int tintIndex) {
 
-        final BakedQuadBuilder builder = builder(sprite);
+        final var builder = builder(quadConsumer, sprite);
 
-        builder.setQuadOrientation(Direction.getNearest(normal.X, normal.Y, normal.Z));
-        builder.setQuadTint(tintIndex);
+        builder.setDirection(Direction.getNearest(normal.X, normal.Y, normal.Z));
+        builder.setTintIndex(tintIndex);
         return builder;
     }
 

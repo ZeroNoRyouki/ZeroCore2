@@ -26,7 +26,7 @@
 //import net.minecraft.util.math.Vec3i;
 //import net.minecraft.world.World;
 //import net.minecraftforge.client.model.ModelDataManager;
-//import net.minecraftforge.client.model.data.EmptyModelData;
+//import net.minecraftforge.client.model.data.ModelData;
 //import net.minecraftforge.client.model.data.IModelData;
 //
 //import javax.annotation.Nullable;
@@ -138,7 +138,7 @@
 //
 //        final IModelData data = ModelDataManager.getModelData(world, position);
 //
-//        return null != data ? data : EmptyModelData.INSTANCE;
+//        return null != data ? data : ModelData.EMPTY;
 //    }
 //
 //    private final List<Entry> _entries;

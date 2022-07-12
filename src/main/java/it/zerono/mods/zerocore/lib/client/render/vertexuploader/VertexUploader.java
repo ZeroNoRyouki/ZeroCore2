@@ -19,18 +19,16 @@
 package it.zerono.mods.zerocore.lib.client.render.vertexuploader;
 
 import com.google.common.collect.Maps;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.zerono.mods.zerocore.internal.Log;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Vector3f;
 import it.zerono.mods.zerocore.lib.client.render.IVertexSequence;
 import it.zerono.mods.zerocore.lib.client.render.IVertexSource;
 import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.data.gfx.LightMap;
 import it.zerono.mods.zerocore.lib.data.gfx.UV;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Vector3f;
 
 import java.util.List;
 import java.util.Map;
@@ -39,36 +37,31 @@ public class VertexUploader {
 
     public static final VertexUploader INSTANCE = new VertexUploader();
 
-    public void upload(VertexConsumer builder, IVertexSource source) {
-        this.upload(builder, source, DEFAULT_ADAPTER);
+    public void upload(VertexFormat format, VertexConsumer builder, IVertexSource source) {
+        this.upload(format, builder, source, DEFAULT_ADAPTER);
     }
 
-    public void upload(VertexConsumer builder, IVertexSequence sequence) {
-        this.upload(builder, sequence, DEFAULT_ADAPTER);
+    public void upload(VertexFormat format, VertexConsumer builder, IVertexSequence sequence) {
+        this.upload(format, builder, sequence, DEFAULT_ADAPTER);
     }
 
-    public void upload(VertexConsumer builder, List<IVertexSource> sources) {
-        this.upload(builder, sources, DEFAULT_ADAPTER);
+    public void upload(VertexFormat format, VertexConsumer builder, List<IVertexSource> sources) {
+        this.upload(format, builder, sources, DEFAULT_ADAPTER);
     }
 
-    public void upload(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
-        this.getUploaderFor(builder).upload(builder, source, adapter);
+    public void upload(VertexFormat format, VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
+        this.getUploaderFor(format).upload(builder, source, adapter);
     }
 
-    public void upload(VertexConsumer builder, IVertexSequence sequence, ISourceAdapter adapter) {
-        this.upload(builder, sequence.getVertices(), adapter);
+    public void upload(VertexFormat format, VertexConsumer builder, IVertexSequence sequence, ISourceAdapter adapter) {
+        this.upload(format, builder, sequence.getVertices(), adapter);
     }
 
-    public void upload(VertexConsumer builder, List<IVertexSource> sources, ISourceAdapter adapter) {
+    public void upload(VertexFormat format, VertexConsumer builder, List<IVertexSource> sources, ISourceAdapter adapter) {
 
-        final IUploader uploader = this.getUploaderFor(builder);
+        final IUploader uploader = this.getUploaderFor(format);
 
         sources.forEach(source -> uploader.upload(builder, source, adapter));
-//
-//        for (int i = 0; i<4; i++)
-//            uploader.upload(builder, sources.get(i), adapter);
-//
-
     }
 
     //region internals
@@ -80,13 +73,8 @@ public class VertexUploader {
         this._uploaders.put(DefaultVertexFormat.NEW_ENTITY, VertexUploader::entityUploader);
     }
 
-    private IUploader getUploaderFor(VertexConsumer builder) {
-
-        if (builder instanceof BufferBuilder) {
-            return this._uploaders.getOrDefault(((BufferBuilder)builder).getVertexFormat(), VertexUploader::fallBackUploader);
-        }
-
-        return VertexUploader::fallBackUploader;
+    private IUploader getUploaderFor(final VertexFormat format) {
+        return this._uploaders.getOrDefault(format, VertexUploader::fallBackUploader);
     }
 
     private static void fallBackUploader(VertexConsumer builder, IVertexSource source, ISourceAdapter adapter) {
@@ -149,9 +137,6 @@ public class VertexUploader {
         final Colour colour = adapter.getColour(source);
         final LightMap overlay = adapter.getOverlayMap(source);
         final LightMap light = adapter.getLightMap(source);
-
-//        Log.LOGGER.info("UPV p:{} c:{} t:{} o:{} l:{} n:{}", pos, colour, uv, overlay, light, normal);
-        Log.LOGGER.info("UPV {}", source);
 
         builder.vertex(pos.X, pos.Y, pos.Z)
                 .color(colour.R, colour.G, colour.B, colour.A)

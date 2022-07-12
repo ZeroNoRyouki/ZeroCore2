@@ -28,8 +28,7 @@ import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Smelt
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Spotlight;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import vazkii.patchouli.api.IMultiblock;
 import vazkii.patchouli.api.PatchouliAPI;
 import vazkii.patchouli.client.book.template.BookTemplate;
@@ -41,7 +40,7 @@ public class Patchouli {
 
     public static void registerMultiblock(final ResourceLocation id, final IMultiblock multiblock,
                                           final Function<BlockState, BlockState> renderBlockStateMappers,
-                                          final Function<BlockState, IModelData> modelDataMapper) {
+                                          final Function<BlockState, ModelData> modelDataMapper) {
 
         PatchouliAPI.get().registerMultiblock(id, multiblock);
         s_renderBlockStateMappers.put(multiblock, renderBlockStateMappers);
@@ -52,8 +51,8 @@ public class Patchouli {
         return s_renderBlockStateMappers.getOrDefault(multiblock, bs -> bs).apply(blockState);
     }
 
-    public static IModelData getModelDataFor(final IMultiblock multiblock, final BlockState blockState) {
-        return s_modelDataMappers.getOrDefault(multiblock, b -> EmptyModelData.INSTANCE).apply(blockState);
+    public static ModelData getModelDataFor(final IMultiblock multiblock, final BlockState blockState) {
+        return s_modelDataMappers.getOrDefault(multiblock, b -> ModelData.EMPTY).apply(blockState);
     }
 
     public static void initialize() {
@@ -79,7 +78,7 @@ public class Patchouli {
 
     private static boolean s_init = false;
     private static final Map<IMultiblock, Function<BlockState, BlockState>> s_renderBlockStateMappers = Maps.newHashMap();
-    private static final Map<IMultiblock, Function<BlockState, IModelData>> s_modelDataMappers = Maps.newHashMap();
+    private static final Map<IMultiblock, Function<BlockState, ModelData>> s_modelDataMappers = Maps.newHashMap();
 
     //endregion
 }

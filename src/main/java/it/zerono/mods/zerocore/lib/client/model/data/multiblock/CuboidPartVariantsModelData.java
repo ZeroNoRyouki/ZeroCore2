@@ -19,27 +19,38 @@
 package it.zerono.mods.zerocore.lib.client.model.data.multiblock;
 
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
-import it.zerono.mods.zerocore.lib.client.model.data.AbstractModelDataMap;
 import it.zerono.mods.zerocore.lib.client.model.data.GenericProperties;
+import net.minecraftforge.client.model.data.ModelData;
 
-public class CuboidPartVariantsModelData extends AbstractModelDataMap {
+public final class CuboidPartVariantsModelData {
 
-    public CuboidPartVariantsModelData(final int blockId, final int variantIndex, final BlockFacings outwardFacing) {
-
-        this.addProperty(GenericProperties.ID, blockId);
-        this.addProperty(GenericProperties.VARIANT_INDEX, variantIndex);
-        this.addProperty(PartProperties.OUTWARD_FACING, outwardFacing);
+    public static ModelData from(final int blockId, final int variantIndex, final BlockFacings outwardFacing) {
+        return ModelData.builder()
+                .with(GenericProperties.ID, blockId)
+                .with(GenericProperties.VARIANT_INDEX, variantIndex)
+                .with(PartProperties.OUTWARD_FACING, outwardFacing)
+                .build();
     }
 
     public static int hash(final int blockId, final int variantIndex, final BlockFacings outwardFacing) {
         return (variantIndex << 16) | ((blockId & 0xff) << 8) | outwardFacing.value();
     }
 
-    //region Object
+    public static int hash(final ModelData data) {
 
-    @Override
-    public int hashCode() {
-        return hash(GenericProperties.getId(this), GenericProperties.getVariantIndex(this), PartProperties.getOutwardFacing(this));
+        if (!data.has(GenericProperties.ID) || !data.has(GenericProperties.VARIANT_INDEX) ||
+                !data.has(PartProperties.OUTWARD_FACING)) {
+            throw new IllegalArgumentException("The provided model data is missing the required properties");
+        }
+
+        //noinspection ConstantConditions
+        return hash(data.get(GenericProperties.ID), data.get(GenericProperties.VARIANT_INDEX),
+                data.get(PartProperties.OUTWARD_FACING));
+    }
+
+    //region internals
+
+    private CuboidPartVariantsModelData() {
     }
 
     //endregion

@@ -35,14 +35,14 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.DrawSelectionEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @OnlyIn(Dist.CLIENT)
 public class VoxelShapeHighlighter {
 
     @SubscribeEvent
-    public static void onHighlightBlock(final DrawSelectionEvent.HighlightBlock event) {
+    public static void onHighlightBlock(final RenderHighlightEvent.Block event) {
 
         final BlockHitResult result = event.getTarget();
 

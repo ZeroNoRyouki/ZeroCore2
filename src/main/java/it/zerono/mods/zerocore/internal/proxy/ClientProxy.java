@@ -44,8 +44,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.client.event.DrawSelectionEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -204,21 +204,21 @@ public class ClientProxy
         }
     }
 
-    private void onGameOverlayRender(final RenderGameOverlayEvent.Post event) {
+    private void onGameOverlayRender(final RenderGuiOverlayEvent.Post event) {
 
         if (!isGuiOpen()) {
             this.paintErrorMessage(event.getPoseStack());
         }
     }
 
-    private void onGuiDrawScreenEventPost(final ScreenEvent.DrawScreenEvent.Post event) {
+    private void onGuiDrawScreenEventPost(final ScreenEvent.Render.Post event) {
 
         if (isGuiOpen()) {
             this.paintErrorMessage(event.getPoseStack());
         }
     }
 
-    private void onHighlightBlock(final DrawSelectionEvent.HighlightBlock event) {
+    private void onHighlightBlock(final RenderHighlightEvent.Block event) {
 
         final BlockHitResult result = event.getTarget();
         final BlockPos position = result.getBlockPos();

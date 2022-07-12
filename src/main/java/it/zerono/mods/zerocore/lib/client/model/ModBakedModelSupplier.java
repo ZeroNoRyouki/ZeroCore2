@@ -23,9 +23,8 @@ import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ForgeModelBakery;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -58,14 +57,14 @@ public class ModBakedModelSupplier {
     //region event handlers
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onRegisterModels(final ModelRegistryEvent event) {
-        this._toBeRegistered.forEach(ForgeModelBakery::addSpecialModel);
+    public void onRegisterModels(final ModelEvent.RegisterAdditional event) {
+        this._toBeRegistered.forEach(event::register);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onModelBake(final ModelBakeEvent event) {
+    public void onModelBake(final BakingCompleted event) {
 
-        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModelRegistry();
+        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModels();
         final BakedModel missing = ModRenderHelper.getMissingModel();
 
         this._wrappers.forEach((key, value) -> value._cachedModel = modelRegistry.getOrDefault(key, missing));

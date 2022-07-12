@@ -20,12 +20,13 @@ package it.zerono.mods.zerocore.lib.client.model.multiblock;
 
 import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModel;
 import it.zerono.mods.zerocore.lib.client.model.data.multiblock.PartProperties;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -43,13 +44,13 @@ public class CuboidPartVariantsModel extends BlockVariantsModel {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction renderSide,
-                                    RandomSource rand, IModelData data) {
+                                    RandomSource rand, ModelData data, @Nullable RenderType renderType) {
 
-        if (null != renderSide && data.hasProperty(PartProperties.OUTWARD_FACING) && PartProperties.getOutwardFacing(data).except(renderSide) /*.isSet(renderSide)*/) {
-            return this._template.getQuads(state, renderSide, rand, data);
+        if (null != renderSide && data.has(PartProperties.OUTWARD_FACING) && PartProperties.getOutwardFacing(data).except(renderSide)) {
+            return this._template.getQuads(state, renderSide, rand, data, renderType);
         }
 
-        return super.getQuads(state, renderSide, rand, data);
+        return super.getQuads(state, renderSide, rand, data, renderType);
     }
 
     //endregion

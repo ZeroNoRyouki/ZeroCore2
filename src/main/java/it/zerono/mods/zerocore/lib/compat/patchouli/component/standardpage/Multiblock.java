@@ -36,7 +36,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import vazkii.patchouli.api.IMultiblock;
 import vazkii.patchouli.api.IVariable;
 import vazkii.patchouli.client.base.ClientTicker;
@@ -224,12 +224,12 @@ public class Multiblock
 
             final BlockState bs = mb.getBlockState(pos);
             final BlockState renderBlockState = Patchouli.getRenderBlockStateFor(mb, bs);
-            final IModelData renderModelData = Patchouli.getModelDataFor(mb, bs);
+            final ModelData renderModelData = Patchouli.getModelDataFor(mb, bs);
             final VertexConsumer buffer = buffers.getBuffer(ItemBlockRenderTypes.getChunkRenderType(bs));
 
             ms.pushPose();
             ms.translate(pos.getX(), pos.getY(), pos.getZ());
-            blockRenderer.renderBatched(renderBlockState, pos, mb, ms, buffer, false, RAND, renderModelData);
+            blockRenderer.renderBatched(renderBlockState, pos, mb, ms, buffer, false, RAND, renderModelData, null);
             ms.popPose();
         }
     }

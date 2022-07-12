@@ -22,7 +22,7 @@ import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.block.multiblock.IMultiblockPartType;
 import it.zerono.mods.zerocore.lib.client.model.data.NamedModelProperty;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.PartPosition;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 
 import java.util.Objects;
@@ -69,7 +69,7 @@ public final class PartProperties {
     /**
      * The hash of the model data
      */
-    public static final ModelProperty<Function<IModelData, Integer>> MODEL_VARIANT_MAPPER = new NamedModelProperty<>("MODEL_VARIANT_MAPPER", Objects::nonNull);
+    public static final ModelProperty<Function<ModelData, Integer>> MODEL_VARIANT_MAPPER = new NamedModelProperty<>("MODEL_VARIANT_MAPPER", Objects::nonNull);
 
     //endregion
     //region helper functions
@@ -83,8 +83,8 @@ public final class PartProperties {
      * @throws NullPointerException if the model data do not contains a value for this property or it's value is null
      */
     @SuppressWarnings("ConstantConditions")
-    public static int getStateHash(final IModelData data) {
-        return data.getData(STATE_HASH);
+    public static int getStateHash(final ModelData data) {
+        return data.get(STATE_HASH);
     }
 
     /**
@@ -96,8 +96,8 @@ public final class PartProperties {
      * @throws NullPointerException if the model data do not contains a value for this property or it's value is null
      */
     @SuppressWarnings("ConstantConditions")
-    public static boolean getAssembled(final IModelData data) {
-        return data.getData(ASSEMBLED);
+    public static boolean getAssembled(final ModelData data) {
+        return data.get(ASSEMBLED);
     }
 
     /**
@@ -108,8 +108,8 @@ public final class PartProperties {
      * @return value of the TYPE property
      */
     @SuppressWarnings("ConstantConditions")
-    public static IMultiblockPartType getPartType(final IModelData data) {
-        return data.getData(TYPE);
+    public static IMultiblockPartType getPartType(final ModelData data) {
+        return data.get(TYPE);
     }
 
     /**
@@ -120,8 +120,8 @@ public final class PartProperties {
      * @return value of the OUTWARD_FACING property
      */
     @SuppressWarnings("ConstantConditions")
-    public static BlockFacings getOutwardFacing(final IModelData data) {
-        return data.getData(OUTWARD_FACING);
+    public static BlockFacings getOutwardFacing(final ModelData data) {
+        return data.get(OUTWARD_FACING);
     }
 
     /**
@@ -132,8 +132,8 @@ public final class PartProperties {
      * @return value of the POSITION property
      */
     @SuppressWarnings("ConstantConditions")
-    public static PartPosition getPosition(final IModelData data) {
-        return data.getData(POSITION);
+    public static PartPosition getPosition(final ModelData data) {
+        return data.get(POSITION);
     }
 
     /**
@@ -144,8 +144,8 @@ public final class PartProperties {
      * @return value of the MODEL_VARIANT property
      */
     @SuppressWarnings("ConstantConditions")
-    public static Byte getModelVariant(final IModelData data) {
-        return data.getData(MODEL_VARIANT);
+    public static Byte getModelVariant(final ModelData data) {
+        return data.get(MODEL_VARIANT);
     }
 
     /**
@@ -156,8 +156,8 @@ public final class PartProperties {
      * @return value of the MODEL_VARIANT_MAPPER property
      */
     @SuppressWarnings("ConstantConditions")
-    public static Function<IModelData, Integer> getModelVariantMapper(final IModelData data) {
-        return data.getData(MODEL_VARIANT_MAPPER);
+    public static Function<ModelData, Integer> getModelVariantMapper(final ModelData data) {
+        return data.get(MODEL_VARIANT_MAPPER);
     }
 
     //endregion

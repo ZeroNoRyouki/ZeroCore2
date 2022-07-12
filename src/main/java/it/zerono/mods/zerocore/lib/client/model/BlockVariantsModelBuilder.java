@@ -25,8 +25,8 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ForgeModelBakery;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 
 import java.util.Collections;
 import java.util.List;
@@ -126,18 +126,18 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
     //region ICustomModelBuilder
 
     @Override
-    public void onRegisterModels() {
+    public void onRegisterModels(final ModelEvent.RegisterAdditional event) {
         this._modelsToBeLoaded.values().stream()
                 .filter(list -> list.size() > 1)
                 .flatMap(List::stream)
                 .filter(resourceLocation -> !(resourceLocation instanceof ModelResourceLocation))
-                .forEach(ForgeModelBakery::addSpecialModel);
+                .forEach(event::register);
     }
 
     @Override
-    public void onBakeModels(final ModelBakeEvent event) {
+    public void onBakeModels(final BakingCompleted event) {
 
-        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModelRegistry();
+        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModels();
         final Set<Integer> ids = this._modelToBeReplaced.keySet();
         final BlockVariantsModel model = this.createReplacementModel(ids.size(), this._ambientOcclusion, this._guid3D, this._builtInRenderer);
 

@@ -18,8 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.model.data;
 
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 /**
  * A cache for re-usable {@link IModelData} instances.
@@ -27,7 +26,7 @@ import net.minecraftforge.client.model.data.IModelData;
  */
 public interface IModelDataCache<State> {
 
-    IModelData EMPTY = EmptyModelData.INSTANCE;
+    ModelData EMPTY = ModelData.EMPTY;
 
     /**
      * Get the {@link IModelData} of the given state from the cache.
@@ -36,7 +35,7 @@ public interface IModelDataCache<State> {
      * @param state the state associated with the requested model data
      * @return the model data associated with the provided state if any is found, EMPTY otherwise
      */
-    IModelData getData(State state);
+    ModelData getData(State state);
 
     /**
      * Put the provided {@link IModelData} in the cache associating it with the given state
@@ -44,5 +43,5 @@ public interface IModelDataCache<State> {
      * @param state the state associated with the model data
      * @param data the model data
      */
-    void putData(State state, IModelData data);
+    void putData(State state, ModelData data);
 }

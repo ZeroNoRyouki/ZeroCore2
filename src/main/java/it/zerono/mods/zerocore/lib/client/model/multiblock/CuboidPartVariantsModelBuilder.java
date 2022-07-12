@@ -23,8 +23,8 @@ import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModelBuilder;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ForgeModelBakery;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 
 public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
 
@@ -42,16 +42,16 @@ public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
     //region ICustomModelBuilder
 
     @Override
-    public void onRegisterModels() {
+    public void onRegisterModels(final ModelEvent.RegisterAdditional event) {
 
-        ForgeModelBakery.addSpecialModel(this._templateId);
-        super.onRegisterModels();
+        event.register(this._templateId);
+        super.onRegisterModels(event);
     }
 
     @Override
-    public void onBakeModels(ModelBakeEvent event) {
+    public void onBakeModels(BakingCompleted event) {
 
-        this._templateModel = event.getModelRegistry().getOrDefault(this._templateId, ModRenderHelper.getMissingModel());
+        this._templateModel = event.getModels().getOrDefault(this._templateId, ModRenderHelper.getMissingModel());
         super.onBakeModels(event);
     }
 
