@@ -592,7 +592,7 @@ public abstract class AbstractModBlockEntity
 
                 final Consumer<FriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
 
-                NetworkHooks.openGui(player, (MenuProvider) this, positionWriter.andThen(extraDataWriter));
+                NetworkHooks.openScreen(player, (MenuProvider) this, positionWriter.andThen(extraDataWriter));
                 return true;
 
             } else {

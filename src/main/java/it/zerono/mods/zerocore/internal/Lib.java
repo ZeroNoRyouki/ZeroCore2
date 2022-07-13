@@ -98,7 +98,7 @@ public final class Lib {
     }
 
     @SubscribeEvent
-    public static void onWorldTick(final TickEvent.WorldTickEvent event) {
+    public static void onWorldTick(final TickEvent.LevelTickEvent event) {
 
         if (event.side.isServer() && TickEvent.Phase.END == event.phase) {
             s_resourceReloaded = false;

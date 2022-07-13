@@ -29,8 +29,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.ChunkEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -99,9 +99,9 @@ public class ChunkCache {
     }
 
     @SubscribeEvent
-    public static void onWorldUnload(final WorldEvent.Unload event) {
+    public static void onWorldUnload(final LevelEvent.Unload event) {
 
-        final LevelAccessor world = Objects.requireNonNull(event.getWorld());
+        final LevelAccessor world = Objects.requireNonNull(event.getLevel());
         final ChunkCache cache = s_caches.get(world);
 
         if (null != cache) {

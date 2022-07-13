@@ -35,7 +35,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.NBTIngredient;
+import net.minecraftforge.common.crafting.StrictNBTIngredient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -120,7 +120,7 @@ public abstract class ItemStackRecipeIngredient
     }
 
     public static ItemStackRecipeIngredient from(final ItemStack stack, final int amount) {
-        return from(stack.hasTag() ? new NBTIngredient(stack) {} : Ingredient.of(stack), amount);
+        return from(stack.hasTag() ? new StrictNBTIngredient(stack) {} : Ingredient.of(stack), amount);
     }
 
     public static ItemStackRecipeIngredient from(final ItemLike item) {
