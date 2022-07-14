@@ -48,7 +48,7 @@ public class TagSource<T> {
         return this.createKey(new ResourceLocation(id));
     }
 
-    public TagKey<T> createKey(final String id, NonNullFunction<String, ResourceLocation> factory) {
+    public TagKey<T> createKey(final String id, final NonNullFunction<String, ResourceLocation> factory) {
         return this.createKey(factory.apply(id));
     }
 
