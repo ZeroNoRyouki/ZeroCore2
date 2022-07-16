@@ -101,7 +101,9 @@
         ,
         "1.19-2.1.21":"- Added back Patchouli support\r\n- Updated Patchouli to version 1.19-72\r\n- Bumped version to 2.1.21"
         ,
-        "1.19.2-2.1.22":"- Added back JEI support\r\n- Allow JEI plugin to use non vanilla recipes\r\n- Updated JEI to version 1.19-11.0.0.206\r\n- Bumped version to 2.1.22"
+        "1.19-2.1.22":"- Added back JEI support\r\n- Allow JEI plugin to use non vanilla recipes\r\n- Updated JEI to version 1.19-11.0.0.206\r\n- Bumped version to 2.1.22"
+        ,
+        "1.19-2.1.23":"- Fix CuboidBoundingBox expansion (ported from opt-2). This should fix problems with multiblocks not always assembly correctly. Thanks to Jonh09 for the report\r\n- Updated Forge to version 41.0.98\r\n- Updated JEI to version 11.0.0.211\r\n- Updated Patchouli to version 1.19-74\r\n- Bumped version to 2.1.23"
     },
     "promos":{
         "1.16.3-latest":"1.16.4-2.0.19",
@@ -118,7 +120,7 @@
         "1.18.1-recommended":"1.18.1-2.1.11",
         "1.18.2-latest":"1.18.2-2.1.23",
         "1.18.2-recommended":"1.18.2-2.1.23",
-        "1.19-latest":"1.19-2.1.22",
-        "1.19-recommended":"1.19-2.1.22"
+        "1.19-latest":"1.19-2.1.23",
+        "1.19-recommended":"1.19-2.1.23"
     }
 }
