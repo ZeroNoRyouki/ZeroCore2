@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.Theme;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
@@ -41,8 +42,11 @@ public abstract class AbstractTextualControl
         this.setHorizontalAlignment(HorizontalAlignment.Left);
         this.setVerticalAlignment(VerticalAlignment.Center);
         this.setText(text);
-        this.setColor(Theme.TEXT_ENABLED_COLOR);
-        this.setDisabledColor(Theme.TEXT_DISABLED_COLOR);
+
+        final Theme theme = this.getTheme();
+
+        this.setColor(theme.TEXT_ENABLED_COLOR);
+        this.setDisabledColor(theme.TEXT_DISABLED_COLOR);
     }
 
     public String getText() {

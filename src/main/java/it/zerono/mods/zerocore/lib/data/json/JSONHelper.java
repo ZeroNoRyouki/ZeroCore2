@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.fluid.Fluid;
@@ -290,6 +291,41 @@ public final class JSONHelper {
      */
     public static void jsonSetString(final JsonObject json, final String elementName, final String value) {
         json.addProperty(elementName, value);
+    }
+
+    /**
+     * Get a mandatory Colour from a JSON object.
+     *
+     * @param json the JSON object.
+     * @param elementName the name of the element
+     * @return the Colour value of the element
+     */
+    public static Colour jsonGetColour(final JsonObject json, final String elementName) {
+        return Colour.fromRGBA(Integer.parseInt(jsonGetString(jsonGetMandatoryElement(json, elementName), elementName), 16));
+    }
+
+    /**
+     * Get an optional Colour from a JSON object.
+     * If the element if not present, return {@code defaultValue}
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param defaultValue the default value to use if the element is not found
+     * @return the element value or {@code defaultValue}
+     */
+    public static Colour jsonGetColour(final JsonObject json, final String elementName, Colour defaultValue) {
+        return json.has(elementName) ? jsonGetColour(json, elementName) : defaultValue;
+    }
+
+    /**
+     * Set a Colour value in a JSON object
+     *
+     * @param json the JSON object
+     * @param elementName the name of the element
+     * @param value the value
+     */
+    public static void jsonSetColour(final JsonObject json, final String elementName, final Colour value) {
+        jsonSetString(json, elementName, String.format("%08X", value.toRGBA()));
     }
 
     /**

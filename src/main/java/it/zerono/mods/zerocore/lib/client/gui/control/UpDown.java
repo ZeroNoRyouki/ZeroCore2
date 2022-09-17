@@ -22,6 +22,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.Theme;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Polygon;
@@ -180,42 +181,43 @@ public class UpDown
     protected void paintUpButton(final MatrixStack matrix) {
 
         final ButtonState state = this.getButtonState(Direction.AxisDirection.POSITIVE);
+        final Theme theme = this.getTheme();
 
         switch (state) {
 
             case DefaultDisabled:
-                this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
-                        Theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
-                        Theme.BUTTON_DISABLED_3D_BORDER_DARK);
+                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
+                        theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
+                        theme.BUTTON_DISABLED_3D_BORDER_DARK);
                 break;
 
             case Active:
             case ActiveHighlighted:
-                this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
-                        Theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
-                        Theme.BUTTON_ACTIVE_3D_BORDER_DARK);
+                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
+                        theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
+                        theme.BUTTON_ACTIVE_3D_BORDER_DARK);
 
                 break;
 
             case DefaultHighlighted:
-                this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
-                        Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
-                        Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
+                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
+                        theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
+                        theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
 
                 break;
 
             case Default:
-                this.paintUpButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
-                        Theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
-                        Theme.BUTTON_NORMAL_3D_BORDER_DARK);
+                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
+                        theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
+                        theme.BUTTON_NORMAL_3D_BORDER_DARK);
                 break;
         }
     }
@@ -223,42 +225,43 @@ public class UpDown
     protected void paintDownButton(final MatrixStack matrix) {
 
         final ButtonState state = this.getButtonState(Direction.AxisDirection.NEGATIVE);
+        final Theme theme = this.getTheme();
 
         switch (state) {
 
             case DefaultDisabled:
-                this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
-                        Theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
-                        Theme.BUTTON_DISABLED_3D_BORDER_DARK);
+                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
+                        theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
+                        theme.BUTTON_DISABLED_3D_BORDER_DARK);
                 break;
 
             case Active:
             case ActiveHighlighted:
-                this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
-                        Theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
-                        Theme.BUTTON_ACTIVE_3D_BORDER_DARK);
+                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
+                        theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
+                        theme.BUTTON_ACTIVE_3D_BORDER_DARK);
 
                 break;
 
             case DefaultHighlighted:
-                this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
-                        Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
-                        Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
+                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
+                        theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
+                        theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
 
                 break;
 
             case Default:
-                this.paintDownButton(matrix, Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
-                        Theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
-                        Theme.BUTTON_NORMAL_3D_BORDER_DARK);
+                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
+                        theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
+                        theme.BUTTON_NORMAL_3D_BORDER_DARK);
                 break;
         }
     }
@@ -283,17 +286,17 @@ public class UpDown
                 z, gradientLightColour, gradientDarkColour);
 
         // light borders
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
                 x1 + 1.0, y1 + 1.5, x2 - 1.5, y2 + 1.5);
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
                 x1 + 1.5, y1 + 1.5, x3 + 1.5, y3 - 1.5);
 
         // dark border
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, this.getGui().getGuiScaleFactor(), z,
                 x2 - 1.0, y2 + 1.0, x3 + 1.0, y3 - 0.5);
 
         // dark outline
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, this.getGui().getGuiScaleFactor(), z,
                 x1, y1 + 0.5, x2 + 1.0, y2 + 0.5,
                 x2 + 0.5, y2 + 0.5, x3 + 0.5, y3 + 1.0,
                 x3 + 0.5, y3 + 1.0, x1 + 0.5, y1);
@@ -319,17 +322,17 @@ public class UpDown
                 z, gradientLightColour, gradientDarkColour);
 
         // light border
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
                 x1, y1 + 2.0, x3 + 2.0, y3 - 0.5);
 
         // dark borders
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, this.getGui().getGuiScaleFactor(), z,
                 x1 - 0.5, y1 + 1.5, x2 - 0.5, y2 - 1.0);
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, this.getGui().getGuiScaleFactor(), z,
                 x2, y2 - 0.5, x3 + 1.5, y3 - 0.5);
 
         // dark outline
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 1.0 * this.getGui().getGuiScaleFactor(), z,
+        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, this.getGui().getGuiScaleFactor(), z,
                 x1 + 0.5, y1, x2 + 0.5, y2 + 1.0,
                 x2 + 0.5, y2 + 0.5, x3, y3 + 0.5,
                 x3 + 0.5, y3 + 0.5, x1 + 0.5, y1

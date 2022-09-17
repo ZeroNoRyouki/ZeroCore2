@@ -369,6 +369,11 @@ public abstract class AbstractControl
     }
 
     @Override
+    public Theme getTheme() {
+        return this._gui.getTheme();
+    }
+
+    @Override
     public boolean onMouseMoved(final IWindow wnd, int mouseX, int mouseY) {
         return false;
     }
@@ -379,7 +384,7 @@ public abstract class AbstractControl
      * @param mouseX
      * @param mouseY
      * @param clickedButton the mouse button clicked
-     * @return the control itself if it accept the keyboard focus, null otherwise
+     * @return the control itself if it accepts the keyboard focus, null otherwise
      */
     @Override
     public boolean onMouseClicked(final IWindow wnd, int mouseX, int mouseY, int clickedButton) {

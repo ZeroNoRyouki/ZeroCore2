@@ -51,4 +51,6 @@ public interface IWindowsManager<C extends ModContainer> {
     boolean isWindowVisible(IWindow wnd);
 
     float getPaintPartialTicks();
+
+    void onThemeChanged(Theme newTheme);
 }

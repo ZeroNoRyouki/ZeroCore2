@@ -42,4 +42,6 @@ public interface IWindow {
     boolean isVisible();
 
     float getPaintPartialTicks();
+
+    void onThemeChanged(Theme newTheme);
 }

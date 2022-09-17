@@ -23,6 +23,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.Theme;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -38,7 +39,7 @@ public abstract class AbstractCompoundControl
         extends AbstractControl
         implements Iterable<IControl> {
 
-    //region AbstractControlContainer
+    //region AbstractControl
 
     @Override
     public Optional<IControl> findControl(final int x, final int y) {
@@ -226,10 +227,16 @@ public abstract class AbstractCompoundControl
     }
 
     @Override
+    public void onThemeChanged(Theme newTheme) {
+
+        super.onThemeChanged(newTheme);
+        this.forEach(c -> c.onThemeChanged(newTheme));
+    }
+
+    @Override
     public Iterator<IControl> iterator() {
         return this._children.iterator();
     }
-
 
     @Override
     protected StringBuilder toStringBuilder() {

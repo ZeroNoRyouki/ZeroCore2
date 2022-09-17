@@ -38,6 +38,7 @@ public class ChoiceText<Index extends Enum<Index>>
         this(gui, name, new EnumIndexedArray<>(String[]::new, validIndex));
     }
 
+    @SafeVarargs
     public ChoiceText(final ModContainerScreen<? extends ModContainer> gui, final String name,
                       final Index firstValidIndex, final Index secondValidIndex, final Index... otherValidIndices) {
         this(gui, name, new EnumIndexedArray<>(String[]::new, firstValidIndex, secondValidIndex, otherValidIndices));
@@ -68,7 +69,7 @@ public class ChoiceText<Index extends Enum<Index>>
     public void onPaintBackground(final MatrixStack matrix, float partialTicks, int mouseX, int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, Theme.DARK_OUTLINE_COLOR);
+        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
     }
 
     //endregion
@@ -80,7 +81,7 @@ public class ChoiceText<Index extends Enum<Index>>
         super(gui, name, new Label(gui, "value", ""), indexedArray);
 
         this.setPadding(3, 2, 2, 2);
-        this.setBackground(Theme.FLAT_BACKGROUND_COLOR);
+        this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);
         this.getValueControl().setColor(Colour.BLACK);
 
         this.Changed = new Event<>();
