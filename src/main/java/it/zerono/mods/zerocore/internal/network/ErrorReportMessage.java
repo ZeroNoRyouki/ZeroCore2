@@ -103,7 +103,7 @@ public class ErrorReportMessage
     public void processMessage(final NetworkEvent.Context messageContext) {
 
         if (NetworkDirection.PLAY_TO_CLIENT == messageContext.getDirection()) {
-            ZeroCore.getProxy().reportErrorToPlayer(null, this._position, this._errors);
+            ZeroCore.getProxy().displayErrorToPlayer(this._position, this._errors);
         }
     }
 

@@ -19,8 +19,6 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
-import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
-import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -38,7 +36,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkDirection;
 
 import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Optional;
 
 public class ServerProxy implements IProxy {
@@ -76,23 +73,6 @@ public class ServerProxy implements IProxy {
                 .filter(o -> o instanceof ReloadableResourceManager)
                 .map(o -> (ReloadableResourceManager)o)
                 .ifPresent(rrm -> rrm.registerReloadListener(listener));
-    }
-
-    @Override
-    public void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
-                                    final Component... messages) {
-
-        if (player instanceof ServerPlayer) {
-            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayer)player);
-        }
-    }
-
-    public void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
-                                    final List<Component> messages) {
-
-        if (player instanceof ServerPlayer) {
-            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayer)player);
-        }
     }
 
     @Override

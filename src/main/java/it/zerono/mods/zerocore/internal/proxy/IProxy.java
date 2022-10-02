@@ -19,9 +19,12 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
+import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
+import it.zerono.mods.zerocore.internal.network.Network;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -48,9 +51,27 @@ public interface IProxy {
         return 0;
     }
 
-    void reportErrorToPlayer(@Nullable Player player, @Nullable BlockPos position, Component... messages);
+    default void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
+                                    final Component... messages) {
 
-    void reportErrorToPlayer(@Nullable Player player, @Nullable BlockPos position, List<Component> messages);
+        if (player instanceof ServerPlayer) {
+            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayer)player);
+        }
+    }
+
+    default void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
+                                    final List<Component> messages) {
+
+        if (player instanceof ServerPlayer) {
+            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayer)player);
+        }
+    }
+
+    default void displayErrorToPlayer(final @Nullable BlockPos position, final Component... messages) {
+    }
+
+    default void displayErrorToPlayer(final @Nullable BlockPos position, final List<Component> messages) {
+    }
 
     void clearErrorReport();
 
