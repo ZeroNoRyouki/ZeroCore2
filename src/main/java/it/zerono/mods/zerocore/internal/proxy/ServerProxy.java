@@ -59,10 +59,7 @@ public class ServerProxy implements IProxy {
     public void sendPlayerStatusMessage(final Player player, final Component message) {
 
         if (player instanceof ServerPlayer sp) {
-
-            final Registry<ChatType> registry = sp.level.registryAccess().registryOrThrow(Registry.CHAT_TYPE_REGISTRY);
-
-            sp.connection.send(new ClientboundSystemChatPacket(message, registry.getId(registry.get(ChatType.GAME_INFO))));
+            sp.sendSystemMessage(message, true);
         }
     }
 
