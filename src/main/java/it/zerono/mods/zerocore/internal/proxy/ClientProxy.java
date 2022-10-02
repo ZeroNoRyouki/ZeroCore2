@@ -130,14 +130,12 @@ public class ClientProxy
     }
 
     @Override
-    public void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
-                                    final Component... messages) {
+    public void displayErrorToPlayer(final @Nullable BlockPos position, final Component... messages) {
         this._guiErrorData.addErrors(position, messages);
     }
 
     @Override
-    public void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
-                                    final List<Component> messages) {
+    public void displayErrorToPlayer(final @Nullable BlockPos position, final List<Component> messages) {
         this._guiErrorData.addErrors(position, messages);
     }
 
