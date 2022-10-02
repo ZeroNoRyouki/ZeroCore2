@@ -19,7 +19,10 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
+import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
+import it.zerono.mods.zerocore.internal.network.Network;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
@@ -48,9 +51,27 @@ public interface IProxy {
         return 0;
     }
 
-    void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, ITextComponent... messages);
+    default void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
+                                    final ITextComponent... messages) {
 
-    void reportErrorToPlayer(@Nullable PlayerEntity player, @Nullable BlockPos position, List<ITextComponent> messages);
+        if (player instanceof ServerPlayerEntity) {
+            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayerEntity)player);
+        }
+    }
+
+    default void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
+                                    final List<ITextComponent> messages) {
+
+        if (player instanceof ServerPlayerEntity) {
+            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayerEntity)player);
+        }
+    }
+
+    default void displayErrorToPlayer(final @Nullable BlockPos position, final ITextComponent... messages) {
+    }
+
+    default void displayErrorToPlayer(final @Nullable BlockPos position, final List<ITextComponent> messages) {
+    }
 
     void clearErrorReport();
 

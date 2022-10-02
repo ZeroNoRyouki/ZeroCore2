@@ -77,23 +77,6 @@ public class ServerProxy implements IProxy {
     }
 
     @Override
-    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
-                                    final ITextComponent... messages) {
-
-        if (player instanceof ServerPlayerEntity) {
-            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayerEntity)player);
-        }
-    }
-
-    public void reportErrorToPlayer(final @Nullable PlayerEntity player, final @Nullable BlockPos position,
-                                    final List<ITextComponent> messages) {
-
-        if (player instanceof ServerPlayerEntity) {
-            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayerEntity)player);
-        }
-    }
-
-    @Override
     public void clearErrorReport() {
     }
 
