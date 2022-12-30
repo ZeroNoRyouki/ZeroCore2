@@ -947,8 +947,14 @@ public abstract class AbstractControl
     protected void paintButton3D(final MatrixStack matrix, final int x, final int y, final int width, final int height,
                                  final Colour darkOutlineColour, final Colour gradientLightColour, final Colour gradientDarkColour,
                                  final Colour borderLightColour, final Colour borderDarkColour) {
-        ModRenderHelper.paintButton3D(matrix, this.controlToScreen(x, y), width, height, (int)this.getZLevel(),
-                darkOutlineColour, gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
+
+        if (gradientLightColour.equals(gradientDarkColour)) {
+            ModRenderHelper.paintButton3D(matrix, this.controlToScreen(x, y), width, height, (int) this.getZLevel(),
+                    darkOutlineColour, gradientLightColour, borderLightColour, borderDarkColour);
+        } else {
+            ModRenderHelper.paintButton3D(matrix, this.controlToScreen(x, y), width, height, (int) this.getZLevel(),
+                    darkOutlineColour, gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
+        }
     }
 
 //    @Deprecated
@@ -969,8 +975,13 @@ public abstract class AbstractControl
         final Point screenXY1 = this.controlToScreen(x1, y1);
         final Point screenXY2 = this.controlToScreen(x2, y2);
 
-        ModRenderHelper.paint3DSunkenBox(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
-                gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
+        if (gradientLightColour.equals(gradientDarkColour)) {
+            ModRenderHelper.paint3DSunkenBox(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
+                    gradientLightColour, borderLightColour, borderDarkColour);
+        } else {
+            ModRenderHelper.paint3DSunkenBox(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
+                    gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
+        }
     }
 
     protected void paintItemStack(final MatrixStack matrix, final ItemStack stack, final boolean highlight) {

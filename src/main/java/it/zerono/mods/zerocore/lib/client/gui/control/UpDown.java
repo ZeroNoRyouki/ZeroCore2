@@ -278,12 +278,20 @@ public class UpDown
         final int x3 = this._upArrowPaint.getX(2);
         final int y3 = this._upArrowPaint.getY(2);
 
-        // gradient
-        ModRenderHelper.paint3DGradientTriangle(matrix,
-                x1 + 1.0, y1 + 1.0,
-                x2 - 0.5, y2 + 1.0,
-                x3 + 1.0, y3,
-                z, gradientLightColour, gradientDarkColour);
+        if (gradientLightColour.equals(gradientDarkColour)) {
+            ModRenderHelper.paint3DSolidTriangle(matrix,
+                    x1 + 1.0, y1 + 1.0,
+                    x2 - 0.5, y2 + 1.0,
+                    x3 + 1.0, y3,
+                    z, gradientLightColour);
+        } else {
+            // gradient
+            ModRenderHelper.paint3DGradientTriangle(matrix,
+                    x1 + 1.0, y1 + 1.0,
+                    x2 - 0.5, y2 + 1.0,
+                    x3 + 1.0, y3,
+                    z, gradientLightColour, gradientDarkColour);
+        }
 
         // light borders
         ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
@@ -314,12 +322,20 @@ public class UpDown
         final int x3 = this._downArrowPaint.getX(2);
         final int y3 = this._downArrowPaint.getY(2);
 
-        // gradient
-        ModRenderHelper.paint3DGradientTriangle(matrix,
-                x1, y1 + 1.5,
-                x2, y2,
-                x3 + 1.5, y3,
-                z, gradientLightColour, gradientDarkColour);
+        if (gradientLightColour.equals(gradientDarkColour)) {
+            ModRenderHelper.paint3DSolidTriangle(matrix,
+                    x1, y1 + 1.5,
+                    x2, y2,
+                    x3 + 1.5, y3,
+                    z, gradientLightColour);
+        } else {
+            // gradient
+            ModRenderHelper.paint3DGradientTriangle(matrix,
+                    x1, y1 + 1.5,
+                    x2, y2,
+                    x3 + 1.5, y3,
+                    z, gradientLightColour, gradientDarkColour);
+        }
 
         // light border
         ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
