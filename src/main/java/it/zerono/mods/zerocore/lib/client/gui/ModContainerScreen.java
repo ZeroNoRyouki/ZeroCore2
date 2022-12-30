@@ -278,7 +278,7 @@ public class ModContainerScreen<C extends ModContainer>
         return this._theme;
     }
 
-    public void seTheme(final Theme theme) {
+    public void setTheme(final Theme theme) {
 
         this._theme = Objects.requireNonNull(theme);
         this._windowsManager.onThemeChanged(theme);
