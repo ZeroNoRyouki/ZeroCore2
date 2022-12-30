@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
-import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -82,7 +81,7 @@ public class ChoiceText<Index extends Enum<Index>>
 
         this.setPadding(3, 2, 2, 2);
         this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);
-        this.getValueControl().setColor(Colour.BLACK);
+        this.getValueControl().setColor(this.getTheme().TEXT_DEFAULT_COLOUR);
 
         this.Changed = new Event<>();
     }

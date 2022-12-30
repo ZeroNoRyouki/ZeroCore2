@@ -138,7 +138,7 @@ public abstract class NumberInput<Type>
 
         this._label = new Label(gui, "value", "0");
         this._label.setAutoSize(false);
-        this._label.setColor(Colour.BLACK);
+        this._label.setColor(this.getTheme().TEXT_DEFAULT_COLOUR);
 
         this.setPadding(3, 2, 2, 2);
         this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);

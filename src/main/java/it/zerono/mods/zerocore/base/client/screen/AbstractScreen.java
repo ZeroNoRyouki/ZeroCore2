@@ -227,7 +227,7 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & INamedCo
         final Label title = new Label(this, "title", this.getTitle());
 
         title.setPadding(2);
-        title.setColor(Colour.BLACK);
+        title.setColor(this.getTheme().GUI_TITLE);
         title.setAutoSize(false);
         title.setLayoutEngineHint(FixedLayoutEngine.hint(titlePosX, 7, titleWidth, 12));
         titlePanel.addControl(title);
