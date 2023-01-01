@@ -31,46 +31,149 @@ import java.nio.file.Path;
 
 public final class Theme {
 
+    /**
+     * The default theme.
+     */
     public static final Theme DEFAULT = new Theme();
 
+    /**
+     * Background of a control.
+     */
     public final Colour FLAT_BACKGROUND_COLOR;
 
-    public final Colour TEXT_DEFAULT_COLOUR;
-
+    /**
+     * Text displayed in an enabled control.
+     */
     public final Colour TEXT_ENABLED_COLOR;
+
+    /**
+     * Text displayed in a disabled control.
+     */
     public final Colour TEXT_DISABLED_COLOR;
 
+    /**
+     * Dark border / outline of a control.
+     */
     public final Colour DARK_OUTLINE_COLOR;
 
-    public final Colour STANDARD_3D_GRADIENT_LIGHT;
-    public final Colour STANDARD_3D_GRADIENT_DARK;
-
+    /**
+     * Background of an enabled button, starting colour of a gradient.
+     * If equal to BUTTON_NORMAL_3D_GRADIENT_DARK, only BUTTON_NORMAL_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_NORMAL_3D_GRADIENT_LIGHT;
+
+    /**
+     * Background of an enabled button, ending colour of a gradient.
+     * If equal to BUTTON_NORMAL_3D_GRADIENT_DARK, only BUTTON_NORMAL_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_NORMAL_3D_GRADIENT_DARK;
+
+    /**
+     * 3D border of an enabled button, light sections.
+     */
     public final Colour BUTTON_NORMAL_3D_BORDER_LIGHT;
+
+    /**
+     * 3D border of an enabled button, dark sections.
+     */
     public final Colour BUTTON_NORMAL_3D_BORDER_DARK;
 
+    /**
+     * Background of a disabled button, starting colour of a gradient.
+     * If equal to BUTTON_DISABLED_3D_GRADIENT_DARK, only BUTTON_DISABLED_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_DISABLED_3D_GRADIENT_LIGHT;
+
+    /**
+     * Background of a disabled button, ending colour of a gradient.
+     * If equal to BUTTON_DISABLED_3D_GRADIENT_DARK, only BUTTON_DISABLED_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_DISABLED_3D_GRADIENT_DARK;
+
+    /**
+     * 3D border of a disabled button, light sections.
+     */
     public final Colour BUTTON_DISABLED_3D_BORDER_LIGHT;
+
+    /**
+     * 3D border of a disabled button, dark sections.
+     */
     public final Colour BUTTON_DISABLED_3D_BORDER_DARK;
 
+    /**
+     * Background of an active button, starting colour of a gradient.
+     * If equal to BUTTON_ACTIVE_3D_GRADIENT_DARK, only BUTTON_ACTIVE_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_ACTIVE_3D_GRADIENT_LIGHT;
+
+    /**
+     * Background of an active button, ending colour of a gradient.
+     * If equal to BUTTON_ACTIVE_3D_GRADIENT_DARK, only BUTTON_ACTIVE_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_ACTIVE_3D_GRADIENT_DARK;
+
+    /**
+     * 3D border of an active button, light sections.
+     */
     public final Colour BUTTON_ACTIVE_3D_BORDER_LIGHT;
+
+    /**
+     * 3D border of an active button, dark sections.
+     */
     public final Colour BUTTON_ACTIVE_3D_BORDER_DARK;
 
+    /**
+     * Background of a highlighted button, starting colour of a gradient.
+     * If equal to BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK, only BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT;
+
+    /**
+     * Background of a highlighted button, ending colour of a gradient.
+     * If equal to BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK, only BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK;
+
+    /**
+     * 3D border of a highlighted button, light sections.
+     */
     public final Colour BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT;
+
+    /**
+     * 3D border of a highlighted button, dark sections.
+     */
     public final Colour BUTTON_HIGHLIGHTED_3D_BORDER_DARK;
 
+    /**
+     * Background of a text field, starting colour of a gradient.
+     * If equal to TEXTFIELD_NORMAL_3D_GRADIENT_DARK, only TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT;
+
+    /**
+     * Background of a text field, ending colour of a gradient.
+     * If equal to TEXTFIELD_NORMAL_3D_GRADIENT_DARK, only TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT will be used to draw a flat background.
+     */
     public final Colour TEXTFIELD_NORMAL_3D_GRADIENT_DARK;
+
+    /**
+     * 3D border of a text field, light sections.
+     */
     public final Colour TEXTFIELD_NORMAL_3D_BORDER_LIGHT;
+
+    /**
+     * 3D border of a text field, dark sections.
+     */
     public final Colour TEXTFIELD_NORMAL_3D_BORDER_DARK;
+
+    /**
+     * Colour of the caret in a text field.
+     */
     public final Colour TEXTFIELD_CARET;
 
+    /**
+     * Colour of the title of a GUI.
+     */
     public final Colour GUI_TITLE;
 
     /**
@@ -112,18 +215,14 @@ public final class Theme {
         return DEFAULT;
     }
 
-
     public static void write(Path jsonFilePath, Theme theme) {
 
         final JsonObject json = new JsonObject();
 
         writeColour(json, "FLAT_BACKGROUND_COLOR", theme.FLAT_BACKGROUND_COLOR);
-        writeColour(json, "TEXT_DEFAULT_COLOUR", theme.TEXT_DEFAULT_COLOUR);
         writeColour(json, "TEXT_ENABLED_COLOR", theme.TEXT_ENABLED_COLOR);
         writeColour(json, "TEXT_DISABLED_COLOR", theme.TEXT_DISABLED_COLOR);
         writeColour(json, "DARK_OUTLINE_COLOR", theme.DARK_OUTLINE_COLOR);
-        writeColour(json, "STANDARD_3D_GRADIENT_LIGHT", theme.STANDARD_3D_GRADIENT_LIGHT);
-        writeColour(json, "STANDARD_3D_GRADIENT_DARK", theme.STANDARD_3D_GRADIENT_DARK);
         writeColour(json, "BUTTON_NORMAL_3D_GRADIENT_LIGHT", theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT);
         writeColour(json, "BUTTON_NORMAL_3D_GRADIENT_DARK", theme.BUTTON_NORMAL_3D_GRADIENT_DARK);
         writeColour(json, "BUTTON_NORMAL_3D_BORDER_LIGHT", theme.BUTTON_NORMAL_3D_BORDER_LIGHT);
@@ -161,14 +260,11 @@ public final class Theme {
     private Theme() {
 
         this.FLAT_BACKGROUND_COLOR = new Colour(0x86, 0x86, 0x86, 0xFF);
-        this.TEXT_DEFAULT_COLOUR = Colour.BLACK;
         this.TEXT_ENABLED_COLOR = new Colour(0x27, 0x27, 0x27, 0xFF);
         this.TEXT_DISABLED_COLOR = new Colour(0xA0, 0xA0, 0xA0, 0xFF);
         this.DARK_OUTLINE_COLOR = new Colour(0.0, 0.0, 0.0, 0.7);
-        this.STANDARD_3D_GRADIENT_LIGHT = new Colour(0x90, 0x90, 0x90, 0xFF);
-        this.STANDARD_3D_GRADIENT_DARK = new Colour(0x20, 0x20, 0x20, 0xFF);
-        this.BUTTON_NORMAL_3D_GRADIENT_LIGHT = this.STANDARD_3D_GRADIENT_LIGHT;
-        this.BUTTON_NORMAL_3D_GRADIENT_DARK = this.STANDARD_3D_GRADIENT_DARK;
+        this.BUTTON_NORMAL_3D_GRADIENT_LIGHT = new Colour(0x90, 0x90, 0x90, 0xFF);
+        this.BUTTON_NORMAL_3D_GRADIENT_DARK = new Colour(0x20, 0x20, 0x20, 0xFF);
         this.BUTTON_NORMAL_3D_BORDER_LIGHT = new Colour(0xDD, 0xDD, 0xDD, 0xFF);
         this.BUTTON_NORMAL_3D_BORDER_DARK = new Colour(0x77, 0x77, 0x77, 0xEE);
         this.BUTTON_DISABLED_3D_GRADIENT_LIGHT = this.BUTTON_NORMAL_3D_GRADIENT_LIGHT;
@@ -183,8 +279,8 @@ public final class Theme {
         this.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK = new Colour(0x29, 0x24, 0x2E, 0xFF);
         this.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT = new Colour(0x77, 0x77, 0x77, 0xEE);
         this.BUTTON_HIGHLIGHTED_3D_BORDER_DARK = new Colour(0xDD, 0xDD, 0xDD, 0xFF);
-        this.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT = this.STANDARD_3D_GRADIENT_LIGHT;
-        this.TEXTFIELD_NORMAL_3D_GRADIENT_DARK = this.STANDARD_3D_GRADIENT_DARK;
+        this.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT = this.BUTTON_NORMAL_3D_GRADIENT_LIGHT;
+        this.TEXTFIELD_NORMAL_3D_GRADIENT_DARK = this.BUTTON_NORMAL_3D_GRADIENT_DARK;
         this.TEXTFIELD_NORMAL_3D_BORDER_LIGHT = Colour.WHITE;
         this.TEXTFIELD_NORMAL_3D_BORDER_DARK =  new Colour(0x2B, 0x2B, 0x2B, 0xFF);
         this.TEXTFIELD_CARET = new Colour(0x00, 0x00, 0x00, 0x6F);
@@ -193,35 +289,32 @@ public final class Theme {
 
     private Theme(JsonObject json) {
 
-        this.FLAT_BACKGROUND_COLOR = readColour(json, "FLAT_BACKGROUND_COLOR", DEFAULT.FLAT_BACKGROUND_COLOR);
-        this.TEXT_DEFAULT_COLOUR = readColour(json, "TEXT_DEFAULT_COLOUR", DEFAULT.TEXT_DEFAULT_COLOUR);
-        this.TEXT_ENABLED_COLOR = readColour(json, "TEXT_ENABLED_COLOR", DEFAULT.TEXT_ENABLED_COLOR);
-        this.TEXT_DISABLED_COLOR = readColour(json, "TEXT_DISABLED_COLOR", DEFAULT.TEXT_DISABLED_COLOR);
-        this.DARK_OUTLINE_COLOR = readColour(json, "DARK_OUTLINE_COLOR", DEFAULT.DARK_OUTLINE_COLOR);
-        this.STANDARD_3D_GRADIENT_LIGHT = readColour(json, "STANDARD_3D_GRADIENT_LIGHT", DEFAULT.STANDARD_3D_GRADIENT_LIGHT);
-        this.STANDARD_3D_GRADIENT_DARK = readColour(json, "STANDARD_3D_GRADIENT_DARK", DEFAULT.STANDARD_3D_GRADIENT_DARK);
-        this.BUTTON_NORMAL_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_NORMAL_3D_GRADIENT_LIGHT", DEFAULT.BUTTON_NORMAL_3D_GRADIENT_LIGHT);
-        this.BUTTON_NORMAL_3D_GRADIENT_DARK = readColour(json, "BUTTON_NORMAL_3D_GRADIENT_DARK", DEFAULT.BUTTON_NORMAL_3D_GRADIENT_DARK);
-        this.BUTTON_NORMAL_3D_BORDER_LIGHT = readColour(json, "BUTTON_NORMAL_3D_BORDER_LIGHT", DEFAULT.BUTTON_NORMAL_3D_BORDER_LIGHT);
-        this.BUTTON_NORMAL_3D_BORDER_DARK = readColour(json, "BUTTON_NORMAL_3D_BORDER_DARK", DEFAULT.BUTTON_NORMAL_3D_BORDER_DARK);
-        this.BUTTON_DISABLED_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_DISABLED_3D_GRADIENT_LIGHT", DEFAULT.BUTTON_DISABLED_3D_GRADIENT_LIGHT);
-        this.BUTTON_DISABLED_3D_GRADIENT_DARK = readColour(json, "BUTTON_DISABLED_3D_GRADIENT_DARK", DEFAULT.BUTTON_DISABLED_3D_GRADIENT_DARK);
-        this.BUTTON_DISABLED_3D_BORDER_LIGHT = readColour(json, "BUTTON_DISABLED_3D_BORDER_LIGHT", DEFAULT.BUTTON_DISABLED_3D_BORDER_LIGHT);
-        this.BUTTON_DISABLED_3D_BORDER_DARK = readColour(json, "BUTTON_DISABLED_3D_BORDER_DARK", DEFAULT.BUTTON_DISABLED_3D_BORDER_DARK);
-        this.BUTTON_ACTIVE_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_ACTIVE_3D_GRADIENT_LIGHT", DEFAULT.BUTTON_ACTIVE_3D_GRADIENT_LIGHT);
-        this.BUTTON_ACTIVE_3D_GRADIENT_DARK = readColour(json, "BUTTON_ACTIVE_3D_GRADIENT_DARK", DEFAULT.BUTTON_ACTIVE_3D_GRADIENT_DARK);
-        this.BUTTON_ACTIVE_3D_BORDER_LIGHT = readColour(json, "BUTTON_ACTIVE_3D_BORDER_LIGHT", DEFAULT.BUTTON_ACTIVE_3D_BORDER_LIGHT);
-        this.BUTTON_ACTIVE_3D_BORDER_DARK = readColour(json, "BUTTON_ACTIVE_3D_BORDER_DARK", DEFAULT.BUTTON_ACTIVE_3D_BORDER_DARK);
-        this.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT", DEFAULT.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT);
-        this.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK = readColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK", DEFAULT.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK);
-        this.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT = readColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT", DEFAULT.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT);
-        this.BUTTON_HIGHLIGHTED_3D_BORDER_DARK = readColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_DARK", DEFAULT.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
-        this.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT = readColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT", DEFAULT.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT);
-        this.TEXTFIELD_NORMAL_3D_GRADIENT_DARK = readColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_DARK", DEFAULT.TEXTFIELD_NORMAL_3D_GRADIENT_DARK);
-        this.TEXTFIELD_NORMAL_3D_BORDER_LIGHT = readColour(json, "TEXTFIELD_NORMAL_3D_BORDER_LIGHT", DEFAULT.TEXTFIELD_NORMAL_3D_BORDER_LIGHT);
-        this.TEXTFIELD_NORMAL_3D_BORDER_DARK = readColour(json, "TEXTFIELD_NORMAL_3D_BORDER_DARK", DEFAULT.TEXTFIELD_NORMAL_3D_BORDER_DARK);
-        this.TEXTFIELD_CARET = readColour(json, "TEXTFIELD_CARET", DEFAULT.TEXTFIELD_CARET);
-        this.GUI_TITLE = readColour(json, "GUI_TITLE", DEFAULT.GUI_TITLE);
+        this.FLAT_BACKGROUND_COLOR = readColour(json, "FLAT_BACKGROUND_COLOR");
+        this.TEXT_ENABLED_COLOR = readColour(json, "TEXT_ENABLED_COLOR");
+        this.TEXT_DISABLED_COLOR = readColour(json, "TEXT_DISABLED_COLOR");
+        this.DARK_OUTLINE_COLOR = readColour(json, "DARK_OUTLINE_COLOR");
+        this.BUTTON_NORMAL_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_NORMAL_3D_GRADIENT_LIGHT");
+        this.BUTTON_NORMAL_3D_GRADIENT_DARK = readColour(json, "BUTTON_NORMAL_3D_GRADIENT_DARK");
+        this.BUTTON_NORMAL_3D_BORDER_LIGHT = readColour(json, "BUTTON_NORMAL_3D_BORDER_LIGHT");
+        this.BUTTON_NORMAL_3D_BORDER_DARK = readColour(json, "BUTTON_NORMAL_3D_BORDER_DARK");
+        this.BUTTON_DISABLED_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_DISABLED_3D_GRADIENT_LIGHT");
+        this.BUTTON_DISABLED_3D_GRADIENT_DARK = readColour(json, "BUTTON_DISABLED_3D_GRADIENT_DARK");
+        this.BUTTON_DISABLED_3D_BORDER_LIGHT = readColour(json, "BUTTON_DISABLED_3D_BORDER_LIGHT");
+        this.BUTTON_DISABLED_3D_BORDER_DARK = readColour(json, "BUTTON_DISABLED_3D_BORDER_DARK");
+        this.BUTTON_ACTIVE_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_ACTIVE_3D_GRADIENT_LIGHT");
+        this.BUTTON_ACTIVE_3D_GRADIENT_DARK = readColour(json, "BUTTON_ACTIVE_3D_GRADIENT_DARK");
+        this.BUTTON_ACTIVE_3D_BORDER_LIGHT = readColour(json, "BUTTON_ACTIVE_3D_BORDER_LIGHT");
+        this.BUTTON_ACTIVE_3D_BORDER_DARK = readColour(json, "BUTTON_ACTIVE_3D_BORDER_DARK");
+        this.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT = readColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT");
+        this.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK = readColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK");
+        this.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT = readColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT");
+        this.BUTTON_HIGHLIGHTED_3D_BORDER_DARK = readColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_DARK");
+        this.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT = readColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT");
+        this.TEXTFIELD_NORMAL_3D_GRADIENT_DARK = readColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_DARK");
+        this.TEXTFIELD_NORMAL_3D_BORDER_LIGHT = readColour(json, "TEXTFIELD_NORMAL_3D_BORDER_LIGHT");
+        this.TEXTFIELD_NORMAL_3D_BORDER_DARK = readColour(json, "TEXTFIELD_NORMAL_3D_BORDER_DARK");
+        this.TEXTFIELD_CARET = readColour(json, "TEXTFIELD_CARET");
+        this.GUI_TITLE = readColour(json, "GUI_TITLE");
     }
 
     private static Theme read(Reader reader) {
@@ -246,7 +339,7 @@ public final class Theme {
         JSONHelper.jsonSetString(json, name, colour.toHexRGBA());
     }
 
-    private static Colour readColour(final JsonObject json, final String name, final Colour defaultColour) {
+    private static Colour readColour(final JsonObject json, final String name) {
         return Colour.fromHexRGBA(JSONHelper.jsonGetString(json, name));
     }
 
