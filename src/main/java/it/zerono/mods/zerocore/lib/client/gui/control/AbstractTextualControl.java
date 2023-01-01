@@ -31,6 +31,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.text.ITextComponent;
 
+import javax.annotation.Nullable;
+
 @SuppressWarnings("WeakerAccess")
 public abstract class AbstractTextualControl
         extends AbstractControl {
@@ -42,11 +44,6 @@ public abstract class AbstractTextualControl
         this.setHorizontalAlignment(HorizontalAlignment.Left);
         this.setVerticalAlignment(VerticalAlignment.Center);
         this.setText(text);
-
-        final Theme theme = this.getTheme();
-
-        this.setColor(theme.TEXT_ENABLED_COLOR);
-        this.setDisabledColor(theme.TEXT_DISABLED_COLOR);
     }
 
     public String getText() {
@@ -66,7 +63,7 @@ public abstract class AbstractTextualControl
     }
 
     public Colour getColor() {
-        return this._enabledColor;
+        return null != this._enabledColor ? this._enabledColor : this.getTheme().TEXT_ENABLED_COLOR;
     }
 
     public void setColor(final Colour color) {
@@ -74,7 +71,7 @@ public abstract class AbstractTextualControl
     }
 
     public Colour getDisabledColor() {
-        return this._disabledColor;
+        return null != this._disabledColor ? this._disabledColor : this.getTheme().TEXT_DISABLED_COLOR;
     }
 
     public void setDisabledColor(final Colour color) {
@@ -182,7 +179,9 @@ public abstract class AbstractTextualControl
     private String _text;
     private HorizontalAlignment _horizontalAlignment;
     private VerticalAlignment _verticalAlignment;
+    @Nullable
     private Colour _enabledColor;
+    @Nullable
     private Colour _disabledColor;
 
     //endregion

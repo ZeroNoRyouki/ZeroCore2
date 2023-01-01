@@ -81,8 +81,6 @@ public class ChoiceText<Index extends Enum<Index>>
 
         this.setPadding(3, 2, 2, 2);
         this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);
-        this.getValueControl().setColor(this.getTheme().TEXT_DEFAULT_COLOUR);
-
         this.Changed = new Event<>();
     }
 
