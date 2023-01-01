@@ -1550,7 +1550,7 @@ public final class ModRenderHelper {
                                      final Colour borderLightColour, final Colour borderDarkColour) {
 
         paintHollowRect(matrix, x, y, width, height, zLevel, darkOutlineColour);
-        paintSolidRect(matrix, x + 2, y + 2, width - 3, height - 3, zLevel, flatBackgroundColour);
+        paintSolidRect(matrix, x + 2, y + 2, x + 2 + width - 3, y + 2 + height - 3, zLevel, flatBackgroundColour);
 
         paintHorizontalLine(matrix, x + 1, y + 1, width - 3+1, zLevel, borderLightColour);
         paintVerticalLine(matrix, x + 1, y + 1, height - 3, zLevel, borderLightColour);
@@ -2061,8 +2061,8 @@ public final class ModRenderHelper {
         builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
 
         builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-        builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
         builder.vertex(x3, y3, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+        builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
 
         tessellator.end();
 
@@ -2109,8 +2109,8 @@ public final class ModRenderHelper {
         builder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_COLOR);
 
         builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-        builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
         builder.vertex(x3, y3, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+        builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
 
         tessellator.end();
 
