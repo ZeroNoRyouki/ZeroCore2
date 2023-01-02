@@ -76,6 +76,7 @@ public class ModContainerScreen<C extends ModContainer>
         this._originalMouseX = this._originalMouseY = 0;
         this._ignoreCloseOnInventoryKey = false;
         this._nextBogusId = 0;
+        this._theme = Theme.DEFAULT;
 
         this.Create = new Event<>();
         this.Close = new ConcurrentEvent<>();
@@ -271,6 +272,16 @@ public class ModContainerScreen<C extends ModContainer>
 
         help.setLayoutEngineHint(FixedLayoutEngine.hint(this.getGuiWidth() - 30, this.getGuiHeight() - 41));
         return help;
+    }
+
+    public Theme getTheme() {
+        return this._theme;
+    }
+
+    public void setTheme(final Theme theme) {
+
+        this._theme = Objects.requireNonNull(theme);
+        this._windowsManager.onThemeChanged(theme);
     }
 
     //region slot groups
@@ -526,6 +537,7 @@ public class ModContainerScreen<C extends ModContainer>
     private boolean _ignoreCloseOnInventoryKey;
     private int _nextBogusId;
     private BindingGroup _bindings;
+    private Theme _theme;
 
     //endregion
 }

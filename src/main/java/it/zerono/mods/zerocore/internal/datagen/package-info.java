@@ -1,6 +1,6 @@
 /*
  *
- * IWindow.java
+ * package-info.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,32 +16,10 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.client.gui;
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+package it.zerono.mods.zerocore.internal.datagen;
 
-import javax.annotation.Nullable;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-@SuppressWarnings("unused")
-public interface IWindow {
-
-    void setFocus(@Nullable IControl newFocus);
-
-    void captureMouse(IControl target);
-
-    void releaseMouse();
-
-    boolean isMouseCaptured();
-
-    void startDragging(IDraggable draggable, IDragSource source);
-
-    boolean isDragging();
-
-    void hide();
-
-    void show();
-
-    boolean isVisible();
-
-    float getPaintPartialTicks();
-
-    void onThemeChanged(Theme newTheme);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

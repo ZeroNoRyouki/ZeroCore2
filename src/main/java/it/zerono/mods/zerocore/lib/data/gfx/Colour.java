@@ -18,6 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.data.gfx;
 
+import com.google.common.base.Strings;
+import it.zerono.mods.zerocore.lib.functional.NonNullIntFunction;
 import net.minecraft.world.item.DyeColor;
 
 import java.util.Objects;
@@ -89,6 +91,18 @@ public class Colour {
         return new Colour((packedRGBA >> 24) & 0xFF, (packedRGBA >> 16) & 0xFF, (packedRGBA >> 8) & 0xFF, packedRGBA & 0xFF);
     }
 
+    public static Colour fromHexRGB(final String text) {
+        return fromHexString(text, Colour::fromRGB);
+    }
+
+    public static Colour fromHexARGB(final String text) {
+        return fromHexString(text, Colour::fromARGB);
+    }
+
+    public static Colour fromHexRGBA(final String text) {
+        return fromHexString(text, Colour::fromRGBA);
+    }
+
     public int toRGB() {
         return RGB(this.R, this.G, this.B);
     }
@@ -99,6 +113,18 @@ public class Colour {
 
     public int toRGBA() {
         return RGBA(this.R, this.G, this.B, this.A);
+    }
+
+    public String toHexRGB() {
+        return toHexString(this.toRGB());
+    }
+
+    public String toHexARGB() {
+        return toHexString(this.toARGB());
+    }
+
+    public String toHexRGBA() {
+        return toHexString(this.toRGBA());
     }
 
     public static float toFloat(final byte component) {
@@ -198,6 +224,25 @@ public class Colour {
 
         this.R = this.G = this.B = 0;
         this.A = (byte)255;
+    }
+
+    private static Colour fromHexString(String text, NonNullIntFunction<Colour> factory) {
+
+        if (Strings.isNullOrEmpty(text)) {
+            throw new IllegalArgumentException("Invalid colour string");
+        }
+
+        if (text.startsWith("#")) {
+            text = text.substring(1);
+        }
+
+        final long value = Long.parseLong(text, 16);
+
+        return factory.apply((int)value);
+    }
+
+    private static String toHexString(final int value) {
+        return String.format("%08X", value);
     }
 
     //endregion

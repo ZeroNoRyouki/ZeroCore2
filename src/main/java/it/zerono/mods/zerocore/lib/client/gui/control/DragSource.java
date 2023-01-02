@@ -32,7 +32,7 @@ public class DragSource
     public DragSource(final ModContainerScreen<? extends ModContainer> gui, final String name) {
 
         super(gui, name);
-        this.setBackground(Theme.FLAT_BACKGROUND_COLOR);
+        this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);
     }
 
     //region AbstractDragSource

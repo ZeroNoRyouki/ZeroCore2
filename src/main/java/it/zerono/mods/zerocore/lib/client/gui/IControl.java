@@ -188,6 +188,8 @@ public interface IControl {
 
     <Tag> void setTag(@Nullable Tag tag);
 
+    Theme getTheme();
+
     boolean onMouseMoved(IWindow wnd, int mouseX, int mouseY);
 
     /**
@@ -249,5 +251,8 @@ public interface IControl {
     void enablePaintBlending(boolean blend);
 
     default void onPaintDebugFrame(PoseStack matrix, Colour colour) {
+    }
+
+    default void onThemeChanged(Theme newTheme) {
     }
 }
