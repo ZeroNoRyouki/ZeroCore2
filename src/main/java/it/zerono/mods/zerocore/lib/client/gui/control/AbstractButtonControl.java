@@ -20,10 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
-import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
-import it.zerono.mods.zerocore.lib.client.gui.IWindow;
-import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteSet;
@@ -168,43 +165,45 @@ public abstract class AbstractButtonControl
     protected void paintButton3D(final PoseStack matrix, final ButtonState state, final int x, final int y,
                                  final int width, final int height) {
 
+        final Theme theme = this.getTheme();
+
         switch (state) {
 
             case DefaultDisabled:
                 this.paintButton3D(matrix, x, y, width, height,
-                        Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
-                        Theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
-                        Theme.BUTTON_DISABLED_3D_BORDER_DARK);
+                        theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
+                        theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
+                        theme.BUTTON_DISABLED_3D_BORDER_DARK);
                 break;
 
             case Active:
             case ActiveHighlighted:
                 this.paintButton3D(matrix, x, y, width, height,
-                        Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
-                        Theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
-                        Theme.BUTTON_ACTIVE_3D_BORDER_DARK);
+                        theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
+                        theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
+                        theme.BUTTON_ACTIVE_3D_BORDER_DARK);
                 break;
 
             case DefaultHighlighted:
                 this.paintButton3D(matrix, x, y, width, height,
-                        Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
-                        Theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
-                        Theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
+                        theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
+                        theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
+                        theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
                 break;
 
             case Default:
                 this.paintButton3D(matrix, x, y, width, height,
-                        Theme.DARK_OUTLINE_COLOR,
-                        Theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
-                        Theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
-                        Theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
-                        Theme.BUTTON_NORMAL_3D_BORDER_DARK);
+                        theme.DARK_OUTLINE_COLOR,
+                        theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
+                        theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
+                        theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
+                        theme.BUTTON_NORMAL_3D_BORDER_DARK);
                 break;
         }
     }

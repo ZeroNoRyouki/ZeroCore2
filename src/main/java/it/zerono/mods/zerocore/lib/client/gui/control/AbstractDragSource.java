@@ -64,7 +64,7 @@ public abstract class AbstractDragSource
     public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, Theme.DARK_OUTLINE_COLOR);
+        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
     }
 
     @Override

@@ -160,6 +160,12 @@ public class Window<C extends ModContainer>
         return this._manager.getPaintPartialTicks();
     }
 
+    @Override
+    public void onThemeChanged(Theme newTheme) {
+        this._topLevelContainer.onThemeChanged(newTheme);
+    }
+
+    //endregion
     //region internals
 
     void onTick() {
@@ -308,4 +314,6 @@ public class Window<C extends ModContainer>
     private final Flags<WindowFlags> _flags;
     private IControl _mouseOver;
     private IControl _keyboardFocus;
+
+    //endregion
 }

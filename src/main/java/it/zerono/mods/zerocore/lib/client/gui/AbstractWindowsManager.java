@@ -130,6 +130,11 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         return this._paintPartialTicks;
     }
 
+    @Override
+    public void onThemeChanged(Theme newTheme) {
+        this.forEachWindow(window -> window.onThemeChanged(newTheme));
+    }
+
     //region AbstractWindowsManager
 
     public static void enableDebugFrame(final boolean enable) {

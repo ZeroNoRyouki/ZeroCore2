@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
+import it.zerono.mods.zerocore.lib.client.gui.Theme;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.event.Event;
@@ -281,9 +282,12 @@ public class TextInput
 
     @Override
     public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+
+        final Theme theme = this.getTheme();
+
         this.paint3DSunkenBox(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height,
-                Theme.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT, Theme.TEXTFIELD_NORMAL_3D_GRADIENT_DARK,
-                Theme.TEXTFIELD_NORMAL_3D_BORDER_LIGHT, Theme.TEXTFIELD_NORMAL_3D_BORDER_DARK
+                theme.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT, theme.TEXTFIELD_NORMAL_3D_GRADIENT_DARK,
+                theme.TEXTFIELD_NORMAL_3D_BORDER_LIGHT, theme.TEXTFIELD_NORMAL_3D_BORDER_DARK
         );
     }
 
@@ -406,7 +410,7 @@ public class TextInput
 
         final int x = Math.max(1, this.getLineWidth(this.getText().substring(this._displayCharIndex, this._caretCharIndex)));
 
-        this.paintSolidRect(matrix, x, 2, x + 1, 2 + this.getTextAreaHeight() - 1, Theme.TEXTFIELD_CARET);
+        this.paintSolidRect(matrix, x, 2, x + 1, 2 + this.getTextAreaHeight() - 1, this.getTheme().TEXTFIELD_CARET);
     }
 
     private Predicate<Character> getCharFilter() {

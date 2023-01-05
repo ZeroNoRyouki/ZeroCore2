@@ -123,7 +123,7 @@ public abstract class NumberInput<Type>
     public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, Theme.DARK_OUTLINE_COLOR);
+        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
     }
 
     //endregion
@@ -138,10 +138,9 @@ public abstract class NumberInput<Type>
 
         this._label = new Label(gui, "value", "0");
         this._label.setAutoSize(false);
-        this._label.setColor(Colour.BLACK);
 
         this.setPadding(3, 2, 2, 2);
-        this.setBackground(Theme.FLAT_BACKGROUND_COLOR);
+        this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);
 
         this.addChildControl(this._label, this._updown);
 

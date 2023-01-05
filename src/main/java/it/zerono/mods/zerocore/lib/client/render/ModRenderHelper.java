@@ -1525,6 +1525,26 @@ public final class ModRenderHelper {
         paintVerticalLine(matrix, x + width - 2, y + 1+1, height - 3, zLevel, borderDarkColour);
     }
 
+    public static void paintButton3D(final PoseStack matrix, final Point screenXY, final int width, final int height,
+                                     final int zLevel, final Colour darkOutlineColour, final Colour flatBackgroundColour,
+                                     final Colour borderLightColour, final Colour borderDarkColour) {
+        paintButton3D(matrix, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour, flatBackgroundColour,
+                borderLightColour, borderDarkColour);
+    }
+
+    public static void paintButton3D(final PoseStack matrix, final int x, final int y, final int width, final int height,
+                                     final int zLevel, final Colour darkOutlineColour, final Colour flatBackgroundColour,
+                                     final Colour borderLightColour, final Colour borderDarkColour) {
+
+        paintHollowRect(matrix, x, y, width, height, zLevel, darkOutlineColour);
+        paintSolidRect(matrix, x + 2, y + 2, x + 2 + width - 3, y + 2 + height - 3, zLevel, flatBackgroundColour);
+
+        paintHorizontalLine(matrix, x + 1, y + 1, width - 3+1, zLevel, borderLightColour);
+        paintVerticalLine(matrix, x + 1, y + 1, height - 3, zLevel, borderLightColour);
+        paintHorizontalLine(matrix, x + 1, y + height - 2, width - 2, zLevel, borderDarkColour);
+        paintVerticalLine(matrix, x + width - 2, y + 1+1, height - 3, zLevel, borderDarkColour);
+    }
+
     //endregion
     //region message box
 
@@ -2038,6 +2058,56 @@ public final class ModRenderHelper {
         builder.vertex(pose, (float)x1, (float)y1, (float)zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(pose, (float)x3, (float)y3, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
 
+//        builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
+//        builder.vertex(x3, y3, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+//        builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+
+        tessellator.end();
+
+        RenderSystem.disableBlend();
+        RenderSystem.enableTexture();
+    }
+
+    /**
+     * Paint a triangle filled with a solid colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param x1            starting point on the X axis
+     * @param y1            starting point on the Y axis
+     * @param x2            ending point on the X axis (not included in the rectangle)
+     * @param y2            ending point on the Y axis (not included in the rectangle)
+     * @param zLevel        the position on the Z axis for the rectangle
+     * @param colour        the colour to be used to fill the triangle
+     */
+    public static void paint3DSolidTriangle(final PoseStack matrix, final double x1, final double y1, final double x2, final double y2,
+                                            final double x3, final double y3, final double zLevel, final Colour colour) {
+
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
+                GlStateManager.DestFactor.ZERO.value);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        final Tesselator tessellator = Tesselator.getInstance();
+        final BufferBuilder builder = tessellator.getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+        final float startAlpha = colour.glAlpha();
+        final float startRed = colour.glRed();
+        final float startGreen = colour.glGreen();
+        final float startBlue = colour.glBlue();
+        final float endAlpha = colour.glAlpha();
+        final float endRed = colour.glRed();
+        final float endGreen = colour.glGreen();
+        final float endBlue = colour.glBlue();
+
+        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+
+        builder.vertex(pose, (float)x1, (float)y1, (float)zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
+        builder.vertex(pose, (float)x3, (float)y3, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+        builder.vertex(pose, (float)x2, (float)y2, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+
         tessellator.end();
 
         RenderSystem.disableBlend();
@@ -2081,6 +2151,20 @@ public final class ModRenderHelper {
                                         final Colour borderLightColour, final Colour borderDarkColour) {
 
         ModRenderHelper.paint3DGradientRect(matrix, x1 + 1, y1 + 1, x2 - 1, y2 - 1, zLevel, gradientLightColour, gradientDarkColour);
+
+        ModRenderHelper.paintSolidRects(matrix, borderDarkColour, zLevel,
+                x1, y1, x2, y1 + 1,
+                x1, y1, x1 + 1, y2);
+
+        ModRenderHelper.paintSolidRects(matrix, borderLightColour, zLevel,
+                x1, y2 - 1, x2, y2,
+                x2 - 1, y1, x2, y2);
+    }
+
+    public static void paint3DSunkenBox(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
+                                        final Colour gradientLightColour, final Colour borderLightColour, final Colour borderDarkColour) {
+
+        ModRenderHelper.paintSolidRect(matrix, x1 + 1, y1 + 1, x2 - 1, y2 - 1, (int)zLevel, gradientLightColour);
 
         ModRenderHelper.paintSolidRects(matrix, borderDarkColour, zLevel,
                 x1, y1, x2, y1 + 1,

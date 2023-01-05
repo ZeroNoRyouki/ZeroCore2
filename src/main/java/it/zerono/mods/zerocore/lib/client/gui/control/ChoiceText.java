@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
-import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -38,6 +37,7 @@ public class ChoiceText<Index extends Enum<Index>>
         this(gui, name, new EnumIndexedArray<>(String[]::new, validIndex));
     }
 
+    @SafeVarargs
     public ChoiceText(final ModContainerScreen<? extends ModContainer> gui, final String name,
                       final Index firstValidIndex, final Index secondValidIndex, final Index... otherValidIndices) {
         this(gui, name, new EnumIndexedArray<>(String[]::new, firstValidIndex, secondValidIndex, otherValidIndices));
@@ -68,7 +68,7 @@ public class ChoiceText<Index extends Enum<Index>>
     public void onPaintBackground(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
 
         super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, Theme.DARK_OUTLINE_COLOR);
+        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
     }
 
     //endregion
@@ -80,9 +80,7 @@ public class ChoiceText<Index extends Enum<Index>>
         super(gui, name, new Label(gui, "value", ""), indexedArray);
 
         this.setPadding(3, 2, 2, 2);
-        this.setBackground(Theme.FLAT_BACKGROUND_COLOR);
-        this.getValueControl().setColor(Colour.BLACK);
-
+        this.setBackground(this.getTheme().FLAT_BACKGROUND_COLOR);
         this.Changed = new Event<>();
     }
 
