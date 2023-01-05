@@ -19,12 +19,12 @@
 package it.zerono.mods.zerocore.internal.datagen;
 
 import it.zerono.mods.zerocore.lib.client.gui.Theme;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 @SuppressWarnings("unused")
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -35,9 +35,9 @@ public class DataGenerationHandler {
 
         final DataGenerator generator = event.getGenerator();
 
-        generator.addProvider(new DataProvider() {
+        generator.addProvider(true, new DataProvider() {
             @Override
-            public void run(HashCache cache) {
+            public void run(CachedOutput cache) {
                 Theme.write(generator.getOutputFolder().resolve("gui_theme_example.json"), Theme.DEFAULT);
             }
 

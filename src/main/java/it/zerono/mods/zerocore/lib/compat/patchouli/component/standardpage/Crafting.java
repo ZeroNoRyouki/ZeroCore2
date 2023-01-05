@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage;
 
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.crafting.Recipe;
 import vazkii.patchouli.api.IVariable;
 import vazkii.patchouli.client.book.page.PageCrafting;
@@ -56,8 +55,8 @@ public class Crafting
 
         void setTitles(String title1, String title2) {
 
-            this._overrideTitle1 = new TextComponent(title1);
-            this._overrideTitle2 = new TextComponent(title2);
+            this._overrideTitle1 = Component.literal(title1);
+            this._overrideTitle2 = Component.literal(title2);
         }
 
         //region PageCrafting

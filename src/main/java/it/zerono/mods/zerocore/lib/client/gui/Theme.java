@@ -25,7 +25,10 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.server.packs.resources.Resource;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -206,7 +209,7 @@ public final class Theme {
      */
     public static Theme read(Resource resource) {
 
-        try (Reader reader = new InputStreamReader(resource.getInputStream())) {
+        try (Reader reader = resource.openAsReader()) {
             return read(reader);
         } catch (IOException e) {
             Log.LOGGER.error(e);
