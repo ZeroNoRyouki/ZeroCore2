@@ -52,6 +52,8 @@
         "1.16.5-2.1.26":"- Fix error messages not being displayed on the correct client in lan games\r\n- Updated Forge to version 36.2.34\r\n- Updated JEI to version 7.7.1.152\r\n- Updated Patchouli to version 1.16.4-53.3\r\n- Updated CC:Tweaked to version 1.100.10\r\n- Bumped version to 2.1.26"
         ,
         "1.16.5-2.1.28":"- GUI : added custom themes support. The colours used by the GUI controls are now loaded from a JSON theme file. This will allow modders to support multiple switchable themes in their mods that could also be modified by resource packs authors.\r\n- GUI : textual controls will now use the enabled/disabled text colours from the currently active theme unless a custom text colour is set\r\n- Bumped version to 2.1.28"
+        ,
+        "1.16.5-2.1.29":"- Patchouli compat : fix problems with tooltips in custom crafting pages. Close ER #40. Thanks to jajajafeti and macks2008 for the report.\r\n- Bumped version to 2.1.29"
     },
     "1.17.1":{
         "1.17.1-2.1.2":"- First 1.17.1 release\r\n- See 1.16.5-2.1.0 for a full changelog\r\n- Bumped version to 2.1.2\r\n- Updated Minecraft to version 1.17.1\r\n- Updated Forge to version 37.0.27",
@@ -126,8 +128,8 @@
         "1.16.3-recommended":"1.16.4-2.0.19",
         "1.16.4-latest":"1.16.4-2.0.21",
         "1.16.4-recommended":"1.16.4-2.0.21",
-        "1.16.5-latest":"1.16.5-2.1.28",
-        "1.16.5-recommended":"1.16.5-2.1.28",
+        "1.16.5-latest":"1.16.5-2.1.29",
+        "1.16.5-recommended":"1.16.5-2.1.29",
         "1.17.1-latest":"1.17.1-2.1.23",
         "1.17.1-recommended":"1.17.1-2.1.23",
         "1.18.0-latest":"1.18-2.1.8",

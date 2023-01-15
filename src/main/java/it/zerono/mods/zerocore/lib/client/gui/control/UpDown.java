@@ -47,6 +47,8 @@ public class UpDown
 
         super(gui, name);
         this.Clicked = new Event<>();
+        this._paintX = new double[9 * 2];
+        this._paintY = new double[9 * 2];
     }
 
     //region AbstractControl
@@ -59,13 +61,81 @@ public class UpDown
         final Rectangle bound = this.getBounds();
         final int w = bound.Width - 1;
         final int h = bound.Height - 1;
+        double l, r, t, b;
 
         // expand the edge by one (so outside the control) to always detect the edge
         this._upArrow = new Polygon(-1, -1, w, -1, -1, h);
         this._downArrow = new Polygon(w + 1, 0, w + 1, h + 1, 0, h + 1);
 
-        this._upArrowPaint = new Polygon(0, 0, w - 1, 0, 0, h - 1).transform(this::controlToScreen);
-        this._downArrowPaint = new Polygon(w, 1, w, h, 1, h).transform(this::controlToScreen);
+        /*
+         * Vertexes order:
+         * 1-2
+         * |/
+         * 3
+         */
+
+        l = 0.0;
+        r = bound.Width - 1.0;
+        t = 0.0;
+        b = bound.Height - 1.0;
+
+        // 1
+        this._paintX[0] = l + 1.0;
+        this._paintY[0] = t + 1.0;
+        this._paintX[1] = l + 0.75;
+        this._paintY[1] = t + 0.75;
+        this._paintX[2] = l + 0.25;
+        this._paintY[2] = t + 0.25;
+        // 2
+        this._paintX[3] = r - 1.75;
+        this._paintY[3] = t + 1.0;
+        this._paintX[4] = r - 1.25;
+        this._paintY[4] = t + 0.75;
+        this._paintX[5] = r - 0.25;
+        this._paintY[5] = t + 0.25;
+        // 3
+        this._paintX[6] = l + 1.0;
+        this._paintY[6] = b - 1.75;
+        this._paintX[7] = l + 0.75;
+        this._paintY[7] = b - 1.25;
+        this._paintX[8] = l + 0.25;
+        this._paintY[8] = b - 0.25;
+
+        /*
+         * Vertexes order:
+         *   3
+         *  /|
+         * 2-1
+         */
+
+        l = 1.0;
+        r = bound.Width;
+        t = 1.0;
+        b = bound.Height;
+
+        // 1
+        this._paintX[9] = r - 1.0;
+        this._paintY[9] = b - 1.0;
+        this._paintX[10] = r - 0.75;
+        this._paintY[10] = b - 0.75;
+        this._paintX[11] = r - 0.25;
+        this._paintY[11] = b - 0.25;
+        // 2
+        this._paintX[12] = l + 1.75;
+        this._paintY[12] = b - 1.0;
+        this._paintX[13] = l + 1.25;
+        this._paintY[13] = b - 0.75;
+        this._paintX[14] = l + 0.25;
+        this._paintY[14] = b - 0.25;
+        // 3
+        this._paintX[15] = r - 1.0;
+        this._paintY[15] = t + 1.75;
+        this._paintX[16] = r - 0.75;
+        this._paintY[16] = t + 1.25;
+        this._paintX[17] = r - 0.25;
+        this._paintY[17] = t + 0.25;
+
+        this.controlToScreen(this._paintX, this._paintY);
     }
 
     /**
@@ -271,43 +341,69 @@ public class UpDown
                                  final Colour borderDarkColour) {
 
         final float z = this.getZLevel();
-        final int x1 = this._upArrowPaint.getX(0);
-        final int y1 = this._upArrowPaint.getY(0);
-        final int x2 = this._upArrowPaint.getX(1);
-        final int y2 = this._upArrowPaint.getY(1);
-        final int x3 = this._upArrowPaint.getX(2);
-        final int y3 = this._upArrowPaint.getY(2);
+
+        /*
+         * Vertexes order:
+         * 1-2
+         * |/
+         * 3
+         */
+
+        // gradient
+
+        double x1 = this._paintX[0];
+        double y1 = this._paintY[0];
+        double x2 = this._paintX[3];
+        double y2 = this._paintY[3];
+        double x3 = this._paintX[6];
+        double y3 = this._paintY[6];
 
         if (gradientLightColour.equals(gradientDarkColour)) {
             ModRenderHelper.paint3DSolidTriangle(matrix,
-                    x1 + 1.0, y1 + 1.0,
-                    x2 - 0.5, y2 + 1.0,
-                    x3 + 1.0, y3,
+                    x1, y1,
+                    x2, y2,
+                    x3, y3,
                     z, gradientLightColour);
         } else {
-            // gradient
             ModRenderHelper.paint3DGradientTriangle(matrix,
-                    x1 + 1.0, y1 + 1.0,
-                    x2 - 0.5, y2 + 1.0,
-                    x3 + 1.0, y3,
-                    z, gradientLightColour, gradientDarkColour);
+                    x1, y1,
+                    x2, y2,
+                    x3, y3,
+                    z, gradientLightColour, gradientDarkColour, gradientDarkColour);
         }
 
-        // light borders
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
-                x1 + 1.0, y1 + 1.5, x2 - 1.5, y2 + 1.5);
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
-                x1 + 1.5, y1 + 1.5, x3 + 1.5, y3 - 1.5);
+        // 3D borders
 
-        // dark border
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, this.getGui().getGuiScaleFactor(), z,
-                x2 - 1.0, y2 + 1.0, x3 + 1.0, y3 - 0.5);
+        x1 = this._paintX[1];
+        y1 = this._paintY[1];
+        x2 = this._paintX[1 + 3];
+        y2 = this._paintY[1 + 3];
+        x3 = this._paintX[1 + 6];
+        y3 = this._paintY[1 + 6];
+
+        // - dark
+        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 0.25, z,
+                x2, y2, x3, y3);
+
+        // - light
+        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 0.5, z,
+                x1, y1, x2, y2,
+                x1, y1, x3, y3);
 
         // dark outline
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, this.getGui().getGuiScaleFactor(), z,
-                x1, y1 + 0.5, x2 + 1.0, y2 + 0.5,
-                x2 + 0.5, y2 + 0.5, x3 + 0.5, y3 + 1.0,
-                x3 + 0.5, y3 + 1.0, x1 + 0.5, y1);
+
+        x1 = this._paintX[2];
+        y1 = this._paintY[2];
+        x2 = this._paintX[2 + 3];
+        y2 = this._paintY[2 + 3];
+        x3 = this._paintX[2 + 6];
+        y3 = this._paintY[2 + 6];
+
+        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.5, z,
+                x1, y1, x2, y2,
+                x3, y3, x1, y1);
+        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.25, z,
+                x2, y2, x3, y3);
     }
 
     protected void paintDownButton(final PoseStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
@@ -315,44 +411,69 @@ public class UpDown
                                  final Colour borderDarkColour) {
 
         final float z = this.getZLevel();
-        final int x1 = this._downArrowPaint.getX(0);
-        final int y1 = this._downArrowPaint.getY(0);
-        final int x2 = this._downArrowPaint.getX(1);
-        final int y2 = this._downArrowPaint.getY(1);
-        final int x3 = this._downArrowPaint.getX(2);
-        final int y3 = this._downArrowPaint.getY(2);
+
+        /*
+         * Vertexes order:
+         *   3
+         *  /|
+         * 2-1
+         */
+
+        // gradient
+
+        double x1 = this._paintX[9];
+        double y1 = this._paintY[9];
+        double x2 = this._paintX[9 + 3];
+        double y2 = this._paintY[9 + 3];
+        double x3 = this._paintX[9 + 6];
+        double y3 = this._paintY[9 + 6];
 
         if (gradientLightColour.equals(gradientDarkColour)) {
             ModRenderHelper.paint3DSolidTriangle(matrix,
-                    x1, y1 + 1.5,
+                    x1, y1,
                     x2, y2,
-                    x3 + 1.5, y3,
+                    x3, y3,
                     z, gradientLightColour);
         } else {
-            // gradient
             ModRenderHelper.paint3DGradientTriangle(matrix,
-                    x1, y1 + 1.5,
+                    x1, y1,
                     x2, y2,
-                    x3 + 1.5, y3,
-                    z, gradientLightColour, gradientDarkColour);
+                    x3, y3,
+                    z, gradientDarkColour, gradientLightColour, gradientDarkColour);
         }
 
-        // light border
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, this.getGui().getGuiScaleFactor(), z,
-                x1, y1 + 2.0, x3 + 2.0, y3 - 0.5);
+        // 3D borders
 
-        // dark borders
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, this.getGui().getGuiScaleFactor(), z,
-                x1 - 0.5, y1 + 1.5, x2 - 0.5, y2 - 1.0);
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, this.getGui().getGuiScaleFactor(), z,
-                x2, y2 - 0.5, x3 + 1.5, y3 - 0.5);
+        x1 = this._paintX[10];
+        y1 = this._paintY[10];
+        x2 = this._paintX[10 + 3];
+        y2 = this._paintY[10 + 3];
+        x3 = this._paintX[10 + 6];
+        y3 = this._paintY[10 + 6];
+
+        // - light
+        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 0.25, z,
+                x2, y2, x3, y3 );
+
+        // - dark
+        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 0.5, z,
+                x1, y1, x2 - 0.25, y2,
+                x1, y1, x3, y3 - 0.25);
 
         // dark outline
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, this.getGui().getGuiScaleFactor(), z,
-                x1 + 0.5, y1, x2 + 0.5, y2 + 1.0,
-                x2 + 0.5, y2 + 0.5, x3, y3 + 0.5,
-                x3, y3 + 0.5, x1 + 0.5, y1
-        );
+
+        x1 = this._paintX[11];
+        y1 = this._paintY[11];
+        x2 = this._paintX[11 + 3];
+        y2 = this._paintY[11 + 3];
+        x3 = this._paintX[11 + 6];
+        y3 = this._paintY[11 + 6];
+
+        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.5, z,
+                x1, y1, x2, y2,
+                x3, y3, x1, y1);
+        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.25, z,
+                x2, y2, x3, y3);
     }
 
     private void playClickSound() {
@@ -361,8 +482,9 @@ public class UpDown
 
     private Polygon _upArrow;
     private Polygon _downArrow;
-    private Polygon _upArrowPaint;
-    private Polygon _downArrowPaint;
+
+    private final double[] _paintX;
+    private final double[] _paintY;
 
     private Direction.AxisDirection _pressed;
     private Direction.AxisDirection _over;

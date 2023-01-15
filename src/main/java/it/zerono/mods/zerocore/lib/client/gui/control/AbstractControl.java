@@ -349,12 +349,46 @@ public abstract class AbstractControl
     }
 
     @Override
+    public void controlToScreen(final double[] xs, final double[] ys) {
+
+        if (xs.length != ys.length) {
+            throw new IllegalArgumentException("The coordinates arrays must be of the same size.");
+        }
+
+        final double deltaX = this.getBounds().Origin.X + this.getOrigin().X;
+        final double deltaY = this.getBounds().Origin.Y + this.getOrigin().Y;
+
+        for (int i = 0; i < xs.length; ++i) {
+
+            xs[i] += deltaX;
+            ys[i] += deltaY;
+        }
+    }
+
+    @Override
     public Point screenToControl(final int x, final int y) {
 
         final Point boundsOrigin = this.getBounds().Origin;
         final Point origin = this.getOrigin();
 
         return new Point(Math.max(0, x - boundsOrigin.X - origin.X), Math.max(0, y - boundsOrigin.Y - origin.Y));
+    }
+
+    @Override
+    public void screenToControl(final double[] xs, final double[] ys) {
+
+        if (xs.length != ys.length) {
+            throw new IllegalArgumentException("The coordinates arrays must be of the same size.");
+        }
+
+        final double deltaX = this.getBounds().Origin.X + this.getOrigin().X;
+        final double deltaY = this.getBounds().Origin.Y + this.getOrigin().Y;
+
+        for (int i = 0; i < xs.length; ++i) {
+
+            xs[i] = Math.max(0, xs[i] - deltaX);
+            ys[i] = Math.max(0, ys[i] - deltaY);
+        }
     }
 
     @Override
