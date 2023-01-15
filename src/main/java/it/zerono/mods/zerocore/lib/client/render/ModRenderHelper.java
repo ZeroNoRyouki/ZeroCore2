@@ -1739,29 +1739,96 @@ public final class ModRenderHelper {
      */
     public static void paintSolidLines(final PoseStack matrix, final Colour colour, final double thickness, final double zLevel, final double... vertices) {
 
-        GlStateManager._enableBlend();
-        GlStateManager._disableTexture();
-        GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
-                GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.lineWidth((float)thickness);
-
-        final int verticesCount = vertices.length;
-        final Tesselator tessellator = Tesselator.getInstance();
-        final BufferBuilder builder = tessellator.getBuilder();
         final Matrix4f pose = matrix.last().pose();
+        final BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        final float halfThickness = (float)(thickness / 2.0);
+        final int verticesCount = vertices.length;
 
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        builder.begin(VertexFormat.Mode.DEBUG_LINE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        builder.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
-        for (int i = 0; i < verticesCount; i += 2) {
-            builder.vertex(pose, (float)vertices[i], (float)vertices[i + 1], (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+        for (int i = 0; i < verticesCount;) {
+            
+            float x1 = (float)vertices[i++];
+            float y1 = (float)vertices[i++];
+            float x2 = (float)vertices[i++];
+            float y2 = (float)vertices[i++];
+            
+            if (x1 == x2) {
+                
+                if (y2 < y1) {
+
+                    float swap = y1;
+
+                    y1 = y2;
+                    y2 = swap;
+                }
+                
+                builder.vertex(pose, x1 - halfThickness, y1 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x1 - halfThickness, y2 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x1 + halfThickness, y1 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x1 + halfThickness, y2 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                
+            } else if (y1 == y2) {
+
+                if (x2 < x1) {
+
+                    float swap = x1;
+
+                    x1 = x2;
+                    x2 = swap;
+                }
+
+                builder.vertex(pose, x1 - halfThickness, y1 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x1 - halfThickness, y1 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x2 + halfThickness, y1 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x2 + halfThickness, y1 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+
+            } else if ((x1 < x2 && y1 < y2) || (x2 < x1 && y2 < y1)) {
+
+                if (x2 < x1) {
+
+                    float swap = x1;
+
+                    x1 = x2;
+                    x2 = swap;
+
+                    swap = y1;
+                    y1 = y2;
+                    y2 = swap;
+                }
+
+                builder.vertex(pose, x1 + halfThickness, y1 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x1 - halfThickness, y1 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x2 + halfThickness, y2 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x2 - halfThickness, y2 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+
+            } else {
+
+                if (x1 < x2) {
+
+                    float swap = x1;
+
+                    x1 = x2;
+                    x2 = swap;
+
+                    swap = y1;
+                    y1 = y2;
+                    y2 = swap;
+                }
+
+                builder.vertex(pose, x1 + halfThickness, y1 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x1 - halfThickness, y1 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x2 + halfThickness, y2 + halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+                builder.vertex(pose, x2 - halfThickness, y2 - halfThickness, (float)zLevel).color(colour.R, colour.G, colour.B, colour.A).endVertex();
+            }
         }
 
-        tessellator.end();
-
-        GlStateManager._enableTexture();
-        GlStateManager._disableBlend();
+        builder.end();
+        BufferUploader.end(builder);
+        RenderSystem.disableBlend();
     }
 
     /**
@@ -2046,10 +2113,12 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
-     * @param x1            starting point on the X axis
-     * @param y1            starting point on the Y axis
-     * @param x2            ending point on the X axis (not included in the rectangle)
-     * @param y2            ending point on the Y axis (not included in the rectangle)
+     * @param x1            position of the first vertex on the X axis
+     * @param y1            position of the first vertex on the Y axis
+     * @param x2            position of the second vertex on the X axis
+     * @param y2            position of the second vertex on the Y axis
+     * @param x3            position of the third vertex on the X axis
+     * @param y3            position of the third vertex on the Y axis
      * @param zLevel        the position on the Z axis for the rectangle
      * @param lightColour   the light colour to be used for the gradient
      * @param darkColour    the dark colour to be used for the gradient
@@ -2083,9 +2152,48 @@ public final class ModRenderHelper {
         builder.vertex(pose, (float)x1, (float)y1, (float)zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
         builder.vertex(pose, (float)x3, (float)y3, (float)zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
 
-//        builder.vertex(x1, y1, zLevel).color(startRed, startGreen, startBlue, startAlpha).endVertex();
-//        builder.vertex(x3, y3, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
-//        builder.vertex(x2, y2, zLevel).color(endRed  , endGreen  , endBlue  , endAlpha).endVertex();
+        tessellator.end();
+
+        RenderSystem.disableBlend();
+        RenderSystem.enableTexture();
+    }
+
+    /**
+     * Paint a triangle filled with a 3D gradient.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param x1            position of the first vertex on the X axis
+     * @param y1            position of the first vertex on the Y axis
+     * @param x2            position of the second vertex on the X axis
+     * @param y2            position of the second vertex on the Y axis
+     * @param x3            position of the third vertex on the X axis
+     * @param y3            position of the third vertex on the Y axis
+     * @param zLevel        the position on the Z axis for the triangle
+     * @param colour1       the colour for the first vertex
+     * @param colour2       the colour for the second vertex
+     * @param colour3       the colour for the third vertex
+     */
+    public static void paint3DGradientTriangle(final PoseStack matrix, final double x1, final double y1, final double x2, final double y2,
+                                               final double x3, final double y3, final double zLevel,
+                                               final Colour colour1, final Colour colour2, final Colour colour3) {
+
+        RenderSystem.disableTexture();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
+                GlStateManager.DestFactor.ZERO.value);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        final Tesselator tessellator = Tesselator.getInstance();
+        final BufferBuilder builder = tessellator.getBuilder();
+        final Matrix4f pose = matrix.last().pose();
+
+        builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+
+        builder.vertex(pose, (float)x2, (float)y2, (float)zLevel).color(colour2.glRed(), colour2.glGreen(), colour2.glBlue(), colour2.glAlpha()).endVertex();
+        builder.vertex(pose, (float)x1, (float)y1, (float)zLevel).color(colour1.glRed(), colour1.glGreen(), colour1.glBlue(), colour1.glAlpha()).endVertex();
+        builder.vertex(pose, (float)x3, (float)y3, (float)zLevel).color(colour3.glRed(), colour3.glGreen(), colour3.glBlue(), colour3.glAlpha()).endVertex();
 
         tessellator.end();
 
