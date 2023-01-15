@@ -182,7 +182,11 @@ public interface IControl {
 
     Point controlToScreen(int x, int y);
 
+    void controlToScreen(double[] xs, double[] ys);
+
     Point screenToControl(int x, int y);
+
+    void screenToControl(double[] xs, double[] ys);
 
     <Tag> Optional<Tag> getTag();
 
