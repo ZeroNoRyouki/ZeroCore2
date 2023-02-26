@@ -18,8 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.compat.jei;
 
+import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,12 +30,12 @@ import net.minecraft.world.item.ItemStack;
 public abstract class AbstractModRecipeCategory<T>
         implements IRecipeCategory<T> {
 
-    protected AbstractModRecipeCategory(final ResourceLocation id, final Component title, final ItemStack icon,
+    protected AbstractModRecipeCategory(final RecipeType<T> type, final Component title, final ItemStack icon,
                                         final IGuiHelper guiHelper, final IDrawable background) {
 
-        this._id = id;
+        this._type = type;
         this._title = title;
-        this._icon = guiHelper.createDrawableIngredient(icon);
+        this._icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, icon);
         this._background = background;
     }
 
@@ -41,7 +43,17 @@ public abstract class AbstractModRecipeCategory<T>
 
     @Override
     public ResourceLocation getUid() {
-        return this._id;
+        return this.getRecipeType().getUid();
+    }
+
+    @Override
+    public Class<? extends T> getRecipeClass() {
+        return this.getRecipeType().getRecipeClass();
+    }
+
+    @Override
+    public RecipeType<T> getRecipeType() {
+        return this._type;
     }
 
     @Override
@@ -62,7 +74,7 @@ public abstract class AbstractModRecipeCategory<T>
     //endregion
     //region internals
 
-    private final ResourceLocation _id;
+    private final RecipeType<T> _type;
     private final Component _title;
     private final IDrawable _icon;
     private final IDrawable _background;

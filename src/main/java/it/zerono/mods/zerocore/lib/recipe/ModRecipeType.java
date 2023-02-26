@@ -26,6 +26,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.common.util.NonNullFunction;
 
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +70,13 @@ public class ModRecipeType<Recipe extends ModRecipe>
 
     public List<Recipe> getRecipes(final Predicate<Recipe> filter) {
         return this.stream().filter(filter).collect(Collectors.toList());
+    }
+
+    public <R extends Recipe> List<R> getRecipes(final Predicate<Recipe> filter, final NonNullFunction<Recipe, R> mapping) {
+        return this.stream()
+                .filter(filter)
+                .map(mapping::apply)
+                .collect(Collectors.toList());
     }
 
     public Stream<Recipe> stream() {

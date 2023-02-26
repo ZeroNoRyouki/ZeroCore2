@@ -163,6 +163,14 @@ public final class ModRenderHelper {
         return getFluidOverlaySprite(stack.getFluid());
     }
 
+    public static int getFluidTint(final Fluid fluid) {
+        return fluid.getAttributes().getColor();
+    }
+
+    public static Colour getFluidTintColour(final Fluid fluid) {
+        return Colour.fromARGB(getFluidTint(fluid));
+    }
+
     public static ISprite getStillFluidSprite(final Fluid fluid) {
         return buildSprite(getFluidStillSprite(fluid), null);
     }
