@@ -32,6 +32,6 @@ logoFile="logo.png"
 
 	modId="forge"
 	mandatory=true
-    versionRange="[43.1.3,49)"
+    versionRange="[43.2.1,49)"
 	ordering="NONE"
 	side="BOTH"
