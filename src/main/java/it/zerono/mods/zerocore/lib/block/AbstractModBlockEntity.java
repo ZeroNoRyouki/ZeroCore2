@@ -328,7 +328,14 @@ public abstract class AbstractModBlockEntity
      */
     @Override
     public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
+
+        super.onDataPacket(net, packet);
+
+        final var data = packet.getTag();
+
+        if (null != data) {
+            this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
+        }
     }
 
     /**
