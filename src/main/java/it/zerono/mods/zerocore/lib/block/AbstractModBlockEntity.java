@@ -485,7 +485,10 @@ public abstract class AbstractModBlockEntity
     }
 
     public void notifyBlockUpdate() {
-        this.notifyBlockUpdate(this.getBlockState(), this.getBlockState());
+
+        if (this.hasLevel()) {
+            this.notifyBlockUpdate(this.getBlockState(), this.getBlockState());
+        }
     }
 
     public void notifyBlockUpdate(BlockState oldState, BlockState newState) {
