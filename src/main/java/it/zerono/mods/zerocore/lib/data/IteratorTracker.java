@@ -24,6 +24,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Optional;
 
+@Deprecated
 public class IteratorTracker<T> {
 
     public IteratorTracker(final NonNullSupplier<Iterator<T>> factory) {
