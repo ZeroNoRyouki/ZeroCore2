@@ -485,12 +485,7 @@ public abstract class AbstractModBlockEntity
     }
 
     public void notifyBlockUpdate() {
-
-        final World world = this.getLevel();
-
-        if (null != world) {
-            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
-        }
+        this.notifyBlockUpdate(this.getBlockState(), this.getBlockState());
     }
 
     public void notifyBlockUpdate(BlockState oldState, BlockState newState) {
@@ -517,7 +512,7 @@ public abstract class AbstractModBlockEntity
         if (null != world) {
 
             this.setChanged();
-            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
+            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), this.getBlockState(), this.getBlockState());
         }
     }
 
