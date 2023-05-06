@@ -66,6 +66,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
@@ -102,6 +103,11 @@ public final class ModRenderHelper {
 
     public static IBakedModel getMissingModel() {
         return getModelManager().getMissingModel();
+    }
+
+    @Nullable
+    public static IBakedModel getMissingModel(Map<ResourceLocation, IBakedModel> modelRegistry) {
+        return modelRegistry.get(ModelBakery.MISSING_MODEL_LOCATION);
     }
 
     public static void bindTexture(final ResourceLocation textureLocation) {
