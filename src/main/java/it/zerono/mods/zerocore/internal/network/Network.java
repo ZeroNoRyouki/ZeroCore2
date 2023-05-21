@@ -67,6 +67,6 @@ public final class Network {
     }
 
     static {
-        HANDLER = new NetworkHandler(ZeroCore.newID("network"), "1");
+        HANDLER = new NetworkHandler(ZeroCore.ROOT_LOCATION.buildWithSuffix("network"), "1");
     }
 }
