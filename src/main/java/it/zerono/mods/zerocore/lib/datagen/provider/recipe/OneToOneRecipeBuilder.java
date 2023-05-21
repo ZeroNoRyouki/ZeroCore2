@@ -31,39 +31,41 @@ import java.util.function.Consumer;
 public class OneToOneRecipeBuilder<RecipeIngredient, RecipeResult>
     extends AbstractModRecipeBuilder<OneToOneRecipeBuilder<RecipeIngredient, RecipeResult>> {
 
-    public OneToOneRecipeBuilder(final ResourceLocation serializerId, final IRecipeIngredient<RecipeIngredient> ingredient,
-                                 final IRecipeResult<RecipeResult> result) {
+    public OneToOneRecipeBuilder(ResourceLocation serializerId, IRecipeIngredient<RecipeIngredient> ingredient,
+                                 IRecipeResult<RecipeResult> result) {
 
         super(serializerId);
+
         Preconditions.checkArgument(!ingredient.isEmpty(), "An ingredient cannot be empty");
         Preconditions.checkArgument(!result.isEmpty(), "A result cannot be empty");
+
         this._ingredient = ingredient;
         this._result = result;
     }
 
-    public void build(final Consumer<FinishedRecipe> consumer) {
+    public void build(Consumer<FinishedRecipe> consumer) {
         this.build(consumer, this._result.getId());
     }
 
     //region AbstractModRecipeBuilder
 
     @Override
-    protected FinishedRecipe getFinishedRecipe(final ResourceLocation id) {
+    protected FinishedRecipe getFinishedRecipe(ResourceLocation id) {
         return new OneToOneRecipeBuilderFinishedRecipe(id);
     }
 
     public class OneToOneRecipeBuilderFinishedRecipe
             extends AbstractFinishedRecipe {
 
-        protected OneToOneRecipeBuilderFinishedRecipe(final ResourceLocation id) {
+        protected OneToOneRecipeBuilderFinishedRecipe(ResourceLocation id) {
             super(id);
         }
 
         @Override
-        public void serializeRecipeData(final JsonObject json) {
+        public void serializeRecipeData(JsonObject json) {
 
-            json.add(Lib.NAME_INGREDIENT, _ingredient.serializeTo());
-            json.add(Lib.NAME_RESULT, _result.serializeTo());
+            json.add(Lib.NAME_INGREDIENT, OneToOneRecipeBuilder.this._ingredient.serializeTo());
+            json.add(Lib.NAME_RESULT, OneToOneRecipeBuilder.this._result.serializeTo());
         }
     }
 

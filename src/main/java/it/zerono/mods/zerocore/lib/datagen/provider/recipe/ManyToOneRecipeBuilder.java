@@ -32,24 +32,26 @@ import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
 public class ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient extends IRecipeIngredient<IngredientT>,
-                                    RecipeResult extends IRecipeResult<Result>>
+        RecipeResult extends IRecipeResult<Result>>
         extends AbstractModRecipeBuilder<ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient, RecipeResult>> {
 
-    public ManyToOneRecipeBuilder(final ResourceLocation serializerId, final RecipeResult result,
-                                  final IntFunction<String> jsonIngredientsLabelsSupplier) {
+    public ManyToOneRecipeBuilder(ResourceLocation serializerId, RecipeResult result,
+                                  IntFunction<String> jsonIngredientsLabelsSupplier) {
 
         super(serializerId);
+
         Preconditions.checkArgument(!result.isEmpty(), "A result cannot be empty");
+
         this._ingredients = new ObjectArrayList<>(4);
         this._result = result;
         this._jsonIngredientsLabelsSupplier = jsonIngredientsLabelsSupplier;
     }
 
-    public void build(final Consumer<FinishedRecipe> consumer) {
+    public void build(Consumer<FinishedRecipe> consumer) {
         this.build(consumer, this._result.getId());
     }
 
-    public void addIngredient(final RecipeIngredient ingredient) {
+    public void addIngredient(RecipeIngredient ingredient) {
 
         Preconditions.checkArgument(!ingredient.isEmpty(), "An ingredient cannot be empty");
         this._ingredients.add(ingredient);
@@ -58,27 +60,28 @@ public class ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient extend
     //region AbstractModRecipeBuilder
 
     @Override
-    protected FinishedRecipe getFinishedRecipe(final ResourceLocation id) {
+    protected FinishedRecipe getFinishedRecipe(ResourceLocation id) {
         return new ManyToOneRecipeBuilderFinishedRecipe(id);
     }
 
     public class ManyToOneRecipeBuilderFinishedRecipe
             extends AbstractFinishedRecipe {
 
-        protected ManyToOneRecipeBuilderFinishedRecipe(final ResourceLocation id) {
+        protected ManyToOneRecipeBuilderFinishedRecipe(ResourceLocation id) {
             super(id);
         }
 
         @Override
-        public void serializeRecipeData(final JsonObject json) {
+        public void serializeRecipeData(JsonObject json) {
 
-            final int count = _ingredients.size();
+            final int count = ManyToOneRecipeBuilder.this._ingredients.size();
 
             for (int idx = 0; idx < count; ++idx) {
-                json.add(_jsonIngredientsLabelsSupplier.apply(idx), _ingredients.get(idx).serializeTo());
+                json.add(ManyToOneRecipeBuilder.this._jsonIngredientsLabelsSupplier.apply(idx),
+                        ManyToOneRecipeBuilder.this._ingredients.get(idx).serializeTo());
             }
 
-            json.add(Lib.NAME_RESULT, _result.serializeTo());
+            json.add(Lib.NAME_RESULT, ManyToOneRecipeBuilder.this._result.serializeTo());
         }
     }
 
@@ -87,7 +90,6 @@ public class ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient extend
 
     private final List<RecipeIngredient> _ingredients;
     private final RecipeResult _result;
-
     private final IntFunction<String> _jsonIngredientsLabelsSupplier;
 
     //endregion

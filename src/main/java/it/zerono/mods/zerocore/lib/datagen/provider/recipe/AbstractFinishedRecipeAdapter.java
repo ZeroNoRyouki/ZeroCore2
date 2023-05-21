@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nullable;
 
@@ -31,7 +31,7 @@ public abstract class AbstractFinishedRecipeAdapter
     //region IFinishedRecipe
 
     @Override
-    public void serializeRecipeData(final JsonObject json) {
+    public void serializeRecipeData(JsonObject json) {
         this._originalRecipe.serializeRecipeData(json);
     }
 
@@ -58,8 +58,8 @@ public abstract class AbstractFinishedRecipeAdapter
     }
 
     /**
-     * Gets the ID for the advancement associated with this recipe. Should not be null if {@link #getAdvancementJson} is
-     * non-null.
+     * Gets the ID for the advancement associated with this recipe. Should not be null
+     * if {@link #serializeAdvancement} is non-null.
      */
     @Nullable
     @Override
@@ -70,7 +70,7 @@ public abstract class AbstractFinishedRecipeAdapter
     //endregion
     //region internals
 
-    protected AbstractFinishedRecipeAdapter(final FinishedRecipe originalRecipe, final RecipeSerializer<?> serializer) {
+    protected AbstractFinishedRecipeAdapter(FinishedRecipe originalRecipe, RecipeSerializer<?> serializer) {
 
         this._originalRecipe = originalRecipe;
         this._serializer = serializer;

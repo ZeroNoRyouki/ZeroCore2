@@ -16,9 +16,10 @@
  *
  */
 
- @ParametersAreNonnullByDefault
- @MethodsReturnNonnullByDefault
- package it.zerono.mods.zerocore.lib.datagen.provider.multiblock;
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+
+package it.zerono.mods.zerocore.lib.datagen.provider.client;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

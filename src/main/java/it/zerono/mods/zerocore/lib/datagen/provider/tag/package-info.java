@@ -1,5 +1,6 @@
 /*
- * package-info
+ *
+ * package-info.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -11,13 +12,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  *
- * Do not remove or edit this header
+ * DO NOT REMOVE OR EDIT THIS HEADER
  *
  */
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
+package it.zerono.mods.zerocore.lib.datagen.provider.tag;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

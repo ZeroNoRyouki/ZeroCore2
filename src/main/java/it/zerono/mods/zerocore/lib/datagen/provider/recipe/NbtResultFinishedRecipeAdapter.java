@@ -20,22 +20,22 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.function.Consumer;
 
 public class NbtResultFinishedRecipeAdapter
         extends AbstractFinishedRecipeAdapter {
 
-    public static Consumer<FinishedRecipe> from(final Consumer<FinishedRecipe> originalRecipe, final RecipeSerializer<?> serializer,
-                                                 final CompoundTag data)  {
+    public static Consumer<FinishedRecipe> from(Consumer<FinishedRecipe> originalRecipe, RecipeSerializer<?> serializer,
+                                                CompoundTag data) {
         return fr -> originalRecipe.accept(new NbtResultFinishedRecipeAdapter(fr, serializer, data));
     }
 
-    public static Consumer<FinishedRecipe> from(final Consumer<FinishedRecipe> originalRecipe, final RecipeSerializer<?> serializer,
-                                                 final Consumer<CompoundTag> data) {
+    public static Consumer<FinishedRecipe> from(Consumer<FinishedRecipe> originalRecipe, RecipeSerializer<?> serializer,
+                                                Consumer<CompoundTag> data) {
 
         final CompoundTag nbt = new CompoundTag();
 
@@ -46,7 +46,7 @@ public class NbtResultFinishedRecipeAdapter
     //region IFinishedRecipe
 
     @Override
-    public void serializeRecipeData(final JsonObject json) {
+    public void serializeRecipeData(JsonObject json) {
 
         super.serializeRecipeData(json);
 
@@ -58,8 +58,8 @@ public class NbtResultFinishedRecipeAdapter
     //endregion
     //region internals
 
-    private NbtResultFinishedRecipeAdapter(final FinishedRecipe originalRecipe, final RecipeSerializer<?> serializer,
-                                           final CompoundTag resultData) {
+    private NbtResultFinishedRecipeAdapter(FinishedRecipe originalRecipe, RecipeSerializer<?> serializer,
+                                           CompoundTag resultData) {
 
         super(originalRecipe, serializer);
         this._data = resultData;
