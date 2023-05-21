@@ -18,12 +18,16 @@
 
 package it.zerono.mods.zerocore.lib.data.json;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
+import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -33,9 +37,32 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public final class JSONHelper {
+
+    public static String serializeTextureName(String name) {
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
+
+        if ('#' == name.charAt(0)) {
+            return name;
+        }
+
+        return new ResourceLocation(name).toString();
+    }
+
+    /**
+     * Create a new {@link JsonArray} filled with the elements from the provided collection.
+     *
+     * @param elements The collection of elements to serialize.
+     * @return The array.
+     */
+    public static JsonArray toArray(Collection<Supplier<JsonElement>> elements) {
+        return Util.make(new JsonArray(), array -> elements.forEach($ -> array.add($.get())));
+    }
 
     /**
      * Get a int value from a JSON element
