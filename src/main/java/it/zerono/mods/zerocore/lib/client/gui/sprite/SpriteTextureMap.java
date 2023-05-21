@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
-import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.Lib;
 import net.minecraft.resources.ResourceLocation;
 
 public class SpriteTextureMap implements ISpriteTextureMap {
 
-    public static final ISpriteTextureMap EMPTY = new SpriteTextureMap(ZeroCore.newID("textures/empty.png"), 16, 16);
+    public static final ISpriteTextureMap EMPTY = new SpriteTextureMap(Lib.TEXTURES_LOCATION.buildWithSuffix("empty.png"), 16, 16);
 
     public SpriteTextureMap(final ResourceLocation textureLocation, final int width, final int height) {
 

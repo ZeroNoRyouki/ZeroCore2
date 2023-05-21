@@ -18,7 +18,9 @@
 
 package it.zerono.mods.zerocore.internal;
 
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.network.Network;
+import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
@@ -35,6 +37,9 @@ import net.minecraftforge.registries.RegisterEvent;
 import java.util.concurrent.CompletableFuture;
 
 public final class Lib {
+
+    public static final ResourceLocationBuilder TEXTURES_LOCATION = ZeroCore.ROOT_LOCATION.appendPath("textures");
+    public static final ResourceLocationBuilder GUI_TEXTURES_LOCATION = TEXTURES_LOCATION.appendPath("gui");
 
     public static void initialize() {
 

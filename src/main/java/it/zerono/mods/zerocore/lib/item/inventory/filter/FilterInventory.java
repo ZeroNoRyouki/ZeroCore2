@@ -21,9 +21,9 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -278,17 +278,17 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
         this.removeCondition(String.valueOf(slot));
     }
 
-    private int _size;
+    private final int _size;
 
     private static final ResourceLocation COMPONENT_ID;
 
     static {
 
-        COMPONENT_ID = ZeroCore.newID("inventory.filter.FilterInventory");
+        COMPONENT_ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("inventory.filter.filterinventory");
 
         final FilterManager<FilterInventory> fm = FilterManager.getInstance();
 
-        fm.registerFactory(COMPONENT_ID, new IFilterComponentFactory<FilterInventory>() {
+        fm.registerFactory(COMPONENT_ID, new IFilterComponentFactory<>() {
 
             @Override
             public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId) {

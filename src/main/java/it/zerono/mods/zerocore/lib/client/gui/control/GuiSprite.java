@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteTextureMap;
@@ -152,7 +152,7 @@ public enum GuiSprite
     private final float _minU, _maxU, _minV, _maxV;
     private final ISprite _overlay;
 
-    private static final ISpriteTextureMap TEXTURE_MAP = new SpriteTextureMap(ZeroCore.newID("textures/gui/gui_sprites.png"), 128, 128);
+    private static final ISpriteTextureMap TEXTURE_MAP = new SpriteTextureMap(Lib.GUI_TEXTURES_LOCATION.buildWithSuffix("gui_sprites.png"), 128, 128);
 
     //endregion
 }

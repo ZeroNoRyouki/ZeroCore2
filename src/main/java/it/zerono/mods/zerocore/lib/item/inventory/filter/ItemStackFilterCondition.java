@@ -21,9 +21,9 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -96,11 +96,11 @@ public class ItemStackFilterCondition implements IFilterCondition {
 
     static {
 
-        COMPONENT_ID = ZeroCore.newID("inventory.filter.ItemStackFilterCondition");
+        COMPONENT_ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("inventory.filter.itemstackfiltercondition");
 
         final FilterManager<ItemStackFilterCondition> fm = FilterManager.getInstance();
 
-        fm.registerFactory(COMPONENT_ID, new IFilterComponentFactory<ItemStackFilterCondition>() {
+        fm.registerFactory(COMPONENT_ID, new IFilterComponentFactory<>() {
 
             @Override
             public Optional<ItemStackFilterCondition> createComponent(ResourceLocation componentId) {

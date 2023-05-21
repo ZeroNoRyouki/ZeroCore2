@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.base.client.screen;
 
-import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteBuilder;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteTextureMap;
@@ -82,7 +82,7 @@ public enum BaseIcons
     private static ISpriteTextureMap getMap() {
 
         if (null == s_map) {
-            s_map = new SpriteTextureMap(ZeroCore.newID("textures/gui/base_icons.png"), 192, 192);
+            s_map = new SpriteTextureMap(Lib.GUI_TEXTURES_LOCATION.buildWithSuffix("base_icons.png"), 192, 192);
         }
 
         return s_map;

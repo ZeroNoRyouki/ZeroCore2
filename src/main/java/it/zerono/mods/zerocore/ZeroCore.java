@@ -25,8 +25,8 @@ import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.internal.proxy.ClientProxy;
 import it.zerono.mods.zerocore.internal.proxy.IProxy;
 import it.zerono.mods.zerocore.internal.proxy.ServerProxy;
+import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.init.IModInitializationHandler;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -38,6 +38,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public final class ZeroCore implements IModInitializationHandler {
 
     public static final String MOD_ID = "zerocore";
+    public static ResourceLocationBuilder ROOT_LOCATION = ResourceLocationBuilder.of(MOD_ID);
 
     public static ZeroCore getInstance() {
         return s_instance;
@@ -45,10 +46,6 @@ public final class ZeroCore implements IModInitializationHandler {
 
     public static IProxy getProxy() {
         return s_proxy;
-    }
-
-    public static ResourceLocation newID(final String path) {
-        return new ResourceLocation(MOD_ID, path);
     }
 
     public ZeroCore() {
