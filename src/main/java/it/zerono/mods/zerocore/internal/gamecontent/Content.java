@@ -20,8 +20,11 @@ package it.zerono.mods.zerocore.internal.gamecontent;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.gamecontent.debugtool.DebugToolItem;
+import it.zerono.mods.zerocore.lib.event.CommonEvents;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -31,15 +34,16 @@ public class Content {
 
     public static void initialize() {
 
-        ITEMS.register(Mod.EventBusSubscriber.Bus.MOD.bus().get());
-        FEATURES.register(Mod.EventBusSubscriber.Bus.MOD.bus().get());
+        final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
+
+        ITEMS.register(modBus);
+        FEATURES.register(modBus);
+        CommonEvents.onAddCreativeTabContent(CreativeModeTabs.TOOLS_AND_UTILITIES,
+                (tab, enabledFeatureSet, showOpOnlyItems, output) -> output.accept(Content.DEBUG_TOOL));
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ZeroCore.MOD_ID);
     private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES, ZeroCore.MOD_ID);
 
     public static final RegistryObject<DebugToolItem> DEBUG_TOOL = ITEMS.register("debugtool", DebugToolItem::new);
-
-//    public static final RegistryObject<Feature<OreConfiguration>> FEATURE_ORE = FEATURES.register("mod_ores", () -> new ModOreFeature(OreConfiguration.CODEC));
-//    public static final RegistryObject<Feature<OreConfiguration>> FEATURE_ORE_REGEN = FEATURES.register("mod_ores_regen", () -> new ModOreReGenFeature(OreConfiguration.CODEC));
 }

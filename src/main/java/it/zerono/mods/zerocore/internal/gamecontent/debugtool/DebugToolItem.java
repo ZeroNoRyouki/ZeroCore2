@@ -31,7 +31,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
@@ -56,7 +55,7 @@ public class DebugToolItem
     }
 
     public DebugToolItem() {
-        super(new Properties().stacksTo(64).tab(CreativeModeTab.TAB_TOOLS));
+        super(new Properties().stacksTo(64));
     }
 
     public static void setTestCallback(@Nullable ITestCallback callback) {
