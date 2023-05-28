@@ -52,19 +52,13 @@ public class SingleVariantBuilder
     /**
      * Add one or more new model {@link Variant}s to the block state being built.
      *
-     * @param variantBuilder The {@link ModelVariantBuilder} used to build the new model variants.
+     * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
      */
-    public void variant(NonNullConsumer<ModelVariantBuilder> variantBuilder) {
+    public void variant(NonNullConsumer<ModelVariantBuilder> builder) {
 
-        Preconditions.checkNotNull(variantBuilder, "Variant builder must not be null");
+        Preconditions.checkNotNull(builder, "Variant builder must not be null");
 
-        final var builder = new ModelVariantBuilder(this._modelVariants, this._modelBuilder);
-
-        variantBuilder.accept(builder);
-
-        if (!builder.isBuilt()) {
-            builder.build();
-        }
+        ModelVariantBuilder.build(this._modelVariants, this._modelBuilder, builder);
     }
 
     //region BlockStateGenerator

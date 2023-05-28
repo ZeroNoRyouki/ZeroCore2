@@ -62,7 +62,7 @@ public class MultiPartBuilder
 
         final var part = new Part();
 
-        builder.accept(new ModelVariantBuilder(part, this._modelBuilder));
+        ModelVariantBuilder.build(part, this._modelBuilder, builder);
         this._parts.add(part);
         return this;
     }
@@ -100,7 +100,7 @@ public class MultiPartBuilder
 
         final var part = new ConditionalPart(condition);
 
-        builder.accept(new ModelVariantBuilder(part, this._modelBuilder));
+        ModelVariantBuilder.build(part, this._modelBuilder, builder);
         this._parts.add(part);
         return this;
     }
@@ -142,7 +142,7 @@ public class MultiPartBuilder
 
         final var part = new ConditionalPart(Condition.condition().term(property, value));
 
-        builder.accept(new ModelVariantBuilder(part, this._modelBuilder));
+        ModelVariantBuilder.build(part, this._modelBuilder, builder);
         this._parts.add(part);
         return this;
     }
@@ -172,18 +172,18 @@ public class MultiPartBuilder
      * Add one or more new model {@link Variant}s with a new {@link Condition}.
      *
      * @param conditionBuilder The {@link ConditionBuilder} used to build the new model condition.
-     * @param variantBuilder The {@link ModelVariantBuilder} used to build the new model variants.
+     * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
      * @return This builder.
      */
     public MultiPartBuilder part(NonNullConsumer<ConditionBuilder> conditionBuilder,
-                                 NonNullConsumer<ModelVariantBuilder> variantBuilder) {
+                                 NonNullConsumer<ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(conditionBuilder, "Condition builder must not be null");
-        Preconditions.checkNotNull(variantBuilder, "Variant builder must not be null");
+        Preconditions.checkNotNull(builder, "Variant builder must not be null");
 
         final var part = new ConditionalPart(ConditionBuilder.root(conditionBuilder));
 
-        variantBuilder.accept(new ModelVariantBuilder(part, this._modelBuilder));
+        ModelVariantBuilder.build(part, this._modelBuilder, builder);
         this._parts.add(part);
         return this;
     }
@@ -229,7 +229,7 @@ public class MultiPartBuilder
 
         @Override
         public @NotNull JsonElement get() {
-            return this.apply("apply,", new JsonObject());
+            return this.apply("apply", new JsonObject());
         }
 
         //endregion

@@ -122,7 +122,7 @@ public class MultiVariantBuilder
 
             final var variants = new ModelVariantsList(8);
 
-            builder.accept(state, new ModelVariantBuilder(variants, this._modelBuilder));
+            ModelVariantBuilder.build(variants, this._modelBuilder, vb -> builder.accept(state, vb));
             this._selectors.put(state, variants);
         }
     }
@@ -157,7 +157,8 @@ public class MultiVariantBuilder
         }
 
         // still missing some states?
-        Preconditions.checkState(missing.isEmpty(), "Not all block states for block %s were defined: %s", this._block, missing);
+        Preconditions.checkState(missing.isEmpty(), "The following block states for block %s were not defined: %s",
+                this._block, missing);
 
         // serialize...
 
@@ -196,7 +197,7 @@ public class MultiVariantBuilder
         public <T extends Comparable<T>, V extends T> SelectorBuilder state(Property<T> property, V value) {
 
             if (!this._validProperties.contains(property)) {
-                throw new IllegalArgumentException("The provided property is invalid for the block or was ignored");
+                throw new IllegalArgumentException(String.format("The provided property is invalid for the block or was ignored: %s", property));
             }
 
             this._state = this._state.setValue(property, value);
@@ -222,19 +223,12 @@ public class MultiVariantBuilder
          * the variant builder. If you are building multiple variants, call {@link ModelVariantBuilder#build()} build}
          * on the variant builder every time a variant is completed.</p>
          *
-         * @param variantBuilder The {@link ModelVariantBuilder} used to build the new model variants.
+         * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
          * @return This builder.
          */
-        public SelectorBuilder variant(NonNullConsumer<ModelVariantBuilder> variantBuilder) {
+        public SelectorBuilder variant(NonNullConsumer<ModelVariantBuilder> builder) {
 
-            final var builder = new ModelVariantBuilder(this._modelVariants, this._modelBuilder);
-
-            variantBuilder.accept(builder);
-
-            if (!builder.isBuilt()) {
-                builder.build();
-            }
-
+            ModelVariantBuilder.build(this._modelVariants, this._modelBuilder, builder);
             return this;
         }
 

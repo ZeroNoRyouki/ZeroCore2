@@ -5,6 +5,7 @@ import it.zerono.mods.zerocore.lib.datagen.provider.client.model.ModelBuilder;
 import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.data.models.blockstates.VariantProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.common.util.NonNullFunction;
 
 /**
@@ -14,7 +15,23 @@ import net.minecraftforge.common.util.NonNullFunction;
  */
 public class ModelVariantBuilder {
 
-    ModelVariantBuilder(ModelVariantsList sink, ModelBuilder modelBuilder) {
+    static void build(ModelVariantsList sink, ModelBuilder modelBuilder,
+                      NonNullConsumer<ModelVariantBuilder> variantsBuilder) {
+
+        Preconditions.checkNotNull(sink, "Sink must not be null");
+        Preconditions.checkNotNull(modelBuilder, "Model builder must not be null");
+        Preconditions.checkNotNull(variantsBuilder, "Variant builder must not be null");
+
+        final var builder = new ModelVariantBuilder(sink, modelBuilder);
+
+        variantsBuilder.accept(builder);
+
+        if (!builder.isBuilt()) {
+            builder.build();
+        }
+    }
+
+    private ModelVariantBuilder(ModelVariantsList sink, ModelBuilder modelBuilder) {
 
         this._sink = sink;
         this._modelBuilder = modelBuilder;
