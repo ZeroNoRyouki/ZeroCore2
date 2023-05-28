@@ -39,6 +39,7 @@ import net.minecraftforge.common.crafting.StrictNBTIngredient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class ItemStackRecipeIngredient
@@ -129,6 +130,14 @@ public abstract class ItemStackRecipeIngredient
 
     public static ItemStackRecipeIngredient from(final ItemLike item, final int amount) {
         return from(new ItemStack(item), amount);
+    }
+
+    public static ItemStackRecipeIngredient from(Supplier<? extends ItemLike> item) {
+        return from(item.get().asItem(), 1);
+    }
+
+    public static ItemStackRecipeIngredient from(Supplier<? extends ItemLike> item, int amount) {
+        return from(item.get().asItem(), amount);
     }
 
     public static ItemStackRecipeIngredient from(final TagKey<Item> tag) {
