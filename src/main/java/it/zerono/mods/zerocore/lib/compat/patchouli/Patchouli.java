@@ -65,10 +65,10 @@ public class Patchouli {
 
             Log.LOGGER.info("Initializing Patchouli custom templates...");
 
-            BookTemplate.registerComponent(ZeroCore.newID("zcspt_multiblock"), Multiblock.class);
-            BookTemplate.registerComponent(ZeroCore.newID("zcspt_spotlight"), Spotlight.class);
-            BookTemplate.registerComponent(ZeroCore.newID("zcspt_crafting"), Crafting.class);
-            BookTemplate.registerComponent(ZeroCore.newID("zcspt_smelting"), Smelting.class);
+            BookTemplate.registerComponent(ZeroCore.ROOT_LOCATION.buildWithSuffix("zcspt_multiblock"), Multiblock.class);
+            BookTemplate.registerComponent(ZeroCore.ROOT_LOCATION.buildWithSuffix("zcspt_spotlight"), Spotlight.class);
+            BookTemplate.registerComponent(ZeroCore.ROOT_LOCATION.buildWithSuffix("zcspt_crafting"), Crafting.class);
+            BookTemplate.registerComponent(ZeroCore.ROOT_LOCATION.buildWithSuffix("zcspt_smelting"), Smelting.class);
 
             s_init = true;
         });
