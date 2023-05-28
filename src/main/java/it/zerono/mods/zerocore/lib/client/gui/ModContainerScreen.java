@@ -357,7 +357,6 @@ public class ModContainerScreen<C extends ModContainer>
     public final void removed() {
 
         super.removed();
-        GuiHelper.getKeyboard().setSendRepeatsToGui(false);
         this.raiseScreenClose();
         this.Create.unsubscribeAll();
         this.Created.unsubscribeAll();

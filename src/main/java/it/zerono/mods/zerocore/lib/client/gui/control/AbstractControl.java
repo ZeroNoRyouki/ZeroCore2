@@ -32,6 +32,7 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -608,6 +609,10 @@ public abstract class AbstractControl
 
     protected void playSound(final SoundEvent sound) {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(sound, 1.0F));
+    }
+
+    protected void playSound(final Holder<SoundEvent> sound) {
+        this.playSound(sound.value());
     }
 
     protected boolean shouldBlend() {

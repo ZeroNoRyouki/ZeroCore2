@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3f;
 
 import java.util.Objects;
 

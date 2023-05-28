@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.tag;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -26,9 +26,12 @@ import net.minecraft.world.level.material.Fluid;
 
 public final class TagsHelper<T> {
 
-    public static final TagSource<Block> BLOCKS = new TagSource<>(() -> Registry.BLOCK);
-    public static final TagSource<Item> ITEMS = new TagSource<>(() -> Registry.ITEM);
-    public static final TagSource<Fluid> FLUIDS = new TagSource<>(() -> Registry.FLUID);
+    @SuppressWarnings("deprecation")
+    public static final TagSource<Block> BLOCKS = new TagSource<>(() -> BuiltInRegistries.BLOCK);
+    @SuppressWarnings("deprecation")
+    public static final TagSource<Item> ITEMS = new TagSource<>(() -> BuiltInRegistries.ITEM);
+    @SuppressWarnings("deprecation")
+    public static final TagSource<Fluid> FLUIDS = new TagSource<>(() -> BuiltInRegistries.FLUID);
 
     public static final TagKey<Item> TAG_WRENCH = ITEMS.createKey("forge:tools/wrench");
 

@@ -63,6 +63,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -77,6 +78,8 @@ import java.util.stream.Stream;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class CodeHelper {
+
+    public static final String PATH_SEPARATOR = "/";
 
     public static final Object[] EMPTY_GENERIC_ARRAY = new Object[0];
 
@@ -915,6 +918,13 @@ public final class CodeHelper {
 
     public static int commonVertices(final Vec3i a, final Vec3i b) {
         return (a.getX() == b.getX() ? 1 : 0) + (a.getY() == b.getY() ? 1 : 0) + (a.getZ() == b.getZ() ? 1 : 0);
+    }
+
+    public static Matrix4f translationMatrix(float x, float y, float z) {
+        return new Matrix4f()
+                .m03(x)
+                .m13(y)
+                .m23(z);
     }
 
     //endregion

@@ -19,11 +19,10 @@
 package it.zerono.mods.zerocore.lib.client.model;
 
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 
 public interface ICustomModelBuilder {
 
     void onRegisterModels(ModelEvent.RegisterAdditional event);
 
-    void onBakeModels(BakingCompleted event);
+    void onBakeModels(ModelEvent.ModifyBakingResult event);
 }

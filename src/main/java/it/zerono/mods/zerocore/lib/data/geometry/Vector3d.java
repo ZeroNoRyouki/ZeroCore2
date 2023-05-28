@@ -18,8 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.data.geometry;
 
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.core.Vec3i;
@@ -27,6 +25,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.Objects;
 

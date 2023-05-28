@@ -22,7 +22,7 @@ import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -50,7 +50,7 @@ public abstract class AbstractModTileMessage
     protected AbstractModTileMessage(final FriendlyByteBuf buffer) {
 
         if (buffer.readBoolean()) {
-            this._dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(buffer.readUtf(4096)));
+            this._dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buffer.readUtf(4096)));
         } else {
             this._dimension = null;
         }

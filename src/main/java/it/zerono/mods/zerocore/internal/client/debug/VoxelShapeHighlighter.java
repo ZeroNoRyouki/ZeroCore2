@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.internal.client.debug;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.debug.DebugHelper;
 import net.minecraft.client.Camera;
@@ -37,6 +36,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class VoxelShapeHighlighter {

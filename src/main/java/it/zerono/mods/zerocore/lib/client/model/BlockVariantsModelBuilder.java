@@ -26,7 +26,6 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 
 import java.util.Collections;
 import java.util.List;
@@ -135,7 +134,7 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
     }
 
     @Override
-    public void onBakeModels(final BakingCompleted event) {
+    public void onBakeModels(final ModelEvent.ModifyBakingResult event) {
 
         final Map<ResourceLocation, BakedModel> modelRegistry = event.getModels();
         final Set<Integer> ids = this._modelToBeReplaced.keySet();

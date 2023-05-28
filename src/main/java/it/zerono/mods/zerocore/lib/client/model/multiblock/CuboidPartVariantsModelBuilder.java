@@ -24,7 +24,6 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 
 public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
 
@@ -49,7 +48,7 @@ public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
     }
 
     @Override
-    public void onBakeModels(BakingCompleted event) {
+    public void onBakeModels(ModelEvent.ModifyBakingResult event) {
 
         this._templateModel = event.getModels().getOrDefault(this._templateId, ModRenderHelper.getMissingModel());
         super.onBakeModels(event);
