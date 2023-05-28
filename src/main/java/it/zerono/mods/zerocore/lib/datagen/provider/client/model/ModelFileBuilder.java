@@ -568,6 +568,10 @@ public class ModelFileBuilder
         return this.withSingleTextureParent(ParentModels.DOOR_OPEN_TOP_RIGHT, TextureSlot.TOP, texture);
     }
 
+    public ResourceLocation doorItem(ResourceLocation texture) {
+        return this.flatItem(texture);
+    }
+
     public ResourceLocation fencePost(ResourceLocation texture) {
         return this.withSingleTextureParent(ParentModels.FENCE_POST, TextureSlot.TEXTURE, texture);
     }

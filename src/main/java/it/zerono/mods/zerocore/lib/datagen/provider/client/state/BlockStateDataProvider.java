@@ -227,7 +227,7 @@ public abstract class BlockStateDataProvider
                 .delegateFor(block)
                 .woodVerticalLog(side, ends);
         final var horizontal = this.models()
-                .block(block)
+                .block(block, "_horizontal")
                 .woodHorizontalLog(side, ends);
 
         this.axisAligned(block, axis -> axis.isVertical() ? vertical : horizontal);
@@ -241,7 +241,8 @@ public abstract class BlockStateDataProvider
                         .woodPLanks(texture));
     }
 
-    public <B extends DoorBlock> void door(Supplier<B> block, ResourceLocation bottomTexture, ResourceLocation topTexture) {
+    public <B extends DoorBlock> void door(Supplier<B> block, ResourceLocation bottomTexture, ResourceLocation topTexture,
+                                           ResourceLocation itemTexture) {
 
         final var models = new ResourceLocation[]{
                 // 000
@@ -311,6 +312,10 @@ public abstract class BlockStateDataProvider
                             .model(models[modelIndex])
                             .yRotation(yRotation);
                 }));
+
+        this.models()
+                .item(block)
+                .doorItem(itemTexture);
     }
 
     public <B extends Block> void button(Supplier<B> block, ResourceLocation texture) {
@@ -335,7 +340,7 @@ public abstract class BlockStateDataProvider
                         case CEILING -> {
 
                             xRotation = VariantProperties.Rotation.R180;
-                            yRotation = switch (state.getValue(BlockStateProperties.FACING)) {
+                            yRotation = switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
 
                                 case EAST -> VariantProperties.Rotation.R270;
                                 case WEST -> VariantProperties.Rotation.R90;
@@ -349,7 +354,7 @@ public abstract class BlockStateDataProvider
 
                             uvLock = true;
                             xRotation = VariantProperties.Rotation.R90;
-                            yRotation = switch (state.getValue(BlockStateProperties.FACING)) {
+                            yRotation = switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
 
                                 case EAST -> VariantProperties.Rotation.R90;
                                 case WEST -> VariantProperties.Rotation.R270;
@@ -359,7 +364,7 @@ public abstract class BlockStateDataProvider
                             };
                         }
 
-                        case FLOOR -> yRotation = switch (state.getValue(BlockStateProperties.FACING)) {
+                        case FLOOR -> yRotation = switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
 
                             case EAST -> VariantProperties.Rotation.R90;
                             case WEST -> VariantProperties.Rotation.R270;
@@ -436,7 +441,7 @@ public abstract class BlockStateDataProvider
                         .model(models[(state.getValue(BlockStateProperties.IN_WALL) ? 2 : 0) +
                                 (state.getValue(BlockStateProperties.OPEN) ? 1 : 0)])
                         .uvLock()
-                        .yRotation(switch (state.getValue(BlockStateProperties.FACING)) {
+                        .yRotation(switch (state.getValue(BlockStateProperties.HORIZONTAL_FACING)) {
                             case EAST -> VariantProperties.Rotation.R270;
                             case NORTH -> VariantProperties.Rotation.R180;
                             case WEST -> VariantProperties.Rotation.R90;
@@ -514,7 +519,7 @@ public abstract class BlockStateDataProvider
 
     public void slab(Supplier<SlabBlock> block, ResourceLocation doubleSlabsModel, ResourceLocation bottom,
                      ResourceLocation top, ResourceLocation side) {
-        this.multiVariant(block)
+        this.multiVariant(block, BlockStateProperties.WATERLOGGED)
                 .selector(SlabBlock.TYPE, SlabType.BOTTOM, variant -> variant
                                 .model(model -> model
                                         .block(block)
@@ -553,7 +558,7 @@ public abstract class BlockStateDataProvider
                 .block(block, "_outer")
                 .stairsOuter(bottom, top, side);
 
-        this.multiVariant(block)
+        this.multiVariant(block, StairBlock.WATERLOGGED)
                 .selector(selector -> selector
                         .state(StairBlock.FACING, Direction.EAST)
                         .state(StairBlock.HALF, Half.BOTTOM)
