@@ -18,16 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public class AtlasSpriteSupplier implements ResourceManagerReloadListener {
@@ -35,17 +29,6 @@ public class AtlasSpriteSupplier implements ResourceManagerReloadListener {
     public static final AtlasSpriteSupplier INSTANCE = new AtlasSpriteSupplier();
 
     public static Supplier<ISprite> create(final ResourceLocation spriteName, final AtlasSpriteTextureMap map) {
-        return create(spriteName, map, false);
-    }
-
-    public static Supplier<ISprite> create(final ResourceLocation spriteName, final AtlasSpriteTextureMap map,
-                                           final boolean stitch) {
-
-        if (stitch) {
-            INSTANCE._toBeStitched.computeIfAbsent(map.getTextureLocation(), loc -> Lists.newArrayList())
-                    .add(spriteName);
-        }
-
         return new AtlasSpriteSupplier.SpriteSupplier(spriteName, map);
     }
 
@@ -54,19 +37,6 @@ public class AtlasSpriteSupplier implements ResourceManagerReloadListener {
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
         ++this._generation;
-    }
-
-    //endregion
-    //region event handlers
-
-    @SubscribeEvent
-    public void onPreTextureStitch(TextureStitchEvent.Pre evt) {
-        
-        final ResourceLocation atlasName = evt.getAtlas().location();
-
-        if (this._toBeStitched.containsKey(atlasName)) {
-            this._toBeStitched.get(atlasName).forEach(evt::addSprite);
-        }
     }
 
     //endregion
@@ -111,12 +81,9 @@ public class AtlasSpriteSupplier implements ResourceManagerReloadListener {
     //endregion
 
     private AtlasSpriteSupplier() {
-
-        this._toBeStitched = Maps.newHashMap();
         this._generation = 0;
     }
 
-    private final Map<ResourceLocation, List<ResourceLocation>> _toBeStitched;
     private int _generation;
 
     //endregion

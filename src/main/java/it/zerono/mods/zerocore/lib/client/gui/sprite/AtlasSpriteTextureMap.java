@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
+import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +35,7 @@ public class AtlasSpriteTextureMap
 
     public static AtlasSpriteTextureMap from(final TextureAtlasSprite sprite) {
 
-        final ResourceLocation id = sprite.atlas().location();
+        final ResourceLocation id = sprite.atlasLocation();
 
         if (BLOCKS.getTextureLocation().equals(id)) {
             return BLOCKS;
@@ -104,12 +105,12 @@ public class AtlasSpriteTextureMap
 
         @Override
         public int getWidth() {
-            return this._atlasSprite.getWidth();
+            return this._atlasSprite.contents().width();
         }
 
         @Override
         public int getHeight() {
-            return this._atlasSprite.getHeight();
+            return this._atlasSprite.contents().height();
         }
 
         @Override
@@ -213,8 +214,10 @@ public class AtlasSpriteTextureMap
 
         if (this._atlasHeight < 0 || this._atlasWidth < 0) {
 
-            this._atlasWidth = (int)(sprite.getWidth() / (sprite.getU1() - sprite.getU0()));
-            this._atlasHeight = (int)(sprite.getHeight() / (sprite.getV1() - sprite.getV0()));
+            final var dimensions = ModRenderHelper.getAtlasDimensions(sprite);
+
+            this._atlasWidth = dimensions.firstInt();
+            this._atlasHeight = dimensions.secondInt();
         }
 
         return new AtlasSprite(this, sprite, spriteX, spriteY, overlay);

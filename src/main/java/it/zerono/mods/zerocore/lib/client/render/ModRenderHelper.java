@@ -18,12 +18,14 @@
 
 package it.zerono.mods.zerocore.lib.client.render;
 
+import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
+import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
@@ -42,6 +44,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
@@ -63,13 +66,16 @@ import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.IntFunction;
-
-;
 
 @OnlyIn(Dist.CLIENT)
 @SuppressWarnings("WeakerAccess")
@@ -2303,9 +2309,87 @@ public final class ModRenderHelper {
     }
 
     public static Matrix4f glPerspectiveMatrix(final float fov, final float aspect, final float zNear, final float zFar) {
-        return Matrix4f.perspective(fov, aspect, zNear, zFar);
+        return new Matrix4f().perspective(fov, aspect, zNear, zFar);
     }
 
+    //region Texture atlases helpers
+
+    public static IntIntPair getAtlasDimensions(TextureAtlasSprite sprite) {
+
+        Preconditions.checkNotNull(sprite, "Sprite must not be null");
+
+        final var contents = sprite.contents();
+        final int atlasWidth, atlasHeight;
+
+        atlasWidth = (int)(contents.width() / (sprite.getU1() - sprite.getU0()));
+        atlasHeight = (int)(contents.height() / (sprite.getV1() - sprite.getV0()));
+
+        return IntIntPair.of(atlasWidth, atlasHeight);
+    }
+
+    public static void dumpAtlas(ResourceLocation id) {
+
+        Preconditions.checkNotNull(id, "Id must not be null");
+
+        final var atlas = Preconditions.checkNotNull(Minecraft.getInstance().getModelManager().getAtlas(id),
+                "Atlas with ID %s was not found", id);
+
+        dumpAtlas(atlas);
+    }
+
+    public static void dumpAtlas(TextureAtlas atlas) {
+
+        Preconditions.checkNotNull(atlas, "Atlas must not be null");
+
+        final var sprites = atlas.getTextureLocations().stream()
+                .map(atlas::getSprite)
+                .sorted((s1, s2) -> s1.getX() == s2.getX() ? s1.getY() - s2.getY() : s1.getX() - s2.getX())
+                .toList();
+
+        if (sprites.isEmpty()) {
+
+            Log.LOGGER.warn(Log.CLIENT, "Atlas {} is empty: nothing to dump", atlas.location());
+            return;
+        }
+
+        final var filename = atlas.location().toDebugFileName();
+        var path = TextureUtil.getDebugTexturePath();
+
+        try {
+
+            final var dimensions = getAtlasDimensions(sprites.get(0));
+
+            Files.createDirectories(path);
+            TextureUtil.writeAsPNG(path, filename, atlas.getId(), 0, dimensions.firstInt(), dimensions.secondInt());
+
+            // dump sprites data
+
+            path = path.resolve(filename + "_sprites.txt");
+
+            try (final var writer = new PrintWriter(Files.newBufferedWriter(path))) {
+
+                writer.println("#\tID\tX\tY\tWidth\tHeight");
+
+                int count = 0;
+
+                for (final var sprite : sprites) {
+
+                    final var contents = sprite.contents();
+
+                    writer.println(String.format("%d\t%s\t%d\t%d\t%d\t%d", ++count, contents.name(),
+                            sprite.getX(), sprite.getY(), contents.width(), contents.height()));
+                }
+
+            } catch (IOException ex) {
+                Log.LOGGER.warn(Log.CLIENT, "Failed to write sprites data to {} : {}", path, ex);
+            }
+
+        } catch (IOException ex) {
+            Log.LOGGER.warn(Log.CLIENT, "Failed to dump atlas to {} : {}", path, ex);
+        }
+    }
+
+    //endregion
     //region internals
 
     private ModRenderHelper(){
