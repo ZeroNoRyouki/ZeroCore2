@@ -28,6 +28,14 @@ minecraft {
         runDir = file("run-${config.minecraft_version}")
     }
 
+    def dataArgs = [
+            '--mod', 'zerocore',
+            '--all',
+            '--existing', project.file('src/main/resources/').absolutePath,
+            '--existing', project.file('src/generated/resources/').absolutePath,
+            '--output', project.file('src/generated/resources/').absolutePath
+    ]
+
     runs {
         client {
 
@@ -35,10 +43,16 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
 
             workingDirectory runDir
-			
+
+            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
+
             mods {
                 zerocore {
                     source sourceSets.main
+                }
+
+                zerotest {
+                    source sourceSets.test
                 }
             }
         }
@@ -49,10 +63,16 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             
 			workingDirectory runDir
-			
+
+            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
+
             mods {
                 zerocore {
                     source sourceSets.main
+                }
+
+                zerotest {
+                    source sourceSets.test
                 }
             }
         }
@@ -63,7 +83,9 @@ minecraft {
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
 
             workingDirectory runDir
-            args '--mod', 'zerocore', '--all', '--output', file('src/generated/resources/')
+            args dataArgs
+
+            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
 
             mods {
                 zerocore {
@@ -71,11 +93,45 @@ minecraft {
                 }
             }
         }
+
+        datatest {
+
+            parent runs.data
+
+            ideaModule "${rootProject.name}.${project.name}.test".replace(' ', '_')
+
+            mods {
+                zerocore {
+                    source sourceSets.main
+                }
+
+                zerotest {
+                    source sourceSets.test
+                }
+            }
+
+            afterEvaluate {
+
+                args.removeAll {
+                    dataArgs.contains(it instanceof File ? (it as File).absolutePath : it.toString())
+                }
+
+                args '--mod', 'zerotest',
+                        '--all',
+                        '--existing', file('src/test/resources/'),
+                        '--existing', file('src/generated-test/resources/'),
+                        '--output', file('src/generated-test/resources/')
+            }
+        }
     }
 }
 
 sourceSets.main.resources {
     srcDir 'src/generated/resources'
+}
+
+sourceSets.test.resources {
+    srcDir 'src/generated-test/resources'
 }
 
 processResources {
@@ -126,11 +182,13 @@ dependencies {
 	minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
 
 	// cc-tweaked
-//    compileOnly fg.deobf("org.squiddev:cc-tweaked-${config.minecraft_version}:${config.cctweaked_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${config.minecraft_version}-core-api:${config.cctweaked_version}")
+    compileOnly(fg.deobf("cc.tweaked:cc-tweaked-${config.minecraft_version}-forge-api:${config.cctweaked_version}"))
+    runtimeOnly(fg.deobf("cc.tweaked:cc-tweaked-${config.minecraft_version}-forge:${config.cctweaked_version}"))
 
     // patchouli
-//    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
-//    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
 
     // JEI API
     compileOnly fg.deobf("mezz.jei:jei-${config.minecraft_version}-common-api:${config.jei_version}")
