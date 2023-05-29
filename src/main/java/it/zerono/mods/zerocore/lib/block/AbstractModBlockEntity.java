@@ -328,7 +328,14 @@ public abstract class AbstractModBlockEntity
      */
     @Override
     public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-        this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
+
+        super.onDataPacket(net, packet);
+
+        final var data = packet.getTag();
+
+        if (null != data) {
+            this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
+        }
     }
 
     /**
@@ -470,10 +477,8 @@ public abstract class AbstractModBlockEntity
 
     public void notifyBlockUpdate() {
 
-        final Level world = this.getLevel();
-
-        if (null != world) {
-            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
+        if (this.hasLevel()) {
+            this.notifyBlockUpdate(this.getBlockState(), this.getBlockState());
         }
     }
 
@@ -501,7 +506,7 @@ public abstract class AbstractModBlockEntity
         if (null != world) {
 
             this.setChanged();
-            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), null, null);
+            WorldHelper.notifyBlockUpdate(world, this.getBlockPos(), this.getBlockState(), this.getBlockState());
         }
     }
 

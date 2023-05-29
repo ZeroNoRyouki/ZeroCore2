@@ -46,10 +46,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -74,6 +71,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.IntFunction;
 
@@ -110,6 +108,11 @@ public final class ModRenderHelper {
 
     public static BakedModel getMissingModel() {
         return getModelManager().getMissingModel();
+    }
+
+    @Nullable
+    public static BakedModel getMissingModel(Map<ResourceLocation, BakedModel> modelRegistry) {
+        return modelRegistry.get(ModelBakery.MISSING_MODEL_LOCATION);
     }
 
     public static void bindTexture(final ResourceLocation textureLocation) {
