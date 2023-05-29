@@ -1,0 +1,13 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:directory",
+      "prefix": "entity/signs/",
+      "source": "entity/signs"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "zerotest:test/test_sprite"
+    }
+  ]
+}

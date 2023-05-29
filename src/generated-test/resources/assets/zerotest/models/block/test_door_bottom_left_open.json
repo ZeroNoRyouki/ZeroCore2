@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/door_bottom_left_open",
+  "textures": {
+    "bottom": "zerotest:block/blue_block_side"
+  }
+}

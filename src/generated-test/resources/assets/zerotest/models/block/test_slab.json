@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "zerotest:block/red_block_side",
+    "side": "zerotest:block/blue_block_side",
+    "top": "zerotest:block/red_block_side"
+  }
+}

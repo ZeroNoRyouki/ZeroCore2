@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "zerotest:block/test_pressureplate"
+    },
+    "powered=true": {
+      "model": "zerotest:block/test_pressureplate_down"
+    }
+  }
+}

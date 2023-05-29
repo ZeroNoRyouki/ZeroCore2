@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "zerotest:block/test_glass"
+    }
+  }
+}
