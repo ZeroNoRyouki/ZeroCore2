@@ -18,10 +18,8 @@
 
 package it.zerono.mods.zerocore.internal.datagen;
 
-import it.zerono.mods.zerocore.lib.client.gui.Theme;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DataProvider;
+import it.zerono.mods.zerocore.ZeroCore;
+import it.zerono.mods.zerocore.lib.datagen.ForgeModDataGenerator;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -32,19 +30,7 @@ public class DataGenerationHandler {
 
     @SubscribeEvent
     public static void gatherData(final GatherDataEvent event) {
-
-        final DataGenerator generator = event.getGenerator();
-
-        generator.addProvider(true, new DataProvider() {
-            @Override
-            public void run(CachedOutput cache) {
-                Theme.write(generator.getOutputFolder().resolve("gui_theme_example.json"), Theme.DEFAULT);
-            }
-
-            @Override
-            public String getName() {
-                return "GUI Theme example file";
-            }
-        });
+        new ForgeModDataGenerator(event, ZeroCore.ROOT_LOCATION, generator ->
+                generator.addProvider(GuiThemeExampleProvider::new));
     }
 }

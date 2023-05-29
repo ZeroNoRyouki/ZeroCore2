@@ -220,42 +220,47 @@ public final class Theme {
 
     public static void write(Path jsonFilePath, Theme theme) {
 
-        final JsonObject json = new JsonObject();
-
-        writeColour(json, "FLAT_BACKGROUND_COLOR", theme.FLAT_BACKGROUND_COLOR);
-        writeColour(json, "TEXT_ENABLED_COLOR", theme.TEXT_ENABLED_COLOR);
-        writeColour(json, "TEXT_DISABLED_COLOR", theme.TEXT_DISABLED_COLOR);
-        writeColour(json, "DARK_OUTLINE_COLOR", theme.DARK_OUTLINE_COLOR);
-        writeColour(json, "BUTTON_NORMAL_3D_GRADIENT_LIGHT", theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT);
-        writeColour(json, "BUTTON_NORMAL_3D_GRADIENT_DARK", theme.BUTTON_NORMAL_3D_GRADIENT_DARK);
-        writeColour(json, "BUTTON_NORMAL_3D_BORDER_LIGHT", theme.BUTTON_NORMAL_3D_BORDER_LIGHT);
-        writeColour(json, "BUTTON_NORMAL_3D_BORDER_DARK", theme.BUTTON_NORMAL_3D_BORDER_DARK);
-        writeColour(json, "BUTTON_DISABLED_3D_GRADIENT_LIGHT", theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT);
-        writeColour(json, "BUTTON_DISABLED_3D_GRADIENT_DARK", theme.BUTTON_DISABLED_3D_GRADIENT_DARK);
-        writeColour(json, "BUTTON_DISABLED_3D_BORDER_LIGHT", theme.BUTTON_DISABLED_3D_BORDER_LIGHT);
-        writeColour(json, "BUTTON_DISABLED_3D_BORDER_DARK", theme.BUTTON_DISABLED_3D_BORDER_DARK);
-        writeColour(json, "BUTTON_ACTIVE_3D_GRADIENT_LIGHT", theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT);
-        writeColour(json, "BUTTON_ACTIVE_3D_GRADIENT_DARK", theme.BUTTON_ACTIVE_3D_GRADIENT_DARK);
-        writeColour(json, "BUTTON_ACTIVE_3D_BORDER_LIGHT", theme.BUTTON_ACTIVE_3D_BORDER_LIGHT);
-        writeColour(json, "BUTTON_ACTIVE_3D_BORDER_DARK", theme.BUTTON_ACTIVE_3D_BORDER_DARK);
-        writeColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT", theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT);
-        writeColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK", theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK);
-        writeColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT", theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT);
-        writeColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_DARK", theme.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
-        writeColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT", theme.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT);
-        writeColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_DARK", theme.TEXTFIELD_NORMAL_3D_GRADIENT_DARK);
-        writeColour(json, "TEXTFIELD_NORMAL_3D_BORDER_LIGHT", theme.TEXTFIELD_NORMAL_3D_BORDER_LIGHT);
-        writeColour(json, "TEXTFIELD_NORMAL_3D_BORDER_DARK", theme.TEXTFIELD_NORMAL_3D_BORDER_DARK);
-        writeColour(json, "TEXTFIELD_CARET", theme.TEXTFIELD_CARET);
-        writeColour(json, "GUI_TITLE", theme.GUI_TITLE);
-
         try (FileWriter writer = new FileWriter(jsonFilePath.toFile())) {
 
-            new GsonBuilder().setPrettyPrinting().create().toJson(json, writer);
+            new GsonBuilder().setPrettyPrinting().create().toJson(theme.toJson(), writer);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public JsonElement toJson() {
+
+        final JsonObject json = new JsonObject();
+
+        writeColour(json, "FLAT_BACKGROUND_COLOR", this.FLAT_BACKGROUND_COLOR);
+        writeColour(json, "TEXT_ENABLED_COLOR", this.TEXT_ENABLED_COLOR);
+        writeColour(json, "TEXT_DISABLED_COLOR", this.TEXT_DISABLED_COLOR);
+        writeColour(json, "DARK_OUTLINE_COLOR", this.DARK_OUTLINE_COLOR);
+        writeColour(json, "BUTTON_NORMAL_3D_GRADIENT_LIGHT", this.BUTTON_NORMAL_3D_GRADIENT_LIGHT);
+        writeColour(json, "BUTTON_NORMAL_3D_GRADIENT_DARK", this.BUTTON_NORMAL_3D_GRADIENT_DARK);
+        writeColour(json, "BUTTON_NORMAL_3D_BORDER_LIGHT", this.BUTTON_NORMAL_3D_BORDER_LIGHT);
+        writeColour(json, "BUTTON_NORMAL_3D_BORDER_DARK", this.BUTTON_NORMAL_3D_BORDER_DARK);
+        writeColour(json, "BUTTON_DISABLED_3D_GRADIENT_LIGHT", this.BUTTON_DISABLED_3D_GRADIENT_LIGHT);
+        writeColour(json, "BUTTON_DISABLED_3D_GRADIENT_DARK", this.BUTTON_DISABLED_3D_GRADIENT_DARK);
+        writeColour(json, "BUTTON_DISABLED_3D_BORDER_LIGHT", this.BUTTON_DISABLED_3D_BORDER_LIGHT);
+        writeColour(json, "BUTTON_DISABLED_3D_BORDER_DARK", this.BUTTON_DISABLED_3D_BORDER_DARK);
+        writeColour(json, "BUTTON_ACTIVE_3D_GRADIENT_LIGHT", this.BUTTON_ACTIVE_3D_GRADIENT_LIGHT);
+        writeColour(json, "BUTTON_ACTIVE_3D_GRADIENT_DARK", this.BUTTON_ACTIVE_3D_GRADIENT_DARK);
+        writeColour(json, "BUTTON_ACTIVE_3D_BORDER_LIGHT", this.BUTTON_ACTIVE_3D_BORDER_LIGHT);
+        writeColour(json, "BUTTON_ACTIVE_3D_BORDER_DARK", this.BUTTON_ACTIVE_3D_BORDER_DARK);
+        writeColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT", this.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT);
+        writeColour(json, "BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK", this.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK);
+        writeColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT", this.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT);
+        writeColour(json, "BUTTON_HIGHLIGHTED_3D_BORDER_DARK", this.BUTTON_HIGHLIGHTED_3D_BORDER_DARK);
+        writeColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT", this.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT);
+        writeColour(json, "TEXTFIELD_NORMAL_3D_GRADIENT_DARK", this.TEXTFIELD_NORMAL_3D_GRADIENT_DARK);
+        writeColour(json, "TEXTFIELD_NORMAL_3D_BORDER_LIGHT", this.TEXTFIELD_NORMAL_3D_BORDER_LIGHT);
+        writeColour(json, "TEXTFIELD_NORMAL_3D_BORDER_DARK", this.TEXTFIELD_NORMAL_3D_BORDER_DARK);
+        writeColour(json, "TEXTFIELD_CARET", this.TEXTFIELD_CARET);
+        writeColour(json, "GUI_TITLE", this.GUI_TITLE);
+
+        return json;
     }
 
     //region internals

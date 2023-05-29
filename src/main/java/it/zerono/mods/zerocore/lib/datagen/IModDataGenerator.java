@@ -1,9 +1,7 @@
 package it.zerono.mods.zerocore.lib.datagen;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
-import it.zerono.mods.zerocore.lib.datagen.provider.AbstractDataProvider;
 import it.zerono.mods.zerocore.lib.datagen.provider.loot.SubProviderBuilder;
 import it.zerono.mods.zerocore.lib.datagen.provider.tag.IIntrinsicTagDataProvider;
 import it.zerono.mods.zerocore.lib.datagen.provider.tag.ITagDataProvider;
@@ -13,7 +11,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -58,31 +55,6 @@ public interface IModDataGenerator {
 
             //endregion
         });
-    }
-
-    interface Task {
-
-        void run(CachedOutput cache, PackOutput output, HolderLookup.Provider registryLookup,
-                 ResourceLocationBuilder modLocationRoo);
-    }
-
-    default void addTask(String name, Task task) {
-
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must not be null or empty");
-        Preconditions.checkNotNull(task, "Task must not be null");
-
-        this.addProvider((output, lookupProvider, modLocationRoot) ->
-                new AbstractDataProvider(name, output, lookupProvider, modLocationRoot) {
-
-                    @Override
-                    public void provideData() {
-                    }
-
-                    @Override
-                    public CompletableFuture<?> processData(CachedOutput cache, HolderLookup.Provider registryLookup) {
-                        return CompletableFuture.runAsync(() -> task.run(cache, this.output(), registryLookup, this.root()));
-                    }
-                });
     }
 
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey, ITagDataProvider<T> provider);
