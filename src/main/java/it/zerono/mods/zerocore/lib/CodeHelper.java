@@ -31,6 +31,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.functional.NonNullBiFunction;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
@@ -59,6 +60,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -616,6 +618,76 @@ public final class CodeHelper {
 
             return null != current ? current : fallbackValue.apply(v);
         };
+    }
+
+    //endregion
+    //region Lazy helpers (from V3)
+
+    public static <T> NonNullSupplier<T> lazy(NonNullSupplier<T> supplier) {
+        return new NonNullSupplier<T>() {
+
+            @Nonnull
+            @Override
+            public T get() {
+
+                if (null == this._resolvedValue) {
+                    this._resolvedValue = Preconditions.checkNotNull(supplier.get());
+                }
+
+                return this._resolvedValue;
+            }
+
+            @Nullable
+            private T _resolvedValue;
+        };
+    }
+
+    public static <T, R> NonNullFunction<T, R> lazy(NonNullFunction<T, R> function) {
+        return new NonNullFunction<T, R>() {
+
+            @Override
+            public @Nonnull R apply(@Nonnull T arg1) {
+
+                if (null == this._resolvedValue) {
+                    this._resolvedValue = Preconditions.checkNotNull(function.apply(arg1));
+                }
+
+                return this._resolvedValue;
+            }
+
+            @Nullable
+            private R _resolvedValue;
+        };
+    }
+
+    public static <T1, T2, R> NonNullBiFunction<T1, T2, R> lazy(NonNullBiFunction<T1, T2, R> function) {
+        return new NonNullBiFunction<T1, T2, R>() {
+
+            @Override
+            public @Nonnull R apply(@Nonnull T1 arg1, @Nonnull T2 arg2) {
+
+                if (null == this._resolvedValue) {
+                    this._resolvedValue = Preconditions.checkNotNull(function.apply(arg1, arg2));
+                }
+
+                return this._resolvedValue;
+            }
+
+            @Nullable
+            private R _resolvedValue;
+        };
+    }
+
+    @SafeVarargs
+    public static <T> T[] resolveSuppliers(IntFunction<T[]> arrayFactory, java.util.function.Supplier<T>... suppliers) {
+
+        Preconditions.checkNotNull(arrayFactory);
+        Preconditions.checkNotNull(suppliers);
+
+        final T[] array = Preconditions.checkNotNull(arrayFactory.apply(suppliers.length));
+
+        Arrays.setAll(array, i -> suppliers[i].get());
+        return array;
     }
 
     //endregion
