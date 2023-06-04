@@ -17,8 +17,8 @@ package it.zerono.mods.zerotest.test.content;
  *
  */
 
-import it.zerono.mods.zerocore.lib.event.CommonEvents;
-import it.zerono.mods.zerocore.lib.item.CreativeModeTabContentOutput;
+import it.zerono.mods.zerocore.lib.item.creativetab.CreativeModeTabContentOutput;
+import it.zerono.mods.zerocore.lib.item.creativetab.ICreativeTabsBuilder;
 import it.zerono.mods.zerotest.ZeroTest;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -219,18 +219,18 @@ public final class TestContent {
 
     private static void registerCreativeTabs() {
 
-        CommonEvents.onCreateCreativeTab(ZeroTest.ROOT_LOCATION.buildWithSuffix("tab.general"), builder ->
-                        builder.title(Component.translatable("itemGroup.zerotest.general"))
+        ICreativeTabsBuilder.create()
+                .add(ZeroTest.ROOT_LOCATION.buildWithSuffix("tab.general"),
+                        builder -> builder
+                                .title(Component.translatable("itemGroup.zerotest.general"))
                                 .icon(() -> new ItemStack(Items.TEST_BLOCK.get())),
-                (tab, enabledFeatureSet, showOpOnlyItems, output) -> {
-
-                    CreativeModeTabContentOutput.acceptAll(output,
-                            Items.TEST_BLOCK, Items.TEST_BLOCK2, Items.TEST_WOOD, Items.TEST_WOOD_LOG,
-                            Items.TEST_WOOD_PLANK, Items.TEST_LEAVES, Items.TEST_BUTTON, Items.TEST_DOOR, Items.TEST_FENCE,
-                            Items.TEST_FENCEGATE, Items.TEST_WALL, Items.TEST_PRESSURE_PLATE, Items.TEST_SLAB,
-                            Items.TEST_STAIRS, Items.TEST_TRAPDOOR, Items.TEST_TRAPDOOR_ORIENTABLE,
-                            Items.TEST_GLASS, Items.TEST_GLASS_PANE);
-                });
+                        (tab, enabledFeatureSet, showOpOnlyItems, output) -> CreativeModeTabContentOutput.acceptAll(output,
+                                Items.TEST_BLOCK, Items.TEST_BLOCK2, Items.TEST_WOOD, Items.TEST_WOOD_LOG,
+                                Items.TEST_WOOD_PLANK, Items.TEST_LEAVES, Items.TEST_BUTTON, Items.TEST_DOOR, Items.TEST_FENCE,
+                                Items.TEST_FENCEGATE, Items.TEST_WALL, Items.TEST_PRESSURE_PLATE, Items.TEST_SLAB,
+                                Items.TEST_STAIRS, Items.TEST_TRAPDOOR, Items.TEST_TRAPDOOR_ORIENTABLE,
+                                Items.TEST_GLASS, Items.TEST_GLASS_PANE))
+                .build();
     }
 
     //endregion

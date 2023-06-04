@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.internal.gamecontent;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.gamecontent.debugtool.DebugToolItem;
-import it.zerono.mods.zerocore.lib.event.CommonEvents;
+import it.zerono.mods.zerocore.lib.item.creativetab.ICreativeTabsBuilder;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -38,8 +38,11 @@ public class Content {
 
         ITEMS.register(modBus);
         FEATURES.register(modBus);
-        CommonEvents.onAddCreativeTabContent(CreativeModeTabs.TOOLS_AND_UTILITIES,
-                (tab, enabledFeatureSet, showOpOnlyItems, output) -> output.accept(Content.DEBUG_TOOL));
+
+        ICreativeTabsBuilder.create()
+                .modify(CreativeModeTabs.TOOLS_AND_UTILITIES,
+                        (tab, enabledFeatureSet, showOpOnlyItems, output) -> output.accept(Content.DEBUG_TOOL))
+                .build();
     }
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ZeroCore.MOD_ID);

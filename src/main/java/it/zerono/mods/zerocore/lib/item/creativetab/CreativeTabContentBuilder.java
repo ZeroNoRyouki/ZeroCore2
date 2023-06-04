@@ -1,4 +1,4 @@
-package it.zerono.mods.zerocore.lib.item;
+package it.zerono.mods.zerocore.lib.item.creativetab;
 
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.CreativeModeTab;
