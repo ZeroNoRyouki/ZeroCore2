@@ -43,9 +43,20 @@ public class UnmodifiableChildrenIterator<T, P>
 
         if (null == this._cursor || !this._cursor.hasNext()) {
 
-            if (this._parent.hasNext()) {
-                this._cursor = this._mapper.apply(this._parent.next());
-            } else {
+            this._cursor = null;
+
+            while (this._parent.hasNext()) {
+
+                final Iterator<T> newCursor = this._mapper.apply(this._parent.next());
+
+                if (newCursor.hasNext()) {
+
+                    this._cursor = newCursor;
+                    break;
+                }
+            }
+
+            if (null == this._cursor) {
                 return this.endOfData();
             }
         }
