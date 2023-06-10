@@ -11,11 +11,11 @@ import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.data.models.model.DelegatedModel;
 import net.minecraft.data.models.model.TextureSlot;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.util.NonNullConsumer;
 import org.jetbrains.annotations.ApiStatus;
@@ -37,7 +37,7 @@ public class ModelFileBuilder
         this._elements = new LinkedList<>();
         this._textures = new Object2ObjectArrayMap<>(16);
         this._itemOverrides = new LinkedList<>();
-        this._itemTransformations = new Object2ObjectArrayMap<>(ItemTransforms.TransformType.values().length);
+        this._itemTransformations = new Object2ObjectArrayMap<>(ItemDisplayContext.values().length);
         this._ambientOcclusion = true;
         this._guiLight = BlockModel.GuiLight.SIDE;
     }
@@ -170,7 +170,7 @@ public class ModelFileBuilder
      * @param builder A builder used to define the new item transformation.
      * @return This builder.
      */
-    public ModelFileBuilder transformation(ItemTransforms.TransformType type, NonNullConsumer<ItemTransformBuilder> builder) {
+    public ModelFileBuilder transformation(ItemDisplayContext type, NonNullConsumer<ItemTransformBuilder> builder) {
 
         Preconditions.checkNotNull(type, "Transformation type must not be null");
         Preconditions.checkNotNull(builder, "Builder must not be null");
@@ -721,8 +721,8 @@ public class ModelFileBuilder
             final var display = new JsonObject();
 
             this._itemTransformations.entrySet().stream()
-                    .filter(e -> e.getKey() != ItemTransforms.TransformType.NONE)
-                    .forEach(e -> display.add(e.getKey().getSerializeName(), e.getValue().get()));
+                    .filter(e -> e.getKey() != ItemDisplayContext.NONE)
+                    .forEach(e -> display.add(e.getKey().getSerializedName(), e.getValue().get()));
 
             if (display.size() > 0) {
                 json.add("display", display);
@@ -778,7 +778,7 @@ public class ModelFileBuilder
     private final boolean _targetIsItem;
     private final NonNullBiConsumer<ResourceLocation, Supplier<JsonElement>> _sink;
     private final List<Supplier<JsonElement>> _elements;
-    private final Map<ItemTransforms.TransformType, ItemTransformBuilder> _itemTransformations;
+    private final Map<ItemDisplayContext, ItemTransformBuilder> _itemTransformations;
     private final List<Supplier<JsonElement>> _itemOverrides;
     private final Object2ObjectMap<String, String> _textures;
 
