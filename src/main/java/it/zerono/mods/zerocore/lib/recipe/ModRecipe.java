@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.recipe;
 
 import it.zerono.mods.zerocore.lib.item.inventory.EmptyVanillaInventory;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -66,7 +67,7 @@ public class ModRecipe
      * @param inv the inventory
      */
     @Override
-    public ItemStack assemble(final EmptyVanillaInventory inv) {
+    public ItemStack assemble(final EmptyVanillaInventory inv, RegistryAccess access) {
         return ItemStack.EMPTY;
     }
 
@@ -86,7 +87,7 @@ public class ModRecipe
      * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
      */
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess access) {
         return ItemStack.EMPTY;
     }
 
