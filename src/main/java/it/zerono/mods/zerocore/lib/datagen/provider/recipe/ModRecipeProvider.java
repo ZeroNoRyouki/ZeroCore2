@@ -1,9 +1,10 @@
-package it.zerono.mods.zerocore.lib.datagen.provider;
+package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.datagen.IModDataProvider;
+import it.zerono.mods.zerocore.lib.datagen.provider.ProviderSettings;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
