@@ -988,6 +988,14 @@ public final class CodeHelper {
         return (a != 0 && b != 0 && Long.compareUnsigned(b, Long.divideUnsigned(-1, a)) > 0);
     }
 
+    public static long mathClamp(long value, long min, long max) {
+        if (value < min) {
+            return min;
+        } else {
+            return Math.min(value, max);
+        }
+    }
+
     public static int commonVertices(final Vec3i a, final Vec3i b) {
         return (a.getX() == b.getX() ? 1 : 0) + (a.getY() == b.getY() ? 1 : 0) + (a.getZ() == b.getZ() ? 1 : 0);
     }

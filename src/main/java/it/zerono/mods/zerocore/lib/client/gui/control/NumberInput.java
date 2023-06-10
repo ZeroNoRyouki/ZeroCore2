@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
@@ -331,21 +332,21 @@ public abstract class NumberInput<Type>
 
         public void setValue(final long value) {
 
-            this._value = Mth.clamp(value, this._min, this._max);
+            this._value = CodeHelper.mathClamp(value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMinValue(final long min) {
 
             this._min = min;
-            this._value = Mth.clamp(this._value, this._min, this._max);
+            this._value = CodeHelper.mathClamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 
         public void setMaxValue(final long max) {
 
             this._max = max;
-            this._value = Mth.clamp(this._value, this._min, this._max);
+            this._value = CodeHelper.mathClamp(this._value, this._min, this._max);
             this.updateLabel();
         }
 

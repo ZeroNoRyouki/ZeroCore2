@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.util.Mth;
 
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class TextConstraints {
         } else {
 
             final long originalValue = Long.parseLong(text);
-            long value = Mth.clamp(originalValue, 0, Integer.MAX_VALUE);
+            long value = CodeHelper.mathClamp(originalValue, 0, Integer.MAX_VALUE);
 
             if (originalValue != value || '0' == text.charAt(0)) {
                 return Optional.of(Long.toString(value));
