@@ -19,13 +19,12 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.collect.ImmutableList;
-import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.compat.Mods;
+import it.zerono.mods.zerocore.lib.compat.patchouli.Patchouli;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import vazkii.patchouli.api.PatchouliAPI;
 
 public class HelpButton
     extends Button {
@@ -37,14 +36,7 @@ public class HelpButton
 
         if (Mods.PATCHOULI.isPresent()) {
 
-            button.Clicked.subscribe((control, mb) -> control.enqueueTask(() -> {
-
-                try {
-                    PatchouliAPI.get().openBookEntry(bookId, entryId, pageNum);
-                } catch (Exception ex) {
-                    Log.LOGGER.error(Log.CORE, "Exception while opening Patchouli book.", ex);
-                }
-            }));
+            button.Clicked.subscribe((control, mb) -> control.enqueueTask(() -> Patchouli.openBookEntry(bookId, entryId, pageNum)));
             button.setTooltips(ImmutableList.of(Component.translatable("zerocore:gui.manual.open")));
 
         } else {
