@@ -29,6 +29,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -90,12 +91,11 @@ public final class TestContent {
                         .isSuffocating((state, level, position) -> false)
                         .isViewBlocking((state, level, position) -> false)));
         public static final RegistryObject<ButtonBlock> TEST_BUTTON = registerTestBlock("button",
-                () -> new ButtonBlock(testBlockProperties(), 10, true,
-                        SoundEvents.STONE_BUTTON_CLICK_OFF, SoundEvents.STONE_BUTTON_CLICK_ON));
+                () -> new ButtonBlock(testBlockProperties(), BlockSetType.STONE, 10, true));
         public static final RegistryObject<DoorBlock> TEST_DOOR = registerTestBlock("door",
                 () -> new DoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR)
                         .lightLevel($ -> 7)
-                        .color(MaterialColor.COLOR_BLUE), SoundEvents.WOODEN_DOOR_CLOSE, SoundEvents.WOODEN_DOOR_OPEN));
+                        .color(MaterialColor.COLOR_BLUE), BlockSetType.OAK));
         public static final RegistryObject<FenceBlock> TEST_FENCE = registerTestBlock("fence",
                 () -> new FenceBlock(testBlockProperties()));
         public static final RegistryObject<FenceGateBlock> TEST_FENCEGATE = registerTestBlock("fencegate",
@@ -103,8 +103,7 @@ public final class TestContent {
         public static final RegistryObject<WallBlock> TEST_WALL = registerTestBlock("wall",
                 () -> new WallBlock(testBlockProperties()));
         public static final RegistryObject<PressurePlateBlock> TEST_PRESSURE_PLATE = registerTestBlock("pressureplate",
-                () -> new PressurePlateBlock(PressurePlateBlock.Sensitivity.MOBS, testBlockProperties(),
-                        SoundEvents.METAL_PRESSURE_PLATE_CLICK_OFF, SoundEvents.METAL_PRESSURE_PLATE_CLICK_ON));
+                () -> new PressurePlateBlock(PressurePlateBlock.Sensitivity.MOBS, testBlockProperties(), BlockSetType.IRON));
         public static final RegistryObject<SlabBlock> TEST_SLAB = registerTestBlock("slab",
                 () -> new SlabBlock(testBlockProperties()));
         public static final RegistryObject<StairBlock> TEST_STAIRS = registerTestBlock("stairs",
@@ -112,13 +111,11 @@ public final class TestContent {
         public static final RegistryObject<TrapDoorBlock> TEST_TRAPDOOR = registerTestBlock("trapdoor",
                 () -> new TrapDoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR)
                         .lightLevel($ -> 7)
-                        .color(MaterialColor.COLOR_BLUE), SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-                        SoundEvents.WOODEN_TRAPDOOR_OPEN));
+                        .color(MaterialColor.COLOR_BLUE), BlockSetType.OAK));
         public static final RegistryObject<TrapDoorBlock> TEST_TRAPDOOR_ORIENTABLE = registerTestBlock("trapdoor_orientable",
                 () -> new TrapDoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR)
                         .lightLevel($ -> 7)
-                        .color(MaterialColor.COLOR_BLUE), SoundEvents.WOODEN_TRAPDOOR_CLOSE,
-                        SoundEvents.WOODEN_TRAPDOOR_OPEN));
+                        .color(MaterialColor.COLOR_BLUE), BlockSetType.OAK));
 
         public static final RegistryObject<StainedGlassBlock> TEST_GLASS = registerTestBlock("glass",
                 () -> new StainedGlassBlock(DyeColor.LIGHT_BLUE, BlockBehaviour.Properties.of(Material.GLASS)
