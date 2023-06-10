@@ -147,14 +147,26 @@ public abstract class ModRecipeProvider
         return this.stonecutting(category, result, ingredient, 1);
     }
 
-    protected UpgradeRecipeBuilder smithing(RecipeCategory category, Supplier<? extends ItemLike> result,
-                                            Ingredient base, Ingredient addition) {
+    protected SmithingTransformRecipeBuilder smithing(RecipeCategory category, Supplier<? extends ItemLike> result,
+                                                      Ingredient template, Ingredient base, Ingredient addition) {
 
         validateResultAndCategory(category, result);
+        Preconditions.checkNotNull(template, "Template must not be null");
         Preconditions.checkNotNull(base, "Base must not be null");
         Preconditions.checkNotNull(addition, "Addition must not be null");
 
-        return UpgradeRecipeBuilder.smithing(base, addition, category, result.get().asItem());
+        return SmithingTransformRecipeBuilder.smithing(template, base, addition, category, result.get().asItem());
+    }
+
+    protected SmithingTrimRecipeBuilder smithingTrim(RecipeCategory category, Ingredient template, Ingredient base,
+                                                     Ingredient addition) {
+
+        Preconditions.checkNotNull(category, "Category must not be null");
+        Preconditions.checkNotNull(template, "Template must not be null");
+        Preconditions.checkNotNull(base, "Base must not be null");
+        Preconditions.checkNotNull(addition, "Addition must not be null");
+
+        return SmithingTrimRecipeBuilder.smithingTrim(template, base, addition, category);
     }
 
     //region conditional
