@@ -54,8 +54,8 @@ public class ForgeCreativeTabsBuilder
         this.added().forEach(added -> added.group().complete(event.registerCreativeModeTab(added.id(), builder -> {
 
             added.tabBuilder().accept(builder);
-            builder.displayItems((enabledFeatures, output, showOpOnlyItems) ->
-                    added.contentBuilder().build(null, enabledFeatures, showOpOnlyItems, output::accept));
+            builder.displayItems((parameters, output) ->
+                    added.contentBuilder().build(null, parameters.enabledFeatures(), parameters.hasPermissions(), output::accept));
         })));
     }
 
