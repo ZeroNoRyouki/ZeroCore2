@@ -1403,7 +1403,6 @@ public final class ModRenderHelper {
                                                    final int width, final int height, final int zLevel,
                                                    final Colour lightColour, final Colour darkColour) {
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -1433,7 +1432,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     //endregion
@@ -1652,7 +1650,6 @@ public final class ModRenderHelper {
         final BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
 
         RenderSystem.enableBlend();
-        RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -1661,7 +1658,6 @@ public final class ModRenderHelper {
         bufferbuilder.vertex(matrix, (float)maxX, (float)minY, zLevel).color(r, g, b, a).endVertex();
         bufferbuilder.vertex(matrix, (float)minX, (float)minY, zLevel).color(r, g, b, a).endVertex();
         BufferUploader.drawWithShader(bufferbuilder.end());
-        RenderSystem.enableTexture();
         RenderSystem.disableBlend();
     }
 
@@ -1833,7 +1829,6 @@ public final class ModRenderHelper {
         final Matrix4f pose = matrix.last().pose();
 
         GlStateManager._enableBlend();
-        GlStateManager._disableTexture();
         GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
@@ -1859,7 +1854,6 @@ public final class ModRenderHelper {
 
         tessellator.end();
 
-        GlStateManager._enableTexture();
         GlStateManager._disableBlend();
     }
 
@@ -1882,7 +1876,6 @@ public final class ModRenderHelper {
         final Matrix4f pose = matrix.last().pose();
 
         GlStateManager._enableBlend();
-        GlStateManager._disableTexture();
         GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
@@ -1909,7 +1902,6 @@ public final class ModRenderHelper {
 
         tessellator.end();
 
-        GlStateManager._enableTexture();
         GlStateManager._disableBlend();
     }
 
@@ -1977,7 +1969,6 @@ public final class ModRenderHelper {
         final float endGreen = endColour.glGreen();
         final float endBlue = endColour.glBlue();
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
@@ -1993,7 +1984,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     /**
@@ -2024,7 +2014,6 @@ public final class ModRenderHelper {
         final float endGreen = endColour.glGreen();
         final float endBlue = endColour.glBlue();
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
                 GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
@@ -2040,7 +2029,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     /**
@@ -2059,7 +2047,6 @@ public final class ModRenderHelper {
     public static void paint3DGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                            final Colour lightColour, final Colour darkColour) {
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
@@ -2088,7 +2075,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     /**
@@ -2110,7 +2096,6 @@ public final class ModRenderHelper {
                                                final double x3, final double y3, final double zLevel,
                                                final Colour lightColour, final Colour darkColour) {
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
@@ -2138,7 +2123,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     /**
@@ -2161,7 +2145,6 @@ public final class ModRenderHelper {
                                                final double x3, final double y3, final double zLevel,
                                                final Colour colour1, final Colour colour2, final Colour colour3) {
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
@@ -2181,7 +2164,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     /**
@@ -2199,7 +2181,6 @@ public final class ModRenderHelper {
     public static void paint3DSolidTriangle(final PoseStack matrix, final double x1, final double y1, final double x2, final double y2,
                                             final double x3, final double y3, final double zLevel, final Colour colour) {
 
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
@@ -2227,7 +2208,6 @@ public final class ModRenderHelper {
         tessellator.end();
 
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     /**
