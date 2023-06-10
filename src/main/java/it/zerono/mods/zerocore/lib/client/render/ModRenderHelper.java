@@ -1678,18 +1678,18 @@ public final class ModRenderHelper {
 
         final Minecraft mc = Minecraft.getInstance();
         final ItemRenderer itemRenderer = mc.getItemRenderer();
-        float saveZ = itemRenderer.blitOffset;
         final PoseStack viewModelMatrix = RenderSystem.getModelViewStack();
 
         viewModelMatrix.pushPose();
         viewModelMatrix.mulPoseMatrix(matrix.last().pose());
         RenderSystem.applyModelViewMatrix();
 
-        itemRenderer.blitOffset = GUI_ITEM_Z;
         RenderSystem.enableDepthTest();
-        itemRenderer.renderAndDecorateItem(stack, x, y);
-        itemRenderer.renderGuiItemDecorations(mc.font, stack, x + 4, y, text);
-        itemRenderer.blitOffset = saveZ;
+        matrix.pushPose();
+        matrix.translate(0f, 0f, GUI_ITEM_Z);
+        itemRenderer.renderAndDecorateItem(matrix, stack, x, y);
+        itemRenderer.renderGuiItemDecorations(matrix, mc.font, stack, x + 4, y, text);
+        matrix.popPose();
 
         viewModelMatrix.popPose();
         RenderSystem.applyModelViewMatrix();
