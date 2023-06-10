@@ -108,11 +108,11 @@ public class Vector3d
     }
 
     public Vec3i toVec3i() {
-        return new Vec3i(this.X, this.Y, this.Z);
+        return new Vec3i(Mth.floor(this.X), Mth.floor(this.Y), Mth.floor(this.Z));
     }
 
     public BlockPos toBlockPos() {
-        return new BlockPos(this.X, this.Y, this.Z);
+        return new BlockPos(Mth.floor(this.X), Mth.floor(this.Y), Mth.floor(this.Z));
     }
 
     public Vector3d add(final double offsetX, final double offsetY, final double offsetZ) {

@@ -233,8 +233,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
     boolean onGuiContainerMouseClicked(final double mouseX, final double mouseY, final int clickedButton) {
 
-        final int mx = Mth.fastFloor(mouseX);
-        final int my = Mth.fastFloor(mouseY);
+        final int mx = Mth.floor(mouseX);
+        final int my = Mth.floor(mouseY);
 
         if (this.isDragging()) {
 
@@ -254,8 +254,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
     boolean onGuiContainerMouseReleased(final double mouseX, final double mouseY, final int mouseButton) {
 
-        final int mx = Mth.fastFloor(mouseX);
-        final int my = Mth.fastFloor(mouseY);
+        final int mx = Mth.floor(mouseX);
+        final int my = Mth.floor(mouseY);
 
         if (this.isDragging()) {
             this.stopDragging(mx, my);
@@ -277,13 +277,13 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
     }
 
     void onGuiContainerMouseMoved(final double mouseX, final double mouseY) {
-        this.raiseMouseMoved(Mth.fastFloor(mouseX), Mth.fastFloor(mouseY));
+        this.raiseMouseMoved(Mth.floor(mouseX), Mth.floor(mouseY));
     }
 
     boolean onGuiContainerMouseScrolled(final double mouseX, final double mouseY, final double scrollDelta) {
 
         this._lastWheelMovement = scrollDelta;
-        return this.raiseMouseWheel(Mth.fastFloor(mouseX), Mth.fastFloor(mouseY), scrollDelta);
+        return this.raiseMouseWheel(Mth.floor(mouseX), Mth.floor(mouseY), scrollDelta);
     }
 
     boolean onGuiContainerCharTyped(final char typedChar, final int keyCode) {
