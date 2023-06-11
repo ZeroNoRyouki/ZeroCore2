@@ -108,7 +108,7 @@ public final class StackAdapters {
 
             @Override
             public boolean isStackContentEqual(ItemStack stack1, ItemStack stack2) {
-                return stack1.sameItem(stack2);
+                return ItemStack.isSameItem(stack1, stack2);
             }
 
             @Override

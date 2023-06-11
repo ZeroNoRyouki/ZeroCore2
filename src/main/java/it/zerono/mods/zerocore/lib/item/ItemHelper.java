@@ -94,17 +94,16 @@ public final class ItemHelper {
         Size,
         Damage,
         NBT,
-        Capabilities,
-        Tags;
+        Capabilities;
 
         public static final EnumSet<MatchOption> MATCH_ALWAYS = EnumSet.noneOf(MatchOption.class);
-        public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT, Capabilities, Tags);
+        public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT, Capabilities);
         public static final EnumSet<MatchOption> MATCH_ITEM = EnumSet.of(Item);
         public static final EnumSet<MatchOption> MATCH_ITEM_SIZE = EnumSet.of(Item, Size);
         public static final EnumSet<MatchOption> MATCH_ITEM_NBT = EnumSet.of(Item, NBT);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE = EnumSet.of(Item, Damage);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE_NBT = EnumSet.of(Item, Damage, NBT);
-        public static final EnumSet<MatchOption> MATCH_EXISTING_STACK = EnumSet.of(Item, Damage, NBT, Capabilities, Tags);
+        public static final EnumSet<MatchOption> MATCH_EXISTING_STACK = EnumSet.of(Item, Damage, NBT, Capabilities);
     }
 
     /**
@@ -140,15 +139,11 @@ public final class ItemHelper {
         }
 
         if (result && options.contains(MatchOption.NBT)) {
-            result = ItemStack.tagMatches(stackA, stackB);
+            result = Objects.equals(stackA.getTag(), stackB.getTag());
         }
 
         if (result && options.contains(MatchOption.Capabilities)) {
             result = stackA.areCapsCompatible(stackB);
-        }
-
-        if (result && options.contains(MatchOption.Tags)) {
-            result = ItemStack.tagMatches(stackA, stackB);
         }
 
         return result;
