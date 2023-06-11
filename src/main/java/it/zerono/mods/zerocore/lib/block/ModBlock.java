@@ -38,7 +38,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.util.NonNullConsumer;
 
@@ -50,16 +50,17 @@ public class ModBlock
         extends Block
         implements IBlockStateUpdater {
 
-    public static Block.Properties createProperties(final Material material, final SoundType soundType,
+    public static Block.Properties createProperties(final MapColor color, final SoundType soundType,
                                                     final float hardnessAndResistance) {
-        return createProperties(material,soundType, hardnessAndResistance, hardnessAndResistance, false);
+        return createProperties(color, soundType, hardnessAndResistance, hardnessAndResistance, false);
     }
 
-    public static Block.Properties createProperties(final Material material, final SoundType soundType,
+    public static Block.Properties createProperties(final MapColor color, final SoundType soundType,
                                                     final float hardness, final float resistance,
                                                     final boolean randomTick) {
 
-        final Block.Properties builder = Block.Properties.of(material)
+        final Block.Properties builder = Block.Properties.of()
+                .mapColor(color)
                 .strength(hardness, resistance)
                 .sound(soundType);
 
@@ -83,7 +84,7 @@ public class ModBlock
 
         public ExtendedProperties() {
 
-            this._baseProperties = createProperties(Material.STONE, SoundType.STONE, 1.5f, 6.0f, false);
+            this._baseProperties = createProperties(MapColor.STONE, SoundType.STONE, 1.5f, 6.0f, false);
             this.setAsStackStorable(false);
         }
 

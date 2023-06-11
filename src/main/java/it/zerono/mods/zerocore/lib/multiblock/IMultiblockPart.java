@@ -46,8 +46,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -365,7 +364,8 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
      * @return a set of default block properties for a multiblock part
      */
     static Block.Properties getDefaultBlockProperties() {
-        return Block.Properties.of(Material.METAL, MaterialColor.METAL)
+        return Block.Properties.of()
+				.mapColor(MapColor.METAL)
                 .sound(SoundType.METAL)
                 .strength(5.0F, 6.0F)
                 .requiresCorrectToolForDrops()
