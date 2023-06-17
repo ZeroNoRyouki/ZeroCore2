@@ -19,15 +19,14 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -135,8 +134,6 @@ public interface IControl {
 
     void setMouseOver(boolean over, int mouseX, int mouseY);
 
-    void setBackground(ResourceLocation texture);
-
     void setBackground(ISprite sprite);
 
     void setBackground(Colour solidColour);
@@ -168,7 +165,7 @@ public interface IControl {
         return this.getGui().getTooltipsPopupMaxWidth();
     }
 
-    void paintToolTips(PoseStack matrix, int screenX, int screenY);
+    void paintToolTips(GuiGraphics gfx, int screenX, int screenY);
 
     default void setTooltips(Component... lines) {
         this.setTooltips(ImmutableList.copyOf(lines));
@@ -246,15 +243,15 @@ public interface IControl {
      */
     void onMoved();
 
-    void onPaintBackground(PoseStack matrix, float partialTicks, int mouseX, int mouseY);
+    void onPaintBackground(GuiGraphics gfx, float partialTicks, int mouseX, int mouseY);
 
-    void onPaint(PoseStack matrix, float partialTicks, int mouseX, int mouseY);
+    void onPaint(GuiGraphics gfx, float partialTicks, int mouseX, int mouseY);
 
-    void onPaintOverlay(PoseStack matrix, float partialTicks, int mouseX, int mouseY);
+    void onPaintOverlay(GuiGraphics gfx, float partialTicks, int mouseX, int mouseY);
 
     void enablePaintBlending(boolean blend);
 
-    default void onPaintDebugFrame(PoseStack matrix, Colour colour) {
+    default void onPaintDebugFrame(GuiGraphics gfx, Colour colour) {
     }
 
     default void onThemeChanged(Theme newTheme) {

@@ -19,7 +19,6 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Theme;
@@ -29,6 +28,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -281,25 +281,25 @@ public class TextInput
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
         final Theme theme = this.getTheme();
 
-        this.paint3DSunkenBox(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height,
+        this.paint3DSunkenBox(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height,
                 theme.TEXTFIELD_NORMAL_3D_GRADIENT_LIGHT, theme.TEXTFIELD_NORMAL_3D_GRADIENT_DARK,
                 theme.TEXTFIELD_NORMAL_3D_BORDER_LIGHT, theme.TEXTFIELD_NORMAL_3D_BORDER_DARK
         );
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final GuiGraphics gfx, float partialTicks, final int mouseX, final int mouseY) {
 
         this.ensureVisible();
-        this.paintTextLine(matrix, this.getTextForPainting(), 0, 0, this.getTextAreaWidth(),
+        this.paintTextLine(gfx, this.getTextForPainting(), 0, 0, this.getTextAreaWidth(),
                 this.getTextAreaHeight(), this.getEnabled() ? this.getColor() : this.getDisabledColor());
 
         if (this.hasFocus()) {
-            this.paintCaret(matrix);
+            this.paintCaret(gfx);
         }
     }
 
@@ -402,7 +402,7 @@ public class TextInput
         this.resetPaintingCache();
     }
 
-    private void paintCaret(final PoseStack matrix) {
+    private void paintCaret(final GuiGraphics gfx) {
 
         if (((this._caretBlinkTimer - System.currentTimeMillis()) / 500) % 2 != 0) {
             return;
@@ -410,7 +410,7 @@ public class TextInput
 
         final int x = Math.max(1, this.getLineWidth(this.getText().substring(this._displayCharIndex, this._caretCharIndex)));
 
-        this.paintSolidRect(matrix, x, 2, x + 1, 2 + this.getTextAreaHeight() - 1, this.getTheme().TEXTFIELD_CARET);
+        this.paintSolidRect(gfx, x, 2, x + 1, 2 + this.getTextAreaHeight() - 1, this.getTheme().TEXTFIELD_CARET);
     }
 
     private Predicate<Character> getCharFilter() {

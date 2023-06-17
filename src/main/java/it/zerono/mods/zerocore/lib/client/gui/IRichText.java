@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface IRichText {
 
-    void paint(final PoseStack matrix, int x, int y, final int zLevel);
+    void paint(GuiGraphics gfx, int x, int y, int zLevel);
 
     Rectangle bounds();
 

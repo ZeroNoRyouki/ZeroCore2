@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -35,7 +35,7 @@ public class CompositeRichText
     //region IRichText
 
     @Override
-    public void paint(final PoseStack matrix, int x, int y, final int zLevel) {
+    public void paint(final GuiGraphics gfx, int x, int y, final int zLevel) {
 
         x += this._margin;
         y += this._margin;
@@ -44,7 +44,7 @@ public class CompositeRichText
 
             final IRichText text = this._components[i];
 
-            text.paint(matrix, x, y, zLevel);
+            text.paint(gfx, x, y, zLevel);
             y += text.bounds().Height + this._interline;
         }
     }

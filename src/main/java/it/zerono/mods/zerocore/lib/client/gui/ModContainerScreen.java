@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
@@ -35,6 +34,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -193,8 +193,8 @@ public class ModContainerScreen<C extends ModContainer>
         return Mth.ceil(GuiHelper.getMouse().ypos() - this.getGuiY());
     }
 
-    public void renderHoveredSlotToolTip(final PoseStack matrix) {
-        this.renderTooltip(matrix, this.getOriginalMouseX(), this.getOriginalMouseY());
+    public void renderHoveredSlotToolTip(final GuiGraphics gfx) {
+        this.renderTooltip(gfx, this.getOriginalMouseX(), this.getOriginalMouseY());
     }
 
     public int getTooltipsPopupMaxWidth() {
@@ -382,21 +382,21 @@ public class ModContainerScreen<C extends ModContainer>
      * Draws the background layer of this container (behind the items).
      */
     @Override
-    protected final void renderBg(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    protected final void renderBg(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
-        this.renderBackground(matrix);
+        this.renderBackground(gfx);
 
         this._originalMouseX = mouseX;
         this._originalMouseY = mouseY;
-        this._windowsManager.onGuiContainerPaintBackground(matrix, partialTicks);
+        this._windowsManager.onGuiContainerPaintBackground(gfx, partialTicks);
     }
 
     @Override
-    protected final void renderLabels(final PoseStack matrix, final int mouseX, final int mouseY) {
+    protected final void renderLabels(final GuiGraphics gfx, final int mouseX, final int mouseY) {
 
         this._originalMouseX = mouseX;
         this._originalMouseY = mouseY;
-        this._windowsManager.onGuiContainerPaintForeground(matrix);
+        this._windowsManager.onGuiContainerPaintForeground(gfx);
     }
 
     /**

@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
@@ -26,6 +25,7 @@ import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalLayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalLayoutEngine;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -42,7 +42,7 @@ public class Panel
         super(gui, name);
     }
 
-    public void setCustomBackgroundPainter(final BiConsumer<AbstractControl, PoseStack> painter) {
+    public void setCustomBackgroundPainter(final BiConsumer<AbstractControl, GuiGraphics> painter) {
         this.setCustomBackgroundHandler(Objects.requireNonNull(painter));
     }
 

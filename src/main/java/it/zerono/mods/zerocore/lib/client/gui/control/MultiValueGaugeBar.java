@@ -19,7 +19,6 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
@@ -27,7 +26,7 @@ import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.core.Direction;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
 import java.util.Optional;
@@ -70,24 +69,15 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
     //region AbstractGaugeBar
 
     @Override
-    public void onPaint(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
+    public void onPaint(final GuiGraphics gfx, float partialTicks, int mouseX, int mouseY) {
 
-        super.onPaint(matrix, partialTicks, mouseX, mouseY);
+        super.onPaint(gfx, partialTicks, mouseX, mouseY);
 
         final Rectangle area = this.getPaddingRect();
         int skip = 0;
 
-        if (Direction.Plane.HORIZONTAL == area.getLayout()) {
-
-            for (final Index index: this._values.getValidIndices()) {
-                skip += this.paintValueRect(matrix, index, area, skip);
-            }
-
-        } else {
-
-            for (final Index index: this._values.getValidIndices()) {
-                skip += this.paintValueRect(matrix, index, area, skip);
-            }
+        for (final Index index: this._values.getValidIndices()) {
+            skip += this.paintValueRect(gfx, index, area, skip);
         }
     }
 
@@ -123,12 +113,69 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
         return this._tints.getElement(index);
     }
 
-    protected int paintValueRect(final PoseStack matrix, final Index index, final Rectangle rect, final int skip) {
+    protected Colour getTintOrDefault(final Index index) {
+        return this._tints.getElement(index, Colour.WHITE);
+    }
+
+    protected int paintValueRect(final GuiGraphics gfx, final Index index, final Rectangle rect, final int skip) {
+
+        final double progress = this.getFillRatio(index);
+
+        if (progress < 0.01) {
+            return 0;
+        }
+
         return this.getSprite(index)
-                .map(sprite -> ModRenderHelper.paintVerticalProgressSprite(matrix, sprite,
-                        this.getTint(index).orElse(Colour.WHITE), this.controlToScreen(rect.Origin.X, rect.Origin.Y),
-                        (int)this.getZLevel(), rect, skip, this.getFillRatio(index)))
+                .map(sprite -> this.paintValueRect(gfx, sprite, this.getTintOrDefault(index), rect, skip, progress))
                 .orElse(0);
+    }
+
+    private int paintValueRect(GuiGraphics gfx, ISprite sprite, Colour tint, Rectangle rect, int skip, double progress) {
+
+        final var orientation = this.getOrientation();
+        final var origin = this.controlToScreen(rect.Origin.X, rect.Origin.Y);
+        final int x, y, areaWidth, areaHeight, filled;
+
+        switch (orientation) {
+
+            default:
+            case BottomToTop:
+                x = origin.X;
+                y = origin.Y - skip;
+                areaWidth = rect.Width;
+                areaHeight = rect.Height;
+                filled = (int)(areaHeight * progress);
+                break;
+
+            case TopToBottom:
+                x = origin.X;
+                y = origin.Y + skip;
+                areaWidth = rect.Width;
+                areaHeight = rect.Height;
+                filled = (int)(areaHeight * progress);
+                break;
+
+            case LeftToRight:
+                x = origin.X + skip;
+                y = origin.Y;
+                areaWidth = rect.Width;
+                areaHeight = rect.Height;
+                filled = (int)(areaWidth * progress);
+                break;
+
+            case RightToLeft:
+                x = origin.X - skip;
+                y = origin.Y;
+                areaWidth = rect.Width;
+                areaHeight = rect.Height;
+                filled = (int)(areaWidth * progress);
+                break;
+        }
+
+        ModRenderHelper.paintOrientedProgressBarSprite(gfx, orientation, sprite, x, y, (int)this.getZLevel(),
+                areaWidth, areaHeight, progress, tint);
+
+        return filled;
     }
 
     private final EnumIndexedArray<Index, Double> _values;

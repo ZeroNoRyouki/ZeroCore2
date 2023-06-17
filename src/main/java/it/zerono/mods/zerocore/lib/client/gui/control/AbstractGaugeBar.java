@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IOrientationAware;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class AbstractGaugeBar
         extends AbstractControl
@@ -64,12 +64,12 @@ public abstract class AbstractGaugeBar
     //region AbstractControl
 
     @Override
-    public void onPaintOverlay(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
+    public void onPaintOverlay(final GuiGraphics gfx, float partialTicks, int mouseX, int mouseY) {
 
-        super.onPaintOverlay(matrix, partialTicks, mouseX, mouseY);
+        super.onPaintOverlay(gfx, partialTicks, mouseX, mouseY);
 
         if (null != this._overlay) {
-            this.paintSprite(matrix, this._overlay, 0, 0);
+            this.paintSprite(gfx, this._overlay, 0, 0);
         }
     }
 

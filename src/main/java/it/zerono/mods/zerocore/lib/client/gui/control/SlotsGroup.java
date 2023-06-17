@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -28,6 +27,7 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneric;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.inventory.Slot;
 
 import java.util.List;
@@ -102,8 +102,8 @@ public class SlotsGroup
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this.getGui().renderHoveredSlotToolTip(matrix);
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.getGui().renderHoveredSlotToolTip(gfx);
     }
 
     @Override

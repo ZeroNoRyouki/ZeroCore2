@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.compat.jei.drawable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class SpriteDrawable
@@ -64,15 +64,15 @@ public class SpriteDrawable
     }
 
     @Override
-    public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
-        ModRenderHelper.paintSprite(matrix, this.getSprite(), xOffset + this.getPadding().getLeft(),
+    public void draw(final GuiGraphics gfx, final int xOffset, final int yOffset) {
+        ModRenderHelper.paintSprite(gfx, this.getSprite(), xOffset + this.getPadding().getLeft(),
                 yOffset + this.getPadding().getTop(), this._zLevel, this.getWidth(), this.getHeight());
     }
 
     @Override
-    public void draw(final PoseStack matrix, final int xOffset, final int yOffset, final int maskTop,
+    public void draw(final GuiGraphics gfx, final int xOffset, final int yOffset, final int maskTop,
                      final int maskBottom, final int maskLeft, final int maskRight) {
-        ModRenderHelper.paintSprite(matrix, this.getSprite(), xOffset, yOffset, this._zLevel, this.getPadding(),
+        ModRenderHelper.paintSprite(gfx, this.getSprite(), xOffset, yOffset, this._zLevel, this.getPadding(),
                 this.getWidth(), this.getHeight(), maskTop, maskBottom, maskLeft, maskRight);
     }
 

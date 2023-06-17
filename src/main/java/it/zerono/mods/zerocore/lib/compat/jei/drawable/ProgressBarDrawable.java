@@ -18,13 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.compat.jei.drawable;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 public class ProgressBarDrawable
@@ -34,11 +34,11 @@ public class ProgressBarDrawable
         return new ProgressBarDrawable(() -> Sprite.EMPTY, 0, Padding.ZERO, 0, 0, Orientation.BottomToTop) {
 
             @Override
-            public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
+            public void draw(final GuiGraphics gfx, final int xOffset, final int yOffset) {
             }
 
             @Override
-            public void draw(final PoseStack matrix, final int xOffset, final int yOffset, final int maskTop,
+            public void draw(final GuiGraphics gfx, final int xOffset, final int yOffset, final int maskTop,
                              final int maskBottom, final int maskLeft, final int maskRight) {
             }
         };
@@ -74,16 +74,16 @@ public class ProgressBarDrawable
     //region SpriteDrawable
 
     @Override
-    public void draw(final PoseStack matrix, final int xOffset, final int yOffset) {
-        ModRenderHelper.paintOrientedProgressBarSprite(matrix, this._orientation, this.getSprite(),
+    public void draw(final GuiGraphics gfx, final int xOffset, final int yOffset) {
+        ModRenderHelper.paintOrientedProgressBarSprite(gfx, this._orientation, this.getSprite(),
                 xOffset + this.getPadding().getLeft(), yOffset + this.getPadding().getTop(), this.getZLevel(),
                 this._areaWidth, this._areaHeight, this.getProgress(), this._tint);
     }
 
     @Override
-    public void draw(final PoseStack matrix, final int xOffset, final int yOffset, final int maskTop,
+    public void draw(final GuiGraphics gfx, final int xOffset, final int yOffset, final int maskTop,
                      final int maskBottom, final int maskLeft, final int maskRight) {
-        ModRenderHelper.paintOrientedProgressBarSprite(matrix, this._orientation, this.getSprite(),
+        ModRenderHelper.paintOrientedProgressBarSprite(gfx, this._orientation, this.getSprite(),
                 xOffset + this.getPadding().getLeft() + maskLeft, yOffset + this.getPadding().getTop() + maskTop,
                 this.getZLevel(), this._areaWidth - maskRight - maskLeft, this._areaHeight - maskBottom - maskTop,
                 this.getProgress(), this._tint);

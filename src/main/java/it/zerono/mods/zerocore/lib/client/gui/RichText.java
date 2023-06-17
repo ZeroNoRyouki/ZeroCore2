@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.client.gui;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
@@ -31,6 +30,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -64,14 +64,16 @@ public class RichText
     //region IRichText
 
     @Override
-    public void paint(final PoseStack matrix, int x, int y, final int zLevel) {
+    public void paint(final GuiGraphics gfx, int x, int y, final int zLevel) {
+
+        final var matrix = gfx.pose();
 
         matrix.pushPose();
         matrix.translate(0, 0, zLevel);
 
         for (final TextLine line : this._lines) {
 
-            line.paint(this, matrix, x, y);
+            line.paint(this, gfx, x, y);
             y += line.getHeight() + this._interline;
         }
 
@@ -125,28 +127,28 @@ public class RichText
     }
 
     private static void paintString(final RichText richText, final String chunk,
-                                    final PoseStack matrix, final int x, final int y) {
-        richText._fontSupplier.get().drawShadow(matrix, chunk, x, y, richText._textColour.toARGB());
+                                    final GuiGraphics gfx, final int x, final int y) {
+        gfx.drawString(richText._fontSupplier.get(), chunk, x, y, richText._textColour.toARGB(), true);
     }
 
     private static void paintString(final RichText richText, final FormattedText chunk,
-                                    final PoseStack matrix, final int x, final int y) {
-        richText._fontSupplier.get().drawShadow(matrix, Language.getInstance().getVisualOrder(chunk), x, y,
-                richText._textColour.toARGB());
+                                    final GuiGraphics gfx, final int x, final int y) {
+        gfx.drawString(richText._fontSupplier.get(), Language.getInstance().getVisualOrder(chunk), x, y,
+                richText._textColour.toARGB(), true);
     }
 
-    private static void paintItemStack(final RichText richText, final ItemStack chunk, final PoseStack matrix, final int x, final int y) {
-        ModRenderHelper.paintItemStackWithCount(matrix, chunk, x, y, false);
+    private static void paintItemStack(final RichText richText, final ItemStack chunk, final GuiGraphics gfx, final int x, final int y) {
+        ModRenderHelper.paintItemStackWithCount(gfx, chunk, x, y, false);
     }
 
     private static void paintItemStackNoCount(final RichText richText, final ItemStack chunk,
-                                              final PoseStack matrix, final int x, final int y) {
-        ModRenderHelper.paintItemStack(matrix, chunk, x, y, "", false);
+                                              final GuiGraphics gfx, final int x, final int y) {
+        ModRenderHelper.paintItemStack(gfx, chunk, x, y, "", false);
     }
 
     private static void paintSprite(final RichText richText, final ISprite chunk,
-                                    final PoseStack matrix, final int x, final int y) {
-        ModRenderHelper.paintSprite(matrix, chunk, new Point(x, y), 0, 16, 16); //TODO new Point arg!!
+                                    final GuiGraphics gfx, final int x, final int y) {
+        ModRenderHelper.paintSprite(gfx, chunk, new Point(x, y), 0, 16, 16); //TODO new Point arg!!
     }
 
     //region ITextChunk
@@ -157,7 +159,7 @@ public class RichText
 
         int getHeight();
 
-        void paint(RichText richText, PoseStack matrix, int x, int y);
+        void paint(RichText richText, GuiGraphics gfx, int x, int y);
     }
 
     //endregion
@@ -216,11 +218,11 @@ public class RichText
         }
 
         @Override
-        public void paint(final RichText richText, final PoseStack matrix, int x, int y) {
+        public void paint(final RichText richText, final GuiGraphics gfx, int x, int y) {
 
             for (final ITextChunk chunk : this._chunks) {
 
-                chunk.paint(richText, matrix, x, y + ((this._maxHeight - chunk.getHeight()) / 2));
+                chunk.paint(richText, gfx, x, y + ((this._maxHeight - chunk.getHeight()) / 2));
                 x += chunk.getWidth();
             }
         }
@@ -251,7 +253,7 @@ public class RichText
         @FunctionalInterface
         public interface IChunkPainter<T> {
 
-            void paint(RichText richText, T chunk, PoseStack matrix, int x, int y);
+            void paint(RichText richText, T chunk, GuiGraphics gfx, int x, int y);
         }
 
         public TextChunk(final T thing, final int width, final int height, final IChunkPainter<T> painter) {
@@ -275,8 +277,8 @@ public class RichText
         }
 
         @Override
-        public void paint(final RichText richText, final PoseStack matrix, final int x, final int y) {
-            this._painter.paint(richText, this._thing, matrix, x, y);
+        public void paint(final RichText richText, final GuiGraphics gfx, final int x, final int y) {
+            this._painter.paint(richText, this._thing, gfx, x, y);
         }
 
         //endregion
@@ -321,8 +323,8 @@ public class RichText
         //region internals
 
         private static void paintString(final RichText richText, final Supplier<String> chunk,
-                                        final PoseStack matrix, final int x, final int y) {
-            RichText.paintString(richText, chunk.get(), matrix, x, y);
+                                        final GuiGraphics gfx, final int x, final int y) {
+            RichText.paintString(richText, chunk.get(), gfx, x, y);
         }
 
         private final NonNullSupplier<Font> _fontSupplier;
@@ -353,8 +355,8 @@ public class RichText
         //region internals
 
         private static void paintString(final RichText richText, final NonNullSupplier<Component> chunk,
-                                        final PoseStack matrix, final int x, final int y) {
-            RichText.paintString(richText, chunk.get(), matrix, x, y);
+                                        final GuiGraphics gfx, final int x, final int y) {
+            RichText.paintString(richText, chunk.get(), gfx, x, y);
         }
 
         private final NonNullSupplier<Font> _fontSupplier;

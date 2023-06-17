@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface IDraggable {
 
@@ -41,5 +41,5 @@ public interface IDraggable {
      * @param zLevel
      * @param paintState
      */
-    void onPaint(PoseStack matrix, int x, int y, float zLevel, PaintState paintState);
+    void onPaint(GuiGraphics gfx, int x, int y, float zLevel, PaintState paintState);
 }

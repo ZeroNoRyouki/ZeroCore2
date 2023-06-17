@@ -18,13 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -61,15 +61,15 @@ public abstract class AbstractDragSource
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
-        super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
+        super.onPaintBackground(gfx, partialTicks, mouseX, mouseY);
+        this.paintHollowRect(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this.getDraggable().ifPresent(draggable -> draggable.onPaint(matrix, this.getPaintX(), this.getPaintY(),
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.getDraggable().ifPresent(draggable -> draggable.onPaint(gfx, this.getPaintX(), this.getPaintY(),
                 this.getGuiZLevel(), this.getMouseOver() ? IDraggable.PaintState.Highlighted : IDraggable.PaintState.Default));
     }
 

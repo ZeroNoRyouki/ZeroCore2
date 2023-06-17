@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
@@ -102,16 +102,16 @@ public class Static
     //region AbstractControl
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this._customPainter.accept(this, matrix);
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this._customPainter.accept(this, gfx);
     }
 
     //endregion
     //region internals
 
-    private final static BiConsumer<Static, PoseStack> NO_PAINTER = (c, m) -> {};
+    private final static BiConsumer<Static, GuiGraphics> NO_PAINTER = (c, m) -> {};
 
-    private BiConsumer<Static, PoseStack> _customPainter;
+    private BiConsumer<Static, GuiGraphics> _customPainter;
 
     //endregion
 }

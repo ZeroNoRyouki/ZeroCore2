@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -31,6 +30,7 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 
@@ -201,10 +201,10 @@ public class UpDown
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
-        this.paintUpButton(matrix);
-        this.paintDownButton(matrix);
+        this.paintUpButton(gfx);
+        this.paintDownButton(gfx);
     }
 
     @Override
@@ -248,7 +248,7 @@ public class UpDown
         }
     }
 
-    protected void paintUpButton(final PoseStack matrix) {
+    protected void paintUpButton(final GuiGraphics gfx) {
 
         final ButtonState state = this.getButtonState(Direction.AxisDirection.POSITIVE);
         final Theme theme = this.getTheme();
@@ -256,7 +256,7 @@ public class UpDown
         switch (state) {
 
             case DefaultDisabled:
-                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintUpButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
                         theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
                         theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
@@ -265,7 +265,7 @@ public class UpDown
 
             case Active:
             case ActiveHighlighted:
-                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintUpButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
                         theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
                         theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
@@ -274,7 +274,7 @@ public class UpDown
                 break;
 
             case DefaultHighlighted:
-                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintUpButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
                         theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
                         theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
@@ -283,7 +283,7 @@ public class UpDown
                 break;
 
             case Default:
-                this.paintUpButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintUpButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
                         theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
                         theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
@@ -292,7 +292,7 @@ public class UpDown
         }
     }
 
-    protected void paintDownButton(final PoseStack matrix) {
+    protected void paintDownButton(final GuiGraphics gfx) {
 
         final ButtonState state = this.getButtonState(Direction.AxisDirection.NEGATIVE);
         final Theme theme = this.getTheme();
@@ -300,7 +300,7 @@ public class UpDown
         switch (state) {
 
             case DefaultDisabled:
-                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintDownButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
                         theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
                         theme.BUTTON_DISABLED_3D_BORDER_LIGHT,
@@ -309,7 +309,7 @@ public class UpDown
 
             case Active:
             case ActiveHighlighted:
-                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintDownButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
                         theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
                         theme.BUTTON_ACTIVE_3D_BORDER_LIGHT,
@@ -318,7 +318,7 @@ public class UpDown
                 break;
 
             case DefaultHighlighted:
-                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintDownButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
                         theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
                         theme.BUTTON_HIGHLIGHTED_3D_BORDER_LIGHT,
@@ -327,7 +327,7 @@ public class UpDown
                 break;
 
             case Default:
-                this.paintDownButton(matrix, theme.DARK_OUTLINE_COLOR,
+                this.paintDownButton(gfx, theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
                         theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
                         theme.BUTTON_NORMAL_3D_BORDER_LIGHT,
@@ -336,7 +336,7 @@ public class UpDown
         }
     }
 
-    protected void paintUpButton(final PoseStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
+    protected void paintUpButton(final GuiGraphics gfx, final Colour darkOutlineColour, final Colour gradientLightColour,
                                  final Colour gradientDarkColour, final Colour borderLightColour,
                                  final Colour borderDarkColour) {
 
@@ -359,13 +359,13 @@ public class UpDown
         double y3 = this._paintY[6];
 
         if (gradientLightColour.equals(gradientDarkColour)) {
-            ModRenderHelper.paint3DSolidTriangle(matrix,
+            ModRenderHelper.paint3DSolidTriangle(gfx,
                     x1, y1,
                     x2, y2,
                     x3, y3,
                     z, gradientLightColour);
         } else {
-            ModRenderHelper.paint3DGradientTriangle(matrix,
+            ModRenderHelper.paint3DGradientTriangle(gfx,
                     x1, y1,
                     x2, y2,
                     x3, y3,
@@ -382,11 +382,11 @@ public class UpDown
         y3 = this._paintY[1 + 6];
 
         // - dark
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 0.25, z,
+        ModRenderHelper.paintSolidLines(gfx, borderDarkColour, 0.25, z,
                 x2, y2, x3, y3);
 
         // - light
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 0.5, z,
+        ModRenderHelper.paintSolidLines(gfx, borderLightColour, 0.5, z,
                 x1, y1, x2, y2,
                 x1, y1, x3, y3);
 
@@ -399,14 +399,14 @@ public class UpDown
         x3 = this._paintX[2 + 6];
         y3 = this._paintY[2 + 6];
 
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.5, z,
+        ModRenderHelper.paintSolidLines(gfx, darkOutlineColour, 0.5, z,
                 x1, y1, x2, y2,
                 x3, y3, x1, y1);
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.25, z,
+        ModRenderHelper.paintSolidLines(gfx, darkOutlineColour, 0.25, z,
                 x2, y2, x3, y3);
     }
 
-    protected void paintDownButton(final PoseStack matrix, final Colour darkOutlineColour, final Colour gradientLightColour,
+    protected void paintDownButton(final GuiGraphics gfx, final Colour darkOutlineColour, final Colour gradientLightColour,
                                  final Colour gradientDarkColour, final Colour borderLightColour,
                                  final Colour borderDarkColour) {
 
@@ -429,13 +429,13 @@ public class UpDown
         double y3 = this._paintY[9 + 6];
 
         if (gradientLightColour.equals(gradientDarkColour)) {
-            ModRenderHelper.paint3DSolidTriangle(matrix,
+            ModRenderHelper.paint3DSolidTriangle(gfx,
                     x1, y1,
                     x2, y2,
                     x3, y3,
                     z, gradientLightColour);
         } else {
-            ModRenderHelper.paint3DGradientTriangle(matrix,
+            ModRenderHelper.paint3DGradientTriangle(gfx,
                     x1, y1,
                     x2, y2,
                     x3, y3,
@@ -452,11 +452,11 @@ public class UpDown
         y3 = this._paintY[10 + 6];
 
         // - light
-        ModRenderHelper.paintSolidLines(matrix, borderLightColour, 0.25, z,
+        ModRenderHelper.paintSolidLines(gfx, borderLightColour, 0.25, z,
                 x2, y2, x3, y3 );
 
         // - dark
-        ModRenderHelper.paintSolidLines(matrix, borderDarkColour, 0.5, z,
+        ModRenderHelper.paintSolidLines(gfx, borderDarkColour, 0.5, z,
                 x1, y1, x2 - 0.25, y2,
                 x1, y1, x3, y3 - 0.25);
 
@@ -469,10 +469,10 @@ public class UpDown
         x3 = this._paintX[11 + 6];
         y3 = this._paintY[11 + 6];
 
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.5, z,
+        ModRenderHelper.paintSolidLines(gfx, darkOutlineColour, 0.5, z,
                 x1, y1, x2, y2,
                 x3, y3, x1, y1);
-        ModRenderHelper.paintSolidLines(matrix, darkOutlineColour, 0.25, z,
+        ModRenderHelper.paintSolidLines(gfx, darkOutlineColour, 0.25, z,
                 x2, y2, x3, y3);
     }
 

@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
@@ -27,6 +26,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.Pair;
@@ -76,14 +76,14 @@ public class Window<C extends ModContainer>
         return this.isVisible() ? this._topLevelContainer.findControl(x, y) : Optional.empty();
     }
 
-    public void paintToolTips(final PoseStack matrix) {
+    public void paintToolTips(final GuiGraphics gfx) {
 
         if (null != this._mouseOver) {
 
             final int mouseX = Mth.floor(GuiHelper.getMouse().xpos() / this.getGuiScreen().getGuiScaleFactor());
             final int mouseY = Mth.floor(GuiHelper.getMouse().ypos() / this.getGuiScreen().getGuiScaleFactor());
 
-            this._mouseOver.paintToolTips(matrix, mouseX, mouseY);
+            this._mouseOver.paintToolTips(gfx, mouseX, mouseY);
         }
     }
 
@@ -189,31 +189,31 @@ public class Window<C extends ModContainer>
         this.Focus.raise(c -> c.accept(this, newFocus));
     }
 
-    void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isVisible()) {
-            this._topLevelContainer.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
+            this._topLevelContainer.onPaintBackground(gfx, partialTicks, mouseX, mouseY);
         }
     }
 
-    void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isVisible()) {
-            this._topLevelContainer.onPaint(matrix, partialTicks, mouseX, mouseY);
+            this._topLevelContainer.onPaint(gfx, partialTicks, mouseX, mouseY);
         }
     }
 
-    void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    void onPaintOverlay(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
         if (this.isVisible()) {
-            this._topLevelContainer.onPaintOverlay(matrix, partialTicks, mouseX, mouseY);
+            this._topLevelContainer.onPaintOverlay(gfx, partialTicks, mouseX, mouseY);
         }
     }
 
-    void onPaintDebugFrame(final PoseStack matrix, final Colour colour) {
+    void onPaintDebugFrame(final GuiGraphics gfx, final Colour colour) {
 
         if (null != this._mouseOver) {
-            this._mouseOver.onPaintDebugFrame(matrix, colour);
+            this._mouseOver.onPaintDebugFrame(gfx, colour);
         }
     }
 

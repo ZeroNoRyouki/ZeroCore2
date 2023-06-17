@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
@@ -26,6 +25,7 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteSet;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.sounds.SoundEvents;
 
 import javax.annotation.Nullable;
@@ -103,10 +103,10 @@ public abstract class AbstractButtonControl
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
-        this.getIconFromState(this.getButtonState()).ifPresent(sprite -> this.paintButtonSprite(matrix, sprite));
-        super.onPaint(matrix, partialTicks, mouseX, mouseY);
+        this.getIconFromState(this.getButtonState()).ifPresent(sprite -> this.paintButtonSprite(gfx, sprite));
+        super.onPaint(gfx, partialTicks, mouseX, mouseY);
     }
 
     /**
@@ -162,7 +162,7 @@ public abstract class AbstractButtonControl
         this.playSound(SoundEvents.UI_BUTTON_CLICK);
     }
 
-    protected void paintButton3D(final PoseStack matrix, final ButtonState state, final int x, final int y,
+    protected void paintButton3D(final GuiGraphics gfx, final ButtonState state, final int x, final int y,
                                  final int width, final int height) {
 
         final Theme theme = this.getTheme();
@@ -170,7 +170,7 @@ public abstract class AbstractButtonControl
         switch (state) {
 
             case DefaultDisabled:
-                this.paintButton3D(matrix, x, y, width, height,
+                this.paintButton3D(gfx, x, y, width, height,
                         theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_DISABLED_3D_GRADIENT_LIGHT,
                         theme.BUTTON_DISABLED_3D_GRADIENT_DARK,
@@ -180,7 +180,7 @@ public abstract class AbstractButtonControl
 
             case Active:
             case ActiveHighlighted:
-                this.paintButton3D(matrix, x, y, width, height,
+                this.paintButton3D(gfx, x, y, width, height,
                         theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_ACTIVE_3D_GRADIENT_LIGHT,
                         theme.BUTTON_ACTIVE_3D_GRADIENT_DARK,
@@ -189,7 +189,7 @@ public abstract class AbstractButtonControl
                 break;
 
             case DefaultHighlighted:
-                this.paintButton3D(matrix, x, y, width, height,
+                this.paintButton3D(gfx, x, y, width, height,
                         theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_LIGHT,
                         theme.BUTTON_HIGHLIGHTED_3D_GRADIENT_DARK,
@@ -198,7 +198,7 @@ public abstract class AbstractButtonControl
                 break;
 
             case Default:
-                this.paintButton3D(matrix, x, y, width, height,
+                this.paintButton3D(gfx, x, y, width, height,
                         theme.DARK_OUTLINE_COLOR,
                         theme.BUTTON_NORMAL_3D_GRADIENT_LIGHT,
                         theme.BUTTON_NORMAL_3D_GRADIENT_DARK,
@@ -211,11 +211,11 @@ public abstract class AbstractButtonControl
     //endregion
     //region internals
 
-    private void paintButtonSprite(final PoseStack matrix, final ISprite sprite) {
+    private void paintButtonSprite(final GuiGraphics gfx, final ISprite sprite) {
 
         final Rectangle paddedBounds = this.getPaddingRect();
 
-        this.paintSprite(matrix, sprite, paddedBounds.getX1(), paddedBounds.getY1(),
+        this.paintSprite(gfx, sprite, paddedBounds.getX1(), paddedBounds.getY1(),
                 Math.min(sprite.getWidth(), paddedBounds.Width),
                 Math.min(sprite.getHeight(), paddedBounds.Height));
     }

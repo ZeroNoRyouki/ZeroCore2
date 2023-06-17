@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
@@ -31,10 +30,10 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
 
@@ -241,23 +240,14 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void setBackground(final ResourceLocation texture) {
-        this.setCustomBackgroundHandler((control, matrix) -> {
-
-            ModRenderHelper.bindTexture(texture);
-            control.paintTexturedRect(matrix, 0, 0, control.getBounds().Width, control.getBounds().Height, 0, 0);
-        });
-    }
-
-    @Override
     public void setBackground(final ISprite sprite) {
-        this.setCustomBackgroundHandler((control, matrix) -> control.paintSprite(matrix, sprite, 0, 0, this.getWidth(), this.getHeight()));
+        this.setCustomBackgroundHandler((control, gfx) -> control.paintSprite(gfx, sprite, 0, 0, this.getWidth(), this.getHeight()));
     }
 
     @Override
     public void setBackground(final Colour solidColour) {
-        this.setCustomBackgroundHandler((control, matrix) ->
-                control.paintSolidRect(matrix, 0, 0, control.getBounds().Width, control.getBounds().Height, solidColour));
+        this.setCustomBackgroundHandler((control, gfx) ->
+                control.paintSolidRect(gfx, 0, 0, control.getBounds().Width, control.getBounds().Height, solidColour));
     }
 
     @Override
@@ -283,7 +273,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void paintToolTips(final PoseStack matrix, int screenX, int screenY) {
+    public void paintToolTips(final GuiGraphics gfx, int screenX, int screenY) {
 
         final RichText rich = this.getTooltipsRichText();
 
@@ -305,18 +295,18 @@ public abstract class AbstractControl
         final Colour highlight2 = Colour.fromARGB(1347420415);
         final int z = ModRenderHelper.GUI_TOPMOST_Z;
 
-        ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
-        ModRenderHelper.paintSolidRect(matrix, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, z, bk);
-        ModRenderHelper.paintVerticalLine(matrix, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
+        ModRenderHelper.paintVerticalLine(gfx, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
+        ModRenderHelper.paintSolidRect(gfx, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, z, bk);
+        ModRenderHelper.paintVerticalLine(gfx, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, z, bk);
 
-        ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX1() + 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, highlight1, highlight2);
-        ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY1() + 1, boxBounds.Width - 4, z, highlight1, highlight2);
-        ModRenderHelper.paintHorizontalGradientLine(matrix, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, z, highlight1, highlight2);
-        ModRenderHelper.paintVerticalGradientLine(matrix, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, highlight1, highlight2);
+        ModRenderHelper.paintVerticalGradientLine(gfx, boxBounds.getX1() + 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, highlight1, highlight2);
+        ModRenderHelper.paintHorizontalGradientLine(gfx, boxBounds.getX1() + 2, boxBounds.getY1() + 1, boxBounds.Width - 4, z, highlight1, highlight2);
+        ModRenderHelper.paintHorizontalGradientLine(gfx, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, z, highlight1, highlight2);
+        ModRenderHelper.paintVerticalGradientLine(gfx, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, z, highlight1, highlight2);
 
         // text
 
-        rich.paint(matrix, boxBounds.getX1() + borderSize, boxBounds.getY1() + borderSize, z);
+        rich.paint(gfx, boxBounds.getX1() + borderSize, boxBounds.getY1() + borderSize, z);
     }
 
     @Override
@@ -487,16 +477,16 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this._backgroundPainter.accept(this, matrix);
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this._backgroundPainter.accept(this, gfx);
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
     }
 
     @Override
-    public void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintOverlay(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
     }
 
     @Override
@@ -505,8 +495,8 @@ public abstract class AbstractControl
     }
 
     @Override
-    public void onPaintDebugFrame(final PoseStack matrix, final Colour colour) {
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
+    public void onPaintDebugFrame(final GuiGraphics gfx, final Colour colour) {
+        this.paintHollowRect(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
     }
 
     //endregion
@@ -520,7 +510,7 @@ public abstract class AbstractControl
     //endregion
     //region paint helpers
 
-    protected void setCustomBackgroundHandler(final BiConsumer<AbstractControl, PoseStack> handler) {
+    protected void setCustomBackgroundHandler(final BiConsumer<AbstractControl, GuiGraphics> handler) {
         this._backgroundPainter = Preconditions.checkNotNull(handler);
     }
 
@@ -619,99 +609,35 @@ public abstract class AbstractControl
         return this._flags.contains(ControlFlags.BlendWhenPainting);
     }
 
-//    /**
-//     * Paint a series of lines in a solid colour.
-//     * <p>
-//     * The vertices parameter is interpreted as a series of 2 vertex per line (x, y).
-//     * The lines don't need to be connected to each others
-//     * <p>
-//     * If the wrong number of vertices are passed in (not multiple of 2) an ArrayIndexOutOfBoundsException will be raised
-//     *
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param colour    the colour to be used to fill the rectangle
-//     * @param thickness the thickness of the lines
-//     * @param vertices  the vertices of the lines
-//     *
-//     */
-//    protected void paintSolidLines(final Colour colour, final int thickness, int... vertices) {
-//        ModRenderHelper.paintSolidLines(colour, thickness, this.getZLevel(), this.convert2DVerticesToScreenCoords(vertices));
-//    }
-
-//    /**
-//     * Paint a solid color rectangle that fill the entire control area
-//     *
-//     * @param colour    the colour to be used to fill the rectangle
-//     */
-//    protected void paintSolidRect(final MatrixStack matrix, final Colour colour) {
-//        this.paintSolidRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
-//    }
-
-//    /**
-//     * Paint a solid color rectangle with the specified coordinates and colour.
-//     *
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param rect      starting coordinates and size of the rectangle
-//     * @param colour    the colour to be used to fill the rectangle
-//     */
-//    protected void paintSolidRect(final MatrixStack matrix, final Rectangle rect, final Colour colour) {
-//        this.paintSolidRect(matrix, rect.Origin.X, rect.Origin.Y, rect.Origin.X + rect.Width, rect.Origin.Y + rect.Height, colour);
-//    }
-
-//    /**
-//     * Paint a solid color rectangle with the specified coordinates and colour.
-//     *
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param x1        starting point on the X axis
-//     * @param y1        starting point on the Y axis
-//     * @param x2        ending point on the X axis (not included in the rectangle)
-//     * @param y2        ending point on the Y axis (not included in the rectangle)
-//     * @param colour    the colour to be used to fill the rectangle
-//     */
-////    @Deprecated
-////    protected void paintSolidRect(final int x1, final int y1, final int x2, final int y2, final Colour colour) {
-////
-////        final Point screenXY1 = this.controlToScreen(x1, y1);
-////        final Point screenXY2 = this.controlToScreen(x2, y2);
-////
-////        ModRenderHelper.paintSolidRect(screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(), colour);
-////    }
-
-    protected void paintSolidRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour colour) {
-        ModRenderHelper.paintSolidRect(matrix, this.controlToScreen(x1, y1), this.controlToScreen(x2, y2), (int)this.getZLevel(), colour);
+    protected void paintSolidRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2, final Colour colour) {
+        ModRenderHelper.paintSolidRect(gfx, this.controlToScreen(x1, y1), this.controlToScreen(x2, y2), (int)this.getZLevel(), colour);
     }
 
-
-    protected void paintVerticalGradientRect(final PoseStack matrix, final Colour startColour, final Colour endColour) {
-        this.paintVerticalGradientRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, startColour, endColour);
+    protected void paintVerticalGradientRect(final GuiGraphics gfx, final Colour startColour, final Colour endColour) {
+        this.paintVerticalGradientRect(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height, startColour, endColour);
     }
 
-    protected void paintVerticalGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2,
+    protected void paintVerticalGradientRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2,
                                              final Colour startColour, final Colour endColour) {
 
         final Point screenXY1 = this.controlToScreen(x1, y1);
         final Point screenXY2 = this.controlToScreen(x2, y2);
 
-        ModRenderHelper.paintVerticalGradientRect(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
+        ModRenderHelper.paintVerticalGradientRect(gfx, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
                 startColour, endColour);
     }
 
-    protected void paintHorizontalGradientRect(final PoseStack matrix, final Colour startColour, final Colour endColour) {
-        this.paintHorizontalGradientRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, startColour, endColour);
+    protected void paintHorizontalGradientRect(final GuiGraphics gfx, final Colour startColour, final Colour endColour) {
+        this.paintHorizontalGradientRect(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height, startColour, endColour);
     }
 
-    protected void paintHorizontalGradientRect(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2,
+    protected void paintHorizontalGradientRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2,
                                              final Colour startColour, final Colour endColour) {
 
         final Point screenXY1 = this.controlToScreen(x1, y1);
         final Point screenXY2 = this.controlToScreen(x2, y2);
 
-        ModRenderHelper.paintHorizontalGradientRect(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
+        ModRenderHelper.paintHorizontalGradientRect(gfx, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
                 startColour, endColour);
     }
 
@@ -726,41 +652,10 @@ public abstract class AbstractControl
      * @param height the height of the rectangle
      * @param colour the colour to be used to paint the perimeter
      */
-    protected void paintHollowRect(final PoseStack matrix, final int x, final int y, final int width, final int height,
+    protected void paintHollowRect(final GuiGraphics gfx, final int x, final int y, final int width, final int height,
                                    final Colour colour) {
-        ModRenderHelper.paintHollowRect(matrix, this.controlToScreen(x, y), width, height, (int)this.getZLevel(), colour);
+        ModRenderHelper.paintHollowRect(gfx, this.controlToScreen(x, y), width, height, (int)this.getZLevel(), colour);
     }
-
-//    /**
-//     * Paint the perimeter of a rectangle with the specified coordinates and colour.
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param x1        starting point on the X axis
-//     * @param y1        starting point on the Y axis
-//     * @param x2        ending point on the X axis (not included in the rectangle)
-//     * @param y2        ending point on the Y axis (not included in the rectangle)
-//     * @param colour    the colour to be used to paint the perimeter
-//     */
-//    protected void paintHollowRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour colour) {
-//
-//        final Point screenXY1 = this.controlToScreen(x1, y1);
-//        final Point screenXY2 = this.controlToScreen(x2, y2);
-//
-//        ModRenderHelper.paintHollowRect(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, (int)this.getZLevel(), colour);
-//    }
-
-//    /**
-//     * Paint the perimeter of a rectangle with the specified coordinates and colour.
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param rect      starting coordinates and size of the rectangle
-//     * @param colour    the colour to be used to fill the rectangle
-//     */
-//    protected void paintHollowRect(final MatrixStack matrix, final Rectangle rect, final Colour colour) {
-//        this.paintHollowRect(matrix, rect.Origin.X, rect.Origin.Y, rect.Origin.X + rect.Width, rect.Origin.Y + rect.Height, colour);
-//    }
 
     /**
      * Paint a 1 pixel wide horizontal line in the provided colour.
@@ -773,8 +668,8 @@ public abstract class AbstractControl
      * @param length    the length of the line
      * @param colour    the colour to be used to paint the line
      */
-    protected void paintHorizontalLine(final PoseStack matrix, final int x, final int y, final int length, final Colour colour) {
-        ModRenderHelper.paintHorizontalLine(matrix, this.controlToScreen(x, y), length, (int)this.getZLevel(), colour);
+    protected void paintHorizontalLine(final GuiGraphics gfx, final int x, final int y, final int length, final Colour colour) {
+        ModRenderHelper.paintHorizontalLine(gfx, this.controlToScreen(x, y), length, (int)this.getZLevel(), colour);
     }
 
     /**
@@ -789,71 +684,9 @@ public abstract class AbstractControl
      * @param colour    the colour to be used to paint the line
      */
     @SuppressWarnings("unused")
-    protected void paintVerticalLine(final PoseStack matrix, final int x, final int y, final int length, final Colour colour) {
-        ModRenderHelper.paintVerticalLine(matrix, this.controlToScreen(x, y), length, (int)this.getZLevel(), colour);
+    protected void paintVerticalLine(final GuiGraphics gfx, final int x, final int y, final int length, final Colour colour) {
+        ModRenderHelper.paintVerticalLine(gfx, this.controlToScreen(x, y), length, (int)this.getZLevel(), colour);
     }
-
-//    /**
-//     * Paint a rectangle filled with a 3D gradient from a light colour to a dark colour.
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param x1            starting point on the X axis
-//     * @param y1            starting point on the Y axis
-//     * @param x2            ending point on the X axis (not included in the rectangle)
-//     * @param y2            ending point on the Y axis (not included in the rectangle)
-//     * @param lightColour   the light colour to be used for the gradient
-//     * @param darkColour    the dark colour to be used for the gradient
-//     */
-//    protected void paint3DGradientRect(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double zLevel,
-//                                           final Colour lightColour, final Colour darkColour) {
-//
-//        final Point screenXY1 = this.controlToScreen(x1, y1);
-//        final Point screenXY2 = this.controlToScreen(x2, y2);
-//
-//        ModRenderHelper.paint3DGradientRect(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
-//                lightColour, darkColour);
-//    }
-
-    /**
-     * Paint a textured rectangle with the specified coordinates and the texture currently bound to the TextureManager.
-     * <p>
-     * Note: all coordinates are relative to the top-left corner of this control
-     *
-     * @param x         starting point on the X axis
-     * @param y         starting point on the Y axis
-     * @param width     the width of the rectangle
-     * @param height    the height of the rectangle
-     * @param minU      the starting U coordinates of the texture
-     * @param minV      the starting V coordinates of the texture
-     */
-    protected void paintTexturedRect(final PoseStack matrix, final int x, final int y, final int width, final int height,
-                                     final int minU, final int minV) {
-
-        final Point screenXY = this.controlToScreen(x, y);
-
-        ModRenderHelper.paintTexturedRect(matrix, screenXY.X, screenXY.Y, this.getZLevel(), width, height, minU, minV);
-    }
-
-//    /**
-//     * Paint a textured rectangle with the specified coordinates and the texture currently bound to the TextureManager and using the
-//     * provided sprite for the texture coordinates
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param x             starting point on the X axis
-//     * @param y             starting point on the Y axis
-//     * @param width         the width of the rectangle
-//     * @param height        the height of the rectangle
-//     * @param textureSprite the sprite associated with the texture
-//     */
-//    protected void paintTexturedRect(final MatrixStack matrix, final int x, final int y, final int width, final int height,
-//                                     final TextureAtlasSprite textureSprite) {
-//
-//        final Point screenXY = this.controlToScreen(x, y);
-//
-//        ModRenderHelper.paintTexturedRect(matrix, screenXY.X, screenXY.Y, this.getZLevel(), width, height, textureSprite);
-//    }
 
     //region paintSprite
 
@@ -862,13 +695,13 @@ public abstract class AbstractControl
      * <p>
      * Note: all coordinates are relative to the top-left corner of this control
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param gfx the GuiGraphics for the current paint operation
      * @param sprite the sprite to paint
      * @param x starting point on the X axis
      * @param y starting point on the Y axis
      */
-    protected void paintSprite(final PoseStack matrix, final ISprite sprite, final int x, final int y) {
-        ModRenderHelper.paintSprite(matrix, sprite, this.controlToScreen(x, y), (int)this.getZLevel(), sprite.getWidth(), sprite.getHeight());
+    protected void paintSprite(final GuiGraphics gfx, final ISprite sprite, final int x, final int y) {
+        ModRenderHelper.paintSprite(gfx, sprite, this.controlToScreen(x, y), (int)this.getZLevel(), sprite.getWidth(), sprite.getHeight());
     }
 
     /**
@@ -876,173 +709,68 @@ public abstract class AbstractControl
      * <p>
      * Note: all coordinates are relative to the top-left corner of this control
      *
-     * @param matrix the MatrixStack for the current paint operation
+     * @param gfx the GuiGraphics for the current paint operation
      * @param sprite the sprite to paint
      * @param x starting point on the X axis
      * @param y starting point on the Y axis
      * @param width the width of the area to paint
      * @param height the height of the area to paint
      */
-    protected void paintSprite(final PoseStack matrix, final ISprite sprite, final int x, final int y,
+    protected void paintSprite(final GuiGraphics gfx, final ISprite sprite, final int x, final int y,
                                final int width, final int height) {
-        ModRenderHelper.paintSprite(matrix, sprite, this.controlToScreen(x, y), (int)this.getZLevel(), width, height);
+        ModRenderHelper.paintSprite(gfx, sprite, this.controlToScreen(x, y), (int)this.getZLevel(), width, height);
     }
-
-//    /**
-//     * Paint an ISprite from the associated ISpriteTextureMap at the given coordinates
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param matrix the MatrixStack for the current paint operation
-//     * @param sprite        the sprite to paint
-//     * @param colour        the sprite tint
-//     * @param x             starting point on the X axis
-//     * @param y             starting point on the Y axis
-//     * @param width         the width of the sprite
-//     * @param height        the height of the sprite
-//     * @param bufferOnly    if false, only the vertex buffer will be updated and nothing will be actually painted
-//     */
-//    protected void paintSprite(final ISprite sprite, final Colour colour, final int x, final int y,
-//                               final int width, final int height, final boolean bufferOnly) {
-//
-//        final Point screenXY = this.controlToScreen(x, y);
-//
-//        ModRenderHelper.paintSprite(sprite, colour, screenXY.X, screenXY.Y, this.getZLevel(), width, height,
-//                this.shouldBlend(), bufferOnly);
-//    }
 
     //endregion
 
-//    /**
-//     * Paint a rectangle filled with an ISprite up to the indicated progress percentage.
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param x1            starting point on the X axis
-//     * @param y1            starting point on the Y axis
-//     * @param x2            ending point on the X axis (not included in the rectangle)
-//     * @param y2            ending point on the Y axis (not included in the rectangle)
-//     * @param progress      a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-//     * @param sprite        the sprite to fill the rect with
-//     * @param bufferOnly    if false, only the vertex buffer will be updated and nothing will be actually painted
-//     * @return the width or height of the rect painted
-//     */
-//    public int paintStretchedProgressSprite(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double progress,
-//                                            final ISprite sprite, final boolean bufferOnly) {
-//
-//        final Point screenXY1 = this.controlToScreen(x1, y1);
-//        final Point screenXY2 = this.controlToScreen(x2, y2);
-//
-//        return ModRenderHelper.paintStretchedProgressSprite(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y,
-//                this.getZLevel(), progress, sprite, this.shouldBlend(), bufferOnly);
-//    }
-
-//    /**
-//     * Paint a rectangle filled with an ISprite up to the indicated progress percentage.
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param x1            starting point on the X axis
-//     * @param y1            starting point on the Y axis
-//     * @param x2            ending point on the X axis (not included in the rectangle)
-//     * @param y2            ending point on the Y axis (not included in the rectangle)
-//     * @param progress      a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-//     * @param sprite        the sprite to fill the rect with
-//     * @param tint          the sprite tint
-//     * @param bufferOnly    if false, only the vertex buffer will be updated and nothing will be actually painted
-//     * @return the width or height of the rect painted
-//     */
-//    public int paintStretchedProgressSprite(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final double progress,
-//                                            final ISprite sprite, final Colour tint, final boolean bufferOnly) {
-//
-//        final Point screenXY1 = this.controlToScreen(x1, y1);
-//        final Point screenXY2 = this.controlToScreen(x2, y2);
-//
-//        return ModRenderHelper.paintStretchedProgressSprite(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y,
-//                this.getZLevel(), progress, sprite, tint, this.shouldBlend(), bufferOnly);
-//    }
-
-//    /**
-//     * Paint a rectangle filled with an ISprite up to the indicated progress percentage.
-//     * <p>
-//     * Note: all coordinates are relative to the top-left corner of this control
-//     *
-//     * @param rect          starting coordinates and size of the rectangle
-//     * @param progress      a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
-//     * @param sprite        the sprite to fill the rect with
-//     * @param bufferOnly    if false, only the vertex buffer will be updated and nothing will be actually painted
-//     * @return the width or height of the rect painted
-//     */
-//    public int paintStretchedProgressSprite(final MatrixStack matrix, final Rectangle rect, final double progress,
-//                                            final ISprite sprite, final boolean bufferOnly) {
-//
-//        final Point screenXY1 = this.controlToScreen(rect.getX1(), rect.getY1());
-//        final Point screenXY2 = this.controlToScreen(rect.getX1() + rect.Width, rect.getY1() + rect.Height);
-//
-//        return ModRenderHelper.paintStretchedProgressSprite(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y,
-//                this.getZLevel(), progress, sprite, this.shouldBlend(), bufferOnly);
-//    }
-
-    protected void paintButton3D(final PoseStack matrix, final int x, final int y, final int width, final int height,
+    protected void paintButton3D(final GuiGraphics gfx, final int x, final int y, final int width, final int height,
                                  final Colour darkOutlineColour, final Colour gradientLightColour, final Colour gradientDarkColour,
                                  final Colour borderLightColour, final Colour borderDarkColour) {
 
         if (gradientLightColour.equals(gradientDarkColour)) {
-            ModRenderHelper.paintButton3D(matrix, this.controlToScreen(x, y), width, height, (int) this.getZLevel(),
+            ModRenderHelper.paintButton3D(gfx, this.controlToScreen(x, y), width, height, (int) this.getZLevel(),
                     darkOutlineColour, gradientLightColour, borderLightColour, borderDarkColour);
         } else {
-            ModRenderHelper.paintButton3D(matrix, this.controlToScreen(x, y), width, height, (int) this.getZLevel(),
+            ModRenderHelper.paintButton3D(gfx, this.controlToScreen(x, y), width, height, (int) this.getZLevel(),
                     darkOutlineColour, gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
         }
     }
 
-//    @Deprecated
-//    protected void paint3DButton(final MatrixStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour darkOutlineColour,
-//                                 final Colour gradientLightColour, final Colour gradientDarkColour,
-//                                 final Colour borderLightColour, final Colour borderDarkColour) {
-//
-//        final Point screenXY1 = this.controlToScreen(x1, y1);
-//        final Point screenXY2 = this.controlToScreen(x2, y2);
-//
-//        ModRenderHelper.paint3DButton(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
-//                darkOutlineColour, gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
-//    }
-
-    protected void paint3DSunkenBox(final PoseStack matrix, final int x1, final int y1, final int x2, final int y2, final Colour gradientLightColour,
+    protected void paint3DSunkenBox(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2, final Colour gradientLightColour,
                                     final Colour gradientDarkColour, final Colour borderLightColour, final Colour borderDarkColour) {
 
         final Point screenXY1 = this.controlToScreen(x1, y1);
         final Point screenXY2 = this.controlToScreen(x2, y2);
 
         if (gradientLightColour.equals(gradientDarkColour)) {
-            ModRenderHelper.paint3DSunkenBox(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
+            ModRenderHelper.paint3DSunkenBox(gfx, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
                     gradientLightColour, borderLightColour, borderDarkColour);
         } else {
-            ModRenderHelper.paint3DSunkenBox(matrix, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
+            ModRenderHelper.paint3DSunkenBox(gfx, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, this.getZLevel(),
                     gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
         }
     }
 
-    protected void paintItemStack(final PoseStack matrix, final ItemStack stack, final boolean highlight) {
-        this.paintItemStack(matrix, stack, 0, 0, highlight);
+    protected void paintItemStack(final GuiGraphics gfx, final ItemStack stack, final boolean highlight) {
+        this.paintItemStack(gfx, stack, 0, 0, highlight);
     }
 
-    protected void paintItemStack(final PoseStack matrix, final ItemStack stack, final int x, final int y, final boolean highlight) {
+    protected void paintItemStack(final GuiGraphics gfx, final ItemStack stack, final int x, final int y, final boolean highlight) {
 
         final Point screenXY = this.controlToScreen(x, y);
 
-        ModRenderHelper.paintItemStack(matrix, stack, screenXY.X, screenXY.Y, "", highlight);
+        ModRenderHelper.paintItemStack(gfx, stack, screenXY.X, screenXY.Y, "", highlight);
     }
 
-    protected void paintItemStackWithCount(final PoseStack matrix, final ItemStack stack, final boolean highlight) {
-        this.paintItemStackWithCount(matrix, stack, 0, 0, highlight);
+    protected void paintItemStackWithCount(final GuiGraphics gfx, final ItemStack stack, final boolean highlight) {
+        this.paintItemStackWithCount(gfx, stack, 0, 0, highlight);
     }
 
-    protected void paintItemStackWithCount(final PoseStack matrix, final ItemStack stack, final int x, final int y, final boolean highlight) {
+    protected void paintItemStackWithCount(final GuiGraphics gfx, final ItemStack stack, final int x, final int y, final boolean highlight) {
 
         final Point screenXY = this.controlToScreen(x, y);
 
-        ModRenderHelper.paintItemStackWithCount(matrix, stack, screenXY.X, screenXY.Y, highlight);
+        ModRenderHelper.paintItemStackWithCount(gfx, stack, screenXY.X, screenXY.Y, highlight);
     }
 
     //endregion
@@ -1122,21 +850,6 @@ public abstract class AbstractControl
         this.onMoved();
     }
 
-//    private int[] convert2DVerticesToScreenCoords(int[] vertices) {
-//
-//        final int[] screenVertices = new int[vertices.length];
-//
-//        for (int i = 0; i < vertices.length; i += 2) {
-//
-//            final Point screenXY = this.controlToScreen(vertices[i], vertices[i + 1]);
-//
-//            screenVertices[i] = screenXY.X;
-//            screenVertices[i + 1] = screenXY.Y;
-//        }
-//
-//        return screenVertices;
-//    }
-
     private enum ControlFlags {
 
         Visible,
@@ -1155,7 +868,7 @@ public abstract class AbstractControl
     private Dimension _desiredDimension;
     private Padding _padding;
     private ILayoutEngine.ILayoutEngineHint _layoutHint;
-    private BiConsumer<AbstractControl, PoseStack> _backgroundPainter;
+    private BiConsumer<AbstractControl, GuiGraphics> _backgroundPainter;
     private int _tabOrder;
     private List<Component> _tooltipsLines;
     private List<Object> _tooltipsObjects;

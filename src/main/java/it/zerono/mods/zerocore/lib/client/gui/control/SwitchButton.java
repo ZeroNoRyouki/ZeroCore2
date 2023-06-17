@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
@@ -27,6 +26,7 @@ import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -95,9 +95,8 @@ public class SwitchButton
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-//        this.paint3DButton(matrix, this.getButtonState(), 0, 0, this.getBounds().Width, this.getBounds().Height);
-        this.paintButton3D(matrix, this.getButtonState(), 0, 0, this.getBounds().Width, this.getBounds().Height);
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.paintButton3D(gfx, this.getButtonState(), 0, 0, this.getBounds().Width, this.getBounds().Height);
     }
 
     @Override

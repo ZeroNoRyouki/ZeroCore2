@@ -19,7 +19,6 @@
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -27,6 +26,7 @@ import it.zerono.mods.zerocore.lib.client.gui.Theme;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 
 import javax.annotation.Nonnull;
 import java.util.Iterator;
@@ -181,42 +181,42 @@ public abstract class AbstractCompoundControl
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
-        super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
+        super.onPaintBackground(gfx, partialTicks, mouseX, mouseY);
 
         final int childX = this.parentToChildX(mouseX);
         final int childY = this.parentToChildY(mouseY);
 
         for (final IControl child : this) {
             if (child.getVisible()) {
-                child.onPaintBackground(matrix, partialTicks, childX, childY);
+                child.onPaintBackground(gfx, partialTicks, childX, childY);
             }
         }
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
         final int childX = this.parentToChildX(mouseX);
         final int childY = this.parentToChildY(mouseY);
 
         for (final IControl child : this) {
             if (child.getVisible()) {
-                child.onPaint(matrix, partialTicks, childX, childY);
+                child.onPaint(gfx, partialTicks, childX, childY);
             }
         }
     }
 
     @Override
-    public void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
+    public void onPaintOverlay(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
 
         final int childX = this.parentToChildX(mouseX);
         final int childY = this.parentToChildY(mouseY);
 
         for (final IControl child : this) {
             if (child.getVisible()) {
-                child.onPaintOverlay(matrix, partialTicks, childX, childY);
+                child.onPaintOverlay(gfx, partialTicks, childX, childY);
             }
         }
     }

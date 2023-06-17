@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.internal.proxy;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.lib.CodeHelper;
@@ -30,6 +29,7 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -205,14 +205,14 @@ public class ClientProxy
     private void onGameOverlayRender(final RenderGuiOverlayEvent.Post event) {
 
         if (!isGuiOpen()) {
-            this.paintErrorMessage(event.getPoseStack());
+            this.paintErrorMessage(event.getGuiGraphics());
         }
     }
 
     private void onGuiDrawScreenEventPost(final ScreenEvent.Render.Post event) {
 
         if (isGuiOpen()) {
-            this.paintErrorMessage(event.getPoseStack());
+            this.paintErrorMessage(event.getGuiGraphics());
         }
     }
 
@@ -233,7 +233,7 @@ public class ClientProxy
         }
     }
 
-    private void paintErrorMessage(final PoseStack matrix) {
+    private void paintErrorMessage(final GuiGraphics gfx) {
 
         final IRichText texts = this._guiErrorData.apply(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2);
 
@@ -241,7 +241,7 @@ public class ClientProxy
             return;
         }
 
-        ModRenderHelper.paintMessage(matrix, texts, 5, 5, 300, ERROR_BORDER, ERROR_BACKGROUND_COLOUR,
+        ModRenderHelper.paintMessage(gfx, texts, 5, 5, 300, ERROR_BORDER, ERROR_BACKGROUND_COLOUR,
                 ERROR_HIGHLIGHT1_COLOUR, ERROR_HIGHLIGHT2_COLOUR);
     }
 

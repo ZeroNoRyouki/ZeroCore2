@@ -19,12 +19,12 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -178,16 +178,16 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this.forEachWindow(Window::onTick);
     }
 
-    void onGuiContainerPaintBackground(final PoseStack matrix, final float partialTicks) {
+    void onGuiContainerPaintBackground(final GuiGraphics gfx, final float partialTicks) {
 
         final int mouseX = this.getGuiScreen().getClippedMouseX();
         final int mouseY = this.getGuiScreen().getClippedMouseY();
 
         this._paintPartialTicks = partialTicks;
-        this.forEachWindow(window -> window.onPaintBackground(matrix, partialTicks, mouseX, mouseY));
+        this.forEachWindow(window -> window.onPaintBackground(gfx, partialTicks, mouseX, mouseY));
     }
 
-    void onGuiContainerPaintForeground(final PoseStack matrix) {
+    void onGuiContainerPaintForeground(final GuiGraphics gfx) {
 
         final float partialTicks = this.getPaintPartialTicks();
         final int mouseX = this.getGuiScreen().getClippedMouseX();
@@ -199,35 +199,34 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
          */
         final int guiLeft = this.getGuiScreen().getGuiX();
         final int guiTop = this.getGuiScreen().getGuiY();
+        final var matrix = gfx.pose();
 
-//        RenderSystem.translatef(-guiLeft, -guiTop, 0.0f);
         matrix.translate(-guiLeft, -guiTop, 0.0f);
 
         // paint all the controls!
 
-        this.forEachWindow(window -> window.onPaint(matrix, partialTicks, mouseX, mouseY));
-        this.forEachWindow(window -> window.onPaintOverlay(matrix, partialTicks, mouseX, mouseY));
+        this.forEachWindow(window -> window.onPaint(gfx, partialTicks, mouseX, mouseY));
+        this.forEachWindow(window -> window.onPaintOverlay(gfx, partialTicks, mouseX, mouseY));
 
         // ... and the tool tips (skip them if ALT is pressed) ...
 
         if (!Screen.hasAltDown()) {
 
-            this.forEachInteractiveWindow(w -> w.paintToolTips(matrix));
+            this.forEachInteractiveWindow(w -> w.paintToolTips(gfx));
             Lighting.setupForFlatItems();
         }
 
         // ... and the dragged object
 
         if (this.isDragging()) {
-            this._dragData.paint(matrix, mouseX, mouseY, this.getGuiScreen().getZLevel());
+            this._dragData.paint(gfx, mouseX, mouseY, this.getGuiScreen().getZLevel());
         }
 
         if (s_debugFrame) {
-            this.forEachInteractiveWindow(window -> window.onPaintDebugFrame(matrix, Colour.WHITE));
+            this.forEachInteractiveWindow(window -> window.onPaintDebugFrame(gfx, Colour.WHITE));
         }
 
         // translate the GL matrix back to make the MC code happy
-//        RenderSystem.translatef(guiLeft, guiTop, 0.0f);
         matrix.translate(guiLeft, guiTop, 0.0f);
     }
 
@@ -472,8 +471,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
             this._paintXOffset = this._paintYOffset = 0;
         }
 
-        void paint(final PoseStack matrix, final int mouseX, final int mouseY, final float zLevel) {
-            this._draggable.onPaint(matrix, mouseX + this._paintXOffset, mouseY + this._paintYOffset, zLevel, IDraggable.PaintState.Dragging);
+        void paint(final GuiGraphics gfx, final int mouseX, final int mouseY, final float zLevel) {
+            this._draggable.onPaint(gfx, mouseX + this._paintXOffset, mouseY + this._paintYOffset, zLevel, IDraggable.PaintState.Dragging);
         }
 
         void pushBack() {

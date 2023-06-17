@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.BiConsumer;
@@ -65,10 +65,10 @@ public class ChoiceText<Index extends Enum<Index>>
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, float partialTicks, int mouseX, int mouseY) {
+    public void onPaintBackground(final GuiGraphics gfx, float partialTicks, int mouseX, int mouseY) {
 
-        super.onPaintBackground(matrix, partialTicks, mouseX, mouseY);
-        this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
+        super.onPaintBackground(gfx, partialTicks, mouseX, mouseY);
+        this.paintHollowRect(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height, this.getTheme().DARK_OUTLINE_COLOR);
     }
 
     //endregion

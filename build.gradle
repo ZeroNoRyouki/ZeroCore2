@@ -27,6 +27,8 @@ minecraft {
 
     mappings channel: 'official', version: config.minecraft_mappings
 
+    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+
     def runPath = Paths.get(System.getenv('mc_runs'), "forge")
 
     if (!Files.exists(runPath)) {

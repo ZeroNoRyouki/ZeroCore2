@@ -18,10 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
-import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
@@ -31,6 +29,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -183,18 +182,18 @@ public class PanelGroup<Index extends Enum<Index>>
     }
 
     @Override
-    public void onPaintBackground(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this.getActivePanel().ifPresent(p -> p.onPaintBackground(matrix, partialTicks, mouseX, mouseY));
+    public void onPaintBackground(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.getActivePanel().ifPresent(p -> p.onPaintBackground(gfx, partialTicks, mouseX, mouseY));
     }
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this.getActivePanel().ifPresent(p -> p.onPaint(matrix, partialTicks, mouseX, mouseY));
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.getActivePanel().ifPresent(p -> p.onPaint(gfx, partialTicks, mouseX, mouseY));
     }
 
     @Override
-    public void onPaintOverlay(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this.getActivePanel().ifPresent(p -> p.onPaintOverlay(matrix, partialTicks, mouseX, mouseY));
+    public void onPaintOverlay(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.getActivePanel().ifPresent(p -> p.onPaintOverlay(gfx, partialTicks, mouseX, mouseY));
     }
 
     @Override

@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
@@ -28,6 +27,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -101,29 +101,28 @@ public abstract class AbstractTextualControl
         return this.getFontRender().lineHeight - 1;
     }
 
-    protected void paintTextLine(final PoseStack matrix, String line, int x, int y, int lineAreaWidth,
+    protected void paintTextLine(final GuiGraphics gfx, String line, int x, int y, int lineAreaWidth,
                                  int lineAreaHeight, final Colour color) {
 
         final Font font = this.getFontRender();
 
-        line = font./*trimStringToWidth*/plainSubstrByWidth(line, lineAreaWidth);
+        line = font.plainSubstrByWidth(line, lineAreaWidth);
 
         if (line.isEmpty()) {
             return;
         }
 
-        this.paintText(matrix, font, color, line,
+        this.paintText(gfx, font, color, line,
                 this.getHorizontalAlignment().align(x, this.getLineWidth(line), lineAreaWidth) + this.getPadding().getLeft() + this.getTextOffsetX(),
                 this.getVerticalAlignment().align(y, this.getLineHeight(line), lineAreaHeight) + this.getPadding().getTop() + this.getTextOffsetY());
     }
 
-    protected void paintText(final PoseStack matrix, final Font render, final Colour colour, final String text, final int x, final int y) {
+    protected void paintText(final GuiGraphics gfx, final Font font, final Colour colour, final String text, final int x, final int y) {
 
         if (!Strings.isNullOrEmpty(text)) {
 
             final Point screenXY = this.controlToScreen(x, y);
-
-            render.draw(matrix, text, screenXY.X, screenXY.Y, colour.toARGB());
+            gfx.drawString(font, text, screenXY.X, screenXY.Y, colour.toARGB(), false);
         }
     }
 
@@ -158,8 +157,8 @@ public abstract class AbstractTextualControl
     //region AbstractControl
 
     @Override
-    public void onPaint(final PoseStack matrix, final float partialTicks, final int mouseX, final int mouseY) {
-        this.paintTextLine(matrix, this.getText(), 0, 0, this.getTextAreaWidth(), this.getTextAreaHeight(),
+    public void onPaint(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+        this.paintTextLine(gfx, this.getText(), 0, 0, this.getTextAreaWidth(), this.getTextAreaHeight(),
                 this.getEnabled() ? this.getColor() : this.getDisabledColor());
     }
 
