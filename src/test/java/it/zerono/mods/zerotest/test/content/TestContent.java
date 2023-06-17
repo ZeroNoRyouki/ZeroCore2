@@ -17,21 +17,18 @@ package it.zerono.mods.zerotest.test.content;
  *
  */
 
-import it.zerono.mods.zerocore.lib.item.creativetab.CreativeModeTabContentOutput;
-import it.zerono.mods.zerocore.lib.item.creativetab.ICreativeTabsBuilder;
 import it.zerono.mods.zerotest.ZeroTest;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -53,8 +50,7 @@ public final class TestContent {
 
         Blocks.initialize(bus);
         Items.initialize(bus);
-
-        registerCreativeTabs();
+        CreativeTabs.initialize(bus);
     }
 
     public final static class Blocks {
@@ -74,7 +70,10 @@ public final class TestContent {
         public static final RegistryObject<Block> TEST_BLOCK2 = registerTestBlock("block2",
                 () -> new Block(testBlockProperties()));
         public static final RegistryObject<RotatedPillarBlock> TEST_WOOD = registerTestBlock("wood",
-                () -> new RotatedPillarBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_BLUE)
+                () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.WOOD)
+                        .ignitedByLava()
+                        .instrument(NoteBlockInstrument.BASS)
                         .strength(2.0F)
                         .sound(SoundType.WOOD)));
         public static final RegistryObject<RotatedPillarBlock> TEST_WOOD_LOG = registerTestBlock("woodlog",
@@ -82,7 +81,10 @@ public final class TestContent {
         public static final RegistryObject<Block> TEST_WOOD_PLANK = registerTestBlock("woodplank",
                 () -> new Block(testBlockProperties()));
         public static final RegistryObject<LeavesBlock> TEST_LEAVES = registerTestBlock("leaves",
-                () -> new LeavesBlock(BlockBehaviour.Properties.of(Material.LEAVES)
+                () -> new LeavesBlock(BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.PLANT)
+                        .ignitedByLava()
+                        .pushReaction(PushReaction.DESTROY)
                         .strength(0.2F)
                         .randomTicks()
                         .sound(SoundType.GRASS)
@@ -95,7 +97,7 @@ public final class TestContent {
         public static final RegistryObject<DoorBlock> TEST_DOOR = registerTestBlock("door",
                 () -> new DoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR)
                         .lightLevel($ -> 7)
-                        .color(MaterialColor.COLOR_BLUE), BlockSetType.OAK));
+                        .mapColor(MapColor.COLOR_BLUE), BlockSetType.OAK));
         public static final RegistryObject<FenceBlock> TEST_FENCE = registerTestBlock("fence",
                 () -> new FenceBlock(testBlockProperties()));
         public static final RegistryObject<FenceGateBlock> TEST_FENCEGATE = registerTestBlock("fencegate",
@@ -111,24 +113,26 @@ public final class TestContent {
         public static final RegistryObject<TrapDoorBlock> TEST_TRAPDOOR = registerTestBlock("trapdoor",
                 () -> new TrapDoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR)
                         .lightLevel($ -> 7)
-                        .color(MaterialColor.COLOR_BLUE), BlockSetType.OAK));
+                        .mapColor(MapColor.COLOR_BLUE), BlockSetType.OAK));
         public static final RegistryObject<TrapDoorBlock> TEST_TRAPDOOR_ORIENTABLE = registerTestBlock("trapdoor_orientable",
                 () -> new TrapDoorBlock(BlockBehaviour.Properties.copy(OAK_DOOR)
                         .lightLevel($ -> 7)
-                        .color(MaterialColor.COLOR_BLUE), BlockSetType.OAK));
+                        .mapColor(MapColor.COLOR_BLUE), BlockSetType.OAK));
 
         public static final RegistryObject<StainedGlassBlock> TEST_GLASS = registerTestBlock("glass",
-                () -> new StainedGlassBlock(DyeColor.LIGHT_BLUE, BlockBehaviour.Properties.of(Material.GLASS)
+                () -> new StainedGlassBlock(DyeColor.LIGHT_BLUE, BlockBehaviour.Properties.of()
                         .strength(0.3F)
                         .sound(SoundType.GLASS)
                         .noOcclusion()
+                        .instrument(NoteBlockInstrument.HAT)
                         .isValidSpawn((state, level, position, entityType) -> false)
                         .isRedstoneConductor((state, level, position) -> false)
                         .isSuffocating((state, level, position) -> false)
                         .isViewBlocking((state, level, position) -> false)));
 
         public static final RegistryObject<StainedGlassPaneBlock> TEST_GLASS_PANE = registerTestBlock("glasspane",
-                () -> new StainedGlassPaneBlock(DyeColor.LIGHT_BLUE, BlockBehaviour.Properties.of(Material.GLASS)
+                () -> new StainedGlassPaneBlock(DyeColor.LIGHT_BLUE, BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.GRASS)
                         .strength(0.3F)
                         .sound(SoundType.GLASS)
                         .noOcclusion()));
@@ -142,7 +146,7 @@ public final class TestContent {
         private static BlockBehaviour.Properties testBlockProperties() {
             return BlockBehaviour.Properties.copy(IRON_BLOCK)
                     .lightLevel($ -> 7)
-                    .color(MaterialColor.COLOR_BLUE);
+                    .mapColor(MapColor.COLOR_BLUE);
         }
 
         //endregion
@@ -209,25 +213,63 @@ public final class TestContent {
         //endregion
     }
 
+    public static final class CreativeTabs {
+
+        private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ZeroTest.MOD_ID);
+
+        public static final RegistryObject<CreativeModeTab> TEST_TAB = TABS.register("test_tab", () ->
+                CreativeModeTab.builder()
+                        .title(Component.translatable("itemGroup.zerotest.tab"))
+                        .icon(() -> new ItemStack(Items.TEST_BLOCK.get()))
+                        .noScrollBar()
+                        .withLabelColor(0xff0000)
+                        .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
+                        .withTabsAfter(ZeroTest.ROOT_LOCATION.buildWithSuffix("test_tab_vanilla"))
+                        .displayItems((parameters, output) -> {
+
+                            output.accept(Items.TEST_BLOCK.get());
+                            output.accept(Items.TEST_BLOCK2.get());
+                        })
+                        .build()
+        );
+
+        public static final RegistryObject<CreativeModeTab> TEST_TAB_VANILLA = TABS.register("test_tab_vanilla", () ->
+                CreativeModeTab.builder()
+                        .title(Component.translatable("itemGroup.zerotest.tab_vanilla"))
+                        .icon(() -> new ItemStack(Items.TEST_LEAVES.get()))
+                        .noScrollBar()
+                        .withLabelColor(0xff0000)
+                        .withTabsBefore(ZeroTest.ROOT_LOCATION.buildWithSuffix("test_tab"))
+                        .displayItems((parameters, output) -> {
+
+                            output.accept(Items.TEST_WOOD.get());
+                            output.accept(Items.TEST_WOOD_LOG.get());
+                            output.accept(Items.TEST_WOOD_PLANK.get());
+                            output.accept(Items.TEST_LEAVES.get());
+                            output.accept(Items.TEST_BUTTON.get());
+                            output.accept(Items.TEST_DOOR.get());
+                            output.accept(Items.TEST_FENCE.get());
+                            output.accept(Items.TEST_FENCEGATE.get());
+                            output.accept(Items.TEST_WALL.get());
+                            output.accept(Items.TEST_PRESSURE_PLATE.get());
+                            output.accept(Items.TEST_SLAB.get());
+                            output.accept(Items.TEST_STAIRS.get());
+                            output.accept(Items.TEST_TRAPDOOR.get());
+                            output.accept(Items.TEST_TRAPDOOR_ORIENTABLE.get());
+                            output.accept(Items.TEST_GLASS.get());
+                            output.accept(Items.TEST_GLASS_PANE.get());
+                        })
+                        .build()
+        );
+
+        static void initialize(IEventBus bus) {
+            TABS.register(bus);
+        }
+    }
+
     //region internals
 
     private TestContent() {
-    }
-
-    private static void registerCreativeTabs() {
-
-        ICreativeTabsBuilder.create()
-                .add(ZeroTest.ROOT_LOCATION.buildWithSuffix("tab.general"),
-                        builder -> builder
-                                .title(Component.translatable("itemGroup.zerotest.general"))
-                                .icon(() -> new ItemStack(Items.TEST_BLOCK.get())),
-                        (tab, enabledFeatureSet, showOpOnlyItems, output) -> CreativeModeTabContentOutput.acceptAll(output,
-                                Items.TEST_BLOCK, Items.TEST_BLOCK2, Items.TEST_WOOD, Items.TEST_WOOD_LOG,
-                                Items.TEST_WOOD_PLANK, Items.TEST_LEAVES, Items.TEST_BUTTON, Items.TEST_DOOR, Items.TEST_FENCE,
-                                Items.TEST_FENCEGATE, Items.TEST_WALL, Items.TEST_PRESSURE_PLATE, Items.TEST_SLAB,
-                                Items.TEST_STAIRS, Items.TEST_TRAPDOOR, Items.TEST_TRAPDOOR_ORIENTABLE,
-                                Items.TEST_GLASS, Items.TEST_GLASS_PANE))
-                .build();
     }
 
     //endregion
