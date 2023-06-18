@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
@@ -29,10 +32,25 @@ minecraft {
 
     mappings channel: 'official', version: config.minecraft_mappings
 
-	def runDir = file("${rootProject.projectDir}/runs/run-${config.minecraft_version}")
+    def runPath = Paths.get(System.getenv('mc_runs'), "forge")
 
-    if (!runDir.exists()) {
-        runDir = file("run-${config.minecraft_version}")
+    if (!Files.exists(runPath)) {
+        runPath = Paths.get("${rootProject.projectDir}", "runs")
+
+        if (!Files.exists(runPath)) {
+            Files.createDirectories(runPath)
+        }
+    }
+
+    def clientRunDir = runPath.resolve("client-${config.minecraft_version}").toFile();
+    def serverRunDir = runPath.resolve("server-${config.minecraft_version}").toFile();
+
+    if (!clientRunDir.exists()) {
+        clientRunDir.mkdirs();
+    }
+
+    if (!serverRunDir.exists()) {
+        serverRunDir.mkdirs();
     }
 
     runs {
@@ -41,7 +59,9 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
 
-            workingDirectory runDir
+            workingDirectory clientRunDir
+
+            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
 			
             mods {
                 zerocore {
@@ -55,7 +75,9 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             
-			workingDirectory runDir
+			workingDirectory serverRunDir
+
+            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
 			
             mods {
                 zerocore {
@@ -69,7 +91,10 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
 
-            workingDirectory runDir
+            workingDirectory clientRunDir
+
+            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
+
             args '--mod', 'zerocore', '--all', '--output', file('src/generated/resources/')
 
             mods {
@@ -144,10 +169,6 @@ dependencies {
 }
 
 jar {
-
-	//classifier = 'universal'
-	finalizedBy 'reobfJar'
-
     manifest {
         attributes 'Specification-Title': config.mod_name
         attributes 'Specification-Vendor': 'ZeroNoRyouki'
@@ -156,7 +177,9 @@ jar {
         attributes 'Implementation-Vendor': 'ZeroNoRyouki'
         attributes 'Implementation-Version': version
         attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-    }	
+    }
+
+    finalizedBy('reobfJar')
 }
 
 publish.dependsOn('reobfJar')
@@ -169,10 +192,10 @@ publishing {
             artifact jar
         }
     }
-	
-	repositories {
+
+    repositories {
         maven {
-            url "file:///${rootProject.projectDir}/../Maven"
+            url 'file://' + System.getenv('mc_maven')
         }
     }
 }
