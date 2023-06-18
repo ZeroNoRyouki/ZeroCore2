@@ -166,7 +166,7 @@ processResources {
 
     from(sourceSets.main.resources.srcDirs) {
 	
-        include 'ZeroCore2-1.19/src/main/resources/META-INF/mods.toml'
+        include 'ZeroCore2-1.20/src/main/resources/META-INF/mods.toml'
         expand 'mod_version': version, 
 				'mod_name': config.mod_name,
 				'minecraft_versionrange': config.minecraft_versionrange,
@@ -176,7 +176,7 @@ processResources {
 
     from(sourceSets.test.resources.srcDirs) {
 
-        include 'ZeroCore2-1.19/src/test/resources/META-INF/mods.toml'
+        include 'ZeroCore2-1.20/src/test/resources/META-INF/mods.toml'
         expand 'mod_version': version,
                 'mod_name': config.mod_name,
                 'minecraft_versionrange': config.minecraft_versionrange,
