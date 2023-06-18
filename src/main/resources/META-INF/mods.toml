@@ -15,7 +15,7 @@ logoFile="logo.png"
 
 	modId="zerocore"
 	version="${file.jarVersion}"
-    updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ZeroCore2/master/update.json"
+    updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ModUpdates/master/ZeroCore2.json"
     displayName="Zero CORE 2"
 	authors="ZeroNoRyouki"
 	description="Utility mod and multiblock API"
