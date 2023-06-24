@@ -38,7 +38,6 @@ public class GenericDeviceBlock<Controller extends IMultiblockController<Control
 
         final Block adjacentBlock = adjacentBlockState.getBlock();
 
-        return adjacentBlock instanceof MultiblockPartBlock &&
-                !(adjacentBlock instanceof GlassBlock);
+        return adjacentBlock instanceof MultiblockPartBlock && !(adjacentBlock instanceof INeverCauseRenderingSkip);
     }
 }
