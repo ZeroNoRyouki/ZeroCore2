@@ -65,7 +65,4 @@ public interface IIOPortHandler {
     boolean isPassive();
 
     void invalidate();
-
-    default void update() {
-    }
 }

@@ -116,7 +116,7 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
     @Override
     public void eject() {
 
-        for (int idx = 0; idx <= this.getInputSlotsCount(); ++idx) {
+        for (int idx = 0; idx < this.getInputSlotsCount(); ++idx) {
             this.eject(idx);
         }
     }
@@ -130,7 +130,7 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
     @Override
     public boolean isConnected() {
 
-        for (int idx = 0; idx <= this.getInputSlotsCount(); ++idx) {
+        for (int idx = 0; idx < this.getInputSlotsCount(); ++idx) {
             if (!this._input.getStackInSlot(idx).isEmpty()) {
                 return true;
             }
