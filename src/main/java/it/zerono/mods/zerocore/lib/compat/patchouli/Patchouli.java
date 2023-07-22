@@ -28,8 +28,10 @@ import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Multi
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Smelting;
 import it.zerono.mods.zerocore.lib.compat.patchouli.component.standardpage.Spotlight;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.common.util.NonNullConsumer;
 import vazkii.patchouli.api.IMultiblock;
 import vazkii.patchouli.api.PatchouliAPI;
 import vazkii.patchouli.client.book.template.BookTemplate;
@@ -86,6 +88,13 @@ public class Patchouli {
         } catch (Exception ex) {
             Log.LOGGER.error(Log.CORE, "Exception while opening Patchouli book.", ex);
         }
+    }
+
+    public static void consumeBookStack(ResourceLocation bookId, NonNullConsumer<ItemStack> consumer) {
+        Mods.PATCHOULI
+                .map(() -> PatchouliAPI.get().getBookStack(bookId))
+                .filter(stack -> !stack.isEmpty())
+                .ifPresent(consumer::accept);
     }
 
     //region internals
