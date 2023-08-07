@@ -16,11 +16,13 @@ package it.zerono.mods.zerocore.base.client.screen.control;
  *
  */
 
+import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
 import it.zerono.mods.zerocore.lib.client.gui.control.SwitchButton;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.function.Consumer;
@@ -30,7 +32,7 @@ public class OnOff
         extends AbstractCompositeControl {
 
     public OnOff(final ModContainerScreen<? extends ModContainer> gui,
-                 final Supplier<Boolean> activeStateSupplier, final Consumer<SwitchButton> activeStateChangedCallback,
+                 final IBindableData<Boolean> bindableState, final Consumer<SwitchButton> activeStateChangedCallback,
                  final ITextComponent onTooltip, final ITextComponent offTooltip) {
 
         super(gui, "onoff");
@@ -40,11 +42,15 @@ public class OnOff
         this._on.Activated.subscribe(activeStateChangedCallback);
         this._on.Deactivated.subscribe(activeStateChangedCallback);
         this._on.setTooltips(onTooltip);
-        gui.addDataBinding(activeStateSupplier, this._on::setActive);
 
         this._off = new SwitchButton(gui, "off", "OFF", true, "onoff");
         this._off.setTooltips(offTooltip);
-        gui.addDataBinding(activeStateSupplier, active -> this._off.setActive(!active));
+
+        bindableState.bind(active -> {
+
+            this._on.setActive(active);
+            this._off.setActive(!active);
+        });
 
         this.addChildControl(this._on, this._off);
     }
