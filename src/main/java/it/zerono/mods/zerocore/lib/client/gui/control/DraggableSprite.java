@@ -63,7 +63,6 @@ public class DraggableSprite
 
     @Override
     public void onPaint(final MatrixStack matrix, final int x, final int y, final float zLevel, final PaintState paintState) {
-//        ModRenderHelper.paintSprite(this, x, y, zLevel, true, false);//
         ModRenderHelper.paintSprite(matrix, this, new Point(x, y), (int)zLevel, this.getWidth(), this.getHeight()); //TODO new Point arg!!
     }
 

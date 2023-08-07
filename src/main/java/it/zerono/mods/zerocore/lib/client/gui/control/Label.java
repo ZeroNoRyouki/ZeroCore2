@@ -28,7 +28,7 @@ public class Label
         extends AbstractTextualControl {
 
     public Label(ModContainerScreen<? extends ModContainer> gui, final String name, final ITextComponent text) {
-        this(gui, name, text./*getFormattedText*/getString());
+        this(gui, name, text.getString());
     }
 
     public Label(ModContainerScreen<? extends ModContainer> gui, final String name, final String text) {
