@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.base.multiblock.client.screen;
 
-import it.zerono.mods.zerocore.base.client.screen.AbstractScreen;
+import it.zerono.mods.zerocore.base.client.screen.AbstractBaseScreen;
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
 import it.zerono.mods.zerocore.lib.IActivableMachine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteTextureMap;
@@ -43,7 +43,7 @@ import java.util.function.Predicate;
 public abstract class AbstractMultiblockScreen<Controller extends AbstractCuboidMultiblockController<Controller> & IMultiblockMachine,
                                                 T extends AbstractMultiblockEntity<Controller> & INamedContainerProvider,
                                                 C extends ModTileContainer<T>>
-        extends AbstractScreen<T, C> {
+        extends AbstractBaseScreen<T, C> {
 
     protected AbstractMultiblockScreen(final C container, final PlayerInventory inventory,
                                        final PlayerInventoryUsage inventoryUsage, final ITextComponent title,

@@ -1,6 +1,6 @@
 /*
  *
- * AbstractScreen.java
+ * AbstractBaseScreen.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.base.client.screen;
 
+import it.zerono.mods.zerocore.base.CommonConstants;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.client.gui.*;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractButtonControl;
@@ -36,9 +37,8 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModTileContainer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -46,38 +46,26 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import javax.annotation.Nullable;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractScreen<T extends AbstractModBlockEntity & INamedContainerProvider, C extends ModTileContainer<T>>
+public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & INamedContainerProvider, C extends ModTileContainer<T>>
         extends ModTileContainerScreen<T, C> {
 
     public static final int DEFAULT_GUI_WIDTH = 224;
     public static final int DEFAULT_GUI_HEIGHT = 166;
 
-    public static final Style STYLE_TOOLTIP_TITLE = Style.EMPTY
-            .withColor(TextFormatting.YELLOW)
-            .withBold(true);
-
-    public static final Style STYLE_TOOLTIP_VALUE = Style.EMPTY
-            .withColor(TextFormatting.DARK_AQUA)
-            .withBold(true);
-
-    public static final Style STYLE_TOOLTIP_INFO = Style.EMPTY
-            .withColor(TextFormatting.DARK_PURPLE)
-            .withItalic(true);
-
-    protected AbstractScreen(final C container, final PlayerInventory inventory, final PlayerInventoryUsage inventoryUsage,
-                             final ITextComponent title, final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
+    protected AbstractBaseScreen(final C container, final PlayerInventory inventory, final PlayerInventoryUsage inventoryUsage,
+                                 final ITextComponent title, final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
         this(container, inventory, inventoryUsage, title, DEFAULT_GUI_WIDTH, DEFAULT_GUI_HEIGHT, mainTextureSupplier.get());
     }
 
-    protected AbstractScreen(final C container, final PlayerInventory inventory, final PlayerInventoryUsage inventoryUsage,
-                             final ITextComponent title, final int guiWidth, final int guiHeight,
-                             final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
+    protected AbstractBaseScreen(final C container, final PlayerInventory inventory, final PlayerInventoryUsage inventoryUsage,
+                                 final ITextComponent title, final int guiWidth, final int guiHeight,
+                                 final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
         this(container, inventory, inventoryUsage, title, guiWidth, guiHeight, mainTextureSupplier.get());
     }
 
-    protected AbstractScreen(final C container, final PlayerInventory inventory, final PlayerInventoryUsage inventoryUsage,
-                             final ITextComponent title, final int guiWidth, final int guiHeight,
-                             final SpriteTextureMap mainTexture) {
+    protected AbstractBaseScreen(final C container, final PlayerInventory inventory, final PlayerInventoryUsage inventoryUsage,
+                                 final ITextComponent title, final int guiWidth, final int guiHeight,
+                                 final SpriteTextureMap mainTexture) {
 
         super(container, inventory, title, guiWidth, guiHeight);
         this._mainTextMap = mainTexture;
@@ -170,6 +158,21 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & INamedCo
 
     protected SlotsGroup createPlayerInventorySlotsGroupControl() {
         return this.createPlayerInventorySlotsGroupControl(this._invMainSprite, 1);
+    }
+
+    //endregion
+    //region common text styles
+
+    public static IFormattableTextComponent formatAsTitle(IFormattableTextComponent text) {
+        return text.setStyle(CommonConstants.STYLE_TOOLTIP_TITLE);
+    }
+
+    public static IFormattableTextComponent formatAsValue(IFormattableTextComponent text) {
+        return text.setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
+    }
+
+    public static IFormattableTextComponent formatAsInfo(IFormattableTextComponent text) {
+        return text.setStyle(CommonConstants.STYLE_TOOLTIP_INFO);
     }
 
     //endregion
@@ -270,7 +273,6 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & INamedCo
     private final ISprite _invMainSprite;
     private final ISprite _invHotBarSprite;
     private final ISprite _invSingleSprite;
-
     private final IControlContainer _contentPanel;
     private IControl _helpButton;
 
