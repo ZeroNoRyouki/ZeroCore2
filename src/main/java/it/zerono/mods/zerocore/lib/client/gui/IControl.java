@@ -27,7 +27,10 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.NonNullConsumer;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -178,7 +181,20 @@ public interface IControl {
 
     void setTooltips(List<ITextComponent> lines, List<Object> objects);
 
+    default void setTooltips(ToolTipsBuilder builder) {
+
+        final ImmutablePair<List<ITextComponent>, List<Object>> values = builder.build();
+
+        this.setTooltips(values.getLeft(), values.getRight());
+    }
+
+    default void setTooltips(NonNullConsumer<ToolTipsBuilder> builder) {
+        this.setTooltips(Util.make(new ToolTipsBuilder(), builder::accept));
+    }
+
     void useTooltipsFrom(@Nullable IControl control);
+
+    void clearTooltips();
 
     Point controlToScreen(int x, int y);
 
