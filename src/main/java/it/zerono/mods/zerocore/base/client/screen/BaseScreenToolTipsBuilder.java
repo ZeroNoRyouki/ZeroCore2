@@ -1,0 +1,207 @@
+/*
+ *
+ * BaseScreenToolTipsBuilder.java
+ *
+ * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * DO NOT REMOVE OR EDIT THIS HEADER
+ *
+ */
+
+package it.zerono.mods.zerocore.base.client.screen;
+
+import it.zerono.mods.zerocore.lib.client.gui.ToolTipsBuilder;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
+import it.zerono.mods.zerocore.lib.text.BindableText;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.NonNullFunction;
+
+import javax.annotation.Nullable;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+public class BaseScreenToolTipsBuilder
+        extends ToolTipsBuilder {
+
+    public BaseScreenToolTipsBuilder addTextAsTitle(IFormattableTextComponent text, ITextComponent... siblings) {
+        return this.addText(text, AbstractBaseScreen::formatAsTitle, siblings);
+    }
+
+    public BaseScreenToolTipsBuilder addLiteralAsTitle(String text) {
+        return this.addLiteral(text, AbstractBaseScreen::formatAsTitle);
+    }
+
+    public BaseScreenToolTipsBuilder addTranslatableAsTitle(String langKey) {
+        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsTitle);
+    }
+
+    public BaseScreenToolTipsBuilder addTranslatableAsTitle(String langKey, Object... arguments) {
+        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsTitle, arguments);
+    }
+
+    public BaseScreenToolTipsBuilder addTextAsValue(IFormattableTextComponent text, ITextComponent... siblings) {
+        return this.addText(text, AbstractBaseScreen::formatAsValue, siblings);
+    }
+
+    public BaseScreenToolTipsBuilder addLiteralAsValue(String text) {
+        return this.addLiteral(text, AbstractBaseScreen::formatAsValue);
+    }
+
+    public BaseScreenToolTipsBuilder addTranslatableAsValue(String langKey) {
+        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsValue);
+    }
+
+    public BaseScreenToolTipsBuilder addTranslatableAsValue(String langKey, Object... arguments) {
+        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsValue, arguments);
+    }
+
+    public BaseScreenToolTipsBuilder addTextAsInfo(IFormattableTextComponent text, ITextComponent... siblings) {
+        return this.addText(text, AbstractBaseScreen::formatAsInfo, siblings);
+    }
+
+    public BaseScreenToolTipsBuilder addLiteralAsInfo(String text) {
+        return this.addLiteral(text, AbstractBaseScreen::formatAsInfo);
+    }
+
+    public BaseScreenToolTipsBuilder addTranslatableAsInfo(String langKey) {
+        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsInfo);
+    }
+
+    public BaseScreenToolTipsBuilder addTranslatableAsInfo(String langKey, Object... arguments) {
+        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsInfo, arguments);
+    }
+
+    public <T> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> value,
+                                                                  Function<T, IFormattableTextComponent> textFactory) {
+        return this.addBindableObjectAsValue(value, value.defaultValue(), textFactory);
+    }
+
+    public <T> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> value, @Nullable T initialValue,
+                                                                  Function<T, IFormattableTextComponent> textFactory) {
+        return this.addObject(value.asBindableText(initialValue, textFactory, AbstractBaseScreen::formatAsValue));
+    }
+
+    public <T, U> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> firstValue, IBindableData<U> secondValue,
+                                                                     BiFunction<T, U, IFormattableTextComponent> textFactory) {
+        return this.addObject(BindableText.of(firstValue, firstValue.defaultValue(), secondValue, secondValue.defaultValue(),
+                textFactory, AbstractBaseScreen::formatAsValue));
+    }
+
+    public <T, U> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> firstValue, @Nullable T initialFirstValue,
+                                                                     IBindableData<U> secondValue, @Nullable U initialSecondValue,
+                                                                     BiFunction<T, U, IFormattableTextComponent> textFactory) {
+        return this.addObject(BindableText.of(firstValue, initialFirstValue, secondValue, initialSecondValue,
+                textFactory, AbstractBaseScreen::formatAsValue));
+    }
+
+    //region ToolTipsBuilder
+
+    @Override
+    public BaseScreenToolTipsBuilder addText(ITextComponent text) {
+
+        super.addText(text);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addText(IFormattableTextComponent text,
+                                             NonNullFunction<IFormattableTextComponent, IFormattableTextComponent> textPostProcessor) {
+
+        super.addText(text, textPostProcessor);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addText(IFormattableTextComponent text, ITextComponent... siblings) {
+
+        super.addText(text, siblings);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addText(IFormattableTextComponent text,
+                                             NonNullFunction<IFormattableTextComponent, IFormattableTextComponent> textPostProcessor,
+                                             ITextComponent... siblings) {
+
+        super.addText(text, textPostProcessor, siblings);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addLiteral(String text) {
+
+        super.addLiteral(text);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addLiteral(String text,
+                                                NonNullFunction<IFormattableTextComponent, IFormattableTextComponent> textPostProcessor) {
+
+        super.addLiteral(text, textPostProcessor);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addTranslatable(String langKey) {
+
+        super.addTranslatable(langKey);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addTranslatable(String langKey,
+                                                     NonNullFunction<IFormattableTextComponent, IFormattableTextComponent> textPostProcessor) {
+
+        super.addTranslatable(langKey, textPostProcessor);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addTranslatable(String langKey, Object... arguments) {
+
+        super.addTranslatable(langKey, arguments);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addTranslatable(String langKey,
+                                                     NonNullFunction<IFormattableTextComponent, IFormattableTextComponent> textPostProcessor,
+                                                     Object... arguments) {
+
+        super.addTranslatable(langKey, textPostProcessor, arguments);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addEmptyLine() {
+
+        super.addEmptyLine();
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addObject(Object object) {
+
+        super.addObject(object);
+        return this;
+    }
+
+    @Override
+    public BaseScreenToolTipsBuilder addObject(Object object, Object... others) {
+
+        super.addObject(object, others);
+        return this;
+    }
+
+    //endregion
+}
