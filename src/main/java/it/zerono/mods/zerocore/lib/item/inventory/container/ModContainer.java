@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
@@ -31,6 +32,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
@@ -68,16 +70,19 @@ public class ModContainer
     public static final String SLOTGROUPNAME_PLAYER_INVENTORY = "playerinventory_main";
     public static final String SLOTGROUPNAME_PLAYER_HOTBAR = "playerinventory_hotbar";
 
-    public ModContainer(final ContainerFactory factory, final ContainerType<?> type, final int windowId) {
+    public ModContainer(final int ticksBetweenUpdates, final ContainerFactory factory,
+                        final ContainerType<?> type, final int windowId) {
 
         super(type, windowId);
         this._factory = factory;
         this._registeredInventories = Maps.newHashMap();
         this._inventorySlotsGroups = Maps.newHashMap();
+        this._ticksBetweenUpdates = ticksBetweenUpdates;
+        this._ticksSinceLastUpdate = 0;
     }
 
     public static ModContainer empty(final ContainerType<?> type, final int windowId) {
-        return new ModContainer(ContainerFactory.EMPTY, type, windowId) {
+        return new ModContainer(200, ContainerFactory.EMPTY, type, windowId) {
             @Override
             public void setItem(int slotID, ItemStack stack) {
             }
@@ -100,6 +105,13 @@ public class ModContainer
         this.addInventory(name, new PlayerInvWrapper(inventory));
     }
 
+    public void addBindableData(final IBindableData<?> data) {
+
+        Preconditions.checkArgument(data instanceof IContainerData, "Data must implement IContainerData too.");
+        this.addContainerData((IContainerData) data);
+    }
+
+    @Deprecated // use addBindableData()
     public void addContainerData(final IContainerData data) {
 
         if (null == this._dataToSync) {
@@ -213,9 +225,9 @@ public class ModContainer
                 this._dataToSync.get(idx).readContainerData(dataSource);
             }
 
-            if (null != this._dataUpdateEvent) {
-                this._dataUpdateEvent.raise(Runnable::run);
-            }
+//            if (null != this._dataUpdateEvent) {
+//                this._dataUpdateEvent.raise(Runnable::run);
+//            }
         }
     }
 
@@ -467,8 +479,6 @@ public class ModContainer
     @Override
     public void addSlotListener(final IContainerListener listener) {
 
-        super.addSlotListener(listener);
-
         if (listener instanceof ServerPlayerEntity) {
 
             if (null == this._dataUpdateListeners) {
@@ -477,6 +487,8 @@ public class ModContainer
 
             this._dataUpdateListeners.add((ServerPlayerEntity)listener);
         }
+
+        super.addSlotListener(listener);
     }
 
     @Override
@@ -496,7 +508,14 @@ public class ModContainer
             }
 
             if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
-                Network.sendServerContainerData(this._dataUpdateListeners, this);
+
+                ++this._ticksSinceLastUpdate;
+
+                if (this._ticksSinceLastUpdate >= this._ticksBetweenUpdates) {
+
+                    this._ticksSinceLastUpdate = 0;
+                    Network.sendServerContainerData(this._dataUpdateListeners, this);
+                }
             }
         }
     }
@@ -554,6 +573,8 @@ public class ModContainer
     private final ContainerFactory _factory;
     private final Map<String, IItemHandler> _registeredInventories;
     private final Map<String, List<Slot>> _inventorySlotsGroups;
+    private final int _ticksBetweenUpdates;
+    private int _ticksSinceLastUpdate;
     private IEvent<Runnable> _dataUpdateEvent;
     private IConditionallySyncableEntity _syncableEntity;
     private List<ServerPlayerEntity> _dataUpdateListeners;

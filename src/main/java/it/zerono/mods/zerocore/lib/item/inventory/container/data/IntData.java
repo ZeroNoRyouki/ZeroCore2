@@ -18,25 +18,52 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 public class IntData
+        extends AbstractData<Integer>
         implements IContainerData {
 
-    public IntData(final IntSupplier getter, final IntConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static IntData immutable(ModContainer container, boolean isClientSide, int value) {
+        return of(container, isClientSide, () -> () -> value);
     }
 
-    public static IntData wrap(final int[] array, final int index) {
-        return new IntData(() -> array[index], v -> array[index] = v);
+    public static IntData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                  NonNullSupplier<Supplier<Integer>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static IntData of(ModContainer container, boolean isClientSide,
+                             NonNullSupplier<Supplier<Integer>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final IntData data = isClientSide ? new IntData() : new IntData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static IntData of(ModContainer container, boolean isClientSide, int[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        final IntData data = of(container, isClientSide, () -> () -> array[index]);
+
+        if (isClientSide) {
+            data.bind(v -> array[index] = v);
+        }
+
+        return data;
     }
 
     //region IContainerData
@@ -45,12 +72,12 @@ public class IntData
     @Override
     public NonNullConsumer<PacketBuffer> getContainerDataWriter() {
 
-        final int current = this._getter.getAsInt();
+        final int current = this._getter.get();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeVarInt(this._getter.getAsInt());
+            return buffer -> buffer.writeVarInt(current);
         }
 
         return null;
@@ -58,14 +85,30 @@ public class IntData
 
     @Override
     public void readContainerData(final PacketBuffer dataSource) {
-        this._setter.accept(dataSource.readVarInt());
+        this.notify(dataSource.readVarInt());
+    }
+
+    //endregion
+    //region IBindableData<Integer>
+
+    @Nullable
+    @Override
+    public Integer defaultValue() {
+        return 0;
     }
 
     //endregion
     //region internals
 
-    private final IntSupplier _getter;
-    private final IntConsumer _setter;
+    private IntData() {
+    }
+
+    private IntData(NonNullSupplier<Supplier<Integer>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastValue = 0;
+    }
+
     private int _lastValue;
 
     //endregion

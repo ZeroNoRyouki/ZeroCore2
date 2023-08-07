@@ -18,25 +18,52 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import it.unimi.dsi.fastutil.floats.FloatConsumer;
-import it.zerono.mods.zerocore.lib.functional.FloatSupplier;
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
-public class FloadData
+public class FloatData
+        extends AbstractData<Float>
         implements IContainerData {
 
-    public FloadData(final FloatSupplier getter, final FloatConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0.0f;
+    public static FloatData immutable(ModContainer container, boolean isClientSide, float value) {
+        return of(container, isClientSide, () -> () -> value);
     }
 
-    public static FloadData wrap(final float[] array, final int index) {
-        return new FloadData(() -> array[index], v -> array[index] = v);
+    public static FloatData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                    NonNullSupplier<Supplier<Float>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static FloatData of(ModContainer container, boolean isClientSide,
+                               NonNullSupplier<Supplier<Float>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final FloatData data = isClientSide ? new FloatData() : new FloatData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static FloatData of(ModContainer container, boolean isClientSide, float[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        final FloatData data = of(container, isClientSide, () -> () -> array[index]);
+
+        if (isClientSide) {
+            data.bind(v -> array[index] = v);
+        }
+
+        return data;
     }
 
     //region IContainerData
@@ -45,12 +72,12 @@ public class FloadData
     @Override
     public NonNullConsumer<PacketBuffer> getContainerDataWriter() {
 
-        final float current = this._getter.getAsFloat();
+        final float current = this._getter.get();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeFloat(this._getter.getAsFloat());
+            return buffer -> buffer.writeFloat(current);
         }
 
         return null;
@@ -58,14 +85,30 @@ public class FloadData
 
     @Override
     public void readContainerData(final PacketBuffer dataSource) {
-        this._setter.accept(dataSource.readFloat());
+        this.notify(dataSource.readFloat());
+    }
+
+    //endregion
+    //region IBindableData<ByteConsumer>
+
+    @Nullable
+    @Override
+    public Float defaultValue() {
+        return 0.0f;
     }
 
     //endregion
     //region internals
 
-    private final FloatSupplier _getter;
-    private final FloatConsumer _setter;
+    private FloatData() {
+    }
+
+    private FloatData(NonNullSupplier<Supplier<Float>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastValue = 0;
+    }
+
     private float _lastValue;
 
     //endregion
