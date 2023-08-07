@@ -32,10 +32,12 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -273,12 +275,12 @@ public abstract class AbstractControl
 
     @Override
     public List<ITextComponent> getTooltips() {
-        return this._tooltipsLines;
+        return null != this._tooltipsSource ? this._tooltipsSource.getTooltips() : this._tooltipsLines;
     }
 
     @Override
     public List<Object> getTooltipsObjects() {
-        return this._tooltipsObjects;
+        return null != this._tooltipsSource ? this._tooltipsSource.getTooltipsObjects() : this._tooltipsObjects;
     }
 
     @Override
@@ -324,6 +326,7 @@ public abstract class AbstractControl
         this._tooltipsLines = lines.isEmpty() ? Collections.emptyList() : lines;
         this._tooltipsObjects = Collections.emptyList();
         this._tooltipsRichText = null;
+        this._tooltipsSource = null;
     }
 
     @Override
@@ -332,11 +335,21 @@ public abstract class AbstractControl
         this._tooltipsLines = lines.isEmpty() ? Collections.emptyList() : lines;
         this._tooltipsObjects = lines.isEmpty() || objects.isEmpty() ? Collections.emptyList() : objects;
         this._tooltipsRichText = null;
+        this._tooltipsSource = null;
     }
 
     @Override
     public void useTooltipsFrom(@Nullable IControl control) {
         this._tooltipsSource = control;
+    }
+
+    @Override
+    public void clearTooltips() {
+
+        this._tooltipsSource = null;
+        this._tooltipsLines = Collections.emptyList();
+        this._tooltipsObjects = Collections.emptyList();
+        this._tooltipsRichText = null;
     }
 
     @Override
@@ -505,7 +518,12 @@ public abstract class AbstractControl
 
     @Override
     public void onPaintDebugFrame(final MatrixStack matrix, final Colour colour) {
+
         this.paintHollowRect(matrix, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
+
+        if (Screen.hasShiftDown()) {
+            this.getGui().renderTooltip(matrix, new StringTextComponent(this.getName()), 0, 0);
+        }
     }
 
     //endregion
@@ -538,16 +556,8 @@ public abstract class AbstractControl
 
     protected final RichText getTooltipsRichText() {
 
-        if (null != this._tooltipsSource) {
-
-            if (this._tooltipsSource instanceof AbstractControl) {
-                return ((AbstractControl)this._tooltipsSource).getTooltipsRichText();
-            }
-
-            final List<ITextComponent> lines = this._tooltipsSource.getTooltips();
-
-            return lines.isEmpty() ? RichText.EMPTY : buildTooltipsRichText(lines, this._tooltipsSource.getTooltipsObjects(),
-                    this.getTooltipsPopupMaxWidth());
+        if (this._tooltipsSource instanceof AbstractControl) {
+            return ((AbstractControl)this._tooltipsSource).getTooltipsRichText();
         }
 
         if (null == this._tooltipsRichText) {
