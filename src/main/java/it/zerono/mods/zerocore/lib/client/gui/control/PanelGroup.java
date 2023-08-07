@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
-import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.layout.ILayoutEngine;
@@ -31,6 +30,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
@@ -87,6 +87,10 @@ public class PanelGroup<Index extends Enum<Index>>
 
         CodeHelper.optionalIfPresent(this.getActivePanelIndex(), this.getActivePanel(),
                 (index, panel) -> this.PostPanelChange.raise(c -> c.accept(index, panel)));
+    }
+
+    public void bindActivePanel(final IBindableData<Index> bindableValue) {
+        bindableValue.bind(this::setActivePanel);
     }
 
     public void clearActivePanel() {

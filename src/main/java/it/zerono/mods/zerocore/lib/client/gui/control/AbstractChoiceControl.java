@@ -25,6 +25,7 @@ import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.EnumIndexerSelection;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.util.Direction;
 
 import java.util.List;
@@ -54,6 +55,10 @@ public abstract class AbstractChoiceControl<Index extends Enum<Index>, Value, Co
 
         this._selected.setSelection(index);
         this.onSelectionChanged(index, this._valueControl);
+    }
+
+    public void bindSelectedIndex(final IBindableData<Index> bindableIndex) {
+        bindableIndex.bind(this::setSelectedIndex);
     }
 
     public Optional<Value> getSelectedValue() {

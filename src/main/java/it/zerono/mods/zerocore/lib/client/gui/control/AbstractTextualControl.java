@@ -20,18 +20,20 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
-import it.zerono.mods.zerocore.lib.client.gui.Theme;
 import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.function.Function;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class AbstractTextualControl
@@ -59,7 +61,11 @@ public abstract class AbstractTextualControl
     }
 
     public void setText(final ITextComponent text) {
-        this.setText(text./*getFormattedText*/getString());
+        this.setText(text.getString());
+    }
+
+    public <V> void bindText(IBindableData<V> bindableValue, Function<V, String> stringFactory) {
+        bindableValue.bind(v -> this.setText(Objects.requireNonNull(stringFactory.apply(v))));
     }
 
     public Colour getColor() {

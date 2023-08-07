@@ -27,6 +27,7 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nonnull;
@@ -42,12 +43,64 @@ public class GaugeBar
         this._barSpriteTint = Colour.WHITE;
     }
 
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, float maxValue, ISprite barSprite) {
+        this(gui, name, (double) maxValue, barSprite);
+    }
+
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, long maxValue, ISprite barSprite) {
+        this(gui, name, (double) maxValue, barSprite);
+    }
+
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, int maxValue, ISprite barSprite) {
+        this(gui, name, (double) maxValue, barSprite);
+    }
+
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, double maxValue,
+                    IBindableData<Double> bindableValue, ISprite barSprite) {
+
+        this(gui, name, maxValue, barSprite);
+        bindableValue.bind(this::setValue);
+    }
+
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, float maxValue,
+                    IBindableData<Float> bindableValue, ISprite barSprite) {
+
+        this(gui, name, maxValue, barSprite);
+        bindableValue.bind(this::setValue);
+    }
+
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, long maxValue,
+                    IBindableData<Long> bindableValue, ISprite barSprite) {
+
+        this(gui, name, (double) maxValue, barSprite);
+        bindableValue.bind(this::setValue);
+    }
+
+    public GaugeBar(ModContainerScreen<? extends ModContainer> gui, String name, int maxValue,
+                    IBindableData<Integer> bindableValue, ISprite barSprite) {
+
+        this(gui, name, (double) maxValue, barSprite);
+        bindableValue.bind(this::setValue);
+    }
+
     public double getValue() {
         return this._value;
     }
 
     public void setValue(final double value) {
         this._value = MathHelper.clamp(value, 0, this.getMaxValue());
+    }
+
+    public void setValue(final float value) {
+        this.setValue((double) value);
+    }
+
+    public void setValue(final int value) {
+        this.setValue((double) value);
+    }
+
+    public void setValue(final long value) {
+        this.setValue((double) value);
     }
 
     public void setBarSprite(final ISprite barSprite) {
