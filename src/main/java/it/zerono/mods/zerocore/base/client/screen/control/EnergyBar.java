@@ -19,70 +19,63 @@
 package it.zerono.mods.zerocore.base.client.screen.control;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import it.zerono.mods.zerocore.base.CommonConstants;
 import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
+import it.zerono.mods.zerocore.base.client.screen.BaseScreenToolTipsBuilder;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
-import it.zerono.mods.zerocore.lib.client.text.BindableTextComponent;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.WideAmountData;
+import it.zerono.mods.zerocore.lib.text.TextHelper;
+import net.minecraft.util.text.IFormattableTextComponent;
 
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
 public class EnergyBar
-        extends AbstractVerticalIconGaugeBar {
+        extends AbstractVerticalIconSingleValueGaugeBar {
 
     public EnergyBar(final ModContainerScreen<? extends ModContainer> gui, final String name,
-                     final EnergySystem system, final WideAmount maxValue, final Supplier<WideAmount> valueSupplier,
+                     final EnergySystem system, final WideAmount maxValue, final WideAmountData bindableValue,
                      @Nullable final String optionalTooltipLine) {
 
-        super(gui, name, maxValue.doubleValue(), () -> valueSupplier.get().doubleValue(),
-                BaseIcons.PowerBar, BaseIcons.PowerBattery);
+        super(gui, name, maxValue.doubleValue(), bindableValue.asDouble(), BaseIcons.PowerBar, BaseIcons.PowerBattery);
         this._system = system;
 
-        final BindableTextComponent<WideAmount> valueText = new BindableTextComponent<>(this::getValueText);
-        final BindableTextComponent<WideAmount> percentageText = new BindableTextComponent<>(this::getPercentageText);
-
-        final ImmutableList.Builder<ITextComponent> tipsBuilder = ImmutableList.builder();
-
-        tipsBuilder.add(
-                new TranslationTextComponent("gui.zerocore.base.control.energybar.line1").setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
-                CodeHelper.TEXT_EMPTY_LINE,
-                new TranslationTextComponent("gui.zerocore.base.control.energybar.line2a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslationTextComponent("gui.zerocore.base.control.energybar.line2b",
-                                CodeHelper.formatAsHumanReadableNumber(maxValue.doubleValue(), system.getUnit()))),
-                new TranslationTextComponent("gui.zerocore.base.control.energybar.line3a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslationTextComponent("gui.zerocore.base.control.energybar.line3b"))
-        );
+        final BaseScreenToolTipsBuilder toolTips = new BaseScreenToolTipsBuilder()
+                .addTranslatableAsTitle("gui.zerocore.base.control.energybar.line1")
+                .addTextAsValue(TextHelper.translatable("gui.zerocore.base.control.energybar.line2a"),
+                        TextHelper.translatable("gui.zerocore.base.control.energybar.line2b",
+                                CodeHelper.formatAsHumanReadableNumber(maxValue.doubleValue(), system.getUnit())))
+                .addTextAsValue(TextHelper.translatable("gui.zerocore.base.control.energybar.line3a"),
+                        TextHelper.translatable("gui.zerocore.base.control.energybar.line3b"))
+                .addBindableObjectAsValue(bindableValue, this::getValueText)
+                .addBindableObjectAsValue(bindableValue, this::getPercentageText);
 
         if (!Strings.isNullOrEmpty(optionalTooltipLine)) {
-            tipsBuilder.add(new TranslationTextComponent(optionalTooltipLine));
+
+            toolTips.addEmptyLine();
+            toolTips.addTranslatable(optionalTooltipLine);
         }
 
-        this._bar.setTooltips(tipsBuilder.build(), ImmutableList.of(valueText, percentageText));
-        gui.addDataBinding(valueSupplier, valueText, percentageText);
+        this.setTooltips(toolTips);
+    }
 
-        this._icon.useTooltipsFrom(this._bar);
+    public void bindMaxValue(WideAmountData bindableValue) {
+        bindableValue.bind(amount -> this._bar.setMaxValue(amount.doubleValue()));
     }
 
     //region internals
 
-    private ITextComponent getValueText(final WideAmount amount) {
-        return new StringTextComponent(CodeHelper.formatAsHumanReadableNumber(amount.doubleValue(),
-                this._system.getUnit())).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
+    private IFormattableTextComponent getValueText(final WideAmount amount) {
+        return TextHelper.literal(CodeHelper.formatAsHumanReadableNumber(amount.doubleValue(), this._system.getUnit()));
     }
 
-    private ITextComponent getPercentageText(final WideAmount amount) {
+    private IFormattableTextComponent getPercentageText(final WideAmount amount) {
 
         final double percentage = amount.percentage(WideAmount.from(this._bar.getMaxValue()));
 
-        return new StringTextComponent(String.format("%d", (int)(percentage * 100))).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
+        return TextHelper.literal("%d", (int) (percentage * 100));
     }
 
     private final EnergySystem _system;

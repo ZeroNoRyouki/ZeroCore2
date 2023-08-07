@@ -19,74 +19,76 @@
 package it.zerono.mods.zerocore.base.client.screen.control;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import it.zerono.mods.zerocore.base.BaseHelper;
-import it.zerono.mods.zerocore.base.CommonConstants;
+import it.zerono.mods.zerocore.base.client.screen.BaseScreenToolTipsBuilder;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
-import it.zerono.mods.zerocore.lib.client.text.BindableTextComponent;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.FluidStackData;
+import it.zerono.mods.zerocore.lib.text.TextHelper;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
-import java.util.function.Supplier;
 
 public class FluidBar
-        extends AbstractVerticalIconGaugeBar {
+        extends AbstractVerticalIconSingleValueGaugeBar {
 
-    public FluidBar(final ModContainerScreen<? extends ModContainer> gui, final String name, final double maxValue,
-                    final Supplier<Double> valueSupplier, final Supplier<FluidStack> fluidSupplier,
+    public FluidBar(final ModContainerScreen<? extends ModContainer> gui, final String name,
+                    final int maxValue, final FluidStackData bindableStack,
+                    final NonNullSupplier<ISprite> iconSprite) {
+
+        super(gui, name, maxValue, bindableStack.amount(), Sprite.EMPTY_SUPPLIER, iconSprite);
+        bindableStack.bind(this::setFluidSprite);
+    }
+
+    public FluidBar(final ModContainerScreen<? extends ModContainer> gui, final String name,
+                    final int maxValue, final FluidStackData bindableStack,
                     final NonNullSupplier<ISprite> iconSprite, final String titleTooltipLine,
                     @Nullable final String optionalTooltipLine) {
 
-        super(gui, name, maxValue, valueSupplier, () -> Sprite.EMPTY, iconSprite);
+        this(gui, name, maxValue, bindableStack, iconSprite);
 
-        final BindableTextComponent<Double> valueText = new BindableTextComponent<>(this::getValueText);
-        final BindableTextComponent<Double> percentageText = new BindableTextComponent<>(this::getPercentageText);
-        final BindableTextComponent<FluidStack> fluidNameText = new BindableTextComponent<>(BaseHelper::getFluidNameOrEmpty);
-
-        final ImmutableList.Builder<ITextComponent> tipsBuilder = ImmutableList.builder();
-
-        tipsBuilder.add(
-                new TranslationTextComponent(titleTooltipLine).setStyle(CommonConstants.STYLE_TOOLTIP_TITLE),
-                CodeHelper.TEXT_EMPTY_LINE,
-                new TranslationTextComponent("gui.zerocore.base.control.fluidbar.line2").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE),
-                new TranslationTextComponent("gui.zerocore.base.control.fluidbar.line3a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslationTextComponent("gui.zerocore.base.control.fluidbar.line3b",
-                                CodeHelper.formatAsMillibuckets((float)maxValue))),
-                new TranslationTextComponent("gui.zerocore.base.control.fluidbar.line4a").setStyle(CommonConstants.STYLE_TOOLTIP_VALUE)
-                        .append(new TranslationTextComponent("gui.zerocore.base.control.fluidbar.line4b"))
-        );
+        final BaseScreenToolTipsBuilder toolTips = new BaseScreenToolTipsBuilder()
+                .addTranslatableAsTitle(titleTooltipLine)
+                .addTranslatableAsValue("gui.zerocore.base.control.fluidbar.line2")
+                .addTextAsValue(TextHelper.translatable("gui.zerocore.base.control.fluidbar.line3a"),
+                        TextHelper.translatable("gui.zerocore.base.control.fluidbar.line3b",
+                                CodeHelper.formatAsMillibuckets((float) maxValue)))
+                .addTextAsValue(TextHelper.translatable("gui.zerocore.base.control.fluidbar.line4a"),
+                        TextHelper.translatable("gui.zerocore.base.control.fluidbar.line4b"))
+                .addBindableObjectAsValue(bindableStack, this::formatFluidText)
+                .addBindableObjectAsValue(bindableStack.amount(), this::formatAmountText)
+                .addBindableObjectAsValue(bindableStack.amount(), this::formatPercentageText);
 
         if (!Strings.isNullOrEmpty(optionalTooltipLine)) {
-            tipsBuilder.add(new TranslationTextComponent(optionalTooltipLine));
+
+            toolTips.addEmptyLine();
+            toolTips.addTranslatable(optionalTooltipLine);
         }
 
-        this._bar.setTooltips(tipsBuilder.build(), ImmutableList.of(fluidNameText, valueText, percentageText));
-        gui.addDataBinding(valueSupplier, valueText, percentageText);
-        gui.addDataBinding(fluidSupplier, fluidNameText, this::setFluidSprite);
+        this.setTooltips(toolTips);
+    }
 
-        this._icon.useTooltipsFrom(this._bar);
+    public IFormattableTextComponent formatFluidText(final FluidStack stack) {
+        return BaseHelper.getFluidNameOrEmpty(stack);
+    }
+
+    public IFormattableTextComponent formatAmountText(final int amount) {
+        return TextHelper.literal(CodeHelper.formatAsMillibuckets(amount));
+    }
+
+    public IFormattableTextComponent formatPercentageText(final int amount) {
+        return TextHelper.literal("%d", (int) ((amount / this._bar.getMaxValue()) * 100));
     }
 
     //region internals
-
-    private ITextComponent getValueText(final double amount) {
-        return new StringTextComponent(CodeHelper.formatAsMillibuckets((float)amount)).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
-    }
-
-    private ITextComponent getPercentageText(final double amount) {
-        return new StringTextComponent(String.format("%d", (int)((amount / this._bar.getMaxValue()) * 100))).setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
-    }
 
     private void setFluidSprite(final FluidStack stack) {
 
@@ -94,6 +96,7 @@ public class FluidBar
 
             this._bar.setBarSprite(Sprite.EMPTY);
             this._bar.setBarSpriteTint(Colour.WHITE);
+            this._bar.setValue(0);
 
         } else {
 
@@ -103,6 +106,7 @@ public class FluidBar
 
             this._bar.setBarSprite(fluidSprite);
             this._bar.setBarSpriteTint(fluidTint);
+            this._bar.setValue(stack.getAmount());
         }
     }
 

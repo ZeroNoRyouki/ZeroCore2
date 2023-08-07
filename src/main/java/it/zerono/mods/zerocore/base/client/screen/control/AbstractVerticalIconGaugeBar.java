@@ -22,41 +22,49 @@ import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
-import it.zerono.mods.zerocore.lib.client.gui.control.GaugeBar;
+import it.zerono.mods.zerocore.lib.client.gui.control.AbstractGaugeBar;
 import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.DoubleData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.FloatData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IntData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.LongData;
 import net.minecraftforge.common.util.NonNullSupplier;
 
-import java.util.function.Supplier;
-
-public abstract class AbstractVerticalIconGaugeBar
+public abstract class AbstractVerticalIconGaugeBar<Bar extends AbstractGaugeBar>
         extends AbstractCompositeControl {
 
     protected AbstractVerticalIconGaugeBar(final ModContainerScreen<? extends ModContainer> gui, final String name,
-                                           final double maxValue, final Supplier<Double> valueSupplier,
-                                           final NonNullSupplier<ISprite> barSprite, final NonNullSupplier<ISprite> iconSprite) {
+                                           final Bar bar, final NonNullSupplier<ISprite> iconSprite) {
 
         super(gui, name);
         this.setDesiredDimension(18, 84);
 
-        // gauge bar
-
-        this._bar = new GaugeBar(gui, "bar", maxValue, barSprite.get());
+        this._bar = bar;
         this._bar.setOrientation(Orientation.BottomToTop);
         this._bar.setDesiredDimension(18, 66);
         this._bar.setBackground(BaseIcons.BarBackground.get());
         this._bar.setPadding(1);
-
-        gui.addDataBinding(valueSupplier, this._bar::setValue);
-
-        // icon
-
         this._icon = new Picture(gui, "icn", iconSprite.get(), 16, 16);
-        this._icon.useTooltipsFrom(this._bar);
-
         this.addChildControl(this._icon, this._bar);
+    }
+
+    public void bindMaxValue(DoubleData bindableValue) {
+        this._bar.bindMaxValue(bindableValue);
+    }
+
+    public void bindMaxValue(FloatData bindableValue) {
+        this._bar.bindMaxValue(bindableValue);
+    }
+
+    public void bindMaxValue(LongData bindableValue) {
+        this._bar.bindMaxValue(bindableValue);
+    }
+
+    public void bindMaxValue(IntData bindableValue) {
+        this._bar.bindMaxValue(bindableValue);
     }
 
     //region AbstractCompositeControl
@@ -72,7 +80,7 @@ public abstract class AbstractVerticalIconGaugeBar
     //endregion
     //region internals
 
-    protected final GaugeBar _bar;
+    protected final Bar _bar;
     protected final Picture _icon;
 
     //endregion
