@@ -105,27 +105,20 @@ public class WideEnergyBuffer
         return this._energy.copy();
     }
 
-    @Deprecated // use the IWideEnergyStorage2 version
-    public WideEnergyBuffer setEnergyStored(final WideAmount amount) {
-
-        this.setEnergyStored(amount, this.getEnergySystem());
-        return this;
-    }
-
     public WideEnergyBuffer grow(final WideAmount amount) {
-        return this.setEnergyStored(this._energy.add(amount));
+        return this.setEnergyStoredInternal(this._energy.add(amount));
     }
 
     public WideEnergyBuffer grow(final double amount) {
-        return this.setEnergyStored(this._energy.add(amount));
+        return this.setEnergyStoredInternal(this._energy.add(amount));
     }
 
     public WideEnergyBuffer shrink(final WideAmount amount) {
-        return this.setEnergyStored(this._energy.subtract(amount));
+        return this.setEnergyStoredInternal(this._energy.subtract(amount));
     }
 
     public WideEnergyBuffer shrink(final double amount) {
-        return this.setEnergyStored(this._energy.subtract(amount));
+        return this.setEnergyStoredInternal(this._energy.subtract(amount));
     }
 
     public void merge(final WideEnergyBuffer other) {
@@ -135,6 +128,10 @@ public class WideEnergyBuffer
             this._energy = this._energy.add(other._system.convertTo(this._system, other._energy));
             this._modified = true;
         }
+    }
+
+    public void empty() {
+        this.setEnergyStoredInternal(WideAmount.ZERO);
     }
 
     //region IWideEnergyStorage2
@@ -292,7 +289,7 @@ public class WideEnergyBuffer
 
             this.setMaxInsert(WideAmount.from(data.getDouble("maxInsert")));
             this.setMaxExtract(WideAmount.from(data.getDouble("maxExtract")));
-            this.setEnergyStored(WideAmount.from(data.getDouble("energy")));
+            this.setEnergyStoredInternal(WideAmount.from(data.getDouble("energy")));
             this.setCapacity(WideAmount.from(data.getDouble("capacity")));
         }
 
@@ -351,6 +348,12 @@ public class WideEnergyBuffer
 
     private WideAmount convertIf(final EnergySystem system, final WideAmount amount) {
         return this.getEnergySystem() != system ? this.getEnergySystem().convertTo(system, amount.copy()) : amount.copy();
+    }
+
+    private WideEnergyBuffer setEnergyStoredInternal(final WideAmount amount) {
+
+        this.setEnergyStored(amount, this.getEnergySystem());
+        return this;
     }
 
     private final EnergySystem _system;
