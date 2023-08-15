@@ -28,6 +28,7 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.MathHelper;
@@ -43,6 +44,8 @@ public abstract class NumberInput<Type>
         implements NonNullSupplier<Type> {
 
     public final IEvent<BiConsumer<NumberInput<Type>, Type>> Changed; // 2nd arg: the current numeric value
+
+    public abstract void bindValue(IBindableData<Type> bindableValue);
 
     public void setFormatString(@Nullable final String formatString) {
 
@@ -206,6 +209,11 @@ public abstract class NumberInput<Type>
             this.updateLabel();
         }
 
+        @Override
+        public void bindValue(IBindableData<Integer> bindableValue) {
+            bindableValue.bind(this::setValue);
+        }
+
         public void setMinValue(final int min) {
 
             this._min = min;
@@ -333,6 +341,11 @@ public abstract class NumberInput<Type>
 
             this._value = MathHelper.clamp(value, this._min, this._max);
             this.updateLabel();
+        }
+
+        @Override
+        public void bindValue(IBindableData<Long> bindableValue) {
+            bindableValue.bind(this::setValue);
         }
 
         public void setMinValue(final long min) {
@@ -464,6 +477,11 @@ public abstract class NumberInput<Type>
             this.updateLabel();
         }
 
+        @Override
+        public void bindValue(IBindableData<Float> bindableValue) {
+            bindableValue.bind(this::setValue);
+        }
+
         public void setMinValue(final float min) {
 
             this._min = min;
@@ -591,6 +609,11 @@ public abstract class NumberInput<Type>
 
             this._value = MathHelper.clamp(value, this._min, this._max);
             this.updateLabel();
+        }
+
+        @Override
+        public void bindValue(IBindableData<Double> bindableValue) {
+            bindableValue.bind(this::setValue);
         }
 
         public void setMinValue(final double min) {
