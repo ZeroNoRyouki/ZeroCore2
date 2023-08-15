@@ -47,7 +47,7 @@ public abstract class AbstractVerticalIconGaugeBar<Bar extends AbstractGaugeBar>
         this._bar.setDesiredDimension(18, 66);
         this._bar.setBackground(BaseIcons.BarBackground.get());
         this._bar.setPadding(1);
-        this._icon = new Picture(gui, "icn", iconSprite.get(), 16, 16);
+        this._icon = CommonPanels.icon(gui, iconSprite);
         this.addChildControl(this._icon, this._bar);
     }
 

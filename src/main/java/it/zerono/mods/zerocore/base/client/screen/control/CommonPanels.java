@@ -26,9 +26,11 @@ import it.zerono.mods.zerocore.lib.client.gui.control.Panel;
 import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
 import it.zerono.mods.zerocore.lib.client.gui.control.Static;
 import it.zerono.mods.zerocore.lib.client.gui.layout.FixedLayoutEngine;
+import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.util.Util;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 public class CommonPanels {
 
@@ -115,5 +117,9 @@ public class CommonPanels {
 
     public static Panel verticalCommandPanel(ModContainerScreen<? extends ModContainer> gui) {
         return verticalCommandPanel(gui, STANDARD_PANEL_HEIGHT);
+    }
+
+    public static Picture icon(ModContainerScreen<? extends ModContainer> gui, NonNullSupplier<ISprite> icon) {
+        return Util.make(new Picture(gui, "icn", icon), p -> p.setDesiredDimension(16, 16));
     }
 }

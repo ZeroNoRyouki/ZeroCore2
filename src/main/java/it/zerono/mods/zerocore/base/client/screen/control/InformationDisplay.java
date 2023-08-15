@@ -183,7 +183,7 @@ public class InformationDisplay
             this._label.useTooltipsFrom(this);
             builder._labelTextConfig.accept(this._label);
 
-            this._icon = new Picture(gui, "icn", builder._iconSprite, 16, 16);
+            this._icon = CommonPanels.icon(gui, builder._iconSprite);
             this._icon.useTooltipsFrom(this);
 
             this.addChildControl(this._icon, this._label);
