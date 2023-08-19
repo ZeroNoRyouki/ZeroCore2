@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.base.client.screen.control;
 
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
-import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.Panel;
 import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
@@ -103,20 +102,24 @@ public class CommonPanels {
         return verticalTemperatureScale(gui, CommonPanels.STANDARD_PANEL_HEIGHT);
     }
 
-    public static Panel verticalCommandPanel(ModContainerScreen<? extends ModContainer> gui, int height) {
+    public static Panel verticalCommandPanel(ModContainerScreen<? extends ModContainer> gui, int width, int height) {
 
         Preconditions.checkArgument(height > 0, "Height must be greater than zero.");
 
         final Panel p = new Panel(gui);
 
-        p.setDesiredDimension(DesiredDimension.Height, height);
+        p.setDesiredDimension(width, height);
         p.setLayoutEngine(new FixedLayoutEngine());
 
         return p;
     }
 
+    public static Panel verticalCommandPanel(ModContainerScreen<? extends ModContainer> gui, int width) {
+        return verticalCommandPanel(gui, width, STANDARD_PANEL_HEIGHT);
+    }
+
     public static Panel verticalCommandPanel(ModContainerScreen<? extends ModContainer> gui) {
-        return verticalCommandPanel(gui, STANDARD_PANEL_HEIGHT);
+        return verticalCommandPanel(gui, -1, STANDARD_PANEL_HEIGHT);
     }
 
     public static Picture icon(ModContainerScreen<? extends ModContainer> gui, NonNullSupplier<ISprite> icon) {
