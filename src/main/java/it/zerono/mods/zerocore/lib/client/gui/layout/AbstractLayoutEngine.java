@@ -111,8 +111,8 @@ public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
                 desiredWidth, desiredHeight);
     }
 
-    protected int computeUndefinedDimensionSize(final IControlContainer controlsContainer,
-                                                final DesiredDimension dimension, final int availableSize) {
+    protected int computeDefaultValueForUndefinedDimension(final IControlContainer controlsContainer,
+                                                           final DesiredDimension dimension, final int availableSize) {
 
         int controlsCount = 0;
         int fixedCount = 0;

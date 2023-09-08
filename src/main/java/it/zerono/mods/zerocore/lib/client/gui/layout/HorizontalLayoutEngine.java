@@ -30,13 +30,13 @@ public class HorizontalLayoutEngine
     public void layout(final IControlContainer controlsContainer) {
 
         final Rectangle parentBounds = controlsContainer.getBounds();
-        final int undefined = this.computeUndefinedDimensionSize(controlsContainer, DesiredDimension.Width, parentBounds.Width);
+        final int defaultWidth = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Width, parentBounds.Width);
 
         int left = this.getHorizontalMargin();
 
         for (final IControl control : controlsContainer) {
 
-            final int controlWidth = Math.min(parentBounds.Width - left, this.getControlDesiredDimension(control, DesiredDimension.Width, undefined));
+            final int controlWidth = Math.min(parentBounds.Width - left, this.getControlDesiredDimension(control, DesiredDimension.Width, defaultWidth));
             final Rectangle newBounds = this.getControlAlignedBounds(control, left, this.getVerticalMargin(),
                     controlWidth, parentBounds.Height - this.getVerticalMargin() * 2);
 

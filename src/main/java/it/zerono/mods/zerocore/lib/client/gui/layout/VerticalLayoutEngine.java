@@ -30,13 +30,13 @@ public class VerticalLayoutEngine
     public void layout(final IControlContainer controlsContainer) {
 
         final Rectangle parentBounds = controlsContainer.getBounds();
-        final int undefined = this.computeUndefinedDimensionSize(controlsContainer, DesiredDimension.Height, parentBounds.Height);
+        final int defaultHeight = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Height, parentBounds.Height);
 
         int top = this.getVerticalMargin();
 
         for (final IControl control : controlsContainer) {
 
-            final int controlHeight = Math.min(parentBounds.Height - top, this.getControlDesiredDimension(control, DesiredDimension.Height, undefined));
+            final int controlHeight = Math.min(parentBounds.Height - top, this.getControlDesiredDimension(control, DesiredDimension.Height, defaultHeight));
             final Rectangle newBounds = this.getControlAlignedBounds(control, this.getHorizontalMargin(), top,
                     parentBounds.Width - this.getHorizontalMargin() * 2, controlHeight);
 
