@@ -136,7 +136,7 @@ public final class NBTHelper {
             final String value = nbt.getString(key);
 
             if (!Strings.isNullOrEmpty(value)) {
-                return enumFactory.apply(nbt.getString(key));
+                return enumFactory.apply(value);
             }
         }
 
