@@ -23,6 +23,8 @@ import it.zerono.mods.zerocore.lib.client.gui.validator.IControlValidator;
 import net.minecraft.util.text.ITextComponent;
 
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A control that contains other controls
@@ -48,4 +50,8 @@ public interface IControlContainer
     void setValidator(IControlValidator validator);
 
     void validate(Consumer<ITextComponent> errorReport);
+
+    default Stream<IControl> stream() {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
 }

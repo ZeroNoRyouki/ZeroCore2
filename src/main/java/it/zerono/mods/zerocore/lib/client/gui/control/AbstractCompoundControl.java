@@ -39,6 +39,10 @@ public abstract class AbstractCompoundControl
         extends AbstractControl
         implements Iterable<IControl> {
 
+    public Stream<IControl> stream() {
+        return this._children.stream();
+    }
+
     //region AbstractControl
 
     @Override
@@ -350,10 +354,6 @@ public abstract class AbstractCompoundControl
             this._tabOrderNextIndex = 0;
         }
     }*/
-
-    protected Stream<IControl> stream() {
-        return this._children.stream();
-    }
 
     private final List<IControl> _children;
 
