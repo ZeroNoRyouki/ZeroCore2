@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
 public abstract class AbstractMultiblockEntity<Controller extends AbstractCuboidMultiblockController<Controller>>
         extends AbstractCuboidMultiblockPart<Controller> {
 
-    public AbstractMultiblockEntity(final TileEntityType<?> type) {
+    protected AbstractMultiblockEntity(final TileEntityType<?> type) {
         super(type);
     }
 
