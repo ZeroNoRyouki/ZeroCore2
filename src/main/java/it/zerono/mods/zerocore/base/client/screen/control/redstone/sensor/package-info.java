@@ -1,6 +1,6 @@
 /*
  *
- * ISensorSettingFactory.java
+ * package-info.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,13 +16,4 @@
  *
  */
 
-package it.zerono.mods.zerocore.base.redstone.sensor;
-
-import it.zerono.mods.zerocore.lib.IMachineReader;
-
-public interface ISensorSettingFactory<Reader extends IMachineReader, Writer,
-        SensorType extends Enum<SensorType> & ISensorType<Reader>,
-        SensorSetting extends AbstractSensorSetting<Reader, Writer, SensorType, SensorSetting>> {
-
-    SensorSetting createSetting(SensorType sensor, SensorBehavior behavior, int v1, int v2);
-}
+package it.zerono.mods.zerocore.base.client.screen.control.redstone.sensor;

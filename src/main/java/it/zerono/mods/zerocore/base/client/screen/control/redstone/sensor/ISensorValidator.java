@@ -1,6 +1,6 @@
 /*
  *
- * ISensorSettingFactory.java
+ * ISensorValidator.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,13 +16,13 @@
  *
  */
 
-package it.zerono.mods.zerocore.base.redstone.sensor;
+package it.zerono.mods.zerocore.base.client.screen.control.redstone.sensor;
 
-import it.zerono.mods.zerocore.lib.IMachineReader;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.util.NonNullConsumer;
 
-public interface ISensorSettingFactory<Reader extends IMachineReader, Writer,
-        SensorType extends Enum<SensorType> & ISensorType<Reader>,
-        SensorSetting extends AbstractSensorSetting<Reader, Writer, SensorType, SensorSetting>> {
+@FunctionalInterface
+public interface ISensorValidator {
 
-    SensorSetting createSetting(SensorType sensor, SensorBehavior behavior, int v1, int v2);
+    void validate(NonNullConsumer<ITextComponent> errors, int... values);
 }
