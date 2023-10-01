@@ -33,51 +33,51 @@ public class BaseScreenToolTipsBuilder
         extends ToolTipsBuilder {
 
     public BaseScreenToolTipsBuilder addTextAsTitle(IFormattableTextComponent text, ITextComponent... siblings) {
-        return this.addText(text, AbstractBaseScreen::formatAsTitle, siblings);
+        return this.addText(text, ClientBaseHelper::formatAsTitle, siblings);
     }
 
     public BaseScreenToolTipsBuilder addLiteralAsTitle(String text) {
-        return this.addLiteral(text, AbstractBaseScreen::formatAsTitle);
+        return this.addLiteral(text, ClientBaseHelper::formatAsTitle);
     }
 
     public BaseScreenToolTipsBuilder addTranslatableAsTitle(String langKey) {
-        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsTitle);
+        return this.addTranslatable(langKey, ClientBaseHelper::formatAsTitle);
     }
 
     public BaseScreenToolTipsBuilder addTranslatableAsTitle(String langKey, Object... arguments) {
-        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsTitle, arguments);
+        return this.addTranslatable(langKey, ClientBaseHelper::formatAsTitle, arguments);
     }
 
     public BaseScreenToolTipsBuilder addTextAsValue(IFormattableTextComponent text, ITextComponent... siblings) {
-        return this.addText(text, AbstractBaseScreen::formatAsValue, siblings);
+        return this.addText(text, ClientBaseHelper::formatAsValue, siblings);
     }
 
     public BaseScreenToolTipsBuilder addLiteralAsValue(String text) {
-        return this.addLiteral(text, AbstractBaseScreen::formatAsValue);
+        return this.addLiteral(text, ClientBaseHelper::formatAsValue);
     }
 
     public BaseScreenToolTipsBuilder addTranslatableAsValue(String langKey) {
-        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsValue);
+        return this.addTranslatable(langKey, ClientBaseHelper::formatAsValue);
     }
 
     public BaseScreenToolTipsBuilder addTranslatableAsValue(String langKey, Object... arguments) {
-        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsValue, arguments);
+        return this.addTranslatable(langKey, ClientBaseHelper::formatAsValue, arguments);
     }
 
     public BaseScreenToolTipsBuilder addTextAsInfo(IFormattableTextComponent text, ITextComponent... siblings) {
-        return this.addText(text, AbstractBaseScreen::formatAsInfo, siblings);
+        return this.addText(text, ClientBaseHelper::formatAsInfo, siblings);
     }
 
     public BaseScreenToolTipsBuilder addLiteralAsInfo(String text) {
-        return this.addLiteral(text, AbstractBaseScreen::formatAsInfo);
+        return this.addLiteral(text, ClientBaseHelper::formatAsInfo);
     }
 
     public BaseScreenToolTipsBuilder addTranslatableAsInfo(String langKey) {
-        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsInfo);
+        return this.addTranslatable(langKey, ClientBaseHelper::formatAsInfo);
     }
 
     public BaseScreenToolTipsBuilder addTranslatableAsInfo(String langKey, Object... arguments) {
-        return this.addTranslatable(langKey, AbstractBaseScreen::formatAsInfo, arguments);
+        return this.addTranslatable(langKey, ClientBaseHelper::formatAsInfo, arguments);
     }
 
     public <T> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> value,
@@ -87,20 +87,20 @@ public class BaseScreenToolTipsBuilder
 
     public <T> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> value, @Nullable T initialValue,
                                                                   Function<T, IFormattableTextComponent> textFactory) {
-        return this.addObject(value.asBindableText(initialValue, textFactory, AbstractBaseScreen::formatAsValue));
+        return this.addObject(value.asBindableText(initialValue, textFactory, ClientBaseHelper::formatAsValue));
     }
 
     public <T, U> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> firstValue, IBindableData<U> secondValue,
                                                                      BiFunction<T, U, IFormattableTextComponent> textFactory) {
         return this.addObject(BindableText.of(firstValue, firstValue.defaultValue(), secondValue, secondValue.defaultValue(),
-                textFactory, AbstractBaseScreen::formatAsValue));
+                textFactory, ClientBaseHelper::formatAsValue));
     }
 
     public <T, U> BaseScreenToolTipsBuilder addBindableObjectAsValue(IBindableData<T> firstValue, @Nullable T initialFirstValue,
                                                                      IBindableData<U> secondValue, @Nullable U initialSecondValue,
                                                                      BiFunction<T, U, IFormattableTextComponent> textFactory) {
         return this.addObject(BindableText.of(firstValue, initialFirstValue, secondValue, initialSecondValue,
-                textFactory, AbstractBaseScreen::formatAsValue));
+                textFactory, ClientBaseHelper::formatAsValue));
     }
 
     //region ToolTipsBuilder
