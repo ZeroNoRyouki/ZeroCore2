@@ -18,10 +18,11 @@
 
 package it.zerono.mods.zerocore.base.client.screen;
 
-import it.zerono.mods.zerocore.base.CommonConstants;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
-import it.zerono.mods.zerocore.lib.client.gui.*;
-import it.zerono.mods.zerocore.lib.client.gui.control.AbstractButtonControl;
+import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
+import it.zerono.mods.zerocore.lib.client.gui.IControl;
+import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
+import it.zerono.mods.zerocore.lib.client.gui.ModTileContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.Label;
 import it.zerono.mods.zerocore.lib.client.gui.control.Panel;
 import it.zerono.mods.zerocore.lib.client.gui.control.SlotsGroup;
@@ -37,7 +38,6 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModTileContainer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -97,6 +97,9 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & INam
         }
 
         this._contentPanel = new Panel(this, "content");
+        this._contentPanel.setLayoutEngine(new FixedLayoutEngine());
+        this.setContentBounds(0, 0);
+
         this._helpButton = null;
     }
 
@@ -116,29 +119,29 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & INam
         this._contentPanel.setLayoutEngine(engine);
     }
 
+    protected void setContentBounds(int horizontalMargin, int verticalMargin) {
+        this.setContentBounds(horizontalMargin, verticalMargin, this.getGuiWidth(), this.getGuiHeight());
+    }
+
+    protected void setContentBounds(int horizontalMargin, int verticalMargin, int width, int height) {
+
+        width = Math.min(width - 2 * horizontalMargin, this.getGuiWidth());
+        height = Math.min(height - 2 * verticalMargin - TITLE_PANEL_HEIGHT, this.getGuiHeight());
+
+        this._contentPanel.setDesiredDimension(width, height);
+        this._contentPanel.setLayoutEngineHint(FixedLayoutEngine.hint(horizontalMargin, TITLE_PANEL_HEIGHT + verticalMargin, width, height));
+    }
+
+    protected int getContentWidth() {
+        return this._contentPanel.getDesiredDimension(DesiredDimension.Width);
+    }
+
+    protected int getContentHeight() {
+        return this._contentPanel.getDesiredDimension(DesiredDimension.Height);
+    }
+
     protected void addPatchouliHelpButton(final ResourceLocation bookId, final ResourceLocation entryId, final int pageNum) {
         this._helpButton = this.createPatchouliHelpButton(bookId, entryId, pageNum);
-    }
-
-    protected void setButtonSpritesAndOverlayForState(final AbstractButtonControl button,
-                                                      final ButtonState standardState,
-                                                      final NonNullSupplier<ISprite> standardSprite) {
-        this.setButtonSpritesAndOverlayForState(button, standardState,standardSprite.get());
-    }
-
-    protected void setButtonSpritesAndOverlayForState(final AbstractButtonControl button,
-                                                      final ButtonState standardState,
-                                                      final ISprite standardSprite) {
-
-        button.setIconForState(standardSprite, standardState);
-
-        ISprite withOverlay;
-
-        withOverlay = standardSprite.copyWith(BaseIcons.Button16x16HightlightOverlay.get());
-        button.setIconForState(withOverlay, standardState.getHighlighted());
-
-        withOverlay = standardSprite.copyWith(BaseIcons.Button16x16DisabledOverlay.get());
-        button.setIconForState(withOverlay, standardState.getDisabled());
     }
 
     @Nullable
@@ -161,21 +164,6 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & INam
     }
 
     //endregion
-    //region common text styles
-
-    public static IFormattableTextComponent formatAsTitle(IFormattableTextComponent text) {
-        return text.setStyle(CommonConstants.STYLE_TOOLTIP_TITLE);
-    }
-
-    public static IFormattableTextComponent formatAsValue(IFormattableTextComponent text) {
-        return text.setStyle(CommonConstants.STYLE_TOOLTIP_VALUE);
-    }
-
-    public static IFormattableTextComponent formatAsInfo(IFormattableTextComponent text) {
-        return text.setStyle(CommonConstants.STYLE_TOOLTIP_INFO);
-    }
-
-    //endregion
     //region ModTileContainerScreen
 
     /**
@@ -192,7 +180,6 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & INam
 
         final Panel mainPanel = new Panel(this, "mainPanel");
         final Panel titlePanel = new Panel(this, "titlePanel");
-        final int contentHeight = guiHeight - TITLE_PANEL_HEIGHT;
 
         // - main panel
 
@@ -240,11 +227,6 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & INam
         // MC calls the init() method (witch rise onScreenCreated()) also when the main windows is resized: clear
         // the controls in the content panel to avoid duplications
         this._contentPanel.removeControls();
-
-        this._contentPanel.setLayoutEngine(new FixedLayoutEngine());
-        this._contentPanel.setDesiredDimension(DesiredDimension.Height, contentHeight);
-        this._contentPanel.setDesiredDimension(DesiredDimension.Width, guiWidth);
-        this._contentPanel.setLayoutEngineHint(FixedLayoutEngine.hint(0, TITLE_PANEL_HEIGHT, guiWidth, contentHeight));
 
         // create main window
 
