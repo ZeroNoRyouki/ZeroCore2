@@ -74,6 +74,10 @@ public class PanelGroup<Index extends Enum<Index>>
         return Optional.ofNullable(this._activePanel);
     }
 
+    public boolean isPanelIndexValid(Index index) {
+        return this._panels.isIndexValid(index);
+    }
+
     public Optional<Panel> getActivePanel() {
         return this.getActivePanelIndex().flatMap(this._panels::getElement);
     }
