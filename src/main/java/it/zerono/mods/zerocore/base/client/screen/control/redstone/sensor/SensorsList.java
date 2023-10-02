@@ -85,7 +85,12 @@ class SensorsList<Reader extends IMachineReader, Writer, SensorType extends Enum
     public void setSettings(SensorSetting setting) {
 
         this.resetSettings();
-        this._buttons.get(setting.Sensor).setActive(true);
+
+        final SwitchPictureButton button = this._buttons.get(setting.Sensor);
+
+        if (null != button) {
+            button.setActive(true);
+        }
     }
 
     public void resetSettings() {

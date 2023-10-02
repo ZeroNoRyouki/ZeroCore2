@@ -94,6 +94,10 @@ class SensorGroupPanel<Reader extends IMachineReader, Writer, SensorType extends
     @SuppressWarnings("unchecked")
     public void setSettings(SensorSetting setting) {
 
+        if (!this._group.isPanelIndexValid(setting.Sensor)) {
+            return;
+        }
+
         this._activeSensorName.setText(TextHelper.translatable(setting.Sensor.getNameTranslationKey()));
         this._group.setActivePanel(setting.Sensor);
         this._group.getActivePanel()
