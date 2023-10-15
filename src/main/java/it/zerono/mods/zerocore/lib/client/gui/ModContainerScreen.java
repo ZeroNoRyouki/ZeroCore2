@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
@@ -143,7 +144,7 @@ public class ModContainerScreen<C extends ModContainer>
 
         if (!errors.isEmpty()) {
 
-            CodeHelper.reportErrorToPlayer(Objects.requireNonNull(this.getMinecraft().player), null, errors);
+            ZeroCore.getProxy().displayErrorToPlayer(null, errors);
             return false;
         }
 
