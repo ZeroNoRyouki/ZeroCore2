@@ -23,6 +23,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +50,7 @@ public interface IMultiblockPartType
             return (byte)((Enum)this).ordinal();
         }
 
-        return 0;
+        throw new NotImplementedException();
     }
 
     default String getNameForId() {

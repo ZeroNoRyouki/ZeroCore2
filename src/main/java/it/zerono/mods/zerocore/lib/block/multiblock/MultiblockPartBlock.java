@@ -46,7 +46,7 @@ import java.util.Optional;
 
 @SuppressWarnings("WeakerAccess")
 public class MultiblockPartBlock<Controller extends IMultiblockController<Controller>,
-                                 PartType extends Enum<PartType> & IMultiblockPartType>
+                                 PartType extends IMultiblockPartType>
         extends ModBlock
         implements EntityBlock {
 
@@ -126,10 +126,10 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
         return super.use(state, world, position, player, hand, hit);
     }
 
-    public static class MultiblockPartProperties<PartType extends Enum<PartType> & IMultiblockPartType>
+    public static class MultiblockPartProperties<PartType extends IMultiblockPartType>
             extends ExtendedProperties<MultiblockPartProperties<PartType>> {
 
-        public static <PartType extends Enum<PartType> & IMultiblockPartType> MultiblockPartProperties<PartType> create(
+        public static <PartType extends IMultiblockPartType> MultiblockPartProperties<PartType> create(
                 final PartType partType, final Block.Properties blockProperties) {
             return new MultiblockPartProperties<>(partType, blockProperties);
         }

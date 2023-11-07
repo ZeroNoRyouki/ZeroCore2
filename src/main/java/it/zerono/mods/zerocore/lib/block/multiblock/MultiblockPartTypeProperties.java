@@ -32,7 +32,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import javax.annotation.Nullable;
 
 public class MultiblockPartTypeProperties<Controller extends IMultiblockController<Controller>,
-                                            PartType extends Enum<PartType> & IMultiblockPartType> {
+                                            PartType extends IMultiblockPartType> {
 
     public MultiblockPartTypeProperties(final NonNullSupplier<NonNullSupplier<BlockEntityType<?>>> tileTypeSupplier,
                                         final NonNullFunction<MultiblockPartBlock.MultiblockPartProperties<PartType>,

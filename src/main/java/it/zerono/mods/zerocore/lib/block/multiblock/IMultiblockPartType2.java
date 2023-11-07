@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 
 public interface IMultiblockPartType2<Controller extends IMultiblockController<Controller>,
-                                        PartType extends Enum<PartType> & IMultiblockPartType2<Controller, PartType>>
+                                        PartType extends IMultiblockPartType2<Controller, PartType>>
         extends IMultiblockPartType {
 
     MultiblockPartTypeProperties<Controller, PartType> getPartTypeProperties();

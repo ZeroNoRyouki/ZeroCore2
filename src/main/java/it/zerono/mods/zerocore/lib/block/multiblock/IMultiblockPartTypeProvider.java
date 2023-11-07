@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.Block;
 import java.util.Optional;
 
 public interface IMultiblockPartTypeProvider<Controller extends IMultiblockController<Controller>,
-        PartType extends Enum<PartType> & IMultiblockPartType> {
+        PartType extends IMultiblockPartType> {
 
     Block getBlockType();
 

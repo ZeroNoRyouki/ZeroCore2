@@ -36,7 +36,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.Optional;
 
 public class IOPortBlock<Controller extends IMultiblockController<Controller>,
-                            PartType extends Enum<PartType> & IMultiblockPartType>
+                            PartType extends IMultiblockPartType>
         extends GenericDeviceBlock<Controller, PartType>
         implements INeighborChangeListener.Notifier {
 

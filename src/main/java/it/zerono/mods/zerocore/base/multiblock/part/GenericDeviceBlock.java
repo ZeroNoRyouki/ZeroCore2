@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class GenericDeviceBlock<Controller extends IMultiblockController<Controller>,
-                                PartType extends Enum<PartType> & IMultiblockPartType>
+                                PartType extends IMultiblockPartType>
         extends MultiblockPartBlock<Controller, PartType> {
 
     public GenericDeviceBlock(final MultiblockPartProperties<PartType> properties) {

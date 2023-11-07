@@ -33,7 +33,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class GlassBlock<Controller extends IMultiblockController<Controller>,
-                        PartType extends Enum<PartType> & IMultiblockPartType>
+                        PartType extends IMultiblockPartType>
         extends GenericDeviceBlock<Controller, PartType>
         implements INeverCauseRenderingSkip {
 
