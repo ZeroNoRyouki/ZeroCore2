@@ -52,6 +52,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Basic interface for a multiblock machine part.
@@ -107,6 +108,16 @@ public interface IMultiblockPart<Controller extends IMultiblockController<Contro
     default <R> R evalOnController(Function<Controller, R> code, R defaultValue) {
         return this.getMultiblockController().map(code).orElse(defaultValue);
     }
+
+	/**
+	 * Execute the given Function on the controller returning its result, if this part is connected to one
+	 * @param code the function
+	 * @param defaultValue a Supplier for the value to return if this part is not connected to a controller
+	 * @return the result of the function if this part is connected to a controller or the default value if it's not
+	 */
+	default <R> R evalOnControllerOrGet(final Function<Controller, R> code, final Supplier<R> defaultValue) {
+		return this.getMultiblockController().map(code).orElseGet(defaultValue);
+	}
 
     /**
      * Execute the given Predicate on the controller return it's result, if this part is connected to one

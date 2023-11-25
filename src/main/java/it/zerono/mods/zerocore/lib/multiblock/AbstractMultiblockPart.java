@@ -66,6 +66,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Base logic class for Multiblock-connected tile entities. Most multiblock machines
@@ -140,7 +141,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     }
 
     /**
-     * Execute the given Function on the controller returning it's result, if this part is connected to one
+     * Execute the given Function on the controller returning its result, if this part is connected to one
      * @param code the function
      * @param defaultValue the value to return if this part is not connected to a controller
      * @return the result of the function if this part is connected to a controller or defaultValue if it's not
@@ -148,6 +149,17 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
     @Override
     public <R> R evalOnController(final Function<Controller, R> code, final R defaultValue) {
         return null != this._controller ? code.apply(this._controller) : defaultValue;
+    }
+
+    /**
+     * Execute the given Function on the controller returning its result, if this part is connected to one
+     * @param code the function
+     * @param defaultValue a Supplier for the value to return if this part is not connected to a controller
+     * @return the result of the function if this part is connected to a controller or the default value if it's not
+     */
+    @Override
+    public <R> R evalOnControllerOrGet(final Function<Controller, R> code, final Supplier<R> defaultValue) {
+        return null != this._controller ? code.apply(this._controller) : defaultValue.get();
     }
 
     @Override
