@@ -18,7 +18,7 @@ package it.zerono.mods.zerocore.lib.multiblock.storage.collection;
 
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
-import net.minecraftforge.common.util.NonNullPredicate;
+import net.neoforged.neoforge.common.util.NonNullPredicate;
 
 import java.util.List;
 import java.util.stream.Collectors;

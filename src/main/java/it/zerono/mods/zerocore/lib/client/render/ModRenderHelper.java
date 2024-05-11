@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
+import it.zerono.mods.zerocore.internal.mixin.client.GuiGraphicsAccessor;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
@@ -58,12 +59,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -532,8 +533,10 @@ public final class ModRenderHelper {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        gfx.innerBlit(sprite.getTextureMap().getTextureLocation(), x, x + width, y, y + height, zLevel,
-                sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV());
+        final GuiGraphicsAccessor gfxAccessor = (GuiGraphicsAccessor)gfx;
+
+        gfxAccessor.zerocore_invokeInnerBlit(sprite.getTextureMap().getTextureLocation(), x, x + width, y, y + height,
+                zLevel, sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV());
 
         RenderSystem.disableBlend();
 
@@ -574,7 +577,9 @@ public final class ModRenderHelper {
         final float widthRatio = 1.0F / sprite.getTextureMap().getWidth();
         final float heightRatio = 1.0F / sprite.getTextureMap().getHeight();
 
-        gfx.innerBlit(sprite.getTextureMap().getTextureLocation(), x, x + paintWidth, y, y + paintHeight,
+        final GuiGraphicsAccessor gfxAccessor = (GuiGraphicsAccessor)gfx;
+
+        gfxAccessor.zerocore_invokeInnerBlit(sprite.getTextureMap().getTextureLocation(), x, x + paintWidth, y, y + paintHeight,
                 zLevel, u * widthRatio, (u + (float) paintWidth) * widthRatio,
                 v * heightRatio, (v + (float) paintHeight) * heightRatio);
 
@@ -1786,7 +1791,7 @@ public final class ModRenderHelper {
 
         Preconditions.checkNotNull(atlas, "Atlas must not be null");
 
-        final var sprites = atlas.getTextureLocations().stream()
+        final var sprites = atlas.getTextures().keySet().stream()
                 .map(atlas::getSprite)
                 .sorted((s1, s2) -> s1.getX() == s2.getX() ? s1.getY() - s2.getY() : s1.getX() - s2.getX())
                 .toList();

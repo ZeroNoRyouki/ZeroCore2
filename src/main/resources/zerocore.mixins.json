@@ -1,0 +1,15 @@
+{
+  "required":true,
+  "package":"it.zerono.mods.zerocore.internal.mixin",
+  "minVersion":"0.8",
+  "compatibilityLevel":"JAVA_17",
+  "mixins":[
+    "SlotAccessor"
+  ],
+  "client":[
+    "client.GuiGraphicsAccessor"
+  ],
+  "injectors":{
+    "defaultRequire":1
+  }
+}

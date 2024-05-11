@@ -19,39 +19,41 @@
 package it.zerono.mods.zerocore.base.multiblock.part.io.fluid;
 
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
+import it.zerono.mods.zerocore.base.multiblock.part.io.IOPortBlockCapabilitySource;
 import it.zerono.mods.zerocore.lib.data.IoDirection;
 import it.zerono.mods.zerocore.lib.data.IoMode;
 import it.zerono.mods.zerocore.lib.fluid.handler.FluidHandlerForwarder;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
-
-import javax.annotation.Nullable;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
 
 public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockController<Controller>,
-            T extends AbstractMultiblockEntity<Controller> & IFluidPort>
-        extends AbstractFluidPortHandler<Controller, T>
+            Port extends AbstractMultiblockEntity<Controller> & IFluidPort>
+        extends AbstractFluidPortHandler<Controller, Port>
         implements IFluidHandler {
 
-    public FluidPortHandlerForge(final T part, final IoMode mode) {
+    public FluidPortHandlerForge(final Port port, final IoMode mode) {
 
-        super(part, mode);
-        this._capability = LazyOptional.of(() -> this);
+        super(port, mode);
         this._capabilityForwarder = new FluidHandlerForwarder(EmptyFluidHandler.INSTANCE);
-        this._consumer = null;
+        this._remoteCapabilitySource = new IOPortBlockCapabilitySource<>(port, Capabilities.FluidHandler.BLOCK);
     }
 
     //region IFluidPortHandler
+
+    @Override
+    public boolean isConnected() {
+        return null != this._remoteCapabilitySource.getCapability();
+    }
+
+    @Override
+    public void onPortChanged() {
+        this._remoteCapabilitySource.onPortChanged();
+    }
 
     /**
      * If this is an Active Fluid Port in output mode, send fluid to the connected consumer (if there is one)
@@ -62,11 +64,13 @@ public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockCo
     @Override
     public int outputFluid(final FluidStack stack) {
 
-        if (null == this._consumer || this.isPassive() || this.getIoEntity().getIoDirection().isInput()) {
+        final var consumer = this._remoteCapabilitySource.getCapability();
+
+        if (null == consumer || this.isPassive() || this.getIoEntity().getIoDirection().isInput()) {
             return 0;
         }
 
-        return this._consumer.fill(stack, FluidAction.EXECUTE);
+        return consumer.fill(stack, FluidAction.EXECUTE);
     }
 
     /**
@@ -75,56 +79,15 @@ public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockCo
     @Override
     public int inputFluid(final IFluidHandler destination, final int maxAmount) {
 
-        if (null == this._consumer || this.isPassive() || this.getIoEntity().getIoDirection().isOutput()) {
+        final var consumer = this._remoteCapabilitySource.getCapability();
+
+        if (null == consumer || this.isPassive() || this.getIoEntity().getIoDirection().isOutput()) {
             return 0;
         }
 
-        final FluidStack transferred = FluidUtil.tryFluidTransfer(destination, this._consumer, maxAmount, true);
+        final FluidStack transferred = FluidUtil.tryFluidTransfer(destination, consumer, maxAmount, true);
 
         return transferred.isEmpty() ? 0 : transferred.getAmount();
-    }
-
-    /**
-     * @return true if this handler is connected to one of it's allowed consumers, false otherwise
-     */
-    @Override
-    public boolean isConnected() {
-        return null != this._consumer;
-    }
-
-    /**
-     * Check for connections
-     *
-     * @param world    the handler world
-     * @param position the handler position
-     */
-    @Override
-    public void checkConnections(@Nullable final Level world, final BlockPos position) {
-        this._consumer = this.lookupConsumer(world, position, CAPAP_FORGE_FLUIDHANDLER,
-                te -> te instanceof IFluidPortHandler, this._consumer);
-    }
-
-    /**
-     * Get the requested capability, if supported
-     *
-     * @param capability the capability
-     * @param direction  the direction the request is coming from
-     * @return the capability (if supported) or null (if not)
-     */
-    @Nullable
-    @Override
-    public <C> LazyOptional<C> getCapability(final Capability<C> capability, final @Nullable Direction direction) {
-
-        if (CAPAP_FORGE_FLUIDHANDLER == capability) {
-            return this._capability.cast();
-        }
-
-        return null;
-    }
-
-    @Override
-    public void invalidate() {
-        this._capability.invalidate();
     }
 
     @Override
@@ -173,12 +136,8 @@ public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockCo
     //endregion
     //region internals
 
-    @SuppressWarnings("FieldMayBeFinal")
-    public static Capability<IFluidHandler> CAPAP_FORGE_FLUIDHANDLER = CapabilityManager.get(new CapabilityToken<>(){});
-
-    private IFluidHandler _consumer;
     private final FluidHandlerForwarder _capabilityForwarder;
-    private final LazyOptional<IFluidHandler> _capability;
+    private final IOPortBlockCapabilitySource<Controller, Port, IFluidHandler> _remoteCapabilitySource;
 
     //endregion
 }

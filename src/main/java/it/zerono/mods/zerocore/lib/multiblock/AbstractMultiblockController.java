@@ -1442,7 +1442,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
     @SuppressWarnings("unchecked")
     private IMultiblockRegistry<Controller> getRegistry() {
-        return (IMultiblockRegistry<Controller>) MultiblockRegistry.INSTANCE;
+        return (IMultiblockRegistry<Controller>) MultiblockRegistry.INSTANCE.get();
     }
 
     private void requestDataUpdateNotification() {

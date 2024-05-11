@@ -19,98 +19,50 @@
 package it.zerono.mods.zerocore.base.multiblock.part.io;
 
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.IIoEntity;
 import it.zerono.mods.zerocore.lib.data.IoMode;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
-import it.zerono.mods.zerocore.lib.world.WorldHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullPredicate;
-
-import javax.annotation.Nullable;
 
 public abstract class AbstractIOPortHandler<Controller extends AbstractCuboidMultiblockController<Controller>,
-        T extends AbstractMultiblockEntity<Controller> & IIoEntity> {
+            T extends AbstractMultiblockEntity<Controller> & IIoEntity>
+        implements IIOPortHandler {
 
-    public T getPart() {
-        return this._part;
+    protected AbstractIOPortHandler(T ioEntity, IoMode mode) {
+
+        this._ioEntity = ioEntity;
+        this._mode = mode;
     }
 
-    public boolean isInput() {
-        return this.getPart().getIoDirection().isInput();
+    protected T getIoEntity() {
+        return this._ioEntity;
     }
 
-    public boolean isOutput() {
-        return this.getPart().getIoDirection().isOutput();
-    }
+    //region IIOPortHandler
 
+    @Override
     public boolean isActive() {
         return this._mode.isActive();
     }
 
+    @Override
     public boolean isPassive() {
         return this._mode.isPassive();
     }
 
-    protected AbstractIOPortHandler(final T part, final IoMode mode) {
-
-        this._part = part;
-        this._mode = mode;
+    @Override
+    public boolean isInput() {
+        return this.getIoEntity().getIoDirection().isInput();
     }
 
-    @Nullable
-    protected <C> C lookupConsumer(@Nullable final Level world, final BlockPos position,
-                                   @Nullable final Capability<C> requestedCapability,
-                                   final NonNullPredicate<BlockEntity> isSameHandler,
-                                   @Nullable C currentConsumer) {
-
-        if (null == world) {
-            return null;
-        }
-
-        boolean wasConnected = null != currentConsumer;
-        C foundConsumer = null;
-
-        final Direction approachDirection = this.getPart().getOutwardDirection().orElse(null);
-
-        if (null == approachDirection) {
-
-            wasConnected = false;
-
-        } else {
-
-            if (null != requestedCapability) {
-
-                final BlockEntity te = WorldHelper.getLoadedTile(world, position.relative(approachDirection));
-
-                if (null != te && !isSameHandler.test(te)) {
-
-                    final LazyOptional<C> capability = te.getCapability(requestedCapability, approachDirection.getOpposite());
-
-                    if (capability.isPresent()) {
-                        foundConsumer = capability.orElseThrow(RuntimeException::new);
-                    }
-                }
-            }
-        }
-
-        final boolean isConnectedNow = null != foundConsumer;
-
-        if (wasConnected != isConnectedNow && CodeHelper.calledByLogicalClient(world)) {
-            WorldHelper.notifyBlockUpdate(world, position, null, null);
-        }
-
-        return foundConsumer;
+    @Override
+    public boolean isOutput() {
+        return this.getIoEntity().getIoDirection().isOutput();
     }
 
+    //endregion
     //region internals
 
-    private final T _part;
+    private final T _ioEntity;
     private final IoMode _mode;
 
     //endregion

@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.data;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 import java.util.Iterator;
 

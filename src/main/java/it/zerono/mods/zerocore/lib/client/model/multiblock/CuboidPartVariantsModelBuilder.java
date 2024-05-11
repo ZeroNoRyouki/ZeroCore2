@@ -23,7 +23,7 @@ import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModelBuilder;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 
 public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
 

@@ -32,9 +32,8 @@ public class ConnectorComputerCraft<P extends ComputerPeripheral<P>>
         extends Connector<P>
         implements IDynamicPeripheral {
 
-    public static <P extends ComputerPeripheral<P>> ConnectorComputerCraft<P> create(final String connectionName,
-                                                                        final P peripheral) {
-        return new ConnectorComputerCraft<>(connectionName, peripheral);
+    public ConnectorComputerCraft(final String connectionName, P peripheral) {
+        super(connectionName, peripheral);
     }
 
     //region IDynamicPeripheral
@@ -68,13 +67,6 @@ public class ConnectorComputerCraft<P extends ComputerPeripheral<P>>
         //noinspection rawtypes
         return (other instanceof ConnectorComputerCraft) &&
                 this.getPeripheral().equals(((ConnectorComputerCraft)other).getPeripheral());
-    }
-
-    //endregion
-    //region internals
-
-    private ConnectorComputerCraft(final String connectionName, P peripheral) {
-        super(connectionName, peripheral);
     }
 
     //endregion

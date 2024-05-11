@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib;
 
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 
 import java.util.function.BiConsumer;
 

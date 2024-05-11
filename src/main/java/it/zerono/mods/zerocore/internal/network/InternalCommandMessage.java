@@ -20,19 +20,23 @@ package it.zerono.mods.zerocore.internal.network;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.InternalCommand;
-import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
+import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 public class InternalCommandMessage
-        extends AbstractModMessage {
+        extends AbstractPlayPacket {
+
+    public static final ResourceLocation ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("internal_command");
 
     /**
      * Construct the local message to be sent over the network.
      */
     public InternalCommandMessage(final InternalCommand command, final CompoundTag data) {
 
+        super(ID);
         this._command = command;
         this._data = data;
     }
@@ -42,6 +46,7 @@ public class InternalCommandMessage
      */
     public InternalCommandMessage(final InternalCommand command) {
 
+        super(ID);
         this._command = command;
         this._data = null;
     }
@@ -54,20 +59,15 @@ public class InternalCommandMessage
      */
     public InternalCommandMessage(final FriendlyByteBuf buffer) {
 
-        super(buffer);
+        super(ID, buffer);
         this._command = buffer.readEnum(InternalCommand.class);
         this._data = buffer.readBoolean() ? buffer.readNbt() : new CompoundTag();
     }
 
-    //region AbstractModMessage
+    //region AbstractPlayPacket
 
-    /**
-     * Encode your data into the {@link FriendlyByteBuf} so it could be sent on the network to the other side.
-     *
-     * @param buffer the {@link FriendlyByteBuf} to encode your data into
-     */
     @Override
-    public void encodeTo(final FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
 
         buffer.writeEnum(this._command);
 
@@ -82,16 +82,9 @@ public class InternalCommandMessage
         }
     }
 
-    /**
-     * Process the data received from the network.
-     *
-     * @param messageContext context for {@link NetworkEvent}
-     */
     @Override
-    public void processMessage(final NetworkEvent.Context messageContext) {
-
-        messageContext.enqueueWork(() -> ZeroCore.getProxy().handleInternalCommand(this._command, this._data, messageContext.getDirection()));
-        messageContext.setPacketHandled(true);
+    public void handlePacket(PlayPayloadContext context) {
+        context.workHandler().execute(() -> ZeroCore.getProxy().handleInternalCommand(this._command, this._data, context.flow()));
     }
 
     //endregion

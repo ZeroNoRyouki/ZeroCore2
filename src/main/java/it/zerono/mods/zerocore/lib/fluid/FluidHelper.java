@@ -18,24 +18,20 @@
 
 package it.zerono.mods.zerocore.lib.fluid;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import it.zerono.mods.zerocore.internal.Lib;
-import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
 
 import java.util.Objects;
 
@@ -45,11 +41,11 @@ public final class FluidHelper {
     public static final int BUCKET_VOLUME = FluidType.BUCKET_VOLUME;
 
     public static ResourceLocation getFluidId(final Fluid fluid) {
-        return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(fluid));
+        return Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(fluid));
     }
 
     public static ResourceLocation getFluidId(final FluidStack stack) {
-        return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(stack.getFluid()));
+        return Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(stack.getFluid()));
     }
 
     public static MutableComponent getFluidName(final Fluid fluid) {
@@ -101,46 +97,6 @@ public final class FluidHelper {
      */
     public static CompoundTag stackToNBT(final FluidStack stack) {
         return stack.writeToNBT(new CompoundTag());
-    }
-
-    /**
-     * Create a stack from the given JSON data
-     *
-     * @param json a JsonElement containing the data of the stack to create
-     * @return the newly create stack
-     */
-    public static FluidStack stackFrom(final JsonElement json) {
-
-        final JsonObject o = json.getAsJsonObject();
-        final Fluid fluid = JSONHelper.jsonGetFluid(o, Lib.NAME_FLUID);
-        final int count = JSONHelper.jsonGetInt(o, Lib.NAME_COUNT, 1);
-
-        if (o.has(Lib.NAME_NBT_TAG)) {
-            return new FluidStack(fluid, count, JSONHelper.jsonGetNBT(o, Lib.NAME_NBT_TAG));
-        } else {
-            return new FluidStack(fluid, count);
-        }
-    }
-
-    /**
-     * Serialize a stack to JSON
-     *
-     * @param stack the stack to serialize
-     * @return the serialized JSON data
-     */
-    public static JsonElement stackToJSON(final FluidStack stack) {
-
-        final JsonObject json = new JsonObject();
-        final int count = stack.getAmount();
-
-        JSONHelper.jsonSetFluid(json, Lib.NAME_FLUID, stack.getFluid());
-        JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, count);
-
-        if (stack.hasTag()) {
-            JSONHelper.jsonSetNBT(json, Lib.NAME_NBT_TAG, Objects.requireNonNull(stack.getTag()));
-        }
-
-        return json;
     }
 
     public static String toStringHelper(final FluidStack stack) {

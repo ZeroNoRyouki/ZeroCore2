@@ -25,12 +25,11 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,8 +49,8 @@ public class ModRecipeType<Recipe extends ModRecipe>
         s_types.forEach(ModRecipeType::invalidateCache);
     }
 
-    public static <Recipe extends ModRecipe> void onRegisterRecipes(final BiConsumer<ResourceLocation, RecipeType<?>> register) {
-        s_types.forEach(type -> register.accept(type._id, type));
+    public ResourceLocation getId() {
+        return this._id;
     }
 
     public List<Recipe> getRecipes() {
@@ -61,7 +60,12 @@ public class ModRecipeType<Recipe extends ModRecipe>
             final RecipeManager manager = CodeHelper.getRecipeManager();
 
             if (null != manager) {
-                this._cache = ObjectLists.unmodifiable(new ObjectArrayList<>(manager.getAllRecipesFor(this)));
+
+                final var holders = manager.getAllRecipesFor(this);
+                final var list = new ObjectArrayList<Recipe>(holders.size());
+
+                holders.forEach(h -> list.add(h.value()));
+                this._cache = ObjectLists.unmodifiable(list);
             }
         }
 

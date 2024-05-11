@@ -44,15 +44,15 @@ package it.zerono.mods.zerocore.lib.multiblock.registry;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 
 public class MultiblockClientRegistry<Controller extends IMultiblockController<Controller>>
     extends MultiblockRegistry<Controller> {
 
     public MultiblockClientRegistry() {
-        MinecraftForge.EVENT_BUS.addListener(this::onClientTick);
+        NeoForge.EVENT_BUS.addListener(this::onClientTick);
     }
 
     @SubscribeEvent

@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.model.data;
 
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
  * A cache for re-usable {@link IModelData} instances.

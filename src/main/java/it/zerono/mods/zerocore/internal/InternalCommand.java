@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.internal;
 
 public enum InternalCommand {
 
-    ClearRecipes,
     DebugGuiFrame,
     ContainerDataSync,
 

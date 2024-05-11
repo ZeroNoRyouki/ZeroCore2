@@ -24,8 +24,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
 
 import java.util.Collections;
 import java.util.LinkedList;

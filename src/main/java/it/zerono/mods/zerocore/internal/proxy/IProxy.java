@@ -19,17 +19,16 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
-import it.zerono.mods.zerocore.internal.network.Network;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkDirection;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -45,8 +44,6 @@ public interface IProxy {
 
     void sendPlayerStatusMessage(Player player, Component message);
 
-    void addResourceReloadListener(PreparableReloadListener listener);
-
     default long getLastRenderTime() {
         return 0;
     }
@@ -54,16 +51,16 @@ public interface IProxy {
     default void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
                                     final Component... messages) {
 
-        if (player instanceof ServerPlayer) {
-            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayer)player);
+        if (player instanceof ServerPlayer sp) {
+            Lib.NETWORK_HANDLER.sendToPlayer(sp, ErrorReportMessage.create(position, messages));
         }
     }
 
     default void reportErrorToPlayer(final @Nullable Player player, final @Nullable BlockPos position,
                                     final List<Component> messages) {
 
-        if (player instanceof ServerPlayer) {
-            Network.HANDLER.sendToPlayer(ErrorReportMessage.create(position, messages), (ServerPlayer)player);
+        if (player instanceof ServerPlayer sp) {
+            Lib.NETWORK_HANDLER.sendToPlayer(sp, ErrorReportMessage.create(position, messages));
         }
     }
 
@@ -78,7 +75,8 @@ public interface IProxy {
     @Nullable
     RecipeManager getRecipeManager();
 
-    default void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
+    default void handleInternalCommand(final InternalCommand command, final CompoundTag data,
+                                       final PacketFlow flow) {
         // handle commands that are common to both distributions here
     }
 

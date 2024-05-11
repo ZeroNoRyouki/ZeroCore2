@@ -18,9 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.recipe.result;
 
-import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -29,16 +28,15 @@ import net.minecraft.world.level.ItemLike;
 public class ItemStackRecipeResult
     implements IRecipeResult<ItemStack> {
 
+    public static final Codec<ItemStackRecipeResult> CODEC =
+            ItemStack.CODEC.xmap(ItemStackRecipeResult::from, ItemStackRecipeResult::getResult);
+
     public static ItemStackRecipeResult from(final ItemStack stack) {
         return new ItemStackRecipeResult(stack);
     }
 
     public static ItemStackRecipeResult from(final FriendlyByteBuf buffer) {
         return new ItemStackRecipeResult(buffer.readItem());
-    }
-
-    public static ItemStackRecipeResult from(final JsonElement jsonElement) {
-        return new ItemStackRecipeResult(ItemHelper.stackFrom(jsonElement));
     }
 
     public static ItemStackRecipeResult from(final ItemLike item) {
@@ -83,11 +81,6 @@ public class ItemStackRecipeResult
     @Override
     public void serializeTo(final FriendlyByteBuf buffer) {
         buffer.writeItem(this._result);
-    }
-
-    @Override
-    public JsonElement serializeTo() {
-        return ItemHelper.stackToJSON(this._result);
     }
 
     //endregion

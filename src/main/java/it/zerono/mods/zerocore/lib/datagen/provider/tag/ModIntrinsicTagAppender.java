@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 import java.util.function.Supplier;
 

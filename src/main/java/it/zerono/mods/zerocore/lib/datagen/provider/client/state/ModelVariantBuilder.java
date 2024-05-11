@@ -5,8 +5,8 @@ import it.zerono.mods.zerocore.lib.datagen.provider.client.model.ModelBuilder;
 import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.data.models.blockstates.VariantProperties;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 /**
  * A builder for a block state variant.

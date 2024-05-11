@@ -38,10 +38,10 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.player.Player;
@@ -51,19 +51,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LogicalSidedProvider;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.common.util.LogicalSidedProvider;
+import net.neoforged.neoforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -142,15 +141,15 @@ public final class CodeHelper {
     //region misc
 
     public static ResourceLocation getObjectId(final Block object) {
-        return Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(object));
+        return Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(object));
     }
 
     public static ResourceLocation getObjectId(final Item object) {
-        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(object));
+        return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(object));
     }
 
     public static ResourceLocation getObjectId(final Fluid object) {
-        return Objects.requireNonNull(ForgeRegistries.FLUIDS.getKey(object));
+        return Objects.requireNonNull(BuiltInRegistries.FLUID.getKey(object));
     }
 
     /**
@@ -512,10 +511,6 @@ public final class CodeHelper {
 
     public static Optional<MinecraftServer> getMinecraftServer() {
         return Optional.ofNullable(ServerLifecycleHooks.getCurrentServer());
-    }
-
-    public static void addResourceReloadListener(final PreparableReloadListener listener) {
-        ZeroCore.getProxy().addResourceReloadListener(Objects.requireNonNull(listener));
     }
 
     public static Runnable delayedRunnable(final Runnable code, final int tickDelay) {

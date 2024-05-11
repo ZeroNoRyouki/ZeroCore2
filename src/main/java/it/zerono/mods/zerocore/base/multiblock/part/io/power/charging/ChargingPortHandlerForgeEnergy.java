@@ -20,21 +20,32 @@ package it.zerono.mods.zerocore.base.multiblock.part.io.power.charging;
 
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
 import it.zerono.mods.zerocore.lib.data.IIoEntity;
+import it.zerono.mods.zerocore.lib.data.IoDirection;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.data.capability.ItemHandlerCapabilitySource;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChargingPortHandlerForgeEnergy<Controller extends AbstractCuboidMultiblockController<Controller>,
-        T extends AbstractMultiblockEntity<Controller> & IIoEntity & IChargingPort>
-        extends AbstractChargingPortHandler<Controller, T> {
+        Port extends AbstractMultiblockEntity<Controller> & IIoEntity & IChargingPort>
+    extends AbstractChargingPortHandler<Controller, Port> {
 
-    public ChargingPortHandlerForgeEnergy(final T part, final int inputSlotsCount, final int outputSlotsCount) {
-        super(EnergySystem.ForgeEnergy, part, inputSlotsCount, outputSlotsCount);
+    public ChargingPortHandlerForgeEnergy(final Port port, final int inputSlotsCount, final int outputSlotsCount) {
+
+        super(EnergySystem.ForgeEnergy, port, inputSlotsCount, outputSlotsCount);
+
+        final var handler = this.getItemStackHandler(IoDirection.Input);
+
+        this._remoteCapabilitySources = new ArrayList<>(this.getInputSlotsCount());
+
+        for (int idx = 0; idx < this.getInputSlotsCount(); ++idx) {
+            this._remoteCapabilitySources.add(new ItemHandlerCapabilitySource<>(handler, idx, Capabilities.EnergyStorage.ITEM));
+        }
     }
 
     //region IPowerPortHandler
@@ -59,23 +70,24 @@ public class ChargingPortHandlerForgeEnergy<Controller extends AbstractCuboidMul
 
         for (int idx = 0; idx < this.getInputSlotsCount(); ++idx) {
 
+            final var capability = this._remoteCapabilitySources.get(idx).getCapability(null);
+
+            if (null == capability || !capability.canReceive()) {
+                continue;
+            }
+
             final WideAmount transfer = WideAmount.min(remaining, maxTransfer);
-            final LazyOptional<IEnergyStorage> cap = this.getCapabilityFromInventory(CAPAP_FORGE_ENERGYSTORAGE, idx, true);
+            final int transferred = capability.receiveEnergy(transfer.intValue(), false);
 
-            if (cap.isPresent()) {
+            if (0 == transferred) {
+                this.eject(idx);
+            }
 
-                final int transferred = cap.map(c -> recharge(c, transfer)).orElseThrow(IllegalStateException::new);
+            accepted = accepted.add(transfer);
+            remaining = remaining.subtract(transfer);
 
-                if (0 == transferred) {
-                    this.eject(idx);
-                }
-
-                accepted = accepted.add(transfer);
-                remaining = remaining.subtract(transfer);
-
-                if (remaining.isZero()) {
-                    break;
-                }
+            if (remaining.isZero()) {
+                break;
             }
         }
 
@@ -85,12 +97,7 @@ public class ChargingPortHandlerForgeEnergy<Controller extends AbstractCuboidMul
     //endregion
     //region internals
 
-    private static int recharge(final IEnergyStorage cap, WideAmount energyAmount) {
-        return cap.canReceive() ? cap.receiveEnergy(energyAmount.intValue(), false) : 0;
-    }
-
-    @SuppressWarnings("FieldMayBeFinal")
-    private static Capability<IEnergyStorage> CAPAP_FORGE_ENERGYSTORAGE = CapabilityManager.get(new CapabilityToken<>(){});
+    private final List<ItemHandlerCapabilitySource<IEnergyStorage, Void>> _remoteCapabilitySources;
 
     //endregion
 }

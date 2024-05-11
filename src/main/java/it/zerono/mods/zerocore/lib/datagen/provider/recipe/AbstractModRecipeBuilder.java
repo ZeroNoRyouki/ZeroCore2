@@ -19,62 +19,59 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.common.base.Strings;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.zerono.mods.zerocore.internal.Lib;
-import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import net.minecraft.advancements.Advancement;
+import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.conditions.ICondition;
 
-import javax.annotation.Nullable;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.Map;
 
-public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipeBuilder<Builder>> {
+public abstract class AbstractModRecipeBuilder<Recipe extends ModRecipe, Result, RecipeResult extends IRecipeResult<Result>,
+            Builder extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, Builder>> {
 
-    protected AbstractModRecipeBuilder(ResourceLocation serializerId) {
+    protected AbstractModRecipeBuilder(RecipeResult result) {
 
-        Preconditions.checkNotNull(serializerId, "Serializer ID must not be null");
+        Preconditions.checkNotNull(result, "Result must not be null");
 
-        this._serializerId = serializerId;
-        this._advancementBuilder = Advancement.Builder.advancement();
+        this._result = result;
+        this._criteria = new LinkedHashMap<>();
         this._conditions = new ObjectArrayList<>(8);
     }
 
-    protected abstract FinishedRecipe getFinishedRecipe(ResourceLocation id);
+    protected abstract Recipe getRecipe();
 
-    public void build(Consumer<FinishedRecipe> consumer, ResourceLocation id) {
+    public void build(RecipeOutput output) {
+        this.build(output, this._result.getId());
+    }
 
-        if (this.hasCriteria()) {
-            this._advancementBuilder
-                    .parent(new ResourceLocation("recipes/root"))
-                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-                    .rewards(AdvancementRewards.Builder.recipe(id))
-                    .requirements(RequirementsStrategy.OR);
+    public void build(RecipeOutput output, ResourceLocation id) {
+
+        final var conditions = this._conditions.toArray(new ICondition[0]);
+        final var advancementHolder = buildAdvancements(output, this._criteria, id);
+
+        output.accept(id, this.getRecipe(), advancementHolder, conditions);
+    }
+
+    public Builder addCriterion(String name, Criterion<?> criterion) {
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must not be null or empty");
+        Preconditions.checkNotNull(criterion, "Criterion must not be null");
+
+        if (null != this._criteria.put(name, criterion)) {
+            throw new IllegalArgumentException("A criterion named " + name + " already exists");
         }
 
-        consumer.accept(this.getFinishedRecipe(id));
-    }
-
-    public Builder addCriterion(String name, CriterionTriggerInstance criterionIn) {
-
-        this._advancementBuilder.addCriterion(name, criterionIn);
         return this.self();
-    }
-
-    public boolean hasCriteria() {
-        return !this._advancementBuilder.getCriteria().isEmpty();
     }
 
     public Builder addCondition(ICondition condition) {
@@ -83,79 +80,6 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
         return this.self();
     }
 
-    //region RecipeResult
-
-    protected abstract class AbstractFinishedRecipe
-            implements FinishedRecipe {
-
-        public AbstractFinishedRecipe(ResourceLocation id) {
-            this._id = id;
-        }
-
-        //region IFinishedRecipe
-
-        /**
-         * Gets the JSON for the recipe.
-         */
-        @Override
-        public JsonObject serializeRecipe() {
-
-            final JsonObject json = new JsonObject();
-
-            JSONHelper.jsonSetResourceLocation(json, Lib.NAME_TYPE, _serializerId);
-
-            if (!_conditions.isEmpty()) {
-                json.add(Lib.NAME_CONDITIONS, _conditions.stream()
-                        .map(CraftingHelper::serialize)
-                        .collect(JsonArray::new, JsonArray::add, JsonArray::addAll));
-            }
-
-            this.serializeRecipeData(json);
-            return json;
-        }
-
-        /**
-         * Gets the ID for the recipe.
-         */
-        @Override
-        public ResourceLocation getId() {
-            return this._id;
-        }
-
-        @Override
-        public RecipeSerializer<?> getType() {
-            return Objects.requireNonNull(ForgeRegistries.RECIPE_SERIALIZERS.getValue(_serializerId),
-                    () -> "Unknown recipe serializer: " + AbstractModRecipeBuilder.this._serializerId);
-        }
-
-        /**
-         * Gets the JSON for the advancement that unlocks this recipe. Null if there is no advancement.
-         */
-        @Nullable
-        @Override
-        public JsonObject serializeAdvancement() {
-            return hasCriteria() ? AbstractModRecipeBuilder.this._advancementBuilder.serializeToJson() : null;
-        }
-
-        /**
-         * Gets the ID for the advancement associated with this recipe. Should not be null if
-         * {@link #serializeAdvancement} is non-null.
-         */
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return new ResourceLocation(this._id.getNamespace(), "recipes/" + _id.getPath());
-        }
-
-        //endregion
-        //region internals
-
-        private final ResourceLocation _id;
-
-        //endregion
-    }
-
-    //endregion
     //region internals
 
     private Builder self() {
@@ -163,9 +87,22 @@ public abstract class AbstractModRecipeBuilder<Builder extends AbstractModRecipe
         return (Builder)this;
     }
 
+    private static AdvancementHolder buildAdvancements(RecipeOutput output, Map<String, Criterion<?>> criteria,
+                                                       ResourceLocation id) {
+
+        final var builder = output.advancement()
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+                .rewards(AdvancementRewards.Builder.recipe(id))
+                .requirements(AdvancementRequirements.Strategy.OR);
+
+        criteria.forEach(builder::addCriterion);
+
+        return builder.build(id.withPrefix("recipes/"));
+    }
+
+    private final RecipeResult _result;
     private final List<ICondition> _conditions;
-    private final Advancement.Builder _advancementBuilder;
-    private final ResourceLocation _serializerId;
+    private final Map<String, Criterion<?>> _criteria;
 
     //endregion
 }

@@ -19,12 +19,13 @@
 package it.zerono.mods.zerocore.lib.network;
 
 import com.google.common.collect.Sets;
-import it.zerono.mods.zerocore.internal.network.Network;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.data.nbt.INestedSyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.NonNullSupplier;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
 
 import java.util.Optional;
 import java.util.Set;
@@ -94,21 +95,21 @@ public class NetworkTileEntitySyncProvider implements INetworkTileEntitySyncProv
 
     //region internals
 
-    private NetworkTileEntitySyncProvider(final Supplier<IModMessage> messageSupplier) {
+    private NetworkTileEntitySyncProvider(final Supplier<CustomPacketPayload> messageSupplier) {
 
         this._messageSupplier = messageSupplier;
         this._players = Sets.newHashSet();
     }
 
-    private Optional<IModMessage> getUpdateMessage() {
+    private Optional<CustomPacketPayload> getUpdateMessage() {
         return Optional.ofNullable(this._messageSupplier.get());
     }
 
-    private void sendUpdate(final IModMessage update, final ServerPlayer player) {
-        Network.HANDLER.sendToPlayer(update, player);
+    private void sendUpdate(final CustomPacketPayload update, final ServerPlayer player) {
+        Lib.NETWORK_HANDLER.sendToPlayer(player, update);
     }
 
-    private final Supplier<IModMessage> _messageSupplier;
+    private final Supplier<CustomPacketPayload> _messageSupplier;
     private final Set<ServerPlayer> _players;
 
     //endregion

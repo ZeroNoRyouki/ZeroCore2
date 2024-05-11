@@ -1,7 +1,7 @@
 package it.zerono.mods.zerocore.lib.fluid;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 
 import javax.annotation.Nullable;
 import java.util.Objects;

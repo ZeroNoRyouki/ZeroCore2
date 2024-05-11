@@ -43,7 +43,7 @@ public interface IRecipeIngredientSource<T> {
     void consumeIngredient(T ingredient);
 
     /**
-     * Check if the source do not contains an ingredient
+     * Check if the source do not contain an ingredient
      *
      * @return true if the source is empty, false otherwise
      */

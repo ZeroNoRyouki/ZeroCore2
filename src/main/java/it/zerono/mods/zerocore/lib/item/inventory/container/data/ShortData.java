@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 import it.unimi.dsi.fastutil.shorts.ShortConsumer;
 import it.zerono.mods.zerocore.lib.functional.ShortSupplier;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nullable;
 

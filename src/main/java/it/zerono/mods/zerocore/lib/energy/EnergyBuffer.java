@@ -22,7 +22,7 @@ import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 
 @SuppressWarnings({"unused", "WeakerAccess", "UnusedReturnValue"})
 @Deprecated //use WideEnergyBuffer

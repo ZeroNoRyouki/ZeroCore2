@@ -207,7 +207,7 @@ public interface IControl {
 
     boolean onMouseDragged(IWindow wnd, int mouseX, int mouseY, int clickedButton, long timeSinceLastClick);
 
-    boolean onMouseWheel(IWindow wnd, int mouseX, int mouseY, double movement);
+    boolean onMouseWheel(IWindow wnd, int mouseX, int mouseY, double movementX, double movementY);
 
     /**
      * Event handler - the user has pressed a key on the keyboard on this control or on one of it's children

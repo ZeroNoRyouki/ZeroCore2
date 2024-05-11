@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.block;
 
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface INeighborChangeListener {
 

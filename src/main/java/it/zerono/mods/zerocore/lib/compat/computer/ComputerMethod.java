@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.compat.computer;
 
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 
 @SuppressWarnings("WeakerAccess")
 public class ComputerMethod<P extends ComputerPeripheral<P>> {

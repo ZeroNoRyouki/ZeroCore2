@@ -19,71 +19,42 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonObject;
-import it.zerono.mods.zerocore.internal.Lib;
+import it.zerono.mods.zerocore.lib.recipe.AbstractTwoToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.apache.commons.lang3.function.TriFunction;
 
-import java.util.function.Consumer;
-import java.util.function.IntFunction;
+import java.util.Objects;
 
-public class TwoToOneRecipeBuilder<RecipeIngredient1, RecipeIngredient2, RecipeResult>
-        extends AbstractModRecipeBuilder<TwoToOneRecipeBuilder<RecipeIngredient1, RecipeIngredient2, RecipeResult>> {
+public class TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
+        RecipeIngredient1 extends IRecipeIngredient<Ingredient1>, RecipeIngredient2 extends IRecipeIngredient<Ingredient2>,
+        RecipeResult extends IRecipeResult<Result>,
+        Recipe extends AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult>>
+    extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
+        RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe>> {
 
-    public TwoToOneRecipeBuilder(ResourceLocation serializerId, IRecipeIngredient<RecipeIngredient1> ingredient1,
-                                 IRecipeIngredient<RecipeIngredient2> ingredient2, IRecipeResult<RecipeResult> result,
-                                 IntFunction<String> jsonIngredientsLabelsSupplier) {
+    public TwoToOneRecipeBuilder(RecipeIngredient1 ingredient1, RecipeIngredient2 ingredient2, RecipeResult result,
+                                 TriFunction<RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe> recipeFactory) {
 
-        super(serializerId);
+        super(result);
 
-        Preconditions.checkArgument(!ingredient1.isEmpty(), "An ingredient cannot be empty");
-        Preconditions.checkArgument(!ingredient2.isEmpty(), "An ingredient cannot be empty");
-        Preconditions.checkArgument(!result.isEmpty(), "A result cannot be empty");
+        Preconditions.checkArgument(!ingredient1.isEmpty(), "Ingredient 1 cannot be empty");
+        Preconditions.checkArgument(!ingredient2.isEmpty(), "Ingredient 2 cannot be empty");
+        Preconditions.checkArgument(!result.isEmpty(), "Result cannot be empty");
+        Preconditions.checkNotNull(recipeFactory, "Recipe factory cannot be empty");
 
-        this._ingredient1 = ingredient1;
-        this._ingredient2 = ingredient2;
-        this._result = result;
-        this._jsonIngredientsLabelsSupplier = jsonIngredientsLabelsSupplier;
+        this._recipeFactory = () -> Objects.requireNonNull(recipeFactory.apply(ingredient1, ingredient2, result));
     }
-
-    public void build(Consumer<FinishedRecipe> consumer) {
-        this.build(consumer, this._result.getId());
-    }
-
-    //region AbstractModRecipeBuilder
 
     @Override
-    protected FinishedRecipe getFinishedRecipe(ResourceLocation id) {
-        return new TwoToOneRecipeBuilderFinishedRecipe(id);
+    protected Recipe getRecipe() {
+        return this._recipeFactory.get();
     }
 
-    public class TwoToOneRecipeBuilderFinishedRecipe
-            extends AbstractFinishedRecipe {
-
-        protected TwoToOneRecipeBuilderFinishedRecipe(ResourceLocation id) {
-            super(id);
-        }
-
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-
-            json.add(TwoToOneRecipeBuilder.this._jsonIngredientsLabelsSupplier.apply(0),
-                    TwoToOneRecipeBuilder.this._ingredient1.serializeTo());
-            json.add(TwoToOneRecipeBuilder.this._jsonIngredientsLabelsSupplier.apply(1),
-                    TwoToOneRecipeBuilder.this._ingredient2.serializeTo());
-            json.add(Lib.NAME_RESULT, TwoToOneRecipeBuilder.this._result.serializeTo());
-        }
-    }
-
-    //endregion
     //region internals
 
-    private final IRecipeIngredient<RecipeIngredient1> _ingredient1;
-    private final IRecipeIngredient<RecipeIngredient2> _ingredient2;
-    private final IRecipeResult<RecipeResult> _result;
-    private final IntFunction<String> _jsonIngredientsLabelsSupplier;
+    private final NonNullSupplier<Recipe> _recipeFactory;
 
     //endregion
 }

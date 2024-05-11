@@ -25,7 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -86,7 +86,8 @@ public class CuboidBoundingBox
     }
 
     public AABB getAABB() {
-        return new AABB(this._min, this._max);
+        return new AABB(this._min.getX(), this._min.getY(), this._min.getZ(),
+                this._max.getX(), this._min.getY(), this._min.getZ());
     }
 
     public boolean isEmpty() {

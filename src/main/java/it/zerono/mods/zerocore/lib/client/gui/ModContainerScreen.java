@@ -40,8 +40,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.Objects;
@@ -378,17 +378,18 @@ public class ModContainerScreen<C extends ModContainer>
         }
     }
 
-    /**
-     * Draws the background layer of this container (behind the items).
-     */
     @Override
-    protected final void renderBg(final GuiGraphics gfx, final float partialTicks, final int mouseX, final int mouseY) {
+    public final void renderBackground(GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
 
-        this.renderBackground(gfx);
+        super.renderBackground(gfx, mouseX, mouseY, partialTicks);
 
         this._originalMouseX = mouseX;
         this._originalMouseY = mouseY;
         this._windowsManager.onGuiContainerPaintBackground(gfx, partialTicks);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics gfx, float partialTicks, int mouseX, int mouseY) {
     }
 
     @Override
@@ -444,12 +445,12 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDeltaX, double scrollDeltaY) {
 
         this._originalMouseX = (int)mouseX;
         this._originalMouseY = (int)mouseY;
-        return this._windowsManager.onGuiContainerMouseScrolled(mouseX, mouseY, scrollDelta) ||
-                super.mouseScrolled(mouseX, mouseY, scrollDelta);
+        return this._windowsManager.onGuiContainerMouseScrolled(mouseX, mouseY, scrollDeltaX, scrollDeltaY) ||
+                super.mouseScrolled(mouseX, mouseY, scrollDeltaX, scrollDeltaY);
     }
 
     @Override

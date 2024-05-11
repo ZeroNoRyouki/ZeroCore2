@@ -23,8 +23,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
-import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.data.nbt.IConditionallySyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.event.Event;
@@ -49,10 +49,10 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.PlayerInvWrapper;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -486,11 +486,11 @@ public class ModContainer
 
                 envelope.putString("id", this._syncableEntity.getSyncableEntityId().toString());
                 envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundTag(), ISyncableEntity.SyncReason.NetworkUpdate));
-                Network.sendServerContainerDataSync((ServerPlayer)this._player, envelope);
+                Lib.sendServerContainerDataSync((ServerPlayer)this._player, envelope);
             }
 
             if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
-                Network.sendServerContainerData((ServerPlayer)this._player, this);
+                Lib.sendServerContainerData((ServerPlayer)this._player, this);
             }
         }
     }

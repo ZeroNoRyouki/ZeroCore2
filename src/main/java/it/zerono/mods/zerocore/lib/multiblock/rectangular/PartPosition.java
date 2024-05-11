@@ -41,9 +41,9 @@
 
 package it.zerono.mods.zerocore.lib.multiblock.rectangular;
 
-import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public enum PartPosition
         implements StringRepresentable {

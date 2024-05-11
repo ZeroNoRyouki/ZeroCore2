@@ -21,7 +21,7 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
-import net.minecraftforge.common.util.NonNullPredicate;
+import net.neoforged.neoforge.common.util.NonNullPredicate;
 
 import java.util.Iterator;
 import java.util.List;

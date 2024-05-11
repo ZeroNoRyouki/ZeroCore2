@@ -1,6 +1,6 @@
 package it.zerono.mods.zerocore.lib.functional;
 
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;

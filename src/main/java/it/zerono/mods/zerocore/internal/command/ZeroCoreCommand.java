@@ -22,7 +22,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import it.zerono.mods.zerocore.ZeroCore;
-import it.zerono.mods.zerocore.internal.network.Network;
+import it.zerono.mods.zerocore.internal.Lib;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 
@@ -40,9 +40,6 @@ public final class ZeroCoreCommand {
                                 )
                         )
                 )
-                .then(Commands.literal("recipe")
-                        .then(Commands.literal("clearCache").executes(ZeroCoreCommand::recipeClearCache))
-                )
         );
 
         dispatcher.register(Commands.literal("zc").redirect(mainCmd));
@@ -55,19 +52,13 @@ public final class ZeroCoreCommand {
 
     private static int debugEnableGuiFrame(CommandContext<CommandSourceStack> context) {
 
-        Network.sendDebugGuiFrameCommand(true);
+        Lib.sendDebugGuiFrameCommand(true);
         return 0;
     }
 
     private static int debugDisableGuiFrame(CommandContext<CommandSourceStack> context) {
 
-        Network.sendDebugGuiFrameCommand(false);
-        return 0;
-    }
-
-    private static int recipeClearCache(CommandContext<CommandSourceStack> context) {
-
-        Network.sendClearRecipeCommand();
+        Lib.sendDebugGuiFrameCommand(false);
         return 0;
     }
 

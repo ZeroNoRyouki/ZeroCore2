@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.world;
 
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 import java.util.stream.LongStream;
 

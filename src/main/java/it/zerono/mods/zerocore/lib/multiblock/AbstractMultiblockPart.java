@@ -57,7 +57,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 
 import java.util.Collections;
 import java.util.List;
@@ -530,7 +530,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 
     @SuppressWarnings("unchecked")
     private IMultiblockRegistry<Controller> getRegistry() {
-        return (IMultiblockRegistry<Controller>) MultiblockRegistry.INSTANCE;
+        return (IMultiblockRegistry<Controller>) MultiblockRegistry.INSTANCE.get();
     }
 
     private Controller _controller;

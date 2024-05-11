@@ -22,11 +22,11 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.DebuggableHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.NonNullList;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.Objects;
 import java.util.function.BiPredicate;

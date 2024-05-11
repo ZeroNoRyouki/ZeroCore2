@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.block;
 
-import it.zerono.mods.zerocore.internal.network.Network;
+import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.network.TileCommandMessage;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
@@ -33,6 +33,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -43,9 +44,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -412,7 +412,7 @@ public abstract class AbstractModBlockEntity
      * @param parameters the parameters for the command
      */
     public void sendCommandToServer(final String name, final CompoundTag parameters) {
-        Network.HANDLER.sendToServer(TileCommandMessage.create(this, name, parameters));
+        Lib.NETWORK_HANDLER.sendToServer(TileCommandMessage.create(this, name, parameters));
     }
 
     /**
@@ -431,18 +431,18 @@ public abstract class AbstractModBlockEntity
      * @param parameters the parameters for the command
      */
     public void sendCommandToPlayer(final ServerPlayer player, final String name, final CompoundTag parameters) {
-        Network.HANDLER.sendToPlayer(TileCommandMessage.create(this, name, parameters), player);
+        Lib.NETWORK_HANDLER.sendToPlayer(player, TileCommandMessage.create(this, name, parameters));
     }
 
     /**
      * Handle a command coming from the corresponding Tile Entity on the other side
      *
-     * @param source the source side
+     * @param flow the command destination
      * @param name the command name
      * @param parameters the parameters for the command, if any
      */
-    public void handleCommand(final LogicalSide source, final String name, final CompoundTag parameters) {
-        this._commandDispatcher.dispatch(source, name, parameters);
+    public void handleCommand(final PacketFlow flow, final String name, final CompoundTag parameters) {
+        this._commandDispatcher.dispatch(flow, name, parameters);
     }
 
     protected void setCommandDispatcher(final ITileCommandDispatcher dispatcher) {
@@ -468,11 +468,6 @@ public abstract class AbstractModBlockEntity
         if (null != world) {
             WorldHelper.notifyNeighborsOfStateChange(world, this.getBlockPos(), this.getBlockState().getBlock());
         }
-    }
-
-    @Deprecated // not implemented
-    public void callNeighborTileChange() {
-        //this.WORLD.func_147453_f(this.xCoord, this.yCoord, this.zCoord, this.getBlockType());
     }
 
     public void notifyBlockUpdate() {
@@ -579,25 +574,13 @@ public abstract class AbstractModBlockEntity
      * @return true if the message was sent, false otherwise
      */
     private boolean openGuiOnClient(final ServerPlayer player, final Consumer<FriendlyByteBuf> extraDataWriter) {
-
-//        if (this instanceof INamedContainerProvider && !(player instanceof FakePlayer) &&
-//                CodeHelper.calledByLogicalServer(player.getEntityWorld())) {
-//
-//            final Consumer<FriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getPos());
-//
-//            NetworkHooks.openGui(player, (INamedContainerProvider) this, positionWriter.andThen(extraDataWriter));
-//            return true;
-//        }
-//
-//        return false;
-
         return this.callOnLogicalServer(() -> {
 
-            if (this instanceof MenuProvider && !(player instanceof FakePlayer)) {
+            if (this instanceof MenuProvider provider && !(player instanceof FakePlayer)) {
 
                 final Consumer<FriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
 
-                NetworkHooks.openScreen(player, (MenuProvider) this, positionWriter.andThen(extraDataWriter));
+                player.openMenu(provider, positionWriter.andThen(extraDataWriter));
                 return true;
 
             } else {

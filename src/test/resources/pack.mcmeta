@@ -1,9 +1,0 @@
-{
-  "pack": {
-    "description": {
-      "text": "ZeroCore TEST mod resources"
-    },
-    "forge:server_data_pack_format": 12,
-    "pack_format": 13
-  }
-}

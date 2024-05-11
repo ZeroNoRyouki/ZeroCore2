@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.slot;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public interface ISlotNotify {
 

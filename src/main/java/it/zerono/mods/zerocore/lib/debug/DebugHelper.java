@@ -24,9 +24,9 @@ import it.zerono.mods.zerocore.internal.client.debug.VoxelShapeHighlighter;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.Collections;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class DebugHelper {
 
         if (!isVoxelShapeHighlighterEnabled()) {
 
-            Mod.EventBusSubscriber.Bus.FORGE.bus().get().register(VoxelShapeHighlighter.class);
+            NeoForge.EVENT_BUS.register(VoxelShapeHighlighter.class);
             setFlag(DebugFlags.HighlighterInitialized);
         }
     }

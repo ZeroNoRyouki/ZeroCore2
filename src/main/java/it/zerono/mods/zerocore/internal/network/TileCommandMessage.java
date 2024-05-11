@@ -18,19 +18,23 @@
 
 package it.zerono.mods.zerocore.internal.network;
 
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
-import it.zerono.mods.zerocore.lib.network.AbstractModTileMessage;
+import it.zerono.mods.zerocore.lib.network.AbstractBlockEntityPlayPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.fml.LogicalSide;
 
 import java.util.Objects;
 
-public class TileCommandMessage
-        extends AbstractModTileMessage {
+public final class TileCommandMessage
+        extends AbstractBlockEntityPlayPacket {
+
+    public static final ResourceLocation ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("tile_command");
 
     /**
      * Create a parameterless command message for the provided {@link AbstractModBlockEntity}
@@ -42,6 +46,7 @@ public class TileCommandMessage
     public static TileCommandMessage create(final AbstractModBlockEntity tile, final String commandName) {
         return create(tile, commandName, NBTHelper.EMPTY_COMPOUND);
     }
+
     /**
      * Create a command message for the provided {@link AbstractModBlockEntity}
      *
@@ -52,13 +57,12 @@ public class TileCommandMessage
      */
     public static TileCommandMessage create(final AbstractModBlockEntity tile, final String commandName,
                                                 final CompoundTag parameters) {
-        //return new TileCommandMessage(tile.getPos(), tile.getWorld().dimensionType(), commandName, parameters);
         return new TileCommandMessage(tile, commandName, parameters);
     }
 
     public TileCommandMessage(final FriendlyByteBuf buffer) {
 
-        super(buffer);
+        super(ID, buffer);
         this._name = buffer.readUtf(4096);
 
         if (buffer.readBoolean()) {
@@ -68,12 +72,13 @@ public class TileCommandMessage
         }
     }
 
-    //region AbstractModTileMessage
+    //region AbstractBlockEntityPlayPacket
 
     @Override
-    public void encodeTo(final FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
 
-        super.encodeTo(buffer);
+        super.write(buffer);
+
         buffer.writeUtf(this._name);
 
         if (this._parameters.isEmpty()) {
@@ -87,16 +92,11 @@ public class TileCommandMessage
         }
     }
 
-    /**
-     * Process the data received from the network.
-     *
-     * @param tileEntity the TileEntity object on the other side of this message exchange
-     */
     @Override
-    protected void processTileEntityMessage(LogicalSide sourceSide, BlockEntity tileEntity) {
+    protected void processBlockEntity(PacketFlow flow, BlockEntity blockEntity) {
 
-        if (tileEntity instanceof AbstractModBlockEntity) {
-            ((AbstractModBlockEntity)tileEntity).handleCommand(sourceSide, this._name, this._parameters);
+        if (blockEntity instanceof AbstractModBlockEntity be) {
+            be.handleCommand(flow, this._name, this._parameters);
         } else {
             Log.LOGGER.error(Log.NETWORK, "No command-aware Tile Entity found while processing a command message: skipping");
         }
@@ -108,16 +108,13 @@ public class TileCommandMessage
     /**
      * Construct the message on the sender side
      *
-//     * @param tileEntityPosition the coordinates of the TileEntity
      * @param commandName the command name
      * @param parameters the parameters for the command, if any
      */
-    protected TileCommandMessage(/*final BlockPos tileEntityPosition, final DimensionType dimension,*/
-                                 final AbstractModBlockEntity tile,
-                                 final String commandName, final CompoundTag parameters) {
+    private TileCommandMessage(final AbstractModBlockEntity tile,
+                               final String commandName, final CompoundTag parameters) {
 
-        //super(tileEntityPosition);
-        super(tile.getBlockPos(), Objects.requireNonNull(tile.getLevel()).dimension());
+        super(ID, tile.getBlockPos(), Objects.requireNonNull(tile.getLevel()).dimension());
         this._name = commandName;
         this._parameters = parameters;
     }

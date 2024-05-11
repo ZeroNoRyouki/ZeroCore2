@@ -18,41 +18,12 @@
 
 package it.zerono.mods.zerocore.base.multiblock.part.io;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-
-import javax.annotation.Nullable;
-
 public interface IIOPortHandler {
 
     /**
      * @return true if this handler is connected to one of it's allowed consumers, false otherwise
      */
     boolean isConnected();
-
-    /**
-     * Check for connections
-     *
-     * @param world the handler world
-     * @param position the handler position
-     */
-    void checkConnections(@Nullable Level world, BlockPos position);
-
-    /**
-     * Get the requested capability, if supported
-     *
-     * @param capability the capability
-     * @param direction the direction the request is coming from
-     * @param <T> the type of the capability
-     * @return the capability (if supported) or null (if not)
-     */
-    @Nullable
-    default <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction direction) {
-        return null;
-    }
 
     /**
      * @return true if this handler is in Active mode, false otherwise
@@ -64,5 +35,15 @@ public interface IIOPortHandler {
      */
     boolean isPassive();
 
-    void invalidate();
+    /**
+     * @return true if this handler is in input mode, false otherwise
+     */
+    boolean isInput();
+
+    /**
+     * @return true if this handler is in output mode, false otherwise
+     */
+    boolean isOutput();
+
+    void onPortChanged();
 }

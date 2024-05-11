@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.client.model.data.multiblock;
 
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
 import it.zerono.mods.zerocore.lib.client.model.data.GenericProperties;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 public final class CuboidPartVariantsModelData {
 

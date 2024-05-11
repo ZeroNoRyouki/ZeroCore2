@@ -20,18 +20,21 @@ package it.zerono.mods.zerocore.internal.network;
 
 import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.ZeroCore;
-import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
+import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ErrorReportMessage
-    extends AbstractModMessage {
+public final class ErrorReportMessage
+    extends AbstractPlayPacket {
+
+    public static final ResourceLocation ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("error");
 
     /**
      * Create the message on the sender side
@@ -41,7 +44,7 @@ public class ErrorReportMessage
      * @return the new message
      */
     public static ErrorReportMessage create(@Nullable final BlockPos position, final Component... errors) {
-        return new ErrorReportMessage(position, errors);
+        return new ErrorReportMessage(position, Lists.newArrayList(errors));
     }
 
     /**
@@ -52,12 +55,12 @@ public class ErrorReportMessage
      * @return the new message
      */
     public static ErrorReportMessage create(@Nullable final BlockPos position, final List<Component> errors) {
-        return new ErrorReportMessage(position, errors);
+        return new ErrorReportMessage(position, Lists.newArrayList(errors));
     }
 
     public ErrorReportMessage(final FriendlyByteBuf buffer) {
 
-        super(buffer);
+        super(ID, buffer);
 
         final int count = buffer.readInt();
 
@@ -70,15 +73,11 @@ public class ErrorReportMessage
         this._position = buffer.readBoolean() ? buffer.readBlockPos() : null;
     }
 
-    //region AbstractModMessage
+    //region AbstractPlayPacket
 
-    /**
-     * Encode your data into the {@link FriendlyByteBuf} so it could be sent on the network to the other side.
-     *
-     * @param buffer the {@link FriendlyByteBuf} to encode your data into
-     */
+
     @Override
-    public void encodeTo(final FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
 
         buffer.writeInt(this._errors.size());
         this._errors.forEach(buffer::writeComponent);
@@ -94,15 +93,10 @@ public class ErrorReportMessage
         }
     }
 
-    /**
-     * Process the data received from the network.
-     *
-     * @param messageContext context for {@link NetworkEvent}
-     */
     @Override
-    public void processMessage(final NetworkEvent.Context messageContext) {
+    public void handlePacket(PlayPayloadContext context) {
 
-        if (NetworkDirection.PLAY_TO_CLIENT == messageContext.getDirection()) {
+        if (PacketFlow.CLIENTBOUND == context.flow()) {
             ZeroCore.getProxy().displayErrorToPlayer(this._position, this._errors);
         }
     }
@@ -116,19 +110,10 @@ public class ErrorReportMessage
      * @param position the position, in world, of the error message. Can be null.
      * @param errors the error messages
      */
-    protected ErrorReportMessage(@Nullable final BlockPos position, final Component... errors) {
-        this(position, Lists.newArrayList(errors));
-    }
+    private ErrorReportMessage(@Nullable final BlockPos position, final List<Component> errors) {
 
-    /**
-     * Construct the message on the sender side
-     *
-     * @param position the position, in world, of the error message. Can be null.
-     * @param errors the error messages
-     */
-    protected ErrorReportMessage(@Nullable final BlockPos position, final List<Component> errors) {
-
-        this._errors = Lists.newArrayList(errors);
+        super(ID);
+        this._errors = errors;
         this._position = position;
     }
 

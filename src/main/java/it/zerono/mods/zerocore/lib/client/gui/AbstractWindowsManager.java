@@ -54,8 +54,13 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
     }
 
     @Override
-    public double getMouseWheelMovement() {
-        return this._lastWheelMovement;
+    public double getMouseWheelMovementX() {
+        return this._lastWheelDeltaX;
+    }
+
+    @Override
+    public double getMouseWheelMovementY() {
+        return this._lastWheelDeltaY;
     }
 
     @Override
@@ -279,10 +284,12 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         this.raiseMouseMoved(Mth.floor(mouseX), Mth.floor(mouseY));
     }
 
-    boolean onGuiContainerMouseScrolled(final double mouseX, final double mouseY, final double scrollDelta) {
+    boolean onGuiContainerMouseScrolled(final double mouseX, final double mouseY,
+                                        final double scrollDeltaX, final double scrollDeltaY) {
 
-        this._lastWheelMovement = scrollDelta;
-        return this.raiseMouseWheel(Mth.floor(mouseX), Mth.floor(mouseY), scrollDelta);
+        this._lastWheelDeltaX = scrollDeltaX;
+        this._lastWheelDeltaY = scrollDeltaY;
+        return this.raiseMouseWheel(Mth.floor(mouseX), Mth.floor(mouseY), scrollDeltaX, scrollDeltaY);
     }
 
     boolean onGuiContainerCharTyped(final char typedChar, final int keyCode) {
@@ -344,7 +351,7 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
 
     protected void resetState() {
 
-        this._lastWheelMovement = 0;
+        this._lastWheelDeltaX = this._lastWheelDeltaY = 0;
         this._paintPartialTicks = 0.0f;
         this.releaseMouse();
         this.setFocus(null, null);
@@ -392,17 +399,20 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
         }
     }
 
-    private boolean raiseMouseWheel(final int mouseX, final int mouseY, final double wheelMovement) {
+    private boolean raiseMouseWheel(final int mouseX, final int mouseY,
+                                    final double wheelMovementX, final double wheelMovementY) {
 
         if (null != this._mouseCaptureTarget) {
 
             final Point childXY = this._mouseCaptureTarget.screenToControl(mouseX, mouseY);
 
-            return this._mouseCaptureTarget.onMouseWheel(this._mouseCaptureWindow, childXY.X, childXY.Y, wheelMovement);
+            return this._mouseCaptureTarget.onMouseWheel(this._mouseCaptureWindow,
+                    childXY.X, childXY.Y, wheelMovementX, wheelMovementY);
 
         } else {
 
-            final Boolean result = this.forEachInteractiveWindow(window -> window.onMouseWheel(mouseX, mouseY, wheelMovement), false);
+            final Boolean result = this.forEachInteractiveWindow(window -> window.onMouseWheel(mouseX, mouseY,
+                    wheelMovementX, wheelMovementY), false);
 
             return (null != result) && result;
         }
@@ -442,7 +452,8 @@ abstract class AbstractWindowsManager<C extends ModContainer> implements IWindow
     private final ModContainerScreen<C> _guiContainer;
     private final Runnable onGuiContainerCreateHandler;
     private final Runnable onGuiContainerClosedHandler;
-    private double _lastWheelMovement;
+    private double _lastWheelDeltaX;
+    private double _lastWheelDeltaY;
     private IControl _keyboardFocusTarget;
     private IWindow  _keyboardFocusWindow;
     private IControl _mouseCaptureTarget;

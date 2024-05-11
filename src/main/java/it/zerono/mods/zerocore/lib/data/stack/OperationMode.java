@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.data.stack;
 
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public enum OperationMode {
 

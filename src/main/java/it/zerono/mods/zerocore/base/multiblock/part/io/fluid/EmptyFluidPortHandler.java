@@ -20,9 +20,9 @@ package it.zerono.mods.zerocore.base.multiblock.part.io.fluid;
 
 import it.zerono.mods.zerocore.base.multiblock.part.io.EmptyIOPortHandler;
 import it.zerono.mods.zerocore.lib.data.IoDirection;
-import net.minecraftforge.common.util.NonNullFunction;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class EmptyFluidPortHandler
     extends EmptyIOPortHandler

@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
 import java.util.Objects;

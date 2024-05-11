@@ -20,10 +20,8 @@ package it.zerono.mods.zerocore.lib.data.nbt;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.Tag;
+import it.zerono.mods.zerocore.internal.Log;
+import net.minecraft.nbt.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,14 +41,14 @@ public final class NBTHelper {
      * @param file the file to read from
      * @return the CompoundTag read from the file or null if, for whatever reason, the operation fails
      */
-    public static Optional<CompoundTag> nbtFrom(final File file) {
+    public static Optional<CompoundTag> nbtFrom(final File file, NbtAccounter accounter) {
 
         if (file.exists()) {
 
             try (final FileInputStream stream = new FileInputStream(file)) {
-                return Optional.of(NbtIo.readCompressed(stream));
+                return Optional.of(NbtIo.readCompressed(stream, accounter));
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Log.LOGGER.error(Log.CORE, "Error while reading compressed NBT file.", ex);
             }
         }
 
@@ -72,7 +70,7 @@ public final class NBTHelper {
             return true;
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Log.LOGGER.error(Log.CORE, "Error while writing compressed NBT file.", ex);
         }
 
         return false;
@@ -120,7 +118,6 @@ public final class NBTHelper {
 
     /**
      * Get an Enum value from the provided NBT tag
-     *
      * Please note that this method assume that the requested value is in the tag (i.e., that nbt.hasKey(key) is true)
      *
      * @param nbt       the NBT tag to load the data from
@@ -177,7 +174,6 @@ public final class NBTHelper {
 
     /**
      * Load an EnumSet from the provided NBT tag
-     *
      * Please note that this method assume that the requested data is in the tag (i.e., that nbt.hasKey(key) is true)
      *
      * @param nbt       the NBT tag to load the data from

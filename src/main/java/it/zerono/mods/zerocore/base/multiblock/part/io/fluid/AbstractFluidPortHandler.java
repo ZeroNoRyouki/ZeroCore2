@@ -24,23 +24,11 @@ import it.zerono.mods.zerocore.lib.data.IoMode;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
 
 public abstract class AbstractFluidPortHandler<Controller extends AbstractCuboidMultiblockController<Controller>,
-            T extends AbstractMultiblockEntity<Controller> & IFluidPort>
-        extends AbstractIOPortHandler<Controller, T>
-        implements IFluidPortHandler {
+        Port extends AbstractMultiblockEntity<Controller> & IFluidPort>
+    extends AbstractIOPortHandler<Controller, Port>
+    implements IFluidPortHandler {
 
-    protected AbstractFluidPortHandler(final T part, final IoMode mode) {
-        super(part, mode);
-    }
-
-    public T getIoEntity() {
-        return this.getPart();
-    }
-
-    public boolean isInput() {
-        return this.getIoEntity().getIoDirection().isInput();
-    }
-
-    public boolean isOutput() {
-        return this.getIoEntity().getIoDirection().isOutput();
+    protected AbstractFluidPortHandler(Port port, IoMode mode) {
+        super(port, mode);
     }
 }

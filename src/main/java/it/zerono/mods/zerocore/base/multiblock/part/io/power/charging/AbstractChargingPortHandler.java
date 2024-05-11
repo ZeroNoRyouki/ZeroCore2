@@ -27,57 +27,32 @@ import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.item.inventory.handler.TileEntityItemStackHandler;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
-
-import javax.annotation.Nullable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 public abstract class AbstractChargingPortHandler<Controller extends AbstractCuboidMultiblockController<Controller>,
-            T extends AbstractMultiblockEntity<Controller> & IChargingPort>
-        extends AbstractPowerPortHandler<Controller, T>
+            Port extends AbstractMultiblockEntity<Controller> & IChargingPort>
+        extends AbstractPowerPortHandler<Controller, Port>
         implements IChargingPortHandler, ISyncableEntity {
 
-    protected AbstractChargingPortHandler(final EnergySystem energySystem, final T part,
-                                          final int inputSlotsCount, final int outputSlotsCount) {
+    protected AbstractChargingPortHandler(EnergySystem energySystem, Port port,
+                                          int inputSlotsCount, int outputSlotsCount) {
 
-        super(energySystem, part, IoMode.Active);
-        this._input = new TileEntityItemStackHandler(part, inputSlotsCount);
-        this._output = new TileEntityItemStackHandler(part, outputSlotsCount);
+        super(energySystem, port, IoMode.Active);
+        this._input = new TileEntityItemStackHandler(port, inputSlotsCount);
+        this._output = new TileEntityItemStackHandler(port, outputSlotsCount);
         this._chargingRate = WideAmount.ZERO;
     }
 
     protected WideAmount getChargingRate() {
 
         if (this._chargingRate.isZero()) {
-            this._chargingRate = this.getPart().getMaxTransferRate();
+            this._chargingRate = this.getIoEntity().getMaxTransferRate();
         }
 
         return this._chargingRate;
-    }
-
-    protected <C> LazyOptional<C> getCapabilityFromInventory(final Capability<C> capability, final int inputSlotIndex,
-                                                             final boolean ejectIfNotFound) {
-
-        final ItemStack stack = this._input.getStackInSlot(inputSlotIndex);
-
-        if (!stack.isEmpty()) {
-
-            final LazyOptional<C> cap = stack.getCapability(capability, null);
-
-            if (ejectIfNotFound && !cap.isPresent()) {
-                this.eject(inputSlotIndex);
-            }
-
-            return cap;
-        }
-
-        return LazyOptional.empty();
     }
 
     protected void eject(final int inputSlotIndex) {
@@ -139,20 +114,8 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
         return false;
     }
 
-    /**
-     * Check for connections
-     *
-     * @param world    the handler world
-     * @param position the handler position
-     */
     @Override
-    public void checkConnections(@Nullable Level world, BlockPos position) {
-        // nothing to do here
-    }
-
-    @Override
-    public void invalidate() {
-        // nothing to do here
+    public void onPortChanged() {
     }
 
     //endregion

@@ -18,7 +18,7 @@ package it.zerono.mods.zerocore.base;
 
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class BaseHelper {
 

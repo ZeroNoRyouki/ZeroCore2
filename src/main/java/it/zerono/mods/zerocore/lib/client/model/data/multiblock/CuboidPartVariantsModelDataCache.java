@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.client.model.data.multiblock;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class CuboidPartVariantsModelDataCache {
 

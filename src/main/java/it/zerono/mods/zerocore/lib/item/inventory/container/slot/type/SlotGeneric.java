@@ -18,21 +18,17 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.slot.type;
 
-import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.internal.mixin.SlotAccessor;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.item.inventory.IInventorySlot;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.ISlotNotify;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotTemplate;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 import java.util.function.BiFunction;
 
 public class SlotGeneric
@@ -176,44 +172,14 @@ public class SlotGeneric
 
     private static void setPos(final SlotGeneric slot, final Point pos) {
 
-        try {
-            s_xPosField.setInt(slot, pos.X);
-        } catch (IllegalAccessException e) {
-            Log.LOGGER.warn(Log.CORE, "Unable to set field xPos for a SlotGeneric");
-        }
+        final var accessor = (SlotAccessor) slot;
 
-        try {
-            s_yPosField.setInt(slot, pos.Y);
-        } catch (IllegalAccessException e) {
-            Log.LOGGER.warn(Log.CORE, "Unable to set field yPos for a SlotGeneric");
-        }
+        accessor.zerocore_setX(pos.X);
+        accessor.zerocore_setY(pos.Y);
     }
 
     private final SlotTemplate _template;
     private final SlotFactory _factory;
-
-    private static final Field s_xPosField;
-    private static final Field s_yPosField;
-
-    static {
-
-        s_xPosField = getPosField("f_40220_"); // x
-        s_yPosField = getPosField("f_40221_"); // y
-    }
-
-    @Nullable
-    private static Field getPosField(final String name) {
-
-        try {
-
-            return ObfuscationReflectionHelper.findField(Slot.class, name);
-
-        } catch (ObfuscationReflectionHelper.UnableToFindFieldException ex) {
-
-            Log.LOGGER.error(Log.CORE, "SlotGeneric - Unable to get field {} : {}", name, ex);
-            return null;
-        }
-    }
 
     //endregion
 }

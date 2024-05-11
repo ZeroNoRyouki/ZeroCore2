@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.base.multiblock.part.io.fluid;
 
 import it.zerono.mods.zerocore.base.multiblock.part.io.IIOPortHandler;
 import it.zerono.mods.zerocore.base.multiblock.part.io.ILinkedIOPortHandler;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public interface IFluidPortHandler
         extends IIOPortHandler, ILinkedIOPortHandler<IFluidHandler> {

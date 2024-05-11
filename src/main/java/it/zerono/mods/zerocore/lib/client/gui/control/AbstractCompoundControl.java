@@ -166,14 +166,14 @@ public abstract class AbstractCompoundControl
     }
 
     @Override
-    public boolean onMouseWheel(final IWindow wnd, int mouseX, int mouseY, double movement) {
+    public boolean onMouseWheel(final IWindow wnd, int mouseX, int mouseY, double movementX, double movementY) {
 
         final int childX = this.parentToChildX(mouseX);
         final int childY = this.parentToChildY(mouseY);
 
         for (final IControl child : this) {
             if (child.getVisible() && child.hitTest(childX, childY)) {
-                return child.getEnabled() && child.onMouseWheel(wnd, childX, childY, movement);
+                return child.getEnabled() && child.onMouseWheel(wnd, childX, childY, movementX, movementY);
             }
         }
 

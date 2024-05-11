@@ -16,24 +16,29 @@ package it.zerono.mods.zerocore.internal.network;
  *
  */
 
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import it.zerono.mods.zerocore.lib.network.AbstractModMessage;
+import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
 import java.util.Objects;
 
 public class ContainerDataMessage
-        extends AbstractModMessage {
+        extends AbstractPlayPacket {
+
+    public static final ResourceLocation ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("container");
 
     /**
      * Construct the local message to be sent over the network.
      */
     public ContainerDataMessage(final ModContainer container) {
 
+        super(ID);
         this._container = container;
         this._buffer = null;
     }
@@ -46,20 +51,15 @@ public class ContainerDataMessage
      */
     public ContainerDataMessage(final FriendlyByteBuf buffer) {
 
-        super(buffer);
+        super(ID, buffer);
         this._container = null;
         this._buffer = buffer;
     }
 
-    //region AbstractModMessage
+    //region AbstractPlayPacket
 
-    /**
-     * Encode your data into the {@link FriendlyByteBuf} so it could be sent on the network to the other side.
-     *
-     * @param buffer the {@link FriendlyByteBuf} to encode your data into
-     */
     @Override
-    public void encodeTo(final FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
 
         final NonNullConsumer<FriendlyByteBuf> writer = Objects.requireNonNull(this._container).getContainerDataWriter();
 
@@ -68,15 +68,10 @@ public class ContainerDataMessage
         }
     }
 
-    /**
-     * Process the data received from the network.
-     *
-     * @param messageContext context for {@link NetworkEvent}
-     */
     @Override
-    public void processMessage(final NetworkEvent.Context messageContext) {
+    public void handlePacket(PlayPayloadContext context) {
 
-        messageContext.enqueueWork(() -> {
+        context.workHandler().execute(() -> {
 
             final LocalPlayer player = Minecraft.getInstance().player;
 
@@ -84,8 +79,6 @@ public class ContainerDataMessage
                 ((ModContainer)player.containerMenu).readContainerData(Objects.requireNonNull(this._buffer));
             }
         });
-
-        messageContext.setPacketHandled(true);
     }
 
     //endregion

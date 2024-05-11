@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.slot.type;
 
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.function.BiFunction;
 

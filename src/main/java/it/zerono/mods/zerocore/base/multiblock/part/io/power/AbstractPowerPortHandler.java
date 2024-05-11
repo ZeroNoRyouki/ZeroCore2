@@ -28,18 +28,18 @@ import it.zerono.mods.zerocore.lib.energy.NullEnergyHandlers;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
 
 public abstract class AbstractPowerPortHandler<Controller extends AbstractCuboidMultiblockController<Controller>,
-            T extends AbstractMultiblockEntity<Controller> & IPowerPort>
-        extends AbstractIOPortHandler<Controller, T>
-        implements IPowerPortHandler {
+        Port extends AbstractMultiblockEntity<Controller> & IPowerPort>
+    extends AbstractIOPortHandler<Controller, Port>
+    implements IPowerPortHandler {
 
-    protected AbstractPowerPortHandler(final EnergySystem energySystem, final T part, final IoMode mode) {
+    protected AbstractPowerPortHandler(EnergySystem energySystem, Port part, IoMode mode) {
 
         super(part, mode);
         this._system = energySystem;
     }
 
     protected IWideEnergyStorage2 getEnergyStorage() {
-        return this.getPart().getMultiblockController()
+        return this.getIoEntity().getMultiblockController()
                 .filter(Controller::isAssembled)
                 .filter(c -> c instanceof IWideEnergyStorage2)
                 .map(c -> (IWideEnergyStorage2)c)
@@ -47,15 +47,15 @@ public abstract class AbstractPowerPortHandler<Controller extends AbstractCuboid
     }
 
     protected WideAmount maxTransferRate(final int requestedRate) {
-        return WideAmount.min(this.getPart().getMaxTransferRate(), WideAmount.asImmutable(requestedRate));
+        return WideAmount.min(this.getIoEntity().getMaxTransferRate(), WideAmount.asImmutable(requestedRate));
     }
 
     protected WideAmount maxTransferRate(final long requestedRate) {
-        return WideAmount.min(this.getPart().getMaxTransferRate(), WideAmount.asImmutable(requestedRate));
+        return WideAmount.min(this.getIoEntity().getMaxTransferRate(), WideAmount.asImmutable(requestedRate));
     }
 
     protected WideAmount maxTransferRate(final double requestedRate) {
-        return WideAmount.min(this.getPart().getMaxTransferRate(), WideAmount.asImmutable(requestedRate));
+        return WideAmount.min(this.getIoEntity().getMaxTransferRate(), WideAmount.asImmutable(requestedRate));
     }
 
     //region IPowerTapHandler

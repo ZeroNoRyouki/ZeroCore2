@@ -30,7 +30,14 @@ public interface IWindowsManager<C extends ModContainer> {
     IWindow createWindow(IControlContainer rootContainer, boolean modalWindow,
                          int x, int y, int width, int height);
 
-    double getMouseWheelMovement();
+    @Deprecated // replace with getMouseWheelMovementX
+    default double getMouseWheelMovement() {
+        return this.getMouseWheelMovementX();
+    }
+
+    double getMouseWheelMovementX();
+
+    double getMouseWheelMovementY();
 
     void setFocus(@Nullable IWindow wnd, @Nullable IControl newFocus);
 

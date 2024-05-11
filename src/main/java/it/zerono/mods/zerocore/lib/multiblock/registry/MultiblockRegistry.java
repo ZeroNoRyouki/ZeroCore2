@@ -42,19 +42,19 @@
 package it.zerono.mods.zerocore.lib.multiblock.registry;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
-import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.compat.SidedDependencyServiceLoader;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 import java.util.Map;
 
@@ -62,7 +62,8 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
         implements IMultiblockRegistry<Controller> {
 
     @SuppressWarnings("rawtypes")
-    public static final IMultiblockRegistry INSTANCE = Lib.createMultiblockRegistry();
+    public static final SidedDependencyServiceLoader<IMultiblockRegistry> INSTANCE =
+            new SidedDependencyServiceLoader<>(IMultiblockRegistry.class, MultiblockRegistry::new);
 
     //region IMultiblockRegistry
 
@@ -140,8 +141,8 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
     public MultiblockRegistry() {
 
         this._registries = new Reference2ObjectArrayMap<>(2 * 8);
-        MinecraftForge.EVENT_BUS.addListener(this::onWorldUnload);
-        MinecraftForge.EVENT_BUS.addListener(this::onWorldTick);
+        NeoForge.EVENT_BUS.addListener(this::onWorldUnload);
+        NeoForge.EVENT_BUS.addListener(this::onWorldTick);
     }
 
     /**

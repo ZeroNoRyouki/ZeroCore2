@@ -257,8 +257,8 @@ public class Window<C extends ModContainer>
         }
     }
 
-    boolean onMouseWheel(final int mouseX, final int mouseY, double movement) {
-        return this.isVisible() && this._topLevelContainer.onMouseWheel(this, mouseX, mouseY, movement);
+    boolean onMouseWheel(final int mouseX, final int mouseY, double movementX, double movementY) {
+        return this.isVisible() && this._topLevelContainer.onMouseWheel(this, mouseX, mouseY, movementX, movementY);
     }
 
     boolean onCharTyped(final char typedChar, final int keyCode) {

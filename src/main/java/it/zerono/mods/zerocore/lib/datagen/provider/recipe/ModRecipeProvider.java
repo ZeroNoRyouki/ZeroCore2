@@ -2,6 +2,7 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.datagen.IModDataProvider;
 import it.zerono.mods.zerocore.lib.datagen.provider.ProviderSettings;
@@ -14,12 +15,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.ConditionalRecipe;
-import net.minecraftforge.common.crafting.conditions.*;
+import net.neoforged.neoforge.common.conditions.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -31,7 +30,7 @@ public abstract class ModRecipeProvider
     protected ModRecipeProvider(String name, PackOutput output, CompletableFuture<HolderLookup.Provider> registryLookup,
                                 ResourceLocationBuilder modLocationRoot) {
 
-        super(output);
+        super(output, registryLookup);
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must not be null or empty");
         Preconditions.checkNotNull(output, "Output must not be null");
@@ -179,11 +178,11 @@ public abstract class ModRecipeProvider
     }
 
     protected static ICondition and(ICondition... conditions) {
-        return new AndCondition(conditions);
+        return new AndCondition(Lists.newArrayList(conditions));
     }
 
     protected static ICondition or(ICondition... conditions) {
-        return new OrCondition(conditions);
+        return new OrCondition(Lists.newArrayList(conditions));
     }
 
     protected static ICondition modLoaded(String modId) {
@@ -205,46 +204,27 @@ public abstract class ModRecipeProvider
                 .toArray(ICondition[]::new));
     }
 
-    //TODO multi loader version
-    protected ConditionalRecipe.Builder conditional(ICondition... conditions) {
-
-        if (0 == conditions.length) {
-            throw new IllegalArgumentException("At least one condition must be provided");
-        }
-
-        final var builder = ConditionalRecipe.builder();
-
-        for (final var condition : conditions) {
-            builder.addCondition(condition);
-        }
-
-        return builder;
-    }
-
-    protected void withFallback(Consumer<FinishedRecipe> builder, ResourceLocation name, TagKey<Item> tag,
+    protected void withFallback(RecipeOutput output, ResourceLocation name, TagKey<Item> tag,
                                 @Nullable ResourceLocation fallbackName, @Nullable TagKey<Item> fallbackTag,
-                                Function<TagKey<Item>, ShapedRecipeBuilder> recipe) {
+                                Function<TagKey<Item>, RecipeBuilder> recipe) {
 
         if (null == fallbackTag || null == fallbackName) {
 
-            recipe.apply(tag).save(builder, name);
+            recipe.apply(tag).save(output, name);
 
         } else {
 
-            this.conditional(not(new TagEmptyCondition(tag.location())))
-                    .addRecipe(recipe.apply(tag)::save)
-                    .build(builder, name);
+            final var tagCondition = new TagEmptyCondition(tag.location());
 
-            this.conditional(new TagEmptyCondition(tag.location()))
-                    .addRecipe(recipe.apply(fallbackTag)::save)
-                    .build(builder, fallbackName);
+            recipe.apply(tag).save(output.withConditions(not(tagCondition)), name);
+            recipe.apply(fallbackTag).save(output.withConditions(tagCondition), fallbackName);
         }
     }
 
     //endregion
     //region helpers
 
-    protected void storageBlock3x3(Consumer<FinishedRecipe> builder, String name, String group,
+    protected void storageBlock3x3(RecipeOutput output, String name, String group,
                                    ResourceLocation toStorageId, RecipeCategory toStorageCategory,
                                    Supplier<? extends ItemLike> storage,
                                    ResourceLocation toComponentId, RecipeCategory toComponentCategory,
@@ -255,28 +235,28 @@ public abstract class ModRecipeProvider
                 .requires(component.get(), 9)
                 .group(group)
                 .unlockedBy("has_item", has(component.get()))
-                .save(builder, toStorageId);
+                .save(output, toStorageId);
 
         // 1 storage -> 9 components
         this.shapeless(toComponentCategory, component, 9)
                 .requires(storage.get())
                 .group(group)
                 .unlockedBy("has_item", has(storage.get()))
-                .save(builder, toComponentId);
+                .save(output, toComponentId);
     }
 
-    protected void storageBlock3x3(Consumer<FinishedRecipe> builder, String name, String group,
+    protected void storageBlock3x3(RecipeOutput output, String name, String group,
                                    RecipeCategory toStorageCategory, Supplier<? extends ItemLike> storage,
                                    RecipeCategory toComponentCategory, Supplier<? extends ItemLike> component) {
 
         final var crafting = this.craftingRoot().append(name);
 
-        this.storageBlock3x3(builder, name, group,
+        this.storageBlock3x3(output, name, group,
                 crafting.buildWithSuffix("_component_to_storage"), toStorageCategory, storage,
                 crafting.buildWithSuffix("_storage_to_component"), toComponentCategory, component);
     }
 
-    protected void storageBlock2x2(Consumer<FinishedRecipe> builder, String name, String group,
+    protected void storageBlock2x2(RecipeOutput output, String name, String group,
                                    ResourceLocation toStorageId, RecipeCategory toStorageCategory,
                                    Supplier<? extends ItemLike> storage,
                                    ResourceLocation toComponentId, RecipeCategory toComponentCategory,
@@ -289,28 +269,28 @@ public abstract class ModRecipeProvider
                 .pattern("XX")
                 .group(group)
                 .unlockedBy("has_item", has(component.get()))
-                .save(builder, toStorageId);
+                .save(output, toStorageId);
 
         // 1 storage -> 4 components
         this.shapeless(toComponentCategory, component, 4)
                 .requires(storage.get())
                 .group(group)
                 .unlockedBy("has_item", has(storage.get()))
-                .save(builder, toComponentId);
+                .save(output, toComponentId);
     }
 
-    protected void storageBlock2x2(Consumer<FinishedRecipe> builder, String name, String group,
+    protected void storageBlock2x2(RecipeOutput output, String name, String group,
                                    RecipeCategory toStorageCategory, Supplier<? extends ItemLike> storage,
                                    RecipeCategory toComponentCategory, Supplier<? extends ItemLike> component) {
 
         final var crafting = this.craftingRoot().append(name);
 
-        this.storageBlock2x2(builder, name, group,
+        this.storageBlock2x2(output, name, group,
                 crafting.buildWithSuffix("_component_to_storage2x2"), toStorageCategory, storage,
                 crafting.buildWithSuffix("_storage2x2_to_component"), toComponentCategory, component);
     }
 
-    protected void nugget(Consumer<FinishedRecipe> builder, String name, String group,
+    protected void nugget(RecipeOutput output, String name, String group,
                           ResourceLocation toIngotId, RecipeCategory toIngotCategory, Supplier<? extends ItemLike> ingot,
                           ResourceLocation toNuggetId, RecipeCategory toNuggetCategory, Supplier<? extends ItemLike> nugget) {
 
@@ -319,23 +299,23 @@ public abstract class ModRecipeProvider
                 .requires(nugget.get(), 9)
                 .group(group)
                 .unlockedBy("has_item", has(nugget.get()))
-                .save(builder, toIngotId);
+                .save(output, toIngotId);
 
         // 1 ingot -> 9 nuggets
         this.shapeless(toNuggetCategory, nugget, 9)
                 .requires(ingot.get())
                 .group(group)
                 .unlockedBy("has_item", has(ingot.get()))
-                .save(builder, toNuggetId);
+                .save(output, toNuggetId);
     }
 
-    protected void nugget(Consumer<FinishedRecipe> builder, String name, String group,
+    protected void nugget(RecipeOutput output, String name, String group,
                           RecipeCategory toIngotCategory, Supplier<? extends ItemLike> ingot,
                           RecipeCategory toNuggetCategory, Supplier<? extends ItemLike> nugget) {
 
         final var crafting = this.craftingRoot().append(name);
 
-        this.nugget(builder, name, group,
+        this.nugget(output, name, group,
                 crafting.buildWithSuffix("_nugget_to_ingot"), toIngotCategory, ingot,
                 crafting.buildWithSuffix("_ingot_to_nugget"), toNuggetCategory, nugget);
     }
@@ -345,15 +325,11 @@ public abstract class ModRecipeProvider
 
     @Override
     public void provideData() {
-        return;
     }
 
     @Override
     public CompletableFuture<?> processData(CachedOutput cache, HolderLookup.Provider registryLookup) {
-
         return super.run(cache);
-
-//        return CompletableFuture.completedFuture(null);
     }
 
     @Override

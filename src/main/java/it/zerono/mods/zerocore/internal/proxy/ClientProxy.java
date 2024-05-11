@@ -34,9 +34,8 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
@@ -44,51 +43,40 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.network.NetworkDirection;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.util.thread.EffectiveSide;
+import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
+import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
+import net.neoforged.neoforge.client.event.RenderHighlightEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.TickEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
 public class ClientProxy
-        implements IProxy {
+        implements IForgeProxy {
 
     public ClientProxy() {
-
         this._guiErrorData = new GuiErrorData();
-
-        final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
-
-        modBus.register(this);
-//        modBus.register(BakedModelSupplier.INSTANCE);
-        modBus.register(AtlasSpriteSupplier.INSTANCE);
-
-        final IEventBus forgeBus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
-
-        forgeBus.addListener(this::onRenderTick);
-        forgeBus.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
-        forgeBus.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
-        forgeBus.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
     }
 
-    /**
-     * Called on the physical client to perform client-specific initialization tasks
-     *
-     * @param event the event
-     */
-    @SubscribeEvent
-    public void onClientInit(final FMLClientSetupEvent event) {
-        CodeHelper.addResourceReloadListener(AtlasSpriteSupplier.INSTANCE);
+    //region IForgeProxy
+
+    @Override
+    public void initialize(IEventBus modEventBus) {
+
+        NeoForge.EVENT_BUS.addListener(this::onRenderTick);
+        NeoForge.EVENT_BUS.addListener(ClientProxy::onRegisterReloadListeners);
+        NeoForge.EVENT_BUS.addListener(ClientProxy::onRecipesUpdated);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
+
     }
 
     @Override
@@ -110,18 +98,6 @@ public class ClientProxy
     @Override
     public void sendPlayerStatusMessage(final Player player, final Component message) {
             Minecraft.getInstance().gui.setOverlayMessage(message, false);
-    }
-
-    @Override
-    public void addResourceReloadListener(PreparableReloadListener listener) {
-
-        final Minecraft mc = Minecraft.getInstance();
-
-        // always check for a null here, there is not MC instance while running the datagens
-        //noinspection ConstantConditions
-        if (null != mc && mc.getResourceManager() instanceof ReloadableResourceManager) {
-            ((ReloadableResourceManager)Minecraft.getInstance().getResourceManager()).registerReloadListener(listener);
-        }
     }
 
     @Override
@@ -160,13 +136,9 @@ public class ClientProxy
     }
 
     @Override
-    public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
+    public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final PacketFlow flow) {
 
         switch (command) {
-
-            case ClearRecipes:
-                ModRecipeType.invalidate();
-                break;
 
             case DebugGuiFrame:
                 GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
@@ -181,7 +153,7 @@ public class ClientProxy
                 break;
 
             default:
-                IProxy.super.handleInternalCommand(command, data, direction);
+                IForgeProxy.super.handleInternalCommand(command, data, flow);
                 break;
         }
     }
@@ -191,7 +163,16 @@ public class ClientProxy
         Minecraft.getInstance().mouseHandler.releaseMouse();
     }
 
+    //endregion
     //region internals
+
+    private static void onRegisterReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(AtlasSpriteSupplier.INSTANCE);
+    }
+
+    private static void onRecipesUpdated(RecipesUpdatedEvent event) {
+        ModRecipeType.invalidate();
+    }
 
     private void onRenderTick(final TickEvent.RenderTickEvent event) {
 

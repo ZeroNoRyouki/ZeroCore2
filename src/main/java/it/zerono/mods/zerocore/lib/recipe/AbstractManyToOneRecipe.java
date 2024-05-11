@@ -19,42 +19,31 @@
 package it.zerono.mods.zerocore.lib.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.common.base.Strings;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.List;
-import java.util.function.IntFunction;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class AbstractManyToOneRecipe<IngredientT, Result,
-                                                RecipeIngredient extends IRecipeIngredient<IngredientT>,
-                                                RecipeResult extends IRecipeResult<Result>>
-        extends ModRecipe
-        implements Predicate<List<IngredientT>>, ISerializableRecipe {
+public abstract class AbstractManyToOneRecipe<Ingredient, Result,
+        RecipeIngredient extends IRecipeIngredient<Ingredient>,
+        RecipeResult extends IRecipeResult<Result>>
+    extends ModRecipe
+    implements Predicate<List<Ingredient>> {
 
-    @FunctionalInterface
-    public interface IRecipeFactory<IngredientT, Result, RecipeIngredient extends IRecipeIngredient<IngredientT>,
-                                        RecipeResult extends IRecipeResult<Result>,
-                                        Recipe extends AbstractManyToOneRecipe<IngredientT, Result, RecipeIngredient, RecipeResult>> {
-
-        Recipe create(ResourceLocation id, List<RecipeIngredient> ingredients, RecipeResult result);
-    }
-
-    protected AbstractManyToOneRecipe(final ResourceLocation id, final List<RecipeIngredient> ingredients,
-                                      final RecipeResult result, final IntFunction<String> jsonIngredientsLabelsSupplier) {
-
-        super(id);
+    protected AbstractManyToOneRecipe(final List<RecipeIngredient> ingredients, final RecipeResult result) {
 
         Preconditions.checkArgument(!ingredients.isEmpty(), "Trying to create a recipe without ingredients");
 
@@ -63,7 +52,63 @@ public abstract class AbstractManyToOneRecipe<IngredientT, Result,
 
         this._ingredients = ObjectLists.unmodifiable(copy);
         this._result = result;
-        this._jsonIngredientsLabelsSupplier = jsonIngredientsLabelsSupplier;
+    }
+
+    public static <Ingredient, Result, RecipeIngredient extends IRecipeIngredient<Ingredient>,
+            RecipeResult extends IRecipeResult<Result>,
+            Recipe extends AbstractManyToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
+    RecipeSerializer<Recipe> createSerializer(String ingredientsFieldName, Codec<RecipeIngredient> ingredientsCodec,
+                                              Function<FriendlyByteBuf, RecipeIngredient> ingredientFactory,
+                                              String resultFieldName, Codec<RecipeResult> resultCodec,
+                                              Function<FriendlyByteBuf, RecipeResult> resultFactory,
+                                              BiFunction<List<RecipeIngredient>, RecipeResult, Recipe> recipeFactory) {
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(ingredientsFieldName), "Ingredients field name must not be null nor empty");
+        Preconditions.checkNotNull(ingredientsCodec, "Ingredients codec must not be null");
+        Preconditions.checkNotNull(ingredientFactory, "Ingredient factory must not be null");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(resultFieldName), "Result field name must not be null nor empty");
+        Preconditions.checkNotNull(resultCodec, "Result codec must not be null");
+        Preconditions.checkNotNull(resultFactory, "Result factory must not be null");
+        Preconditions.checkNotNull(recipeFactory, "Recipe factory must not be null");
+
+        final Codec<Recipe> codec = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        ingredientsCodec.listOf().fieldOf(ingredientsFieldName).forGetter(AbstractManyToOneRecipe::getRecipeIngredients),
+                        resultCodec.fieldOf(resultFieldName).forGetter(AbstractManyToOneRecipe::getResult)
+                ).apply(instance,  recipeFactory));
+
+        return new RecipeSerializer<>() {
+
+            @Override
+            public Codec<Recipe> codec() {
+                return codec;
+            }
+
+            @Override
+            public Recipe fromNetwork(FriendlyByteBuf buffer) {
+
+                final int count = buffer.readVarInt();
+                final List<RecipeIngredient> ingredients = new ObjectArrayList<>(count);
+
+                for (int idx = 0; idx < count; ++idx) {
+                    ingredients.add(ingredientFactory.apply(buffer));
+                }
+
+                final RecipeResult result = resultFactory.apply(buffer);
+
+                return recipeFactory.apply(ingredients, result);
+            }
+
+            @Override
+            public void toNetwork(FriendlyByteBuf buffer, Recipe recipe) {
+
+                final var ingredients = recipe.getRecipeIngredients();
+
+                buffer.writeVarInt(ingredients.size());
+                ingredients.forEach(ingredient -> ingredient.serializeTo(buffer));
+                recipe.getResult().serializeTo(buffer);
+            }
+        };
     }
 
     public int getRecipeIngredientsCount() {
@@ -81,7 +126,7 @@ public abstract class AbstractManyToOneRecipe<IngredientT, Result,
     //region Predicate<List<IngredientT>>
 
     @Override
-    public boolean test(final List<IngredientT> stacks) {
+    public boolean test(final List<Ingredient> stacks) {
 
         List<RecipeIngredient> ingredients = this.getRecipeIngredients();
         int ingredientsCount = ingredients.size();
@@ -99,7 +144,7 @@ public abstract class AbstractManyToOneRecipe<IngredientT, Result,
 
         boolean found;
 
-        for (final IngredientT stack : stacks) {
+        for (final Ingredient stack : stacks) {
 
             found = false;
 
@@ -124,44 +169,10 @@ public abstract class AbstractManyToOneRecipe<IngredientT, Result,
     //region ModRecipe
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
+    public NonNullList<net.minecraft.world.item.crafting.Ingredient> getIngredients() {
         return buildVanillaIngredientsList(this.getRecipeIngredients().stream()
                 .flatMap(i -> i.asVanillaIngredients().stream())
                 .collect(Collectors.toList()));
-    }
-
-    //endregion
-    //region ISerializableRecipe
-
-    @Override
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        final List<RecipeIngredient> ingredients = this.getRecipeIngredients();
-        final int count = ingredients.size();
-
-        buffer.writeInt(count);
-
-        //noinspection ForLoopReplaceableByForEach
-        for (int idx = 0; idx < count; ++idx) {
-            ingredients.get(idx).serializeTo(buffer);
-        }
-
-        this._result.serializeTo(buffer);
-    }
-
-    @Override
-    public JsonElement serializeTo() {
-
-        final JsonObject json = new JsonObject();
-        final List<RecipeIngredient> ingredients = this.getRecipeIngredients();
-        final int count = ingredients.size();
-
-        for (int idx = 0; idx < count; ++idx) {
-            json.add(this._jsonIngredientsLabelsSupplier.apply(idx), ingredients.get(idx).serializeTo());
-        }
-
-        json.add(Lib.NAME_RESULT, this._result.serializeTo());
-        return json;
     }
 
     //endregion
@@ -169,7 +180,6 @@ public abstract class AbstractManyToOneRecipe<IngredientT, Result,
 
     private final List<RecipeIngredient> _ingredients;
     private final RecipeResult _result;
-    private final IntFunction<String> _jsonIngredientsLabelsSupplier;
 
     //endregion
 }

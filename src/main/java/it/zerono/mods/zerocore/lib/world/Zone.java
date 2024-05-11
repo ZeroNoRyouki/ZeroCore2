@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 
 @Deprecated
 public abstract class Zone implements Comparable<Zone> {
@@ -62,7 +62,8 @@ public abstract class Zone implements Comparable<Zone> {
 
         @Override
         public AABB getBoundingBox() {
-            return new AABB(this._minCoords, this._maxCoords);
+            return new AABB(this._minCoords.getX(), this._minCoords.getY(), this._minCoords.getZ(),
+                    this._maxCoords.getX(), this._maxCoords.getY(), this._maxCoords.getZ());
         }
 
         @Override

@@ -18,15 +18,18 @@
 
 package it.zerono.mods.zerocore.lib.recipe.result;
 
-import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidStackRecipeResult
         implements IRecipeResult<FluidStack> {
+
+    public static final Codec<FluidStackRecipeResult> CODEC =
+            FluidStack.CODEC.xmap(FluidStackRecipeResult::from, FluidStackRecipeResult::getResult);
 
     public static FluidStackRecipeResult from(final FluidStack stack) {
         return new FluidStackRecipeResult(stack);
@@ -34,10 +37,6 @@ public class FluidStackRecipeResult
 
     public static FluidStackRecipeResult from(final FriendlyByteBuf buffer) {
         return new FluidStackRecipeResult(FluidStack.readFromPacket(buffer));
-    }
-
-    public static FluidStackRecipeResult from(final JsonElement jsonElement) {
-        return new FluidStackRecipeResult(FluidHelper.stackFrom(jsonElement));
     }
 
     //region IRecipeResult<FluidStack>
@@ -74,11 +73,6 @@ public class FluidStackRecipeResult
     @Override
     public void serializeTo(final FriendlyByteBuf buffer) {
         this._result.writeToPacket(buffer);
-    }
-
-    @Override
-    public JsonElement serializeTo() {
-        return FluidHelper.stackToJSON(this._result);
     }
 
     //endregion

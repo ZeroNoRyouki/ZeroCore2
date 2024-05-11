@@ -19,12 +19,9 @@
 package it.zerono.mods.zerocore.lib.item;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -37,9 +34,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.EmptyHandler;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.wrapper.EmptyHandler;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -55,11 +51,11 @@ public final class ItemHelper {
     public static final IItemHandlerModifiable EMPTY_ITEM_HANDLER = (IItemHandlerModifiable)EmptyHandler.INSTANCE;
 
     public static ResourceLocation getItemId(final ItemLike item) {
-        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item.asItem()));
+        return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.asItem()));
     }
 
     public static ResourceLocation getItemId(final ItemStack stack) {
-        return Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(stack.getItem()));
+        return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(stack.getItem()));
     }
 
     public static MutableComponent getItemName(final Item item) {
@@ -81,11 +77,11 @@ public final class ItemHelper {
 
     @Nullable
     public static Item getItemFrom(final ResourceLocation id) {
-        return ForgeRegistries.ITEMS.getValue(id);
+        return BuiltInRegistries.ITEM.get(id);
     }
 
     public static Item getItemFromOrAir(final ResourceLocation id) {
-        return ForgeRegistries.ITEMS.containsKey(id) ? Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(id)) : Items.AIR;
+        return BuiltInRegistries.ITEM.containsKey(id) ? Objects.requireNonNull(BuiltInRegistries.ITEM.get(id)) : Items.AIR;
     }
 
     public enum MatchOption {
@@ -94,16 +90,15 @@ public final class ItemHelper {
         Size,
         Damage,
         NBT,
-        Capabilities;
+        ;
 
         public static final EnumSet<MatchOption> MATCH_ALWAYS = EnumSet.noneOf(MatchOption.class);
-        public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT, Capabilities);
+        public static final EnumSet<MatchOption> MATCH_ALL = EnumSet.of(Item, Size, Damage, NBT);
         public static final EnumSet<MatchOption> MATCH_ITEM = EnumSet.of(Item);
         public static final EnumSet<MatchOption> MATCH_ITEM_SIZE = EnumSet.of(Item, Size);
         public static final EnumSet<MatchOption> MATCH_ITEM_NBT = EnumSet.of(Item, NBT);
         public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE = EnumSet.of(Item, Damage);
-        public static final EnumSet<MatchOption> MATCH_ITEM_DAMAGE_NBT = EnumSet.of(Item, Damage, NBT);
-        public static final EnumSet<MatchOption> MATCH_EXISTING_STACK = EnumSet.of(Item, Damage, NBT, Capabilities);
+        public static final EnumSet<MatchOption> MATCH_EXISTING_STACK = EnumSet.of(Item, Damage, NBT);
     }
 
     /**
@@ -140,10 +135,6 @@ public final class ItemHelper {
 
         if (result && options.contains(MatchOption.NBT)) {
             result = Objects.equals(stackA.getTag(), stackB.getTag());
-        }
-
-        if (result && options.contains(MatchOption.Capabilities)) {
-            result = stackA.areCapsCompatible(stackB);
         }
 
         return result;
@@ -282,49 +273,6 @@ public final class ItemHelper {
      */
     public static CompoundTag stackToNBT(final ItemStack stack) {
         return stack.save(new CompoundTag());
-    }
-
-    /**
-     * Create a stack from the given JSON data
-     *
-     * @param json a JsonElement containing the data of the stack to create
-     * @return the newly create stack
-     */
-    public static ItemStack stackFrom(final JsonElement json) {
-
-        final JsonObject o = json.getAsJsonObject();
-        final Item item = JSONHelper.jsonGetItem(o, Lib.NAME_ITEM);
-        final int count = JSONHelper.jsonGetInt(o, Lib.NAME_COUNT, 1);
-
-        if (o.has(Lib.NAME_NBT_TAG)) {
-            return stackFrom(item, count, JSONHelper.jsonGetNBT(o, Lib.NAME_NBT_TAG));
-        } else {
-            return stackFrom(item, count);
-        }
-    }
-
-    /**
-     * Serialize a stack to JSON
-     *
-     * @param stack the stack to serialize
-     * @return the serialized JSON data
-     */
-    public static JsonElement stackToJSON(final ItemStack stack) {
-
-        final JsonObject json = new JsonObject();
-        final int count = stack.getCount();
-
-        JSONHelper.jsonSetItem(json, Lib.NAME_ITEM, stack.getItem());
-
-        if (count > 1) {
-            JSONHelper.jsonSetInt(json, Lib.NAME_COUNT, count);
-        }
-
-        if (stack.hasTag()) {
-            JSONHelper.jsonSetNBT(json, Lib.NAME_NBT_TAG, Objects.requireNonNull(stack.getTag()));
-        }
-
-        return json;
     }
 
     /**

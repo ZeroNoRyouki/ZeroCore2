@@ -21,24 +21,30 @@ package it.zerono.mods.zerocore.internal.proxy;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkDirection;
+import net.neoforged.bus.api.IEventBus;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class ServerProxy implements IProxy {
+public class ServerProxy
+        implements IForgeProxy {
+
+    public ServerProxy() {
+    }
+
+    //region IForgeProxy
+
+    @Override
+    public void initialize(IEventBus modEventBus) {
+    }
 
     @Override
     public Optional<Level> getClientWorld() {
@@ -64,15 +70,6 @@ public class ServerProxy implements IProxy {
     }
 
     @Override
-    public void addResourceReloadListener(PreparableReloadListener listener) {
-        CodeHelper.getMinecraftServer()
-                .map(MinecraftServer::getResourceManager)
-                .filter(o -> o instanceof ReloadableResourceManager)
-                .map(o -> (ReloadableResourceManager)o)
-                .ifPresent(rrm -> rrm.registerReloadListener(listener));
-    }
-
-    @Override
     public void clearErrorReport() {
     }
 
@@ -84,13 +81,13 @@ public class ServerProxy implements IProxy {
 
     @SuppressWarnings("SwitchStatementWithTooFewBranches")
     @Override
-    public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final NetworkDirection direction) {
+    public void handleInternalCommand(final InternalCommand command, final CompoundTag data, final PacketFlow flow) {
 
         //noinspection EnhancedSwitchMigration
         switch (command) {
 
             default:
-                IProxy.super.handleInternalCommand(command, data, direction);
+                IForgeProxy.super.handleInternalCommand(command, data, flow);
                 break;
         }
     }
@@ -98,4 +95,6 @@ public class ServerProxy implements IProxy {
     @Override
     public void debugUngrabMouse() {
     }
+
+    //endregion
 }

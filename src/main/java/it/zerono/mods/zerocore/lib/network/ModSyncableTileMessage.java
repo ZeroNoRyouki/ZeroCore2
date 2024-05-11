@@ -18,19 +18,24 @@
 
 package it.zerono.mods.zerocore.lib.network;
 
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.nbt.INestedSyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.fml.LogicalSide;
 
 /**
  * A network message to automatically sync a {@link ISyncableEntity} TileEntity over the network
  */
-public class ModSyncableTileMessage extends AbstractModTileMessage {
+public final class ModSyncableTileMessage
+        extends AbstractBlockEntityPlayPacket {
+
+    public static final ResourceLocation ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("tile_sync");
 
     /**
      * Create a sync message for the {@link ISyncableEntity} at the given coordinates
@@ -58,15 +63,15 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
 
     public ModSyncableTileMessage(final FriendlyByteBuf buffer) {
 
-        super(buffer);
+        super(ID, buffer);
         this._nested = buffer.readBoolean();
         this._payload = buffer.readNbt();
     }
 
-    //region AbstractModTileMessage
+    //region AbstractBlockEntityPlayPacket
 
     @Override
-    protected void processTileEntityMessage(final LogicalSide sourceSide, final BlockEntity tileEntity) {
+    protected void processBlockEntity(PacketFlow flow, BlockEntity tileEntity) {
 
         ISyncableEntity entity = null;
 
@@ -85,9 +90,9 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
     }
 
     @Override
-    public void encodeTo(final FriendlyByteBuf buffer) {
+    public void write(FriendlyByteBuf buffer) {
 
-        super.encodeTo(buffer);
+        super.write(buffer);
         buffer.writeBoolean(this._nested);
         buffer.writeNbt(this._payload);
     }
@@ -101,10 +106,9 @@ public class ModSyncableTileMessage extends AbstractModTileMessage {
      * @param entity             the TileEntity to sync
      * @param nested             true if the entity is nested inside another entity
      */
-    @SuppressWarnings("WeakerAccess")
-    protected ModSyncableTileMessage(final BlockPos tileEntityPosition, final ISyncableEntity entity, final boolean nested) {
+    private ModSyncableTileMessage(final BlockPos tileEntityPosition, final ISyncableEntity entity, final boolean nested) {
 
-        super(tileEntityPosition);
+        super(ID, tileEntityPosition);
         this._nested = nested;
         this._payload = new CompoundTag();
         entity.syncDataTo(this._payload, ISyncableEntity.SyncReason.NetworkUpdate);

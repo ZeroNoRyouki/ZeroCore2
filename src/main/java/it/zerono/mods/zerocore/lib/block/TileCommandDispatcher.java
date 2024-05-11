@@ -21,15 +21,15 @@ package it.zerono.mods.zerocore.lib.block;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.internal.Log;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fml.LogicalSide;
+import net.minecraft.network.protocol.PacketFlow;
 
 import java.util.Map;
 
 public class TileCommandDispatcher<T extends AbstractModBlockEntity>
     implements ITileCommandDispatcher {
 
-    public static <T extends AbstractModBlockEntity> Builder<T> builder() {
-        return new Builder<>();
+    public static <T extends AbstractModBlockEntity> it.zerono.mods.zerocore.lib.block.TileCommandDispatcher.Builder<T> builder() {
+        return new it.zerono.mods.zerocore.lib.block.TileCommandDispatcher.Builder<>();
     }
 
     //region builder
@@ -62,9 +62,9 @@ public class TileCommandDispatcher<T extends AbstractModBlockEntity>
     //region ITileCommandDispatcher
 
     @Override
-    public void dispatch(LogicalSide source, String name, CompoundTag parameters) {
+    public void dispatch(PacketFlow flow, String name, CompoundTag parameters) {
         this._handlers.getOrDefault(name, (t, s, p) -> Log.LOGGER.error("No handler for Tile Command {}", name))
-                .handle(this._tile, source, parameters);
+                .handle(this._tile, flow, parameters);
     }
 
     //endregion

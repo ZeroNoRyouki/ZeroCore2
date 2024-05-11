@@ -26,10 +26,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 
 import java.util.List;
 import java.util.Optional;
@@ -129,8 +129,7 @@ public class TagList<T> {
     }
 
     public static void initialize() {
-        Mod.EventBusSubscriber.Bus.FORGE.bus().get().addListener(EventPriority.LOWEST,
-                (TagsUpdatedEvent e) -> s_lists.forEach(TagList::updateTags));
+        NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, (TagsUpdatedEvent e) -> s_lists.forEach(TagList::updateTags));
     }
 
     //region internals

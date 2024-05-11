@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.energy.adapter;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.*;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public final class ForgeEnergyAdapter {
 

@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.base.multiblock.part.io;
 
 import it.zerono.mods.zerocore.lib.data.IoDirection;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 public interface ILinkedIOPortHandler<Handler> {
 

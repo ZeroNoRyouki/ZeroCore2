@@ -21,7 +21,6 @@ package it.zerono.mods.zerocore.lib.recipe;
 import it.zerono.mods.zerocore.lib.item.inventory.EmptyVanillaInventory;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -91,11 +90,6 @@ public class ModRecipe
         return ItemStack.EMPTY;
     }
 
-    @Override
-    public ResourceLocation getId() {
-        return this._recipeId;
-    }
-
     /**
      * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
      * doLimitedCrafting gamerule)
@@ -114,15 +108,6 @@ public class ModRecipe
     public RecipeType<?> getType() {
         throw new IllegalStateException("Override in derived class");
     }
-
-    //endregion
-    //region internals
-
-    protected ModRecipe(final ResourceLocation id) {
-        this._recipeId = Objects.requireNonNull(id);
-    }
-
-    private final ResourceLocation _recipeId;
 
     //endregion
 }

@@ -19,36 +19,37 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.zerono.mods.zerocore.internal.Lib;
+import it.zerono.mods.zerocore.lib.recipe.AbstractManyToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.IntFunction;
+import java.util.Objects;
+import java.util.function.BiFunction;
 
-public class ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient extends IRecipeIngredient<IngredientT>,
-        RecipeResult extends IRecipeResult<Result>>
-        extends AbstractModRecipeBuilder<ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient, RecipeResult>> {
+public class ManyToOneRecipeBuilder<Ingredient, Result,
+        RecipeIngredient extends IRecipeIngredient<Ingredient>, RecipeResult extends IRecipeResult<Result>,
+        Recipe extends AbstractManyToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
+    extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, ManyToOneRecipeBuilder<Ingredient, Result,
+        RecipeIngredient, RecipeResult, Recipe>> {
 
-    public ManyToOneRecipeBuilder(ResourceLocation serializerId, RecipeResult result,
-                                  IntFunction<String> jsonIngredientsLabelsSupplier) {
+    public ManyToOneRecipeBuilder(RecipeResult result,
+                                  BiFunction<List<RecipeIngredient>, RecipeResult, Recipe> recipeFactory) {
 
-        super(serializerId);
+        super(result);
 
-        Preconditions.checkArgument(!result.isEmpty(), "A result cannot be empty");
+        Preconditions.checkArgument(!result.isEmpty(), "Result cannot be empty");
+        Preconditions.checkNotNull(recipeFactory, "Recipe factory cannot be empty");
 
         this._ingredients = new ObjectArrayList<>(4);
-        this._result = result;
-        this._jsonIngredientsLabelsSupplier = jsonIngredientsLabelsSupplier;
+        this._recipeFactory = () -> Objects.requireNonNull(recipeFactory.apply(this._ingredients, result));
     }
 
-    public void build(Consumer<FinishedRecipe> consumer) {
-        this.build(consumer, this._result.getId());
+    @Override
+    protected Recipe getRecipe() {
+        return this._recipeFactory.get();
     }
 
     public void addIngredient(RecipeIngredient ingredient) {
@@ -57,40 +58,10 @@ public class ManyToOneRecipeBuilder<IngredientT, Result, RecipeIngredient extend
         this._ingredients.add(ingredient);
     }
 
-    //region AbstractModRecipeBuilder
-
-    @Override
-    protected FinishedRecipe getFinishedRecipe(ResourceLocation id) {
-        return new ManyToOneRecipeBuilderFinishedRecipe(id);
-    }
-
-    public class ManyToOneRecipeBuilderFinishedRecipe
-            extends AbstractFinishedRecipe {
-
-        protected ManyToOneRecipeBuilderFinishedRecipe(ResourceLocation id) {
-            super(id);
-        }
-
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-
-            final int count = ManyToOneRecipeBuilder.this._ingredients.size();
-
-            for (int idx = 0; idx < count; ++idx) {
-                json.add(ManyToOneRecipeBuilder.this._jsonIngredientsLabelsSupplier.apply(idx),
-                        ManyToOneRecipeBuilder.this._ingredients.get(idx).serializeTo());
-            }
-
-            json.add(Lib.NAME_RESULT, ManyToOneRecipeBuilder.this._result.serializeTo());
-        }
-    }
-
-    //endregion
     //region internals
 
+    private final NonNullSupplier<Recipe> _recipeFactory;
     private final List<RecipeIngredient> _ingredients;
-    private final RecipeResult _result;
-    private final IntFunction<String> _jsonIngredientsLabelsSupplier;
 
     //endregion
 }

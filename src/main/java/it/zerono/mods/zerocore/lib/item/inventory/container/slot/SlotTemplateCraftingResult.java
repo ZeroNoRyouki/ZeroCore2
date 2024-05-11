@@ -22,7 +22,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ICrafter;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotCraftingResult;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 
 @SuppressWarnings({"WeakerAccess"})
 public class SlotTemplateCraftingResult extends SlotTemplate {

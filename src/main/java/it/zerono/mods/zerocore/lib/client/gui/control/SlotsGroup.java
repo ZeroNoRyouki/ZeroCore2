@@ -75,10 +75,10 @@ public class SlotsGroup
     }
 
     @Override
-    public boolean onMouseWheel(IWindow wnd, int mouseX, int mouseY, double movement) {
+    public boolean onMouseWheel(IWindow wnd, int mouseX, int mouseY, double movementX, double movementY) {
 
         // allow the ContainerScreen to handle this message and interact with the slots
-        super.onMouseWheel(wnd, mouseX, mouseY, movement);
+        super.onMouseWheel(wnd, mouseX, mouseY, movementX, movementY);
         return false;
     }
 

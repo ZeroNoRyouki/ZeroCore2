@@ -20,7 +20,7 @@ package it.zerono.mods.zerocore.lib.client.model.data;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
 
 import java.util.function.Predicate;
 

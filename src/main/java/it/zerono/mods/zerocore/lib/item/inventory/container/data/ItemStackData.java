@@ -24,9 +24,9 @@ import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.common.util.NonNullSupplier;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 
@@ -80,7 +80,7 @@ public class ItemStackData
                 return buffer -> {
 
                     buffer.writeByte(0);
-                    buffer.writeItemStack(this._lastValue, true);
+                    buffer.writeItem(this._lastValue);
                 };
             }
         }

@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cube_column",
-  "textures": {
-    "end": "zerotest:block/purple_block_side",
-    "side": "zerotest:block/green_block_side"
-  }
-}

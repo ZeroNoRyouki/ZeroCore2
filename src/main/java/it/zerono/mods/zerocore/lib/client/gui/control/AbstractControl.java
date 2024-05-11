@@ -429,7 +429,7 @@ public abstract class AbstractControl
     }
 
     @Override
-    public boolean onMouseWheel(final IWindow wnd, int mouseX, int mouseY, double movement) {
+    public boolean onMouseWheel(final IWindow wnd, int mouseX, int mouseY, double movementX, double movementY) {
         return false;
     }
 

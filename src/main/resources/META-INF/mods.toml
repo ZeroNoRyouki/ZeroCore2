@@ -1,7 +1,7 @@
 # Zero CORE 2 - mods.toml
 
 modLoader="javafml"
-loaderVersion="[47,49)"
+loaderVersion="${loader_versionrange}"
 
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
@@ -9,29 +9,30 @@ license="All rights reserved"
 
 # A URL to refer people to when problems occur with this mod
 issueTrackerURL="https://github.com/ZeroNoRyouki/ZeroCore2/issues"
-logoFile="logo.png"
 
 [[mods]]
-
 	modId="zerocore"
-	version="${file.jarVersion}"
+    version="${mod_version}"
     updateJSONURL="https://raw.githubusercontent.com/ZeroNoRyouki/ModUpdates/master/ZeroCore2.json"
     displayName="Zero CORE 2"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/zerocore"
 	authors="ZeroNoRyouki"
-	description="Utility mod and multiblock API"
+    description="Utility mod and multiblock API"
+    logoFile="logo.png"
+
+[[mixins]]
+    config="zerocore.mixins.json"
 
 [[dependencies.zerocore]]
-
     modId="minecraft"
-    mandatory=true
-    versionRange="[1.20.1,1.21)"
+    type="required"
+    versionRange="${minecraft_versionrange}"
     ordering="NONE"
     side="BOTH"
 	
 [[dependencies.zerocore]]
-
-	modId="forge"
-	mandatory=true
-    versionRange="[47.1.1,49)"
+	modId="neoforge"
+    type="required"
+    versionRange="${forge_versionrange}"
 	ordering="NONE"
 	side="BOTH"

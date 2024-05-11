@@ -2,7 +2,7 @@ package it.zerono.mods.zerocore.lib.datagen.provider.tag;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.common.util.NonNullFunction;
+import net.neoforged.neoforge.common.util.NonNullFunction;
 
 public interface IIntrinsicTagDataProvider<T> {
 

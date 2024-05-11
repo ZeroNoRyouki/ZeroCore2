@@ -23,7 +23,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import it.zerono.mods.zerocore.lib.compat.patchouli.Patchouli;
+import it.zerono.mods.zerocore.internal.compat.patchouli.PatchouliService;
+import it.zerono.mods.zerocore.lib.compat.patchouli.IPatchouliService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,7 +36,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import vazkii.patchouli.api.IMultiblock;
@@ -204,11 +205,15 @@ public class Multiblock
 
         final BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
 
+        if (!(IPatchouliService.SERVICE.get() instanceof PatchouliService patchouli)) {
+            return;
+        }
+
         for (final BlockPos pos : blocks) {
 
             final BlockState bs = mb.getBlockState(pos);
-            final BlockState renderBlockState = Patchouli.getRenderBlockStateFor(mb, bs);
-            final ModelData renderModelData = Patchouli.getModelDataFor(mb, bs);
+            final BlockState renderBlockState = patchouli.getRenderBlockStateFor(mb, bs);
+            final ModelData renderModelData = patchouli.getModelDataFor(mb, bs);
             final VertexConsumer buffer = buffers.getBuffer(ItemBlockRenderTypes.getChunkRenderType(bs));
 
             ms.pushPose();

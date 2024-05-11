@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
-import net.minecraftforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 
 public interface ICustomModelBuilder {
 

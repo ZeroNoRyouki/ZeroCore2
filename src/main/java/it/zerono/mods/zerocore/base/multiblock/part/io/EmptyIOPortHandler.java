@@ -18,53 +18,38 @@
 
 package it.zerono.mods.zerocore.base.multiblock.part.io;
 
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-
-import javax.annotation.Nullable;
-
 public class EmptyIOPortHandler
         implements IIOPortHandler {
 
     //region IIOPortHandler
 
-    /**
-     * @return true if this handler is connected to one of it's allowed consumers, false otherwise
-     */
     @Override
     public boolean isConnected() {
         return false;
     }
 
-    /**
-     * Check for connections
-     *
-     * @param world    the handler world
-     * @param position the handler position
-     */
-    @Override
-    public void checkConnections(@Nullable Level world, BlockPos position) {
-    }
-
-    /**
-     * @return true if this handler is in Active mode, false otherwise
-     */
     @Override
     public boolean isActive() {
         return false;
     }
 
-    /**
-     * @return true if this handler is in Passive mode, false otherwise
-     */
     @Override
     public boolean isPassive() {
         return false;
     }
 
     @Override
-    public void invalidate() {
+    public boolean isInput() {
+        return false;
+    }
+
+    @Override
+    public boolean isOutput() {
+        return false;
+    }
+
+    @Override
+    public void onPortChanged() {
     }
 
     //endregion

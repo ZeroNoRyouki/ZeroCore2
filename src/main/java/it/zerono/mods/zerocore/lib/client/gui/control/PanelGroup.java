@@ -177,8 +177,8 @@ public class PanelGroup<Index extends Enum<Index>>
     }
 
     @Override
-    public boolean onMouseWheel(final IWindow wnd, int mouseX, int mouseY, double movement) {
-        return this.getActivePanel().map(p -> p.onMouseWheel(wnd, mouseX, mouseY, movement)).orElse(false);
+    public boolean onMouseWheel(final IWindow wnd, int mouseX, int mouseY, double movementX, double movementY) {
+        return this.getActivePanel().map(p -> p.onMouseWheel(wnd, mouseX, mouseY, movementX, movementY)).orElse(false);
     }
 
     @Override

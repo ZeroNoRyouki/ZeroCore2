@@ -25,9 +25,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.JsonOps;
+import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.Util;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +38,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -418,8 +420,8 @@ public final class JSONHelper {
 
         final ResourceLocation id = jsonGetResourceLocation(json, elementName);
 
-        if (ForgeRegistries.ITEMS.containsKey(id)) {
-            return Objects.requireNonNull(ForgeRegistries.ITEMS.getValue(id));
+        if (BuiltInRegistries.ITEM.containsKey(id)) {
+            return Objects.requireNonNull(BuiltInRegistries.ITEM.get(id));
         } else {
             throw new JsonSyntaxException("JSON element is not a valid Item: " + elementName);
         }
@@ -447,8 +449,8 @@ public final class JSONHelper {
 
         final ResourceLocation id = jsonGetResourceLocation(json, elementName);
 
-        if (ForgeRegistries.FLUIDS.containsKey(id)) {
-            return Objects.requireNonNull(ForgeRegistries.FLUIDS.getValue(id));
+        if (BuiltInRegistries.FLUID.containsKey(id)) {
+            return Objects.requireNonNull(BuiltInRegistries.FLUID.get(id));
         } else {
             throw new JsonSyntaxException("JSON element is not a valid Fluid: " + elementName);
         }
@@ -473,7 +475,7 @@ public final class JSONHelper {
      * @return the Ingredient
      */
     public static Ingredient jsonGetIngredient(final JsonObject json, final String elementName) {
-        return Ingredient.fromJson(jsonGetMandatoryElement(json, elementName));
+        return Ingredient.fromJson(jsonGetMandatoryElement(json, elementName), false);
     }
 
     /**
@@ -484,7 +486,12 @@ public final class JSONHelper {
      * @param value the value
      */
     public static void jsonSetIngredient(final JsonObject json, final String elementName, final Ingredient value) {
-        json.add(elementName, value.toJson());
+
+        var element = Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, value)
+                .resultOrPartial(error -> Log.LOGGER.error(Log.CORE, error))
+                .orElseThrow();
+
+        json.add(elementName, element);
     }
 
     public static JsonElement jsonGetMandatoryElement(final JsonObject json, final String elementName) {
@@ -495,17 +502,6 @@ public final class JSONHelper {
             throw new JsonSyntaxException("Missing required element in JSON object " + elementName);
         }
     }
-
-//    protected static void jsonValidateObjectKey(final JsonObject json, final String key) {
-//
-//        if (!json.has(key)) {
-//            throw new JsonSyntaxException("Missing object key in JSON object: " + key);
-//        }
-//
-//        if (!json.get(key).isJsonObject()) {
-//            throw new JsonSyntaxException("Element is not a JSON object: " + key);
-//        }
-//    }
 
     //region internals
 

@@ -2,35 +2,45 @@ import java.nio.file.Paths
 import java.nio.file.Files
 
 plugins {
+
+    id 'java-library'
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.neoforged.gradle.userdev' version '7.0.120'
+    id 'net.neoforged.gradle.mixin' version '7.0.120'
 }
 
-file('build.properties').withReader {
-
-    def properties = new Properties()
-	
-    properties.load(it)
-    project.ext.config = new ConfigSlurper().parse properties
+version = "${project.minecraft_version}-${project.mod_version_major}.${project.mod_version_minor}.${project.mod_version_patch}"
+if (project.mod_version_snapshot) {
+    version += '-SNAPSHOT'
 }
 
-version = "${config.minecraft_version}-${config.mod_version_major}.${config.mod_version_minor}.${config.mod_version_patch}"
 group = 'it.zerono.mods.zerocore'
-archivesBaseName = 'ZeroCore2'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+base {
+    archivesName = 'ZeroCore2'
+}
 
-minecraft {
+java {
 
-    mappings channel: 'official', version: config.minecraft_mappings
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 
-    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+    withSourcesJar()
+}
+
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+}
+
+runs {
 
     def runPath = Paths.get(System.getenv('mc_runs'), "forge")
 
     if (!Files.exists(runPath)) {
+
         runPath = Paths.get("${rootProject.projectDir}", "runs")
 
         if (!Files.exists(runPath)) {
@@ -38,8 +48,8 @@ minecraft {
         }
     }
 
-    def clientRunDir = runPath.resolve("client-${config.minecraft_version}").toFile();
-    def serverRunDir = runPath.resolve("server-${config.minecraft_version}").toFile();
+    def clientRunDir = runPath.resolve("client-${project.minecraft_version}").toFile();
+    def serverRunDir = runPath.resolve("server-${project.minecraft_version}").toFile();
 
     if (!clientRunDir.exists()) {
         clientRunDir.mkdirs();
@@ -49,147 +59,53 @@ minecraft {
         serverRunDir.mkdirs();
     }
 
-    def dataArgs = [
-            '--mod', 'zerocore',
-            '--all',
-            '--existing', project.file('src/main/resources/').absolutePath,
-            '--existing', project.file('src/generated/resources/').absolutePath,
-            '--output', project.file('src/generated/resources/').absolutePath
+    client {
+
+        singleInstance false
+        workingDirectory clientRunDir
+    }
+
+    server {
+        workingDirectory serverRunDir
+    }
+
+    data {
+
+        workingDirectory clientRunDir
+        programArguments.addAll '--mod', 'zerocore',
+                '--all',
+                '--existing', project.file('src/main/resources/').absolutePath,
+                '--existing', project.file('src/generated/resources/').absolutePath,
+                '--output', project.file('src/generated/resources/').absolutePath
+    }
+}
+
+runs.configureEach {
+    modSource project.sourceSets.main
+}
+
+tasks.withType(ProcessResources).configureEach {
+
+    var replaceProperties = [
+            minecraft_versionrange: minecraft_versionrange,
+            loader_versionrange: loader_versionrange,
+            forge_versionrange: forge_versionrange,
+            mod_version: project.version
     ]
 
-    runs {
-        client {
+    inputs.properties replaceProperties
 
-            properties 'mixin.env.remapRefMap': 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
-
-            workingDirectory clientRunDir
-
-            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
-
-            mods {
-                zerocore {
-                    source sourceSets.main
-                }
-
-                zerotest {
-                    source sourceSets.test
-                }
-            }
-        }
-
-        server {
-
-            properties 'mixin.env.remapRefMap': 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
-            
-			workingDirectory serverRunDir
-
-            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
-
-            mods {
-                zerocore {
-                    source sourceSets.main
-                }
-
-                zerotest {
-                    source sourceSets.test
-                }
-            }
-        }
-
-        data {
-
-            properties 'mixin.env.remapRefMap': 'true'
-            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
-
-            workingDirectory clientRunDir
-
-            ideaModule "${rootProject.name}.${project.name}.main".replace(' ', '_')
-
-            args dataArgs
-
-            mods {
-                zerocore {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        datatest {
-
-            parent runs.data
-
-            ideaModule "${rootProject.name}.${project.name}.test".replace(' ', '_')
-
-            mods {
-                zerocore {
-                    source sourceSets.main
-                }
-
-                zerotest {
-                    source sourceSets.test
-                }
-            }
-
-            afterEvaluate {
-
-                args.removeAll {
-                    dataArgs.contains(it instanceof File ? (it as File).absolutePath : it.toString())
-                }
-
-                args '--mod', 'zerotest',
-                        '--all',
-                        '--existing', file('src/test/resources/'),
-                        '--existing', file('src/generated-test/resources/'),
-                        '--output', file('src/generated-test/resources/')
-            }
-        }
-    }
-}
-
-sourceSets.main.resources {
-    srcDir 'src/generated/resources'
-}
-
-sourceSets.test.resources {
-    srcDir 'src/generated-test/resources'
-}
-
-processResources {
-
-	inputs.property "mod_version", version
-	inputs.property "mod_name", config.mod_name
-    inputs.property "minecraft_versionrange", config.minecraft_versionrange
-	inputs.property "forge_versionrange", config.forge_versionrange
-    inputs.property "loader_versionrange", config.loader_versionrange
-
-    from(sourceSets.main.resources.srcDirs) {
-	
-        include 'ZeroCore2-1.20/src/main/resources/META-INF/mods.toml'
-        expand 'mod_version': version, 
-				'mod_name': config.mod_name,
-				'minecraft_versionrange': config.minecraft_versionrange,
-				'forge_versionrange': config.forge_versionrange,
-                'loader_versionrange': config.loader_versionrange
-    }
-
-    from(sourceSets.test.resources.srcDirs) {
-
-        include 'ZeroCore2-1.20/src/test/resources/META-INF/mods.toml'
-        expand 'mod_version': version,
-                'mod_name': config.mod_name,
-                'minecraft_versionrange': config.minecraft_versionrange,
-                'forge_versionrange': config.forge_versionrange,
-                'loader_versionrange': config.loader_versionrange
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
     }
 }
 
 repositories {
 
-    // jei
+	mavenLocal()
+
+    // JEI
     maven {
-        // location of the maven that hosts JEI files
         name = "Progwml6 maven"
         url = "https://dvs1.progwml6.com/files/maven/"
     }
@@ -211,49 +127,51 @@ repositories {
 }
 
 dependencies {
-	minecraft "net.minecraftforge:forge:${config.minecraft_version}-${config.forge_version}"
+
+	implementation "net.neoforged:neoforge:${project.forge_version}"
 
 	// cc-tweaked
-    compileOnly("cc.tweaked:cc-tweaked-${config.minecraft_version}-core-api:${config.cctweaked_version}")
-    compileOnly(fg.deobf("cc.tweaked:cc-tweaked-${config.minecraft_version}-forge-api:${config.cctweaked_version}"))
-    runtimeOnly(fg.deobf("cc.tweaked:cc-tweaked-${config.minecraft_version}-forge:${config.cctweaked_version}"))
+    compileOnly("cc.tweaked:cc-tweaked-${project.minecraft_version}-core-api:${project.cctweaked_version}")
+    compileOnly("cc.tweaked:cc-tweaked-${project.minecraft_version}-forge-api:${project.cctweaked_version}")
+    runtimeOnly("cc.tweaked:cc-tweaked-${project.minecraft_version}-forge:${project.cctweaked_version}")
 
     // patchouli
-    compileOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
-    runtimeOnly fg.deobf("vazkii.patchouli:Patchouli:${config.patchouli_version}")
+    compileOnly "vazkii.patchouli:Patchouli:${project.patchouli_version}-NEOFORGE"
+    runtimeOnly "vazkii.patchouli:Patchouli:${project.patchouli_version}-NEOFORGE"
 
     // JEI
-    compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft_version}-common-api:${config.jei_version}"))
-    compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft_version}-forge-api:${config.jei_version}"))
-    runtimeOnly(fg.deobf("mezz.jei:jei-${config.minecraft_version}-forge:${config.jei_version}"))
+    compileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    compileOnly("mezz.jei:jei-${project.minecraft_version}-neoforge-api:${project.jei_version}")
+    runtimeOnly("mezz.jei:jei-${project.minecraft_version}-neoforge:${project.jei_version}")
 }
 
 jar {
     manifest {
-        attributes 'Specification-Title': config.mod_name
+        attributes 'Specification-Title': project.mod_name
         attributes 'Specification-Vendor': 'ZeroNoRyouki'
         attributes 'Specification-Version': "2"
-        attributes 'Implementation-Title': config.mod_name
+        attributes 'Implementation-Title': project.mod_name
         attributes 'Implementation-Vendor': 'ZeroNoRyouki'
         attributes 'Implementation-Version': version
         attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     }
-
-    finalizedBy('reobfJar')
 }
-
-publish.dependsOn('reobfJar')
 
 publishing {
 
     publications {
-        mavenJava(MavenPublication) {
-            artifactId = archivesBaseName
-            artifact jar
+
+        register('mavenJava', MavenPublication) {
+
+            artifactId base.archivesName.get()
+            from components.java
         }
     }
 
     repositories {
+
+        mavenLocal()
+
         maven {
             url 'file://' + System.getenv('mc_maven')
         }
@@ -261,5 +179,16 @@ publishing {
 }
 
 tasks.withType(JavaCompile).configureEach {
+
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.compilerArgs << "-Xmaxerrs" << "1000"
+}
+
+idea {
+
+    module {
+
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }

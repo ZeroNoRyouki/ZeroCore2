@@ -19,61 +19,40 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonObject;
-import it.zerono.mods.zerocore.internal.Lib;
+import it.zerono.mods.zerocore.lib.recipe.AbstractOneToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
 
-import java.util.function.Consumer;
+import java.util.Objects;
+import java.util.function.BiFunction;
 
-public class OneToOneRecipeBuilder<RecipeIngredient, RecipeResult>
-    extends AbstractModRecipeBuilder<OneToOneRecipeBuilder<RecipeIngredient, RecipeResult>> {
+public class OneToOneRecipeBuilder<Ingredient, Result,
+        RecipeIngredient extends IRecipeIngredient<Ingredient>, RecipeResult extends IRecipeResult<Result>,
+        Recipe extends AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
+    extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, OneToOneRecipeBuilder<Ingredient, Result,
+        RecipeIngredient, RecipeResult, Recipe>> {
 
-    public OneToOneRecipeBuilder(ResourceLocation serializerId, IRecipeIngredient<RecipeIngredient> ingredient,
-                                 IRecipeResult<RecipeResult> result) {
+    public OneToOneRecipeBuilder(RecipeIngredient ingredient, RecipeResult result,
+                                 BiFunction<RecipeIngredient, RecipeResult, Recipe> recipeFactory) {
 
-        super(serializerId);
+        super(result);
 
-        Preconditions.checkArgument(!ingredient.isEmpty(), "An ingredient cannot be empty");
-        Preconditions.checkArgument(!result.isEmpty(), "A result cannot be empty");
+        Preconditions.checkArgument(!ingredient.isEmpty(), "Ingredient cannot be empty");
+        Preconditions.checkArgument(!result.isEmpty(), "Result cannot be empty");
+        Preconditions.checkNotNull(recipeFactory, "Recipe factory cannot be empty");
 
-        this._ingredient = ingredient;
-        this._result = result;
+        this._recipeFactory = () -> Objects.requireNonNull(recipeFactory.apply(ingredient, result));
     }
-
-    public void build(Consumer<FinishedRecipe> consumer) {
-        this.build(consumer, this._result.getId());
-    }
-
-    //region AbstractModRecipeBuilder
 
     @Override
-    protected FinishedRecipe getFinishedRecipe(ResourceLocation id) {
-        return new OneToOneRecipeBuilderFinishedRecipe(id);
+    protected Recipe getRecipe() {
+        return this._recipeFactory.get();
     }
 
-    public class OneToOneRecipeBuilderFinishedRecipe
-            extends AbstractFinishedRecipe {
-
-        protected OneToOneRecipeBuilderFinishedRecipe(ResourceLocation id) {
-            super(id);
-        }
-
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-
-            json.add(Lib.NAME_INGREDIENT, OneToOneRecipeBuilder.this._ingredient.serializeTo());
-            json.add(Lib.NAME_RESULT, OneToOneRecipeBuilder.this._result.serializeTo());
-        }
-    }
-
-    //endregion
     //region internals
 
-    private final IRecipeIngredient<RecipeIngredient> _ingredient;
-    private final IRecipeResult<RecipeResult> _result;
+    private final NonNullSupplier<Recipe> _recipeFactory;
 
     //endregion
 }

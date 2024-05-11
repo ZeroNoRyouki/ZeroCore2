@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib;
 
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 
 public interface IDebuggable {
 

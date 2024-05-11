@@ -19,35 +19,37 @@
 package it.zerono.mods.zerocore.base.multiblock.part.io.power;
 
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
+import it.zerono.mods.zerocore.base.multiblock.part.io.IOPortBlockCapabilitySource;
 import it.zerono.mods.zerocore.lib.data.IoMode;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-
-import javax.annotation.Nullable;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class PowerPortHandlerForgeEnergy<Controller extends AbstractCuboidMultiblockController<Controller>,
-            T extends AbstractMultiblockEntity<Controller> & IPowerPort>
-        extends AbstractPowerPortHandler<Controller, T>
-        implements IEnergyStorage {
+        Port extends AbstractMultiblockEntity<Controller> & IPowerPort>
+    extends AbstractPowerPortHandler<Controller, Port>
+    implements IEnergyStorage {
 
-    public PowerPortHandlerForgeEnergy(final T part, final IoMode mode) {
+    public PowerPortHandlerForgeEnergy(final Port port, final IoMode mode) {
 
-        super(EnergySystem.ForgeEnergy, part, mode);
-        this._consumer = null;
-        this._capability = LazyOptional.of(() -> this);
+        super(EnergySystem.ForgeEnergy, port, mode);
+        this._remoteCapabilitySource = new IOPortBlockCapabilitySource<>(port, Capabilities.EnergyStorage.BLOCK);
     }
 
     //region IPowerPortHandler
+
+    @Override
+    public boolean isConnected() {
+        return null != this._remoteCapabilitySource.getCapability();
+    }
+
+    @Override
+    public void onPortChanged() {
+        this._remoteCapabilitySource.onPortChanged();
+    }
 
     /**
      * Send energy to the connected consumer (if there is one)
@@ -58,55 +60,15 @@ public class PowerPortHandlerForgeEnergy<Controller extends AbstractCuboidMultib
     @Override
     public WideAmount outputEnergy(final WideAmount amount) {
 
-        if (null == this._consumer || !this.isOutput() || this.isPassive()) {
+        final var consumer = this._remoteCapabilitySource.getCapability();
+
+        if (null == consumer || !this.isOutput() || this.isPassive()) {
             return WideAmount.ZERO;
         }
 
         final int maxUnits = Math.min(amount.intValue(), Integer.MAX_VALUE);
 
-        return WideAmount.asImmutable(this._consumer.receiveEnergy(maxUnits, false));
-    }
-
-    /**
-     * @return true if there is a consumer connected, false otherwise
-     */
-    public boolean isConnected() {
-        return null != this._consumer;
-    }
-
-    /**
-     * Check for connections
-     *
-     * @param world    the IPowerPort world
-     * @param position the IPowerPort position
-     */
-    public void checkConnections(@Nullable Level world, BlockPos position) {
-        this._consumer = this.lookupConsumer(world, position, CAPAP_FORGE_ENERGYSTORAGE, 
-                te -> te instanceof IPowerPortHandler, this._consumer);
-    }
-
-    @Override
-    public void invalidate() {
-        this._capability.invalidate();
-    }
-
-    /**
-     * Get the requested capability if supported
-     *
-     * @param capability the capability
-     * @param direction  the direction the request is coming from
-     * @param <C>        the type of the capability
-     * @return the capability (if supported) or null (if not)
-     */
-    @Override
-    @Nullable
-    public <C> LazyOptional<C> getCapability(final Capability<C> capability, final @Nullable Direction direction) {
-
-        if (CAPAP_FORGE_ENERGYSTORAGE == capability) {
-            return this._capability.cast();
-        }
-
-        return null;
+        return WideAmount.asImmutable(consumer.receiveEnergy(maxUnits, false));
     }
 
     //endregion
@@ -175,11 +137,7 @@ public class PowerPortHandlerForgeEnergy<Controller extends AbstractCuboidMultib
     //endregion
     //region internals
 
-    @SuppressWarnings("FieldMayBeFinal")
-    private static Capability<IEnergyStorage> CAPAP_FORGE_ENERGYSTORAGE = CapabilityManager.get(new CapabilityToken<>(){});
-
-    private IEnergyStorage _consumer;
-    private final LazyOptional<IEnergyStorage> _capability;
+    private final IOPortBlockCapabilitySource<Controller, Port, IEnergyStorage> _remoteCapabilitySource;
 
     //endregion
 }

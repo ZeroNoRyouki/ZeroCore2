@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.minecraftforge.common.util.NonNullSupplier;
+import net.neoforged.neoforge.common.util.NonNullSupplier;
 
 @SuppressWarnings("unused")
 public class Picture

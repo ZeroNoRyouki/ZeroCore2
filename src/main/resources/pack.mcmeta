@@ -1,9 +1,6 @@
 {
-  "pack": {
-    "description": {
-      "text": "Zero CORE 2 resources"
-    },
-    "forge:server_data_pack_format": 12,
-    "pack_format": 13
-  }
+    "pack": {
+        "pack_format": 23,
+        "description": "Zero CORE 2"
+    }
 }

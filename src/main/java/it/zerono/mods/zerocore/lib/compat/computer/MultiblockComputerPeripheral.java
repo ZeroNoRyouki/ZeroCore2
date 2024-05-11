@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.compat.computer;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
-import net.minecraftforge.common.util.NonNullConsumer;
+import net.neoforged.neoforge.common.util.NonNullConsumer;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;

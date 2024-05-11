@@ -18,35 +18,77 @@
 
 package it.zerono.mods.zerocore.lib.recipe;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import it.zerono.mods.zerocore.internal.Lib;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient extends IRecipeIngredient<Ingredient>,
                                              RecipeResult extends IRecipeResult<Result>>
         extends ModRecipe
-        implements Predicate<Ingredient>, ISerializableRecipe {
+        implements Predicate<Ingredient> {
 
-    @FunctionalInterface
-    public interface IRecipeFactory<Ingredient, Result, RecipeIngredient extends IRecipeIngredient<Ingredient>,
-                                    RecipeResult extends IRecipeResult<Result>,
-                                    Recipe extends AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>> {
+    protected AbstractOneToOneRecipe(final RecipeIngredient ingredient, final RecipeResult result) {
 
-        Recipe create(ResourceLocation id, RecipeIngredient ingredient, RecipeResult result);
-    }
-
-    protected AbstractOneToOneRecipe(final ResourceLocation id, final RecipeIngredient ingredient, final RecipeResult result) {
-
-        super(id);
         this._ingredient = ingredient;
         this._result = result;
+    }
+
+    public static <Ingredient, Result, RecipeIngredient extends IRecipeIngredient<Ingredient>,
+            RecipeResult extends IRecipeResult<Result>,
+            Recipe extends AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
+    RecipeSerializer<Recipe> createSerializer(String ingredientFieldName, Codec<RecipeIngredient> ingredientCodec,
+                                              Function<FriendlyByteBuf, RecipeIngredient> ingredientFactory,
+                                              String resultFieldName, Codec<RecipeResult> resultCodec,
+                                              Function<FriendlyByteBuf, RecipeResult> resultFactory,
+                                              BiFunction<RecipeIngredient, RecipeResult, Recipe> recipeFactory) {
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(ingredientFieldName), "Ingredient field name must not be null nor empty");
+        Preconditions.checkNotNull(ingredientCodec, "Ingredient codec must not be null");
+        Preconditions.checkNotNull(ingredientFactory, "Ingredient factory must not be null");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(resultFieldName), "Result field name must not be null nor empty");
+        Preconditions.checkNotNull(resultCodec, "Result codec must not be null");
+        Preconditions.checkNotNull(resultFactory, "Result factory must not be null");
+        Preconditions.checkNotNull(recipeFactory, "Recipe factory must not be null");
+
+        final Codec<Recipe> codec = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        ingredientCodec.fieldOf(ingredientFieldName).forGetter(AbstractOneToOneRecipe::getIngredient),
+                        resultCodec.fieldOf(resultFieldName).forGetter(AbstractOneToOneRecipe::getResult)
+                ).apply(instance, recipeFactory));
+
+        return new RecipeSerializer<>() {
+
+            @Override
+            public Codec<Recipe> codec() {
+                return codec;
+            }
+
+            @Override
+            public Recipe fromNetwork(FriendlyByteBuf buffer) {
+
+                final RecipeIngredient ingredient = ingredientFactory.apply(buffer);
+                final RecipeResult result = resultFactory.apply(buffer);
+
+                return recipeFactory.apply(ingredient, result);
+            }
+
+            @Override
+            public void toNetwork(FriendlyByteBuf buffer, Recipe recipe) {
+
+                recipe.getIngredient().serializeTo(buffer);
+                recipe.getResult().serializeTo(buffer);
+            }
+        };
     }
 
     public RecipeIngredient getIngredient() {
@@ -70,26 +112,6 @@ public abstract class AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredien
     @Override
     public NonNullList<net.minecraft.world.item.crafting.Ingredient> getIngredients() {
         return buildVanillaIngredientsList(this.getIngredient().asVanillaIngredients());
-    }
-
-    //endregion
-    //region ISerializableRecipe
-
-    @Override
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        this._ingredient.serializeTo(buffer);
-        this._result.serializeTo(buffer);
-    }
-
-    @Override
-    public JsonElement serializeTo() {
-
-        final JsonObject json = new JsonObject();
-
-        json.add(Lib.NAME_INGREDIENT, this._ingredient.serializeTo());
-        json.add(Lib.NAME_RESULT, this._result.serializeTo());
-        return json;
     }
 
     //endregion
