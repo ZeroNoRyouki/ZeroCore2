@@ -19,14 +19,13 @@
 package it.zerono.mods.zerocore.lib.recipe.ingredient;
 
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import it.zerono.mods.zerocore.lib.recipe.ISerializableRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 public interface IRecipeIngredient<T>
-    extends ISerializableRecipe, Predicate<T> {
+    extends Predicate<T> {
 
     boolean isCompatible(T ingredient);
 

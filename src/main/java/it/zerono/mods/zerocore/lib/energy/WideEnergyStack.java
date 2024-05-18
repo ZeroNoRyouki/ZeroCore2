@@ -16,20 +16,28 @@ package it.zerono.mods.zerocore.lib.energy;
  *
  */
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import it.zerono.mods.zerocore.internal.Log;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
-import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 public class WideEnergyStack
         implements IEnergySystemAware {
 
     public static final WideEnergyStack EMPTY = new WideEnergyStack();
+
+    public static final ModCodecs<WideEnergyStack, ByteBuf> CODECS = new ModCodecs<>(
+            RecordCodecBuilder.create(instance ->
+                    instance.group(
+                            EnergySystem.CODECS.field("system", WideEnergyStack::getEnergySystem),
+                            WideAmount.CODECS.field("amount", WideEnergyStack::getAmount)
+                    ).apply(instance, WideEnergyStack::new)),
+            StreamCodec.composite(
+                    EnergySystem.CODECS.streamCodec(), WideEnergyStack::getEnergySystem,
+                    WideAmount.CODECS.streamCodec(), WideEnergyStack::getAmount,
+                    WideEnergyStack::new)
+    );
 
     public WideEnergyStack(final EnergySystem system) {
         this(system, WideAmount.ZERO);
@@ -85,68 +93,6 @@ public class WideEnergyStack
 
     public void shrink(final WideAmount decrement) {
         this._amount = this._amount.subtract(decrement);
-    }
-
-    public CompoundTag serializeTo(final CompoundTag nbt) {
-
-        NBTHelper.nbtSetEnum(nbt, "sys", this._system);
-        nbt.put("amount", this._amount.serializeTo(new CompoundTag()));
-        return nbt;
-    }
-
-    public static WideEnergyStack from(final CompoundTag nbt) {
-
-        if (NBTHelper.nbtContainsEnum(nbt, "sys") && nbt.contains("amount", Tag.TAG_COMPOUND)) {
-            return new WideEnergyStack(NBTHelper.nbtGetEnum(nbt, "sys", EnergySystem.class),
-                    WideAmount.from(nbt.getCompound("amount")));
-        }
-
-        Log.LOGGER.info(Log.CORE, "Tried to read an WideEnergyStack from invalid NBT data");
-        return EMPTY;
-    }
-
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        buffer.writeEnum(this._system);
-        this._amount.serializeTo(buffer);
-    }
-
-    public static WideEnergyStack from(final FriendlyByteBuf buffer) {
-
-        try {
-
-            return new WideEnergyStack(buffer.readEnum(EnergySystem.class), WideAmount.from(buffer));
-
-        } catch (RuntimeException ex) {
-
-            Log.LOGGER.info(Log.CORE, "Tried to read an WideEnergyStack from invalid packet data");
-            return EMPTY;
-        }
-    }
-
-    public JsonElement serializeTo() {
-
-        final JsonObject json = new JsonObject();
-
-        JSONHelper.jsonSetEnum(json, "sys", this._system);
-        json.add("amount", this._amount.serializeTo(json));
-        return json;
-    }
-
-    public static WideEnergyStack from(final JsonElement element) {
-
-        try {
-
-            final JsonObject json = element.getAsJsonObject();
-
-            return new WideEnergyStack(JSONHelper.jsonGetEnum(json, "sys", EnergySystem.class),
-                    WideAmount.from(json.getAsJsonObject("amount")));
-
-        } catch (RuntimeException ex) {
-
-            Log.LOGGER.info(Log.CORE, "Tried to read an WideEnergyStack from invalid JSON data");
-            return EMPTY;
-        }
     }
 
     //region IEnergySystemAware

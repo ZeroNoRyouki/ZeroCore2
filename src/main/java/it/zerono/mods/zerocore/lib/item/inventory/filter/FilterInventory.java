@@ -20,12 +20,11 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -95,7 +94,7 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
     public ItemStack getStackInSlot(int slot) {
         return this.getFilterStack(slot)
                 .map(ItemStackFilterCondition::getFilterStack)
-                .orElse(ItemHelper.stackEmpty());
+                .orElse(ItemStack.EMPTY);
     }
 
     /**
@@ -113,7 +112,7 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 
         if (stack.isEmpty()) {
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         this.validateSlotIndex(slot);
@@ -126,7 +125,7 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
                 this.addFilterStack(slot, stack);
             }
 
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         final ItemStack existing = itemStackFilter.get().getFilterStack();
@@ -139,12 +138,12 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
                 itemStackFilter.get().setFilterStack(stack);
             }
 
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         int limit = stack.getMaxStackSize();
 
-        if (!ItemHandlerHelper.canItemStacksStack(stack, existing)) {
+        if (!ItemStack.isSameItemSameComponents(stack, existing)) {
             return stack;
         }
 
@@ -160,14 +159,14 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
             existing.grow(reachedLimit ? limit : stack.getCount());
         }
 
-        return reachedLimit ? ItemHelper.stackFrom(stack, stack.getCount() - limit) : ItemHelper.stackEmpty();
+        return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
     }
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
 
         if (amount == 0) {
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         this.validateSlotIndex(slot);
@@ -175,13 +174,13 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
         final Optional<ItemStackFilterCondition> itemStackFilter = this.getFilterStack(slot);
 
         if (!itemStackFilter.isPresent()) {
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         final ItemStack existing = itemStackFilter.get().getFilterStack();
 
         if (existing == null) {
-            return ItemHelper.stackEmpty();
+            return ItemStack.EMPTY;
         }
 
         int toExtract = Math.min(amount, existing.getMaxStackSize());
@@ -201,7 +200,7 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
                 itemStackFilter.get().setFilterStack(existing, existing.getCount() - toExtract);
             }
 
-            return ItemHelper.stackFrom(existing, toExtract);
+            return existing.copyWithCount(toExtract);
         }
     }
 
@@ -296,7 +295,8 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
             }
 
             @Override
-            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId, CompoundTag nbt) {
+            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId,
+                                                             HolderLookup.Provider registries, CompoundTag nbt) {
                 return Optional.empty();
             }
         });

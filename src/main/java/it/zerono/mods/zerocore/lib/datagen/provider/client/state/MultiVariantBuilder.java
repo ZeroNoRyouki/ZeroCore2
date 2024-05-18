@@ -6,16 +6,17 @@ import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.zerono.mods.zerocore.lib.datagen.provider.client.model.ModelBuilder;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import net.minecraft.Util;
 import net.minecraft.data.models.blockstates.BlockStateGenerator;
 import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class MultiVariantBuilder
         implements BlockStateGenerator {
@@ -48,7 +49,7 @@ public class MultiVariantBuilder
      * @param builder A builder used to create the new selector.
      * @return This builder.
      */
-    public MultiVariantBuilder selector(NonNullConsumer<SelectorBuilder> builder) {
+    public MultiVariantBuilder selector(Consumer<@NotNull SelectorBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
 
@@ -88,7 +89,7 @@ public class MultiVariantBuilder
      * @return This builder.
      */
     public <T extends Comparable<T>, V extends T> MultiVariantBuilder selector(Property<T> property, V value,
-                                                                               NonNullConsumer<ModelVariantBuilder> builder) {
+                                                                               Consumer<@NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(property, "Property must not be null");
         Preconditions.checkNotNull(value, "Value must not be null");
@@ -104,7 +105,7 @@ public class MultiVariantBuilder
      *
      * @param builder A builder used to create the model {@link Variant}s for each {@link BlockState}s.
      */
-    public void all(NonNullBiConsumer<BlockState, ModelVariantBuilder> builder) {
+    public void all(BiConsumer<@NotNull BlockState, @NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
 
@@ -226,13 +227,13 @@ public class MultiVariantBuilder
          * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
          * @return This builder.
          */
-        public SelectorBuilder variant(NonNullConsumer<ModelVariantBuilder> builder) {
+        public SelectorBuilder variant(Consumer<@NotNull ModelVariantBuilder> builder) {
 
             ModelVariantBuilder.build(this._modelVariants, this._modelBuilder, builder);
             return this;
         }
 
-        protected void build(NonNullBiConsumer<BlockState, ModelVariantsList> sink) {
+        protected void build(BiConsumer<@NotNull BlockState, @NotNull ModelVariantsList> sink) {
             sink.accept(this._state, this._modelVariants);
         }
 

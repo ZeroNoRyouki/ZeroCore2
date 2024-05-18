@@ -27,11 +27,12 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("WeakerAccess")
@@ -62,7 +63,7 @@ public abstract class ComputerPeripheral<P extends ComputerPeripheral<P>> {
      *
      * @param methodConsumer pass your methods to this Consumer
      */
-    public abstract void populateMethods(final NonNullConsumer<ComputerMethod<P>> methodConsumer);
+    public abstract void populateMethods(final Consumer<@NotNull ComputerMethod<P>> methodConsumer);
 
     public Object[] invoke(final String methodName, final Object[] arguments) {
         return this.getCollection().invoke(this.getPeripheral(), methodName, arguments);
@@ -132,7 +133,7 @@ public abstract class ComputerPeripheral<P extends ComputerPeripheral<P>> {
 
     private static final class MethodCollection<P extends ComputerPeripheral<P>> {
 
-        public static <P extends ComputerPeripheral<P>> MethodCollection<P> from(final NonNullConsumer<NonNullConsumer<ComputerMethod</*? extends */P>>> methodsGetter) {
+        public static <P extends ComputerPeripheral<P>> MethodCollection<P> from(final Consumer<@NotNull Consumer<@NotNull ComputerMethod<P>>> methodsGetter) {
 
             final List<ComputerMethod<P>> methods = Lists.newArrayList();
 

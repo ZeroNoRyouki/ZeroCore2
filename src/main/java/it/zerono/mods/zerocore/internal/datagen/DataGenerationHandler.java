@@ -21,11 +21,11 @@ package it.zerono.mods.zerocore.internal.datagen;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.datagen.ForgeModDataGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @SuppressWarnings("unused")
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class DataGenerationHandler {
 
     @SubscribeEvent

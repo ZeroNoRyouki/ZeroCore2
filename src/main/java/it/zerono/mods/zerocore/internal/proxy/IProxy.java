@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.internal.proxy;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -52,7 +53,7 @@ public interface IProxy {
                                     final Component... messages) {
 
         if (player instanceof ServerPlayer sp) {
-            Lib.NETWORK_HANDLER.sendToPlayer(sp, ErrorReportMessage.create(position, messages));
+            Lib.NETWORK_HANDLER.sendToPlayer(sp, new ErrorReportMessage(position, List.of(messages)));
         }
     }
 
@@ -60,7 +61,7 @@ public interface IProxy {
                                     final List<Component> messages) {
 
         if (player instanceof ServerPlayer sp) {
-            Lib.NETWORK_HANDLER.sendToPlayer(sp, ErrorReportMessage.create(position, messages));
+            Lib.NETWORK_HANDLER.sendToPlayer(sp, new ErrorReportMessage(position, messages));
         }
     }
 
@@ -81,4 +82,9 @@ public interface IProxy {
     }
 
     void debugUngrabMouse();
+
+    @Nullable
+    default ModContainer getCurrentClientSideModContainer() {
+        return null;
+    }
 }

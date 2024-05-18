@@ -5,8 +5,10 @@ import it.zerono.mods.zerocore.lib.datagen.provider.client.model.ModelBuilder;
 import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.data.models.blockstates.VariantProperties;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A builder for a block state variant.
@@ -16,7 +18,7 @@ import net.neoforged.neoforge.common.util.NonNullFunction;
 public class ModelVariantBuilder {
 
     static void build(ModelVariantsList sink, ModelBuilder modelBuilder,
-                      NonNullConsumer<ModelVariantBuilder> variantsBuilder) {
+                      Consumer<@NotNull ModelVariantBuilder> variantsBuilder) {
 
         Preconditions.checkNotNull(sink, "Sink must not be null");
         Preconditions.checkNotNull(modelBuilder, "Model builder must not be null");
@@ -92,7 +94,7 @@ public class ModelVariantBuilder {
      * @param builder A builder used to create or select the model.
      * @return This builder.
      */
-    public ModelVariantBuilder model(NonNullFunction<ModelBuilder, ResourceLocation> builder) {
+    public ModelVariantBuilder model(Function<@NotNull ModelBuilder, @NotNull ResourceLocation> builder) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
 

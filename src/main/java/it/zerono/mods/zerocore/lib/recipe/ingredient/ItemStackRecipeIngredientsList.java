@@ -1,10 +1,11 @@
 package it.zerono.mods.zerocore.lib.recipe.ingredient;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import net.minecraft.network.FriendlyByteBuf;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
@@ -14,26 +15,19 @@ import java.util.stream.Collectors;
 public class ItemStackRecipeIngredientsList
         implements IRecipeIngredient<ItemStack> {
 
-    public static final Codec<ItemStackRecipeIngredientsList> CODEC =
-            ItemStackRecipeIngredient.CODEC.listOf().xmap(ItemStackRecipeIngredientsList::from, l -> l._ingredients);
+    public static final ModCodecs<ItemStackRecipeIngredientsList, RegistryFriendlyByteBuf> CODECS = new ModCodecs<>(
+            ItemStackRecipeIngredient.CODECS.listCodec().xmap(ItemStackRecipeIngredientsList::from, l -> l._ingredients),
+            StreamCodec.composite(
+                    ItemStackRecipeIngredient.CODECS.listStreamCodec(), l -> l._ingredients,
+                    ItemStackRecipeIngredientsList::from
+            )
+    );
 
     public static ItemStackRecipeIngredientsList from(ItemStackRecipeIngredient... ingredients) {
         return new ItemStackRecipeIngredientsList(List.of(ingredients));
     }
 
     public static ItemStackRecipeIngredientsList from(List<ItemStackRecipeIngredient> ingredients) {
-        return new ItemStackRecipeIngredientsList(ingredients);
-    }
-
-    public static ItemStackRecipeIngredientsList from(FriendlyByteBuf buffer) {
-
-        final int count = buffer.readVarInt();
-        final List<ItemStackRecipeIngredient> ingredients = new ObjectArrayList<>(count);
-
-        for (int idx = 0; idx < count; ++idx) {
-            ingredients.add(ItemStackRecipeIngredient.from(buffer));
-        }
-
         return new ItemStackRecipeIngredientsList(ingredients);
     }
 
@@ -97,13 +91,6 @@ public class ItemStackRecipeIngredientsList
     @Override
     public boolean testIgnoreAmount(ItemStack stack) {
         return this._ingredients.stream().anyMatch(ingredient -> ingredient.testIgnoreAmount(stack));
-    }
-
-    @Override
-    public void serializeTo(FriendlyByteBuf buffer) {
-
-        buffer.writeVarInt(this._ingredients.size());
-        this._ingredients.forEach(ingredient -> ingredient.serializeTo(buffer));
     }
 
     //endregion

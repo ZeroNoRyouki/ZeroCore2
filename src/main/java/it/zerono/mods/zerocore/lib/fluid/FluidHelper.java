@@ -20,8 +20,10 @@ package it.zerono.mods.zerocore.lib.fluid;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -76,27 +78,24 @@ public final class FluidHelper {
     }
 
     public static FluidStack stackFrom(final FluidStack stack, final int amount) {
-        return new FluidStack(stack.getFluid(), amount);
+        return stack.copyWithAmount(amount);
     }
 
-    /**
-     * Create a stack from the given NBT data
-     *
-     * @param nbt an NBT Tag Compound containing the data of the stack to create
-     * @return the newly create stack
-     */
-    public static FluidStack stackFrom(final CompoundTag nbt) {
-        return FluidStack.loadFluidStackFromNBT(nbt);
+    public static FluidStack stackDeserializeFromNBT(HolderLookup.Provider registries, Tag input) {
+
+        if (input instanceof CompoundTag compound && compound.isEmpty()) {
+            return FluidStack.EMPTY;
+        } else {
+            return FluidStack.parse(registries, input).orElse(FluidStack.EMPTY);
+        }
     }
 
-    /**
-     * Serialize a stack to NBT
-     *
-     * @param stack the stack to serialize
-     * @return the serialized NBT data
-     */
-    public static CompoundTag stackToNBT(final FluidStack stack) {
-        return stack.writeToNBT(new CompoundTag());
+    public static Tag stackSerializeToNBT(HolderLookup.Provider registries, FluidStack stack) {
+        return stack.isEmpty() ? new CompoundTag() : stack.save(registries);
+    }
+
+    public static Tag stackSerializeToNBT(HolderLookup.Provider registries, FluidStack stack, Tag output) {
+        return stack.isEmpty() ? new CompoundTag() : stack.save(registries, output);
     }
 
     public static String toStringHelper(final FluidStack stack) {

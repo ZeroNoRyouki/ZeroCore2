@@ -46,13 +46,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.util.thread.EffectiveSide;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
-import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
-import net.neoforged.neoforge.event.TickEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -76,7 +72,6 @@ public class ClientProxy
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
-
     }
 
     @Override
@@ -144,13 +139,17 @@ public class ClientProxy
                 GuiHelper.enableGuiDebugFrame(data.contains("enable") && data.getBoolean("enable"));
                 break;
 
-            case ContainerDataSync:
-                this.getClientPlayer()
-                        .map(p -> p.containerMenu)
-                        .filter(c -> c instanceof ModContainer)
-                        .map(c -> (ModContainer)c)
-                        .ifPresent(mc -> mc.onContainerDataSync(data));
+            case ContainerDataSync: {
+
+                final ModContainer container = this.getCurrentClientSideModContainer();
+                final Player player = Minecraft.getInstance().player;
+
+                if (null != container && null != player) {
+                    container.onContainerDataSync(data, player.registryAccess());
+                }
+
                 break;
+            }
 
             default:
                 IForgeProxy.super.handleInternalCommand(command, data, flow);
@@ -161,6 +160,19 @@ public class ClientProxy
     @Override
     public void debugUngrabMouse() {
         Minecraft.getInstance().mouseHandler.releaseMouse();
+    }
+
+    @Nullable
+    @Override
+    public ModContainer getCurrentClientSideModContainer() {
+
+        final var player = Minecraft.getInstance().player;
+
+        if (null != player && player.containerMenu instanceof ModContainer modContainer) {
+            return modContainer;
+        }
+
+        return null;
     }
 
     //endregion
@@ -174,16 +186,13 @@ public class ClientProxy
         ModRecipeType.invalidate();
     }
 
-    private void onRenderTick(final TickEvent.RenderTickEvent event) {
+    private void onRenderTick(final RenderFrameEvent.Post event) {
 
-        if (TickEvent.Phase.END == event.phase) {
-
-            s_lastRenderTime = System.currentTimeMillis();
-            this._guiErrorData.tick();
-        }
+        s_lastRenderTime = System.currentTimeMillis();
+        this._guiErrorData.tick();
     }
 
-    private void onGameOverlayRender(final RenderGuiOverlayEvent.Post event) {
+    private void onGameOverlayRender(final RenderGuiLayerEvent.Post event) {
 
         if (!isGuiOpen()) {
             this.paintErrorMessage(event.getGuiGraphics());

@@ -5,14 +5,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
-import net.neoforged.neoforge.common.util.NonNullFunction;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ModIntrinsicTagAppender<T>
         extends ModTagAppender<T> {
 
-    public ModIntrinsicTagAppender(TagBuilder builder, NonNullFunction<T, ResourceKey<T>> keyProvider) {
+    public ModIntrinsicTagAppender(TagBuilder builder, Function<T, ResourceKey<T>> keyProvider) {
 
         super(builder);
 
@@ -82,7 +82,7 @@ public class ModIntrinsicTagAppender<T>
     //endregion
     //region internals
 
-    private final NonNullFunction<T, ResourceKey<T>> _keyProvider;
+    private final Function<T, ResourceKey<T>> _keyProvider;
 
     //endregion
 }

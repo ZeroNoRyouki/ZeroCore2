@@ -25,11 +25,12 @@ import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,7 +77,7 @@ public class ModRecipeType<Recipe extends ModRecipe>
         return this.stream().filter(filter).collect(Collectors.toList());
     }
 
-    public <R extends Recipe> List<R> getRecipes(final Predicate<Recipe> filter, final NonNullFunction<Recipe, R> mapping) {
+    public <R extends Recipe> List<R> getRecipes(final Predicate<Recipe> filter, final Function<@NotNull Recipe, @NotNull R> mapping) {
         return this.stream()
                 .filter(filter)
                 .map(mapping::apply)

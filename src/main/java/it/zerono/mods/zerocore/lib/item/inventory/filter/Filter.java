@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -101,7 +102,7 @@ public abstract class Filter implements IFilter {
     //region INBTSerializable
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
 
         final CompoundTag nbt = new CompoundTag();
         final ListTag conditionsList = new ListTag();
@@ -112,7 +113,7 @@ public abstract class Filter implements IFilter {
 
             nameTag.putString("name", name);
             conditionsList.add(nameTag);
-            conditionsList.add(FilterManager.getInstance().storeComponentToNBT(condition));
+            conditionsList.add(FilterManager.getInstance().storeComponentToNBT(provider, condition));
         });
 
         nbt.put(NBT_CONDITIONS_KEY, conditionsList);
@@ -122,7 +123,7 @@ public abstract class Filter implements IFilter {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 
         if (nbt.contains(NBT_CONDITIONS_KEY)) {
 
@@ -136,7 +137,7 @@ public abstract class Filter implements IFilter {
                 if (nameTag.contains("name") && (i + 1) < conditionsList.size()) {
 
                     final Optional<IFilterCondition> condition = FilterManager.<IFilterCondition>getInstance()
-                            .loadComponentFromNBT(conditionsList.getCompound(i + 1));
+                            .loadComponentFromNBT(provider, conditionsList.getCompound(i + 1));
 
                     condition.ifPresent(c -> this._conditions.put(nameTag.getString("name"), c));
                 }

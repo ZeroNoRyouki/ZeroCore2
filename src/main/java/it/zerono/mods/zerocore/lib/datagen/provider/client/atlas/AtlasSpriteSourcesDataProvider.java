@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.datagen.provider.AbstractCodecDataProvider;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
@@ -14,11 +13,13 @@ import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 public abstract class AtlasSpriteSourcesDataProvider
         extends AbstractCodecDataProvider<List<SpriteSource>> {
@@ -107,7 +108,7 @@ public abstract class AtlasSpriteSourcesDataProvider
     //region AbstractCodecDataProvider
 
     @Override
-    protected void processData(NonNullBiConsumer<ResourceLocation, List<SpriteSource>> consumer) {
+    protected void processData(BiConsumer<@NotNull ResourceLocation, @NotNull List<SpriteSource>> consumer) {
         this._atlases.forEach((id, sources) -> consumer.accept(id, sources._sources));
     }
 

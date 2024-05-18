@@ -26,14 +26,11 @@ import net.minecraft.world.level.material.Fluid;
 
 public final class TagsHelper<T> {
 
-    @SuppressWarnings("deprecation")
     public static final TagSource<Block> BLOCKS = new TagSource<>(() -> BuiltInRegistries.BLOCK);
-    @SuppressWarnings("deprecation")
     public static final TagSource<Item> ITEMS = new TagSource<>(() -> BuiltInRegistries.ITEM);
-    @SuppressWarnings("deprecation")
     public static final TagSource<Fluid> FLUIDS = new TagSource<>(() -> BuiltInRegistries.FLUID);
 
-    public static final TagKey<Item> TAG_WRENCH = ITEMS.createKey("forge:tools/wrench");
+    public static final TagKey<Item> TAG_WRENCH = ITEMS.createCommonKey("tools/wrench");
 
     //region internals
 

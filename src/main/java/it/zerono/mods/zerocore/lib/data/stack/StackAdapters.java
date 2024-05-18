@@ -24,8 +24,12 @@ import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.energy.EnergyStack;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.WideEnergyStack;
+import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -123,12 +127,12 @@ public final class StackAdapters {
 
             @Override
             public ItemStack create(Item content, int amount) {
-                return ItemHelper.stackFrom(content, amount);
+                return new ItemStack(content, amount);
             }
 
             @Override
             public ItemStack create(ItemStack stack) {
-                return ItemHelper.stackFrom(stack);
+                return stack.copy();
             }
 
             @Override
@@ -147,13 +151,13 @@ public final class StackAdapters {
             }
 
             @Override
-            public ItemStack readFrom(CompoundTag data) {
-                return ItemHelper.stackFrom(data);
+            public ItemStack deserialize(HolderLookup.Provider registries, Tag input) {
+                return ItemHelper.stackDeserializeFromNBT(registries, input);
             }
 
             @Override
-            public CompoundTag writeTo(ItemStack stack, CompoundTag data) {
-                return stack.save(data);
+            public Tag serialize(HolderLookup.Provider registries, ItemStack stack, Tag output) {
+                return ItemHelper.stackSerializeToNBT(registries, stack, output);
             }
 
             @Override
@@ -205,7 +209,7 @@ public final class StackAdapters {
 
             @Override
             public Optional<Fluid> getContent(FluidStack stack) {
-                return !stack.isEmpty() ? Optional.ofNullable(stack.getFluid()) : Optional.empty();
+                return !stack.isEmpty() ? Optional.of(stack.getFluid()) : Optional.empty();
             }
 
             @Override
@@ -241,7 +245,7 @@ public final class StackAdapters {
 
             @Override
             public boolean isStackContentEqual(FluidStack stack1, FluidStack stack2) {
-                return stack1.isFluidEqual(stack2);
+                return FluidStack.isSameFluidSameComponents(stack1, stack2);
             }
 
             @Override
@@ -251,7 +255,7 @@ public final class StackAdapters {
 
             @Override
             public boolean areIdentical(FluidStack stack1, FluidStack stack2) {
-                return stack1.isFluidStackIdentical(stack2);
+                return FluidStack.matches(stack1, stack2);
             }
 
             @Override
@@ -280,13 +284,13 @@ public final class StackAdapters {
             }
 
             @Override
-            public FluidStack readFrom(CompoundTag data) {
-                return FluidStack.loadFluidStackFromNBT(data);
+            public FluidStack deserialize(HolderLookup.Provider registries, Tag input) {
+                return FluidHelper.stackDeserializeFromNBT(registries, input);
             }
 
             @Override
-            public CompoundTag writeTo(FluidStack stack, CompoundTag data) {
-                return stack.writeToNBT(data);
+            public Tag serialize(HolderLookup.Provider registries, FluidStack stack, Tag output) {
+                return FluidHelper.stackSerializeToNBT(registries, stack, output);
             }
 
             @Override
@@ -413,13 +417,23 @@ public final class StackAdapters {
             }
 
             @Override
-            public EnergyStack readFrom(CompoundTag data) {
-                return EnergyStack.from(data);
+            public EnergyStack deserialize(HolderLookup.Provider registries, Tag input) {
+
+                if (input instanceof CompoundTag compound) {
+                    return EnergyStack.from(compound);
+                }
+
+                throw new IllegalArgumentException("Input must be a CompoundTag instance");
             }
 
             @Override
-            public CompoundTag writeTo(EnergyStack stack, CompoundTag data) {
-                return stack.serializeTo(data);
+            public Tag serialize(HolderLookup.Provider registries, EnergyStack stack, Tag output) {
+
+                if (output instanceof CompoundTag compound) {
+                    return stack.serializeTo(compound);
+                }
+
+                throw new IllegalArgumentException("Output must be a CompoundTag instance");
             }
 
             @Override
@@ -546,13 +560,13 @@ public final class StackAdapters {
             }
 
             @Override
-            public WideEnergyStack readFrom(CompoundTag data) {
-                return WideEnergyStack.from(data);
+            public WideEnergyStack deserialize(HolderLookup.Provider registries, Tag input) {
+                return WideEnergyStack.CODECS.codec().parse(NbtOps.INSTANCE, input).result().orElse(WideEnergyStack.EMPTY);
             }
 
             @Override
-            public CompoundTag writeTo(WideEnergyStack stack, CompoundTag data) {
-                return stack.serializeTo(data);
+            public Tag serialize(HolderLookup.Provider registries, WideEnergyStack stack, Tag output) {
+                return WideEnergyStack.CODECS.codec().encode(stack, NbtOps.INSTANCE, output).result().orElseGet(CompoundTag::new);
             }
 
             @Override

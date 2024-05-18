@@ -20,9 +20,12 @@ package it.zerono.mods.zerocore.lib.data.nbt;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 /**
  * Sync a generic entity from/to NBT
@@ -57,7 +60,7 @@ public interface ISyncableEntity {
      * @param data       the {@link CompoundTag} to read from
      * @param syncReason the reason why the synchronization is necessary
      */
-    default void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+    default void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
     }
 
     /**
@@ -67,7 +70,7 @@ public interface ISyncableEntity {
      * @param syncReason the reason why the synchronization is necessary
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
-    default CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
+    default CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
         return data;
     }
 
@@ -82,11 +85,12 @@ public interface ISyncableEntity {
      * @return true if the child data were found and the synchronization started
      */
     @SuppressWarnings("UnusedReturnValue")
-    default boolean syncChildDataEntityFrom(ISyncableEntity childEntity, String dataKey, CompoundTag parentData, SyncReason syncReason) {
+    default boolean syncChildDataEntityFrom(ISyncableEntity childEntity, String dataKey, CompoundTag parentData,
+                                            HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (parentData.contains(dataKey)) {
 
-            childEntity.syncDataFrom(parentData.getCompound(dataKey), syncReason);
+            childEntity.syncDataFrom(parentData.getCompound(dataKey), registries, syncReason);
             return true;
         }
 
@@ -102,18 +106,20 @@ public interface ISyncableEntity {
      * @param parentData  the parent {@link CompoundTag} to write to under the provided dataKey
      * @param syncReason  the reason why the synchronization is necessary
      */
-    default void syncChildDataEntityTo(ISyncableEntity childEntity, String dataKey, CompoundTag parentData, SyncReason syncReason) {
-        parentData.put(dataKey, childEntity.syncDataTo(new CompoundTag(), syncReason));
+    default void syncChildDataEntityTo(ISyncableEntity childEntity, String dataKey, CompoundTag parentData,
+                                       HolderLookup.Provider registries, SyncReason syncReason) {
+        parentData.put(dataKey, childEntity.syncDataTo(new CompoundTag(), registries, syncReason));
     }
 
     /**
-     * Call the provided {@link NonNullConsumer} if the specified {@link CompoundTag} element is present in the parent data.
+     * Call the provided {@link Consumer} if the specified {@link CompoundTag} element is present in the parent data.
      *
      * @param dataKey       the name of the element
      * @param parentData    the {@link CompoundTag} to read the element from
-     * @param consumer      a {@link NonNullConsumer} that will be called if the element is present
+     * @param consumer      a {@link Consumer} that will be called if the element is present
      */
-    default void syncDataElementFrom(String dataKey, CompoundTag parentData, NonNullConsumer<CompoundTag> consumer) {
+    default void syncDataElementFrom(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                     Consumer<@NotNull CompoundTag> consumer) {
 
         if (parentData.contains(dataKey)) {
             consumer.accept(parentData.getCompound(dataKey));
@@ -127,7 +133,8 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to store the element into
      * @param value         the value to store
      */
-    default void syncDataElementTo(String dataKey, CompoundTag parentData, CompoundTag value) {
+    default void syncDataElementTo(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                   CompoundTag value) {
         parentData.put(dataKey, value);
     }
 
@@ -138,10 +145,11 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to read the element from
      * @param value         the {@link ItemStackHandler} to load the data into
      */
-    default void syncDataElementFrom(String dataKey, CompoundTag parentData, ItemStackHandler value) {
+    default void syncDataElementFrom(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                     ItemStackHandler value) {
 
         if (parentData.contains(dataKey)) {
-            value.deserializeNBT(parentData.getCompound(dataKey));
+            value.deserializeNBT(registries, parentData.getCompound(dataKey));
         }
     }
 
@@ -152,8 +160,9 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to store the element into
      * @param value         the value to store
      */
-    default void syncDataElementTo(String dataKey, CompoundTag parentData, ItemStackHandler value) {
-        parentData.put(dataKey, value.serializeNBT());
+    default void syncDataElementTo(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                   ItemStackHandler value) {
+        parentData.put(dataKey, value.serializeNBT(registries));
     }
 
     /**
@@ -163,10 +172,11 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to read the element from
      * @param value         the {@link ItemStackHandler} to load the data into
      */
-    default void syncDataElementFrom(String dataKey, CompoundTag parentData, ItemStackHolder value) {
+    default void syncDataElementFrom(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                     ItemStackHolder value) {
 
         if (parentData.contains(dataKey)) {
-            value.deserializeNBT(parentData.getCompound(dataKey));
+            value.deserializeNBT(registries, parentData.getCompound(dataKey));
         }
     }
 
@@ -177,8 +187,9 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to store the element into
      * @param value         the value to store
      */
-    default void syncDataElementTo(String dataKey, CompoundTag parentData, ItemStackHolder value) {
-        parentData.put(dataKey, value.serializeNBT());
+    default void syncDataElementTo(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                   ItemStackHolder value) {
+        parentData.put(dataKey, value.serializeNBT(registries));
     }
 
     /**
@@ -188,7 +199,8 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to read the element from
      * @param consumer      a {@link BooleanConsumer} that will be called if the element is present
      */
-    default void syncBooleanElementFrom(String dataKey, CompoundTag parentData, BooleanConsumer consumer) {
+    default void syncBooleanElementFrom(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                        BooleanConsumer consumer) {
 
         if (parentData.contains(dataKey)) {
             consumer.accept(parentData.getBoolean(dataKey));
@@ -202,7 +214,8 @@ public interface ISyncableEntity {
      * @param parentData    the {@link CompoundTag} to store the element into
      * @param value         the value to store
      */
-    default void syncBooleanElementTo(String dataKey, CompoundTag parentData, boolean value) {
+    default void syncBooleanElementTo(String dataKey, CompoundTag parentData, HolderLookup.Provider registries,
+                                      boolean value) {
         parentData.putBoolean(dataKey, value);
     }
 }

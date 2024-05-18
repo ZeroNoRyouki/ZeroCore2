@@ -32,8 +32,8 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -43,7 +43,7 @@ public class FluidBar
 
     public FluidBar(final ModContainerScreen<? extends ModContainer> gui, final String name, final double maxValue,
                     final Supplier<Double> valueSupplier, final Supplier<FluidStack> fluidSupplier,
-                    final NonNullSupplier<ISprite> iconSprite, final String titleTooltipLine,
+                    final Supplier<@NotNull ISprite> iconSprite, final String titleTooltipLine,
                     @Nullable final String optionalTooltipLine) {
 
         super(gui, name, maxValue, valueSupplier, () -> Sprite.EMPTY, iconSprite);

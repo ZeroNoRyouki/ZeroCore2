@@ -20,14 +20,15 @@ package it.zerono.mods.zerocore.lib.data;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 public class UnmodifiableChildrenIterator<T, P>
         extends AbstractIterator<T> {
 
-    public UnmodifiableChildrenIterator(Iterator<P> parent, NonNullFunction<P, Iterator<T>> childProvider) {
+    public UnmodifiableChildrenIterator(Iterator<P> parent, Function<@NotNull P, @NotNull Iterator<T>> childProvider) {
 
         Preconditions.checkNotNull(parent, "Parent must not be null");
         Preconditions.checkNotNull(childProvider, "Child provider must not be null");
@@ -68,7 +69,7 @@ public class UnmodifiableChildrenIterator<T, P>
     //region internals
 
     private final Iterator<P> _parent;
-    private final NonNullFunction<P, Iterator<T>> _mapper;
+    private final Function<@NotNull P, @NotNull Iterator<T>> _mapper;
     private Iterator<T> _cursor;
 
     //endregion

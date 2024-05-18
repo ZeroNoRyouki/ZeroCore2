@@ -22,10 +22,11 @@ import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.recipe.AbstractTwoToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
         RecipeIngredient1 extends IRecipeIngredient<Ingredient1>, RecipeIngredient2 extends IRecipeIngredient<Ingredient2>,
@@ -54,7 +55,7 @@ public class TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
 
     //region internals
 
-    private final NonNullSupplier<Recipe> _recipeFactory;
+    private final Supplier<@NotNull Recipe> _recipeFactory;
 
     //endregion
 }

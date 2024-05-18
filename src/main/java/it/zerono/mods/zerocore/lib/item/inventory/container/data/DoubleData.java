@@ -18,10 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
@@ -41,28 +42,52 @@ public class DoubleData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final double current = this._getter.getAsDouble();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeDouble(this._getter.getAsDouble());
+            return new DoubleEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readDouble());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return DoubleEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof DoubleEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record DoubleEntry(double value)
+            implements ISyncedSetEntry {
+
+        private static DoubleEntry from(RegistryFriendlyByteBuf buffer) {
+            return new DoubleEntry(buffer.readDouble());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeDouble(this.value);
+        }
+    }
+
+    //endregion
 
     private final DoubleSupplier _getter;
     private final DoubleConsumer _setter;

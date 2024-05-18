@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.compat.computer;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.multiblock.AbstractMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -66,7 +66,7 @@ public abstract class MultiblockComputerPeripheral<Controller extends IMultibloc
      * @param methodConsumer pass your methods to this Consumer
      */
     @Override
-    public void populateMethods(final NonNullConsumer<ComputerMethod<MultiblockComputerPeripheral<Controller, Part>>> methodConsumer) {
+    public void populateMethods(final Consumer<@NotNull ComputerMethod<MultiblockComputerPeripheral<Controller, Part>>> methodConsumer) {
 
         methodConsumer.accept(new ComputerMethod<>("mbIsConnected", this.wrapPartValue(AbstractMultiblockPart::isConnected)));
 

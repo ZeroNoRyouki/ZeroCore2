@@ -25,11 +25,13 @@ import it.zerono.mods.zerocore.lib.data.IoMode;
 import it.zerono.mods.zerocore.lib.fluid.handler.FluidHandlerForwarder;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.common.util.NonNullFunction;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.EmptyFluidHandler;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockController<Controller>,
             Port extends AbstractMultiblockEntity<Controller> & IFluidPort>
@@ -91,7 +93,7 @@ public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockCo
     }
 
     @Override
-    public void update(NonNullFunction<IoDirection, IFluidHandler> handlerProvider) {
+    public void update(Function<@NotNull IoDirection, IFluidHandler> handlerProvider) {
         this._capabilityForwarder.setHandler(handlerProvider.apply(this.getIoEntity().getIoDirection()));
     }
 

@@ -27,6 +27,7 @@ import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.item.inventory.handler.TileEntityItemStackHandler;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
@@ -128,12 +129,12 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (syncReason.isFullSync()) {
 
-            syncInvFrom(data, "in", this._input);
-            syncInvFrom(data, "out", this._output);
+            syncInvFrom(data, registries, "in", this._input);
+            syncInvFrom(data, registries, "out", this._output);
         }
     }
 
@@ -145,12 +146,12 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (syncReason.isFullSync()) {
 
-            syncInvTo(data, "in", this._input);
-            syncInvTo(data, "out", this._output);
+            syncInvTo(data, registries, "in", this._input);
+            syncInvTo(data, registries, "out", this._output);
         }
 
         return data;
@@ -159,14 +160,14 @@ public abstract class AbstractChargingPortHandler<Controller extends AbstractCub
     //endregion
     //region internals
 
-    private static void syncInvTo(final CompoundTag data, final String name, final ItemStackHandler inv) {
-        data.put(name, inv.serializeNBT());
+    private static void syncInvTo(CompoundTag data, HolderLookup.Provider registries, String name, ItemStackHandler inv) {
+        data.put(name, inv.serializeNBT(registries));
     }
 
-    private static void syncInvFrom(final CompoundTag data, final String name, final ItemStackHandler inv) {
+    private static void syncInvFrom(CompoundTag data, HolderLookup.Provider registries, String name, ItemStackHandler inv) {
 
         if (data.contains(name)) {
-            inv.deserializeNBT(data.getCompound(name));
+            inv.deserializeNBT(registries, data.getCompound(name));
         }
     }
 

@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.slot.type;
 
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -39,7 +38,7 @@ public class SlotGhostInput extends SlotGeneric {
     public void set(ItemStack stack) {
 
         if (stack.isEmpty()) {
-            ItemHelper.stackSetSize(stack, 1);
+            stack.setCount(1);
         }
 
         super.set(stack);
@@ -72,6 +71,6 @@ public class SlotGhostInput extends SlotGeneric {
      */
     @Override
     public ItemStack remove(int amount) {
-        return ItemHelper.stackEmpty();
+        return ItemStack.EMPTY;
     }
 }

@@ -1,4 +1,4 @@
-# Zero CORE 2 - mods.toml
+# Zero CORE 2 - neoforge.mods.toml
 
 modLoader="javafml"
 loaderVersion="${loader_versionrange}"

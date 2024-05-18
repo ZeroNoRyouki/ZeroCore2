@@ -19,16 +19,29 @@
 package it.zerono.mods.zerocore.lib.data;
 
 import com.google.common.base.Strings;
+import io.netty.buffer.ByteBuf;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.ByIdMap;
+import net.minecraft.util.StringRepresentable;
 import net.neoforged.fml.LogicalSide;
 
+import java.util.function.IntFunction;
+
 public enum IoDirection
-        implements IDebuggable {
+        implements IDebuggable, StringRepresentable {
 
     Input,
     Output;
+
+    public static final IntFunction<IoDirection> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+
+    public static final ModCodecs<IoDirection, ByteBuf> CODECS = new ModCodecs<>(
+            StringRepresentable.fromEnum(IoDirection::values),
+            ByteBufCodecs.idMapper(BY_ID, Enum::ordinal)
+    );
 
     public boolean isInput() {
         return this == Input;
@@ -70,6 +83,14 @@ public enum IoDirection
     @Override
     public void getDebugMessages(final LogicalSide side, final IDebugMessages messages) {
         messages.addUnlocalized("Direction: %1$s", this);
+    }
+
+    //endregion
+    //region StringRepresentable
+
+    @Override
+    public String getSerializedName() {
+        return this.name();
     }
 
     //endregion

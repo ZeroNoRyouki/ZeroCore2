@@ -21,19 +21,22 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.AmountChangedEntry;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ItemStackData
         implements IContainerData {
 
-    public ItemStackData(final NonNullSupplier<ItemStack> getter, final NonNullConsumer<ItemStack> setter) {
+    public ItemStackData(final Supplier<@NotNull ItemStack> getter, final Consumer<@NotNull ItemStack> setter) {
 
         this._getter = getter;
         this._setter = setter;
@@ -54,9 +57,9 @@ public class ItemStackData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final ItemStack current = this._getter.get();
 
@@ -71,17 +74,9 @@ public class ItemStackData
             this._lastValue = current.copy();
 
             if (equalItem) {
-                return buffer -> {
-
-                    buffer.writeByte(1);
-                    buffer.writeVarInt(this._lastValue.getCount());
-                };
+                return new AmountChangedEntry(this._lastValue.getCount());
             } else {
-                return buffer -> {
-
-                    buffer.writeByte(0);
-                    buffer.writeItem(this._lastValue);
-                };
+                return new ItemStackEntry(this._lastValue);
             }
         }
 
@@ -89,27 +84,46 @@ public class ItemStackData
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return AmountChangedEntry.from(buffer, ItemStackEntry::from);
+    }
 
-        switch (dataSource.readByte()) {
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
 
-            case 0:
-                // full stack
-                this._setter.accept(dataSource.readItem());
-                break;
-
-            case 1:
-                // count only
-                this._setter.accept(ItemHelper.stackFrom(this._getter.get(), dataSource.readVarInt()));
-                break;
+        if (entry instanceof ItemStackEntry record) {
+            // full stack
+            this._setter.accept(record.value);
+        } else if (entry instanceof AmountChangedEntry record) {
+            // amount only
+            this._setter.accept(this._getter.get().copyWithCount(record.amount()));
         }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
 
-    private final NonNullSupplier<ItemStack> _getter;
-    private final NonNullConsumer<ItemStack> _setter;
+    private record ItemStackEntry(ItemStack value)
+            implements ISyncedSetEntry {
+
+        private static ItemStackEntry from(RegistryFriendlyByteBuf buffer) {
+            return new ItemStackEntry(ItemStack.OPTIONAL_STREAM_CODEC.decode(buffer));
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+
+            // mark this as a full stack update. See {@link AmountChangedEntry#from}
+            buffer.writeByte(1);
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buffer, this.value);
+        }
+    }
+
+    //endregion
+
+    private final Supplier<@NotNull ItemStack> _getter;
+    private final Consumer<@NotNull ItemStack> _setter;
     private ItemStack _lastValue;
 
     //endregion

@@ -18,10 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
@@ -41,28 +42,52 @@ public class IntData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final int current = this._getter.getAsInt();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeVarInt(this._getter.getAsInt());
+            return new IntEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readVarInt());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return IntEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof IntEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record IntEntry(int value)
+            implements ISyncedSetEntry {
+
+        private static IntEntry from(RegistryFriendlyByteBuf buffer) {
+            return new IntEntry(buffer.readInt());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeInt(this.value);
+        }
+    }
+
+    //endregion
 
     private final IntSupplier _getter;
     private final IntConsumer _setter;

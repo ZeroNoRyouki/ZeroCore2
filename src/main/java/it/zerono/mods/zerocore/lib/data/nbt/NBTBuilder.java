@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.data.nbt;
 
 import com.google.common.base.Strings;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.List;
@@ -47,10 +48,11 @@ public class NBTBuilder {
         return this;
     }
 
-    public NBTBuilder addEntity(final String name, final ISyncableEntity entity, final ISyncableEntity.SyncReason syncReason) {
+    public NBTBuilder addEntity(String name, ISyncableEntity entity, HolderLookup.Provider registries,
+                                ISyncableEntity.SyncReason syncReason) {
 
         validateName(name);
-        this._root.put(name, entity.syncDataTo(new CompoundTag(), syncReason));
+        this._root.put(name, entity.syncDataTo(new CompoundTag(), registries, syncReason));
         return this;
     }
 

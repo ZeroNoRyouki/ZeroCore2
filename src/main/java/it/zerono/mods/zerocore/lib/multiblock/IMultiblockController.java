@@ -46,6 +46,7 @@ import it.zerono.mods.zerocore.lib.multiblock.storage.IPartStorage;
 import it.zerono.mods.zerocore.lib.multiblock.validation.IMultiblockValidator;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 
@@ -202,7 +203,7 @@ public interface IMultiblockController<Controller extends IMultiblockController<
      * Sync the controller state from the save-delegate data
      * @param data the data
      */
-    void syncFromSaveDelegate(CompoundTag data, ISyncableEntity.SyncReason syncReason);
+    void syncFromSaveDelegate(CompoundTag data, HolderLookup.Provider registries, ISyncableEntity.SyncReason syncReason);
 
     /**
      * Check if the machine is whole or not.

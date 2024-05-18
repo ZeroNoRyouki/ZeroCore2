@@ -27,8 +27,9 @@ import it.zerono.mods.zerocore.lib.tag.TagsHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -57,16 +58,16 @@ public class IOPortBlock<Controller extends IMultiblockController<Controller>,
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level world, BlockPos position, Player player,
-                                 InteractionHand hand, BlockHitResult hit) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos position,
+                                              Player player, InteractionHand hand, BlockHitResult hit) {
 
         if (InteractionHand.MAIN_HAND == hand && player.getMainHandItem().is(TagsHelper.TAG_WRENCH)) {
 
             this.callOnLogicalServer(world, w -> this.getIIoEntity(w, position).ifPresent(IIoEntity::toggleIoDirection));
-            return InteractionResult.SUCCESS;
+            return ItemInteractionResult.SUCCESS;
         }
 
-        return super.use(state, world, position, player, hand, hit);
+        return super.useItemOn(stack, state, world, position, player, hand, hit);
     }
 
     //endregion

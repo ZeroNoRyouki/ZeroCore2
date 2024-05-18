@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.world;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import net.minecraft.core.BlockPos;
@@ -41,8 +40,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -357,7 +356,7 @@ public final class WorldHelper {
             z2 = 0.5F;
         }
 
-        final ItemEntity entity = new ItemEntity(world, x + x2, y + y2, z + z2, ItemHelper.stackFrom(stack));
+        final ItemEntity entity = new ItemEntity(world, x + x2, y + y2, z + z2, stack.copy());
 
         if (withMomentum) {
             entity.setDeltaMovement(world.random.nextGaussian() * 0.05F,

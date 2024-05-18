@@ -21,13 +21,15 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public class Picture
         extends AbstractControl {
 
-    public Picture(final ModContainerScreen<? extends ModContainer> gui, final String name, final NonNullSupplier<ISprite> picture) {
+    public Picture(final ModContainerScreen<? extends ModContainer> gui, final String name, final Supplier<@NotNull ISprite> picture) {
         this(gui, name, picture.get());
     }
 

@@ -52,6 +52,7 @@ import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.multiblock.registry.MultiblockRegistry;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -402,7 +403,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	//region ISyncableEntity
 
 	@Override
-	public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+	public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (data.contains("multiblockData")) {
 
@@ -419,7 +420,7 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
                 case NetworkUpdate:
                     CodeHelper.optionalIfPresentOrElse(this.getMultiblockController(),
                             // This part is connected to a machine, sync it
-                            c -> c.syncFromSaveDelegate(multiblockData, syncReason),
+                            c -> c.syncFromSaveDelegate(multiblockData, registries, syncReason),
                             // This part hasn't been added to a machine yet, so cache the data
                             () -> this._cachedMultiblockData = multiblockData);
                     break;
@@ -428,11 +429,10 @@ public abstract class AbstractMultiblockPart<Controller extends IMultiblockContr
 	}
 
 	@Override
-    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (this.isMultiblockSaveDelegate()) {
-            this.getMultiblockController()
-                    .ifPresent(c -> data.put("multiblockData", c.syncDataTo(new CompoundTag(), syncReason)));
+            this.executeOnController(c -> data.put("multiblockData", c.syncDataTo(new CompoundTag(), registries, syncReason)));
         }
 
 		return data;

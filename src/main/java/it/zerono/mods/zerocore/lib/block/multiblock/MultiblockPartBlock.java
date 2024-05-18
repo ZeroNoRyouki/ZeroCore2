@@ -29,11 +29,9 @@ import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -74,18 +72,12 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
      */
     @Override
     @SuppressWarnings("deprecation")
-    public InteractionResult use(BlockState state, Level world, BlockPos position, Player player,
-                                             InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos position, Player player,
+                                            BlockHitResult hit) {
 
         if (CodeHelper.calledByLogicalServer(world)) {
 
-            if (InteractionHand.MAIN_HAND == hand) {
-
-                final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
-                final ItemStack heldItem = player.getItemInHand(hand);
-
-                if (heldItem.isEmpty()) {
-
+                    final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
                     final Optional<Controller> controller = part.flatMap(IMultiblockPart::getMultiblockController);
 
                     // report any multiblock errors
@@ -101,7 +93,6 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                         CodeHelper.reportErrorToPlayer(player, error);
                         return InteractionResult.SUCCESS;
                     }
-                }
 
                 // open block GUI
 
@@ -112,7 +103,6 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                         .orElse(false)) {
                     return InteractionResult.CONSUME;
                 }
-            }
         } else {
 
             return WorldHelper.getMultiblockPartFrom(world, position)
@@ -123,7 +113,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                     .orElse(InteractionResult.PASS);
         }
 
-        return super.use(state, world, position, player, hand, hit);
+        return super.useWithoutItem(state, world, position, player, hit);
     }
 
     public static class MultiblockPartProperties<PartType extends IMultiblockPartType>

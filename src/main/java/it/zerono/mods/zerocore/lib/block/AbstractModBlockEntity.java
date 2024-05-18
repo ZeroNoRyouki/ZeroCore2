@@ -19,7 +19,6 @@
 package it.zerono.mods.zerocore.lib.block;
 
 import it.zerono.mods.zerocore.internal.Lib;
-import it.zerono.mods.zerocore.internal.network.TileCommandMessage;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
@@ -30,13 +29,16 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -74,6 +76,10 @@ public abstract class AbstractModBlockEntity
 
     public Block getBlockType() {
         return this.getBlockState().getBlock();
+    }
+
+    public ItemStack asStorableStack() {
+        return ItemStack.EMPTY;
     }
 
     //region Logical sides and deferred execution helpers
@@ -261,7 +267,7 @@ public abstract class AbstractModBlockEntity
      * @param extraDataWriter Consumer for extra data to be sent to the client
      * @return true if the message was sent, false otherwise
      */
-    public boolean openGui(final ServerPlayer player, final Consumer<FriendlyByteBuf> extraDataWriter) {
+    public boolean openGui(final ServerPlayer player, final Consumer<RegistryFriendlyByteBuf> extraDataWriter) {
         return this.openGuiOnClient(player, extraDataWriter);
     }
 
@@ -281,40 +287,29 @@ public abstract class AbstractModBlockEntity
     //region TileEntity synchronization
 
     @Override
-    public void load(final CompoundTag data) {
+    public void loadAdditional(CompoundTag data, HolderLookup.Provider registries) {
 
-        super.load(data);
-        this.syncEntityDataFrom(data, SyncReason.FullSync);
+        super.loadAdditional(data, registries);
+        this.syncEntityDataFrom(data, registries, SyncReason.FullSync);
     }
 
     @Override
-    protected void saveAdditional(final CompoundTag data) {
+    protected void saveAdditional(CompoundTag data, HolderLookup.Provider registries) {
 
-        super.saveAdditional(data);
-        this.syncEntityDataTo(data, SyncReason.FullSync);
+        super.saveAdditional(data, registries);
+        this.syncEntityDataTo(data, registries, SyncReason.FullSync);
     }
 
-    /**
-     * Called when the chunk's TE update tag, gotten from {@link #getUpdateTag()}, is received on the client.
-     * <p>
-     * Used to handle this tag in a special way. By default this simply calls readFromNBT(NBTTagCompound).
-     *
-     * @param data The {@link CompoundTag} sent from {@link #getUpdateTag()}
-     */
     @Override
-    public void handleUpdateTag(final CompoundTag data) {
+    public void handleUpdateTag(CompoundTag data, HolderLookup.Provider registries) {
 
-        super.handleUpdateTag(data);
-        this.syncEntityDataFrom(data, SyncReason.NetworkUpdate);
+        super.handleUpdateTag(data, registries);
+        this.syncEntityDataFrom(data, registries, SyncReason.NetworkUpdate);
     }
 
-    /**
-     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
-     * many blocks change at once. This compound comes back to you clientside in handleUpdateTag
-     */
     @Override
-    public CompoundTag getUpdateTag() {
-        return this.syncEntityDataTo(super.getUpdateTag(), SyncReason.NetworkUpdate);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return this.syncEntityDataTo(super.getUpdateTag(registries), registries, SyncReason.NetworkUpdate);
     }
 
     /**
@@ -327,14 +322,14 @@ public abstract class AbstractModBlockEntity
      * @param packet The data packet
      */
     @Override
-    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
+    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
 
-        super.onDataPacket(net, packet);
+        super.onDataPacket(net, packet, registries);
 
         final var data = packet.getTag();
 
         if (null != data) {
-            this.syncEntityDataFrom(packet.getTag(), SyncReason.NetworkUpdate);
+            this.syncEntityDataFrom(packet.getTag(), registries, SyncReason.NetworkUpdate);
         }
     }
 
@@ -352,7 +347,7 @@ public abstract class AbstractModBlockEntity
         this.DataUpdate.raise(Runnable::run);
     }
 
-    private void syncEntityDataFrom(CompoundTag data, SyncReason syncReason) {
+    private void syncEntityDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         CompoundTag dataToSync = data;
 
@@ -371,21 +366,21 @@ public abstract class AbstractModBlockEntity
             }
         }
 
-        this.syncDataFrom(dataToSync, syncReason);
+        this.syncDataFrom(dataToSync, registries, syncReason);
         this.onDataUpdate();
     }
 
-    private CompoundTag syncEntityDataTo(CompoundTag data, SyncReason syncReason) {
+    private CompoundTag syncEntityDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (syncReason.isFullSync()) {
 
             data.putInt("zcvase_version", this.syncGetEntityDataCurrentVersion());
-            data.put("zcvase_payload", this.syncDataTo(new CompoundTag(), syncReason));
+            data.put("zcvase_payload", this.syncDataTo(new CompoundTag(), registries, syncReason));
             return data;
 
         } else {
 
-            return this.syncDataTo(data, syncReason);
+            return this.syncDataTo(data, registries, syncReason);
         }
     }
 
@@ -412,7 +407,7 @@ public abstract class AbstractModBlockEntity
      * @param parameters the parameters for the command
      */
     public void sendCommandToServer(final String name, final CompoundTag parameters) {
-        Lib.NETWORK_HANDLER.sendToServer(TileCommandMessage.create(this, name, parameters));
+        Lib.sendBlockEntityMessage(this, name, parameters);
     }
 
     /**
@@ -431,7 +426,7 @@ public abstract class AbstractModBlockEntity
      * @param parameters the parameters for the command
      */
     public void sendCommandToPlayer(final ServerPlayer player, final String name, final CompoundTag parameters) {
-        Lib.NETWORK_HANDLER.sendToPlayer(player, TileCommandMessage.create(this, name, parameters));
+        Lib.sendBlockEntityMessage(player,this, name, parameters);
     }
 
     /**
@@ -573,12 +568,12 @@ public abstract class AbstractModBlockEntity
      * @param extraDataWriter Optional consumer for optional data
      * @return true if the message was sent, false otherwise
      */
-    private boolean openGuiOnClient(final ServerPlayer player, final Consumer<FriendlyByteBuf> extraDataWriter) {
+    private boolean openGuiOnClient(final ServerPlayer player, final Consumer<RegistryFriendlyByteBuf> extraDataWriter) {
         return this.callOnLogicalServer(() -> {
 
             if (this instanceof MenuProvider provider && !(player instanceof FakePlayer)) {
 
-                final Consumer<FriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
+                final Consumer<RegistryFriendlyByteBuf> positionWriter = buffer -> buffer.writeBlockPos(this.getBlockPos());
 
                 player.openMenu(provider, positionWriter.andThen(extraDataWriter));
                 return true;

@@ -18,16 +18,17 @@
 
 package it.zerono.mods.zerocore.lib.data;
 
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Deprecated
 public class IteratorTracker<T> {
 
-    public IteratorTracker(final NonNullSupplier<Iterator<T>> factory) {
+    public IteratorTracker(final Supplier<@NotNull Iterator<T>> factory) {
 
         this._factory = factory;
         this.reset();
@@ -62,7 +63,7 @@ public class IteratorTracker<T> {
 
     //region internals
 
-    private final NonNullSupplier<Iterator<T>> _factory;
+    private final Supplier<@NotNull Iterator<T>> _factory;
     private Iterator<T> _iterator;
 
     //endregion

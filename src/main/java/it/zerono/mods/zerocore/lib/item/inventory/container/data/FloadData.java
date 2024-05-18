@@ -20,10 +20,10 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import it.zerono.mods.zerocore.lib.functional.FloatSupplier;
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-
-import javax.annotation.Nullable;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class FloadData
         implements IContainerData {
@@ -41,28 +41,52 @@ public class FloadData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final float current = this._getter.getAsFloat();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeFloat(this._getter.getAsFloat());
+            return new FloatEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readFloat());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return FloatEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof FloatEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record FloatEntry(float value)
+            implements ISyncedSetEntry {
+
+        private static FloatEntry from(RegistryFriendlyByteBuf buffer) {
+            return new FloatEntry(buffer.readFloat());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeFloat(this.value);
+        }
+    }
+
+    //endregion
 
     private final FloatSupplier _getter;
     private final FloatConsumer _setter;

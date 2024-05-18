@@ -25,6 +25,7 @@ import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.nbt.IMergeableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.LogicalSide;
 
@@ -497,7 +498,7 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         final IStackAdapter<Stack, Content> adapter = this.getStackAdapter();
 
@@ -507,7 +508,7 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
 
             if (data.contains(index.name())) {
 
-                stack = adapter.readFrom(data.getCompound(index.name()));
+                stack = adapter.deserialize(registries, data.getCompound(index.name()));
 
             } else {
 
@@ -528,11 +529,12 @@ public class IndexedStackContainer<Index extends Enum<Index>, Content, Stack>
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         final IStackAdapter<Stack, Content> adapter = this.getStackAdapter();
 
-        this.getValidIndexes().forEach(index -> data.put(index.name(), adapter.writeTo(this.getStack(index), new CompoundTag())));
+        this.getValidIndexes().forEach(index -> data.put(index.name(),
+                adapter.serialize(registries, this.getStack(index), new CompoundTag())));
         return data;
     }
 

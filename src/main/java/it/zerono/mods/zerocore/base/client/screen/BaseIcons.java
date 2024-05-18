@@ -23,12 +23,13 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteBuilder;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteTextureMap;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.function.Supplier;
 
 public enum BaseIcons
-        implements NonNullSupplier<ISprite> {
+        implements Supplier<@NotNull ISprite> {
 
     Button16x16HightlightOverlay(builder().from(0, 0).build()),
     Button16x16DisabledOverlay(builder().from(16, 0).build()),

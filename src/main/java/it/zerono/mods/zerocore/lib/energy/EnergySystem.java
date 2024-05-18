@@ -19,11 +19,19 @@
 package it.zerono.mods.zerocore.lib.energy;
 
 import com.google.common.base.Strings;
+import io.netty.buffer.ByteBuf;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.ByIdMap;
+import net.minecraft.util.StringRepresentable;
 
-public enum EnergySystem {
+import java.util.function.IntFunction;
+
+public enum EnergySystem
+        implements StringRepresentable {
 
     ForgeEnergy("Forge Energy", "FE", 1d),
     RedstoneFlux("Redstone Flux", "RF", 1d),
@@ -33,6 +41,13 @@ public enum EnergySystem {
     Joules("Joules", "J", 2.5d),
     GalacticraftJoules("Galacticraft Joules", "gJ", 1.6d)
     ;
+
+    public static final IntFunction<EnergySystem> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+
+    public static final ModCodecs<EnergySystem, ByteBuf> CODECS = new ModCodecs<>(
+            StringRepresentable.fromEnum(EnergySystem::values),
+            ByteBufCodecs.idMapper(BY_ID, Enum::ordinal)
+    );
 
     /**
      * The reference system, used for conversions
@@ -112,6 +127,14 @@ public enum EnergySystem {
         return CodeHelper.formatAsHumanReadableNumber(value, this.getUnit());
     }
 
+    //region StringRepresentable
+
+    @Override
+    public String getSerializedName() {
+        return this._name;
+    }
+
+    //endregion
     //region Object
 
     /**

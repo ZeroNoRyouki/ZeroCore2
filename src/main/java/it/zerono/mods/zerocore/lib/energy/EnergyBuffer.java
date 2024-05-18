@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.energy;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.LogicalSide;
 
@@ -230,7 +231,7 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         this.setCapacity(data.getDouble("capacity"));
         this.setMaxInsert(data.getDouble("maxInsert"));
@@ -245,7 +246,7 @@ public class EnergyBuffer implements IWideEnergyStorage, ISyncableEntity, IDebug
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         final EnergySystem localSystem = this.getEnergySystem();
 

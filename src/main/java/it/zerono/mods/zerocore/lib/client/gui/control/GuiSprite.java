@@ -22,10 +22,11 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteTextureMap;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public enum GuiSprite
         implements ISprite {
@@ -125,7 +126,7 @@ public enum GuiSprite
     }
 
     @Override
-    public void applyOverlay(final NonNullConsumer<ISprite> overlayConsumer) {
+    public void applyOverlay(final Consumer<@NotNull ISprite> overlayConsumer) {
 
         if (null != this._overlay) {
             overlayConsumer.accept(this._overlay);

@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -44,11 +45,11 @@ public class ItemStackFilterCondition implements IFilterCondition {
     }
 
     public void setFilterStack(final ItemStack filterStack) {
-        this._filterStack = ItemHelper.stackFrom(filterStack);
+        this._filterStack = filterStack.copy();
     }
 
     public void setFilterStack(final ItemStack filterStack, int amount) {
-        this._filterStack = ItemHelper.stackFrom(filterStack, amount);
+        this._filterStack = filterStack.copyWithCount(amount);
     }
 
     public boolean isValid() {
@@ -68,21 +69,21 @@ public class ItemStackFilterCondition implements IFilterCondition {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
 
         final CompoundTag nbt = new CompoundTag();
 
         if (null != this._filterStack) {
-            nbt.put(NBT_KEY, this._filterStack.save(new CompoundTag()));
+            nbt.put(NBT_KEY, ItemHelper.stackSerializeToNBT(registries, this._filterStack));
         }
 
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
         this._filterStack = null == nbt || !nbt.contains(NBT_KEY) ? null :
-                ItemHelper.stackFrom(nbt.getCompound(NBT_KEY));
+                ItemHelper.stackDeserializeFromNBT(registries, nbt.getCompound(NBT_KEY));
     }
 
     private ItemStackFilterCondition() {
@@ -108,12 +109,13 @@ public class ItemStackFilterCondition implements IFilterCondition {
             }
 
             @Override
-            public Optional<ItemStackFilterCondition> createComponent(ResourceLocation componentId, CompoundTag nbt) {
+            public Optional<ItemStackFilterCondition> createComponent(ResourceLocation componentId,
+                                                                      HolderLookup.Provider registries, CompoundTag nbt) {
 
                 return this.createComponent(componentId)
                         .map(condition -> {
 
-                            condition.deserializeNBT(nbt);
+                            condition.deserializeNBT(registries, nbt);
                             return condition.isValid() ? condition : null;
                         });
             }

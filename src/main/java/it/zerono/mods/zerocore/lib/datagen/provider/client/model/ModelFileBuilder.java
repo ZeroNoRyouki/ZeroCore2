@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.data.models.model.DelegatedModel;
@@ -17,19 +16,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ModelFileBuilder
         implements Supplier<JsonElement> {
 
-    public ModelFileBuilder(ResourceLocation id, NonNullBiConsumer<ResourceLocation, Supplier<JsonElement>> sink) {
+    public ModelFileBuilder(ResourceLocation id, BiConsumer<@NotNull ResourceLocation, @NotNull Supplier<JsonElement>> sink) {
 
         this._id = Preconditions.checkNotNull(id);
         this._sink = Preconditions.checkNotNull(sink);
@@ -155,7 +156,7 @@ public class ModelFileBuilder
      * @param builder A builder used to define the new element.
      * @return This builder.
      */
-    public ModelFileBuilder element(NonNullConsumer<ElementBuilder> builder) {
+    public ModelFileBuilder element(Consumer<@NotNull ElementBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
 
@@ -170,7 +171,7 @@ public class ModelFileBuilder
      * @param builder A builder used to define the new item transformation.
      * @return This builder.
      */
-    public ModelFileBuilder transformation(ItemDisplayContext type, NonNullConsumer<ItemTransformBuilder> builder) {
+    public ModelFileBuilder transformation(ItemDisplayContext type, Consumer<@NotNull ItemTransformBuilder> builder) {
 
         Preconditions.checkNotNull(type, "Transformation type must not be null");
         Preconditions.checkNotNull(builder, "Builder must not be null");
@@ -186,7 +187,7 @@ public class ModelFileBuilder
      * @param builder A builder used to define the new override.
      * @return This builder.
      */
-    public ModelFileBuilder override(NonNullConsumer<ItemOverrideBuilder> builder) {
+    public ModelFileBuilder override(Consumer<@NotNull ItemOverrideBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
 
@@ -776,7 +777,7 @@ public class ModelFileBuilder
 
     private final ResourceLocation _id;
     private final boolean _targetIsItem;
-    private final NonNullBiConsumer<ResourceLocation, Supplier<JsonElement>> _sink;
+    private final BiConsumer<ResourceLocation, Supplier<JsonElement>> _sink;
     private final List<Supplier<JsonElement>> _elements;
     private final Map<ItemDisplayContext, ItemTransformBuilder> _itemTransformations;
     private final List<Supplier<JsonElement>> _itemOverrides;

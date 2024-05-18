@@ -20,8 +20,11 @@ package it.zerono.mods.zerocore.lib.fluid;
 
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
+import it.zerono.mods.zerocore.lib.data.component.FluidTankComponent;
+import it.zerono.mods.zerocore.lib.data.component.IComponentProvider;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -33,7 +36,7 @@ import java.util.function.BiPredicate;
 
 public class FluidTank
         extends AbstractStackHolder<FluidTank, FluidStack>
-        implements IFluidHandler, IFluidTank, ISyncableEntity, IDebuggable {
+        implements IFluidHandler, IFluidTank, ISyncableEntity, IDebuggable, IComponentProvider<FluidTankComponent> {
 
     public FluidTank(final int capacity) {
         this._capacity = capacity;
@@ -63,7 +66,7 @@ public class FluidTank
         this._capacity = Math.max(0, capacity);
 
         if (this._content.getAmount() > capacity) {
-            this.setContent(new FluidStack(this._content, capacity));
+            this.setContent(this._content.copyWithAmount(capacity));
         }
 
         return this;
@@ -197,7 +200,7 @@ public class FluidTank
                 return Math.min(this._capacity, resource.getAmount());
             }
 
-            if (!this._content.isFluidEqual(resource)) {
+            if (!FluidStack.isSameFluidSameComponents(this._content, resource)) {
                 return 0;
             }
 
@@ -206,12 +209,12 @@ public class FluidTank
 
         if (this._content.isEmpty()) {
 
-            this._content = new FluidStack(resource, Math.min(this._capacity, resource.getAmount()));
+            this._content = resource.copyWithAmount(Math.min(this._capacity, resource.getAmount()));
             this.onChange(ChangeType.Added, 0);
             return this._content.getAmount();
         }
 
-        if (!this._content.isFluidEqual(resource)) {
+        if (!FluidStack.isSameFluidSameComponents(this._content, resource)) {
             return 0;
         }
 
@@ -246,7 +249,7 @@ public class FluidTank
     @Override
     public FluidStack drain(final FluidStack resource, final FluidAction action) {
 
-        if (resource.isEmpty() || !resource.isFluidEqual(this._content)) {
+        if (resource.isEmpty() || !FluidStack.isSameFluidSameComponents(resource, this._content)) {
             return FluidStack.EMPTY;
         }
 
@@ -268,7 +271,7 @@ public class FluidTank
     public FluidStack drain(final int maxDrain, final FluidAction action) {
 
         final int drained = Math.min(this._content.getAmount(), maxDrain);
-        final FluidStack stack = new FluidStack(this._content, drained);
+        final FluidStack stack = this._content.copyWithAmount(drained);
 
         if (action.execute() && drained > 0) {
 
@@ -297,14 +300,14 @@ public class FluidTank
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (data.contains("capacity")) {
             this.setCapacity(data.getInt("capacity"));
         }
 
         if (data.contains("content")) {
-            this.setContent(FluidHelper.stackFrom(data.getCompound("content")));
+            this.setContent(FluidHelper.stackDeserializeFromNBT(registries, data.getCompound("content")));
         }
 
         this.onLoad();
@@ -318,11 +321,27 @@ public class FluidTank
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundTag syncDataTo(CompoundTag data, SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         data.putInt("capacity", this.getCapacity());
-        data.put("content", FluidHelper.stackToNBT(this.getFluid()));
+        data.put("content", FluidHelper.stackSerializeToNBT(registries, this.getFluid()));
         return data;
+    }
+
+    //endregion
+    //region ComponentProvider<FluidTankComponent>
+
+    @Override
+    public FluidTankComponent createDataComponent() {
+        return new FluidTankComponent(this._capacity, this._content.copy());
+    }
+
+    @Override
+    public void mergeComponent(FluidTankComponent component) {
+
+        this.setCapacity(component.capacity());
+        this.setContent(component.content());
+        this.onLoad();
     }
 
     //endregion

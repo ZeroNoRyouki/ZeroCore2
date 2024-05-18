@@ -10,7 +10,9 @@ import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.data.models.blockstates.VariantProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 public class SingleVariantBuilder
         implements BlockStateGenerator {
@@ -54,7 +56,7 @@ public class SingleVariantBuilder
      *
      * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
      */
-    public void variant(NonNullConsumer<ModelVariantBuilder> builder) {
+    public void variant(Consumer<@NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Variant builder must not be null");
 

@@ -13,11 +13,11 @@ import net.minecraft.data.models.blockstates.Variant;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class MultiPartBuilder
         implements BlockStateGenerator {
@@ -56,7 +56,7 @@ public class MultiPartBuilder
      * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
      * @return This builder.
      */
-    public MultiPartBuilder part(NonNullConsumer<ModelVariantBuilder> builder) {
+    public MultiPartBuilder part(Consumer<@NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
 
@@ -93,7 +93,7 @@ public class MultiPartBuilder
      * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
      * @return This builder.
      */
-    public MultiPartBuilder part(Condition condition, NonNullConsumer<ModelVariantBuilder> builder) {
+    public MultiPartBuilder part(Condition condition, Consumer<@NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(condition, "Condition must not be null");
         Preconditions.checkNotNull(builder, "Builder must not be null");
@@ -112,7 +112,7 @@ public class MultiPartBuilder
      * @param variants The model {@link Variant}s.
      * @return This builder.
      */
-    public MultiPartBuilder part(NonNullConsumer<ConditionBuilder> builder, Variant... variants) {
+    public MultiPartBuilder part(Consumer<@NotNull ConditionBuilder> builder, Variant... variants) {
 
         Preconditions.checkNotNull(builder, "Builder must not be null");
         Preconditions.checkArgument(variants.length > 0, "At least one variant must be provided");
@@ -134,7 +134,7 @@ public class MultiPartBuilder
      * @return This builder.
      */
     public <T extends Comparable<T>> MultiPartBuilder part(Property<T> property, T value,
-                                                           NonNullConsumer<ModelVariantBuilder> builder) {
+                                                           Consumer<@NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(property, "Property must not be null");
         Preconditions.checkNotNull(value, "Value must not be null");
@@ -175,8 +175,8 @@ public class MultiPartBuilder
      * @param builder The {@link ModelVariantBuilder} used to build the new model variants.
      * @return This builder.
      */
-    public MultiPartBuilder part(NonNullConsumer<ConditionBuilder> conditionBuilder,
-                                 NonNullConsumer<ModelVariantBuilder> builder) {
+    public MultiPartBuilder part(Consumer<@NotNull ConditionBuilder> conditionBuilder,
+                                 Consumer<@NotNull ModelVariantBuilder> builder) {
 
         Preconditions.checkNotNull(conditionBuilder, "Condition builder must not be null");
         Preconditions.checkNotNull(builder, "Variant builder must not be null");
@@ -216,7 +216,7 @@ public class MultiPartBuilder
 
     private static class Part
             extends ModelVariantsList
-            implements NonNullSupplier<JsonElement> {
+            implements Supplier<@NotNull JsonElement> {
 
         public Part() {
             super(16);

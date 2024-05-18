@@ -18,9 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.data.stack;
 
+import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import it.unimi.dsi.fastutil.ints.Int2ObjectFunction;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -39,7 +41,9 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
 
     protected AbstractStackHolder(final BiPredicate<Integer, Stack> stackValidator) {
 
-        this._stackValidator = Objects.requireNonNull(stackValidator);
+        Preconditions.checkNotNull(stackValidator, "Stack validator must not be null");
+
+        this._stackValidator = stackValidator;
         this._onChangeListener = (change, index) -> {};
         this._onLoadListener = CodeHelper.VOID_RUNNABLE;
         this._maxCapacityProvider = $ -> 0;
@@ -53,8 +57,9 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
     this._onChangeListener.accept(change, index);
     }
 
-    protected <StackType, ContentType> void syncFrom(final CompoundTag data, final IStackAdapter<StackType, ContentType> adapter,
-                                                     final Int2ObjectFunction<List<StackType>> itemsListSupplier) {
+    protected <StackType, ContentType> void syncFrom(CompoundTag data, HolderLookup.Provider registries,
+                                                     IStackAdapter<StackType, ContentType> adapter,
+                                                     Int2ObjectFunction<List<StackType>> itemsListSupplier) {
 
         final List<StackType> stacks = itemsListSupplier.get(data.getInt("Size"));
         final ListTag tagList = data.getList("Items", Tag.TAG_COMPOUND);
@@ -65,15 +70,15 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
             final int slot = itemTags.getInt("Slot");
 
             if (slot >= 0 && slot < stacks.size()) {
-                stacks.set(slot, adapter.readFrom(itemTags));
+                stacks.set(slot, adapter.deserialize(registries, itemTags));
             }
         }
 
         this.onLoad();
     }
 
-    protected <StackType, ContentType> CompoundTag syncTo(final CompoundTag data, final List<StackType> items,
-                                                          final IStackAdapter<StackType, ContentType> adapter) {
+    protected <StackType, ContentType> CompoundTag syncTo(CompoundTag data, HolderLookup.Provider registries,
+                                                          List<StackType> items, IStackAdapter<StackType, ContentType> adapter) {
 
         final ListTag nbtTagList = new ListTag();
 
@@ -84,7 +89,7 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
                 final CompoundTag itemTag = new CompoundTag();
 
                 itemTag.putInt("Slot", i);
-                adapter.writeTo(items.get(i), itemTag);
+                adapter.serialize(registries, items.get(i), itemTag);
                 nbtTagList.add(itemTag);
             }
         }

@@ -20,10 +20,10 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import it.unimi.dsi.fastutil.bytes.ByteConsumer;
 import it.zerono.mods.zerocore.lib.functional.ByteSupplier;
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-
-import javax.annotation.Nullable;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ByteData
         implements IContainerData {
@@ -41,28 +41,52 @@ public class ByteData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final byte current = this._getter.getAsByte();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeByte(this._getter.getAsByte());
+            return new ByteEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readByte());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return ByteEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof ByteEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record ByteEntry(byte value)
+            implements ISyncedSetEntry {
+
+        private static ByteEntry from(RegistryFriendlyByteBuf buffer) {
+            return new ByteEntry(buffer.readByte());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeByte(this.value);
+        }
+    }
+
+    //endregion
 
     private final ByteSupplier _getter;
     private final ByteConsumer _setter;

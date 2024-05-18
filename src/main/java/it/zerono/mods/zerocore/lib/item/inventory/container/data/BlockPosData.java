@@ -18,17 +18,19 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BlockPosData
         implements IContainerData {
 
-    public BlockPosData(final NonNullSupplier<BlockPos> getter, final NonNullConsumer<BlockPos> setter) {
+    public BlockPosData(Supplier<@NotNull BlockPos> getter, Consumer<@NotNull BlockPos> setter) {
 
         this._getter = getter;
         this._setter = setter;
@@ -37,9 +39,9 @@ public class BlockPosData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final BlockPos current = this._getter.get();
         final int currentHash = current.hashCode();
@@ -47,22 +49,46 @@ public class BlockPosData
         if (this._lastHash != currentHash) {
 
             this._lastHash = currentHash;
-            return buffer -> buffer.writeBlockPos(this._getter.get());
+            return new BlockPosEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readBlockPos());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return BlockPosEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof BlockPosEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
 
-    private final NonNullSupplier<BlockPos> _getter;
-    private final NonNullConsumer<BlockPos> _setter;
+    private record BlockPosEntry(BlockPos value)
+            implements ISyncedSetEntry {
+
+        private static BlockPosEntry from(RegistryFriendlyByteBuf buffer) {
+            return new BlockPosEntry(buffer.readBlockPos());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeBlockPos(this.value);
+        }
+    }
+
+    //endregion
+
+    private final Supplier<@NotNull BlockPos> _getter;
+    private final Consumer<@NotNull BlockPos> _setter;
     private int _lastHash;
 
     //endregion

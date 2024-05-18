@@ -64,6 +64,7 @@ import it.zerono.mods.zerocore.lib.world.ChunkCache;
 import it.zerono.mods.zerocore.lib.world.NeighboringPositions;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -97,9 +98,9 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param data the data
      */
     @Override
-    public void syncFromSaveDelegate(final CompoundTag data, final SyncReason syncReason) {
+    public void syncFromSaveDelegate(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
-        this.syncDataFrom(data, syncReason);
+        this.syncDataFrom(data, registries, syncReason);
         this.requestDataUpdateNotification();
     }
 
@@ -162,7 +163,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 
             part.forMultiblockSaveData(data -> {
 
-                this.syncFromSaveDelegate(data, SyncReason.FullSync);
+                this.syncFromSaveDelegate(data, this.getWorld().registryAccess(), SyncReason.FullSync);
                 part.onMultiblockDataAssimilated();
             });
         }
@@ -751,7 +752,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(CompoundTag data, SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
         this.requestDataUpdateNotification();
     }
 
@@ -816,7 +817,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
         this._reference = new ReferencePartTracker<>();
         this._boundingBox = CuboidBoundingBox.EMPTY;
         this._shouldCheckForDisconnections = false;
-        this._syncProvider = NetworkTileEntitySyncProvider.create(
+        this._syncProvider = NetworkTileEntitySyncProvider.create(this._world,
                 () -> this.getReferenceCoord().orElseGet(() -> new BlockPos(0, 0, 0)), this);
         this._requestDataUpdateNotification = false;
         this._needBuildingBoxRebuild = false;

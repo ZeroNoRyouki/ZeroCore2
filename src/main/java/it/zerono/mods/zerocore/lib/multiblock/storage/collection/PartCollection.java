@@ -21,17 +21,18 @@ import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
-import net.neoforged.neoforge.common.util.NonNullPredicate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class PartCollection<Controller extends IMultiblockController<Controller>,
                                 Part extends IMultiblockPart<Controller>>
         implements IPartCollection<Controller, Part> {
 
-    public PartCollection(final int initialSize, final NonNullPredicate<IMultiblockPart<Controller>> validator) {
+    public PartCollection(final int initialSize, final Predicate<@NotNull IMultiblockPart<Controller>> validator) {
 
         this._initialSize = initialSize;
         this._validator = validator;
@@ -112,7 +113,7 @@ public class PartCollection<Controller extends IMultiblockController<Controller>
     //region internals
 
     private final int _initialSize;
-    private final NonNullPredicate<IMultiblockPart<Controller>> _validator;
+    private final Predicate<@NotNull IMultiblockPart<Controller>> _validator;
     private ObjectList<Part> _list;
 
     //endregion

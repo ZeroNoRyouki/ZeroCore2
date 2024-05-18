@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Objects;
@@ -168,7 +169,7 @@ public class RecipeHolder<Recipe extends ModRecipe>
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(final CompoundTag data, final SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (data.contains("recipetick")) {
             this.getHeldRecipe().ifPresent(r -> r.loadCurrentTick(data.getInt("recipetick")));
@@ -183,7 +184,7 @@ public class RecipeHolder<Recipe extends ModRecipe>
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         data.putInt("recipetick", this.getHeldRecipe().map(IHeldRecipe::getCurrentTick).orElse(0));
         return data;

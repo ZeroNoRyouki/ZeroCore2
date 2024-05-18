@@ -31,12 +31,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiFunction;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -60,9 +60,8 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
-import net.neoforged.neoforge.common.util.NonNullFunction;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nonnull;
@@ -617,7 +616,7 @@ public final class CodeHelper {
     //endregion
     //region Non-null wrappers
 
-    public static <T> NonNullSupplier<T> asNonNull(final Supplier<T> supplier, final NonNullSupplier<T> fallbackValue) {
+    public static <T> Supplier<@NotNull T> asNonNull(final Supplier<T> supplier, final Supplier<@NotNull T> fallbackValue) {
         return () -> {
 
             final T current = supplier.get();
@@ -626,7 +625,7 @@ public final class CodeHelper {
         };
     }
 
-    public static <T, R> NonNullFunction<T, R> asNonNull(final Function<T, R> function, final NonNullFunction<T, R> fallbackValue) {
+    public static <T, R> Function<T, R> asNonNull(final Function<T, R> function, final Function<@NotNull T, @NotNull R> fallbackValue) {
         return (T v) -> {
 
             final R current = function.apply(v);
@@ -638,8 +637,8 @@ public final class CodeHelper {
     //endregion
     //region Lazy helpers (from V3)
 
-    public static <T> NonNullSupplier<T> lazy(NonNullSupplier<T> supplier) {
-        return new NonNullSupplier<T>() {
+    public static <T> Supplier<@NotNull T> lazy(Supplier<@NotNull T> supplier) {
+        return new Supplier<@NotNull T>() {
 
             @Nonnull
             @Override
@@ -657,8 +656,8 @@ public final class CodeHelper {
         };
     }
 
-    public static <T, R> NonNullFunction<T, R> lazy(NonNullFunction<T, R> function) {
-        return new NonNullFunction<T, R>() {
+    public static <T, R> Function<@NotNull T, @NotNull R> lazy(Function<@NotNull T, @NotNull R> function) {
+        return new Function<@NotNull T, @NotNull R>() {
 
             @Override
             public @Nonnull R apply(@Nonnull T arg1) {
@@ -675,8 +674,9 @@ public final class CodeHelper {
         };
     }
 
-    public static <T1, T2, R> NonNullBiFunction<T1, T2, R> lazy(NonNullBiFunction<T1, T2, R> function) {
-        return new NonNullBiFunction<T1, T2, R>() {
+    public static <T1, T2, R> BiFunction<@NotNull T1, @NotNull T2, @NotNull R>
+    lazy(BiFunction<@NotNull T1, @NotNull T2, @NotNull R> function) {
+        return new BiFunction<@NotNull T1, @NotNull T2, @NotNull R>() {
 
             @Override
             public @Nonnull R apply(@Nonnull T1 arg1, @Nonnull T2 arg2) {
@@ -760,7 +760,7 @@ public final class CodeHelper {
      * @throws NullPointerException if the supplying function is {@code null} or produces a {@code null} result
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <T> Optional<T> optionalOr(Optional<T> opt, NonNullSupplier<? extends Optional<? extends T>> supplier) {
+    public static <T> Optional<T> optionalOr(Optional<T> opt, Supplier<@NotNull ? extends Optional<? extends T>> supplier) {
 
         Objects.requireNonNull(supplier);
 
@@ -872,6 +872,33 @@ public final class CodeHelper {
 
     //endregion
     //region misc
+
+    public static <E> NonNullList<E> asNonNullList(Collection<E> source) {
+
+        Preconditions.checkNotNull(source, "Source must not be null");
+
+        final NonNullList<E> list = NonNullList.createWithCapacity(source.size());
+
+        list.addAll(source);
+        return list;
+    }
+
+    public static <E> void replaceNonNullListElements(NonNullList<E> target, NonNullList<E> source) {
+
+        Preconditions.checkNotNull(target, "Target must not be null");
+        Preconditions.checkNotNull(source, "Source must not be null");
+
+        // stop the compiler from assuming too much about the size() of a NonNullList
+        final int stacksSize = target.size();
+
+        final int max = Math.min(stacksSize, source.size());
+
+        target.clear();
+
+        for (int idx = 0; idx < max; ++idx) {
+            target.set(idx, source.get(idx));
+        }
+    }
 
     /**
      * i18n support and helper functions

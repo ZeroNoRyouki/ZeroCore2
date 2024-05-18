@@ -19,17 +19,18 @@
 package it.zerono.mods.zerocore.lib.client.text;
 
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.common.util.NonNullFunction;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static it.zerono.mods.zerocore.lib.CodeHelper.TEXT_EMPTY_LINE;
 
 public class BindableTextComponent<Value>
-        implements NonNullSupplier<Component>, Consumer<Value> {
+        implements Supplier<@NotNull Component>, Consumer<Value> {
 
-    public BindableTextComponent(final NonNullFunction<Value, Component> builder) {
+    public BindableTextComponent(final Function<@NotNull Value, @NotNull Component> builder) {
 
         this._builder = builder;
         this._cachedText = null;
@@ -61,7 +62,7 @@ public class BindableTextComponent<Value>
     //endregion
     //region internals
 
-    private final NonNullFunction<Value, Component> _builder;
+    private final Function<@NotNull Value, @NotNull Component> _builder;
     private Component _cachedText;
     private Value _cachedValue;
 

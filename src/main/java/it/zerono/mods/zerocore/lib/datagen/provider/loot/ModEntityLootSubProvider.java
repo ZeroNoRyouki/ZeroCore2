@@ -3,7 +3,7 @@ package it.zerono.mods.zerocore.lib.datagen.provider.loot;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.data.loot.EntityLootSubProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -22,20 +22,20 @@ public abstract class ModEntityLootSubProvider
     }
 
     @Override
-    protected void add(EntityType<?> entityType, ResourceLocation table, LootTable.Builder builder) {
+    protected void add(EntityType<?> entityType, ResourceKey<LootTable> defaultTable, LootTable.Builder builder) {
 
         Preconditions.checkState(this._registeredTypes.add(entityType),
                 "Entity type %s was already added to this sub provider", entityType);
 
-        super.add(entityType, table, builder);
+        super.add(entityType, defaultTable, builder);
     }
 
     protected void add(Supplier<EntityType<?>> entityType, LootTable.Builder builder) {
         this.add(entityType.get(), builder);
     }
 
-    protected void add(Supplier<EntityType<?>> entityType, ResourceLocation table, LootTable.Builder builder) {
-        this.add(entityType.get(), table, builder);
+    protected void add(Supplier<EntityType<?>> entityType, ResourceKey<LootTable> defaultTable, LootTable.Builder builder) {
+        this.add(entityType.get(), defaultTable, builder);
     }
 
     //region EntityLootSubProvider

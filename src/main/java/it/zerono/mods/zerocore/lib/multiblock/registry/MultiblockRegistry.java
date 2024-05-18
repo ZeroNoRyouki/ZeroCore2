@@ -53,8 +53,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.Map;
 
@@ -192,11 +192,8 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
     }
 
     @SubscribeEvent
-    public void onWorldTick(final TickEvent.LevelTickEvent event) {
-
-        if (TickEvent.Phase.START == event.phase) {
-            this.tickStart(event.level);
-        }
+    public void onWorldTick(final LevelTickEvent.Pre event) {
+        this.tickStart(event.getLevel());
     }
 
     //endregion

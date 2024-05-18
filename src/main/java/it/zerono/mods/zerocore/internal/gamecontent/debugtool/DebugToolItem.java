@@ -31,13 +31,12 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.LogicalSide;
 
 import javax.annotation.Nullable;
@@ -68,13 +67,15 @@ public class DebugToolItem
      * allows items to add custom lines of information to the mouseover description
      */
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 
+        tooltip.add(Component.empty());
         tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip1"));
-        tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip2", ChatFormatting.ITALIC.toString()));
-        tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip3", ChatFormatting.GREEN,
-                ChatFormatting.GRAY.toString() + ChatFormatting.ITALIC.toString()));
+        tooltip.add(Component.translatable("zerocore:debugTool.block.tooltip2").withStyle(ChatFormatting.ITALIC));
+        tooltip.add(Component.empty());
+        tooltip.add(Component.empty()
+                .append(Component.translatable("zerocore:debugTool.block.tooltip3a").withStyle(ChatFormatting.GREEN))
+                .append(Component.translatable("zerocore:debugTool.block.tooltip3b")));
     }
 
     /**

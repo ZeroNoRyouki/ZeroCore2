@@ -13,17 +13,18 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullFunction;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class ForgeModDataGenerator
         implements IModDataGenerator {
 
     public ForgeModDataGenerator(GatherDataEvent gatherDataEvent, ResourceLocationBuilder modRootLocation,
-                                 NonNullConsumer<IModDataGenerator> providersConfigurator) {
+                                 Consumer<@NotNull IModDataGenerator> providersConfigurator) {
 
         Preconditions.checkNotNull(gatherDataEvent);
         Preconditions.checkNotNull(modRootLocation);
@@ -81,7 +82,7 @@ public class ForgeModDataGenerator
 
     @Override
     public <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey,
-                                    NonNullFunction<T, ResourceKey<T>> elementKeyProvider,
+                                    Function<@NotNull T, @NotNull ResourceKey<T>> elementKeyProvider,
                                     IIntrinsicTagDataProvider<T> provider) {
 
         Preconditions.checkNotNull(registryKey, "Registry key must not be null");

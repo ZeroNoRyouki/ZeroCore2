@@ -46,7 +46,7 @@ public final class DebuggableHelper {
             messages.addUnlocalized("FluidStack: EMPTY");
         } else {
             messages.add(Component.literal("FluidStack: [")
-                    .append(stack.getDisplayName())
+                    .append(stack.getHoverName())
                     .append("] ")
                     .append(Integer.toString(stack.getAmount())));
         }

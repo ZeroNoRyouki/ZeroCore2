@@ -18,9 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.recipe.result;
 
-import com.mojang.serialization.Codec;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import net.minecraft.network.FriendlyByteBuf;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -28,15 +29,16 @@ import net.minecraft.world.level.ItemLike;
 public class ItemStackRecipeResult
     implements IRecipeResult<ItemStack> {
 
-    public static final Codec<ItemStackRecipeResult> CODEC =
-            ItemStack.CODEC.xmap(ItemStackRecipeResult::from, ItemStackRecipeResult::getResult);
+    public static final ModCodecs<ItemStackRecipeResult, RegistryFriendlyByteBuf> CODECS = new ModCodecs<>(
+            ItemStack.CODEC.xmap(ItemStackRecipeResult::from, ItemStackRecipeResult::getResult),
+            StreamCodec.composite(
+                    ItemStack.STREAM_CODEC, ItemStackRecipeResult::getResult,
+                    ItemStackRecipeResult::new
+            )
+    );
 
     public static ItemStackRecipeResult from(final ItemStack stack) {
         return new ItemStackRecipeResult(stack);
-    }
-
-    public static ItemStackRecipeResult from(final FriendlyByteBuf buffer) {
-        return new ItemStackRecipeResult(buffer.readItem());
     }
 
     public static ItemStackRecipeResult from(final ItemLike item) {
@@ -76,11 +78,6 @@ public class ItemStackRecipeResult
     @Override
     public boolean isEmpty() {
         return this._result.isEmpty();
-    }
-
-    @Override
-    public void serializeTo(final FriendlyByteBuf buffer) {
-        buffer.writeItem(this._result);
     }
 
     //endregion

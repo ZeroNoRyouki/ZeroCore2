@@ -19,10 +19,11 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.BooleanSupplier;
 
 public class BooleanData
@@ -41,28 +42,52 @@ public class BooleanData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final boolean current = this._getter.getAsBoolean();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeBoolean(this._getter.getAsBoolean());
+            return new BooleanEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readBoolean());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return BooleanEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof BooleanEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record BooleanEntry(boolean value)
+            implements ISyncedSetEntry {
+
+        private static BooleanEntry from(RegistryFriendlyByteBuf buffer) {
+            return new BooleanEntry(buffer.readBoolean());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeBoolean(this.value);
+        }
+    }
+
+    //endregion
 
     private final BooleanSupplier _getter;
     private final BooleanConsumer _setter;

@@ -19,52 +19,44 @@
 package it.zerono.mods.zerocore.lib.network;
 
 import com.google.common.base.Preconditions;
-import net.minecraft.network.FriendlyByteBuf;
+import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * A generic custom packet for the play phase
  */
-public abstract class AbstractPlayPacket
+public abstract class AbstractPlayPacket<Packet extends AbstractPlayPacket<Packet>>
         implements CustomPacketPayload {
 
-    /**
-     * Construct the local packet to be sent over the network
-     *
-     * @param packetId The ID of this packet
-     */
-    protected AbstractPlayPacket(ResourceLocation packetId) {
-
-        Preconditions.checkNotNull(packetId, "Message ID must not be null");
-        this._id = packetId;
+    public static <T extends AbstractPlayPacket<T>> Type<T> createType(ResourceLocationBuilder builder, String name) {
+        return new Type<>(builder.buildWithSuffix(name));
     }
 
     /**
-     * Construct the packet from the data received from the network.
-     * Read your payload from the {@link FriendlyByteBuf} and store it locally for later processing.
+     * Initializes a newly created {@code AbstractPlayPacket} object
      *
-     * @param packetId The ID of this packet
-     * @param buffer The {@link FriendlyByteBuf} containing the data received from the network
+     * @param type The {@link Type} of this packet
      */
-    protected AbstractPlayPacket(ResourceLocation packetId, FriendlyByteBuf buffer) {
-        this(packetId);
+    protected AbstractPlayPacket(Type<Packet> type) {
+
+        Preconditions.checkNotNull(type, "Type must not be null");
+        this._type = type;
     }
 
-    public abstract void handlePacket(PlayPayloadContext context);
+    public abstract void handlePacket(IPayloadContext context);
 
     //region CustomPacketPayload
 
     @Override
-    public ResourceLocation id() {
-        return this._id;
+    public Type<Packet> type() {
+        return _type;
     }
 
     //endregion
     //region internals
 
-    private final ResourceLocation _id;
+    private final Type<Packet> _type;
 
     //endregion
 }

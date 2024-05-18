@@ -18,21 +18,27 @@
 
 package it.zerono.mods.zerocore.lib.recipe.ingredient;
 
-import com.mojang.serialization.Codec;
+import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
-import java.util.Objects;
 
 public class FluidStackRecipeIngredient
         implements IRecipeIngredient<FluidStack> {
 
-    public static final Codec<FluidStackRecipeIngredient> CODEC =
-            FluidStack.CODEC.xmap(FluidStackRecipeIngredient::from, l -> l._ingredient);
+    public static final ModCodecs<FluidStackRecipeIngredient, RegistryFriendlyByteBuf> CODECS = new ModCodecs<>(
+            FluidStack.CODEC.xmap(FluidStackRecipeIngredient::from, i -> i._ingredient),
+            StreamCodec.composite(
+                    FluidStack.STREAM_CODEC, i -> i._ingredient,
+                    FluidStackRecipeIngredient::new
+            )
+    );
 
     public static FluidStackRecipeIngredient from(final Fluid fluid, final int amount) {
         return from(new FluidStack(fluid, amount));
@@ -42,20 +48,19 @@ public class FluidStackRecipeIngredient
         return new FluidStackRecipeIngredient(stack);
     }
 
-    public static FluidStackRecipeIngredient from(final FriendlyByteBuf buffer) {
-        return new FluidStackRecipeIngredient(FluidStack.readFromPacket(buffer));
-    }
-
     @Override
     public boolean isCompatible(final FluidStack stack) {
-        return Objects.requireNonNull(stack).isFluidEqual(this._ingredient);
+
+        Preconditions.checkNotNull(stack, "Stack must not be null");
+
+        return FluidStack.isSameFluidSameComponents(this._ingredient, stack);
     }
 
     @Override
     public boolean isCompatible(final FluidStack... ingredients) {
 
         for (final FluidStack stack : ingredients) {
-            if (stack.isFluidEqual(this._ingredient)) {
+            if (FluidStack.isSameFluidSameComponents(this._ingredient, stack)) {
                 return true;
             }
         }
@@ -86,13 +91,6 @@ public class FluidStackRecipeIngredient
     @Override
     public boolean isEmpty() {
         return this._ingredient.isEmpty();
-    }
-
-    @Override
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        buffer.writeByte(1);
-        this._ingredient.writeToPacket(buffer);
     }
 
     @Override

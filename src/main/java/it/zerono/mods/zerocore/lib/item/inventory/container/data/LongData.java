@@ -18,10 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.LongConsumer;
 import java.util.function.LongSupplier;
 
@@ -41,28 +42,52 @@ public class LongData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final long current = this._getter.getAsLong();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeVarLong(this._getter.getAsLong());
+            return new LongEntry(current);
         }
 
         return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readVarLong());
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return LongEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof LongEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record LongEntry(long value)
+            implements ISyncedSetEntry {
+
+        private static LongEntry from(RegistryFriendlyByteBuf buffer) {
+            return new LongEntry(buffer.readLong());
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeLong(this.value);
+        }
+    }
+
+    //endregion
 
     private final LongSupplier _getter;
     private final LongConsumer _setter;

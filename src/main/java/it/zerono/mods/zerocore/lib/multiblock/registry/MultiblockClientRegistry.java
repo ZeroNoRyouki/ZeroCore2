@@ -45,8 +45,8 @@ import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 
 public class MultiblockClientRegistry<Controller extends IMultiblockController<Controller>>
     extends MultiblockRegistry<Controller> {
@@ -56,11 +56,11 @@ public class MultiblockClientRegistry<Controller extends IMultiblockController<C
     }
 
     @SubscribeEvent
-    public void onClientTick(final TickEvent.ClientTickEvent event) {
+    public void onClientTick(final ClientTickEvent.Pre event) {
 
         final Level world = Minecraft.getInstance().level;
 
-        if (TickEvent.Phase.START == event.phase && null != world) {
+        if (null != world) {
             this.tickStart(world);
         }
     }

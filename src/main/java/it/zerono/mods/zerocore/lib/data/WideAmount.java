@@ -18,11 +18,14 @@
 
 package it.zerono.mods.zerocore.lib.data;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Mth;
 
 import java.math.BigDecimal;
@@ -47,6 +50,18 @@ public class WideAmount
     public static final WideAmount ZERO;
     public static final WideAmount ONE;
 
+    public static final ModCodecs<WideAmount, ByteBuf> CODECS = new ModCodecs<>(
+            RecordCodecBuilder.create(instance ->
+                    instance.group(
+                            Codec.LONG.fieldOf("i").forGetter(WideAmount::getIntegerPart),
+                            Codec.SHORT.fieldOf("d").forGetter(WideAmount::getDecimalPart)
+                    ).apply(instance, WideAmount::from)),
+            StreamCodec.composite(
+                    ByteBufCodecs.VAR_LONG, WideAmount::getIntegerPart,
+                    ByteBufCodecs.SHORT, WideAmount::getDecimalPart,
+                    WideAmount::from)
+    );
+
     public static WideAmount from(final long integerPart, final short decimalPart) {
         return getKnowValueOrCreate(integerPart, decimalPart, WideAmount::new);
     }
@@ -59,18 +74,6 @@ public class WideAmount
         return from(integerPartFrom(value), decimalPartFrom(value));
     }
 
-    public static WideAmount from(final FriendlyByteBuf buffer) {
-        return from(buffer.readVarLong(), buffer.readShort());
-    }
-
-    public static WideAmount from(final CompoundTag nbt) {
-        return from(nbt.getLong("i"), nbt.getShort("d"));
-    }
-
-    public static WideAmount from(final JsonObject json) {
-        return from(JSONHelper.jsonGetLong(json, "i"), JSONHelper.jsonGetShort(json, "d"));
-    }
-
     public static WideAmount asImmutable(final long integerPart, final short decimalPart) {
         return getKnowValueOrCreate(integerPart, decimalPart, Immutable::new);
     }
@@ -81,26 +84,6 @@ public class WideAmount
 
     public static WideAmount asImmutable(final double value) {
         return asImmutable(integerPartFrom(value), decimalPartFrom(value));
-    }
-
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        buffer.writeVarLong(this.getIntegerPart());
-        buffer.writeShort(this.getDecimalPart());
-    }
-
-    public JsonObject serializeTo(final JsonObject json) {
-
-        JSONHelper.jsonSetLong(json, "i", this.getIntegerPart());
-        JSONHelper.jsonSetShort(json, "d", this.getDecimalPart());
-        return json;
-    }
-
-    public CompoundTag serializeTo(final CompoundTag nbt) {
-
-        nbt.putLong("i", this.getIntegerPart());
-        nbt.putShort("d", this.getDecimalPart());
-        return nbt;
     }
 
     public static WideAmount parse(final String text) {
@@ -467,6 +450,14 @@ public class WideAmount
         }
 
         return Long.toUnsignedString(this._integerPart) + "." + decimalAsString;
+    }
+
+    public Tag serializeToNBT() {
+        return CODECS.encode(this, NbtOps.INSTANCE).getOrThrow();
+    }
+
+    public static WideAmount deserializeFromNBT(Tag data) {
+        return CODECS.decode(data, NbtOps.INSTANCE).getOrThrow();
     }
 
     //region Comparable<WideValue>

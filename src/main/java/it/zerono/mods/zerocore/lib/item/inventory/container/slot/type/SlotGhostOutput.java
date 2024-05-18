@@ -18,7 +18,6 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.slot.type;
 
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +57,7 @@ public class SlotGhostOutput extends SlotGeneric {
      */
     @Override
     public ItemStack remove(int amount) {
-        return ItemHelper.stackEmpty();
+        return ItemStack.EMPTY;
     }
 
     /**

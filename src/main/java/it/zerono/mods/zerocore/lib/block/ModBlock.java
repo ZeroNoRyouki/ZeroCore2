@@ -19,11 +19,11 @@
 package it.zerono.mods.zerocore.lib.block;
 
 import it.zerono.mods.zerocore.lib.CodeHelper;
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +40,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -76,8 +76,7 @@ public class ModBlock
     @FunctionalInterface
     public interface IStackStorableTooltipBuilder {
 
-        void build(ItemStack stack, CompoundTag data, @Nullable BlockGetter world,
-                   NonNullConsumer<Component> appender, boolean isAdvancedTooltip);
+        void build(ItemStack stack, Item.TooltipContext context, Consumer<@NotNull Component> appender, TooltipFlag flag);
     }
 
     public static class ExtendedProperties<T extends ExtendedProperties<T>> {
@@ -151,14 +150,6 @@ public class ModBlock
         this._stackStorable = extendedProperties._stackStorable;
         this._stackStorableTooltipBuilder = extendedProperties._stackStorableTooltipBuilder;
         this.registerDefaultState(this.buildDefaultState(this.getStateDefinition().any()));
-    }
-
-    public ItemStack createItemStack() {
-            return ItemHelper.stackFrom(this, 1);
-    }
-
-    public ItemStack createItemStack(final int amount) {
-        return ItemHelper.stackFrom(this, amount);
     }
 
     public BlockItem createBlockItem(final Item.Properties properties) {
@@ -313,6 +304,22 @@ public class ModBlock
     //region Block
 
     @Override
+    public BlockState playerWillDestroy(Level level, BlockPos position, BlockState state, Player player) {
+
+        if (!level.isClientSide() && player.isCreative() &&
+                level.getBlockEntity(position) instanceof AbstractModBlockEntity blockEntity) {
+
+            final ItemEntity itemEntity = new ItemEntity(level, position.getX(), position.getY(), position.getZ(),
+                    blockEntity.asStorableStack());
+
+            itemEntity.setDefaultPickUpDelay();
+            level.addFreshEntity(itemEntity);
+        }
+
+        return super.playerWillDestroy(level, position, state, player);
+    }
+
+    @Override
     public VoxelShape getBlockSupportShape(BlockState state, BlockGetter reader, BlockPos pos) {
         return super.getBlockSupportShape(state, reader, pos);
     }
@@ -342,23 +349,10 @@ public class ModBlock
     }
 
     @Override
-    public void appendHoverText(final ItemStack stack, final @Nullable BlockGetter world,
-                                final List<Component> tooltip, final TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 
-        if (this._stackStorable && stack.hasTag()) {
-
-            CompoundTag data = stack.getTag();
-
-            //noinspection ConstantConditions
-            if (data.contains("BlockEntityTag")) {
-                data = data.getCompound("BlockEntityTag");
-            }
-
-            if (data.contains("zcvase_payload")) {
-                data = data.getCompound("zcvase_payload");
-            }
-
-            this._stackStorableTooltipBuilder.build(stack, data, world, tooltip::add, flag.isAdvanced());
+        if (this._stackStorable) {
+            this._stackStorableTooltipBuilder.build(stack, context, tooltip::add, flag);
         }
     }
 
@@ -377,7 +371,8 @@ public class ModBlock
         return state;
     }
 
-    private static final IStackStorableTooltipBuilder EMPTY_STACK_STORABLE_TOOLTIP_BUILDER = (stack, data, world, appender, isAdvancedTooltip) -> {};
+    private static final IStackStorableTooltipBuilder EMPTY_STACK_STORABLE_TOOLTIP_BUILDER =
+            (stack, context, tooltip, flag) -> {};
 
     private final boolean _stackStorable;
     private final IStackStorableTooltipBuilder _stackStorableTooltipBuilder;

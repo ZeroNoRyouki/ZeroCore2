@@ -11,17 +11,17 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.util.NonNullFunction;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ModelBuilder
-        implements NonNullFunction<CachedOutput, CompletableFuture<?>> {
+        implements Function<@NotNull CachedOutput, @NotNull CompletableFuture<?>> {
 
     public static final String BLOCK_PREFIX = "block/";
     public static final String ITEM_PREFIX = "item/";

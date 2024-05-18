@@ -21,17 +21,18 @@ package it.zerono.mods.zerocore.lib.recipe;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.mojang.datafixers.util.Function3;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import java.util.function.BiPredicate;
-import java.util.function.Function;
 
 public abstract class AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result,
                                              RecipeIngredient1 extends IRecipeIngredient<Ingredient1>,
@@ -52,55 +53,46 @@ public abstract class AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result,
             RecipeIngredient2 extends IRecipeIngredient<Ingredient2>, RecipeResult extends IRecipeResult<Result>,
             Recipe extends AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2,
                     RecipeResult>>
-    RecipeSerializer<Recipe> createSerializer(String ingredient1FieldName, Codec<RecipeIngredient1> ingredient1Codec,
-                                              Function<FriendlyByteBuf, RecipeIngredient1> ingredient1Factory,
-                                              String ingredient2FieldName, Codec<RecipeIngredient2> ingredient2Codec,
-                                              Function<FriendlyByteBuf, RecipeIngredient2> ingredient2Factory,
-                                              String resultFieldName, Codec<RecipeResult> resultCodec,
-                                              Function<FriendlyByteBuf, RecipeResult> resultFactory,
+    RecipeSerializer<Recipe> createSerializer(String ingredient1FieldName,
+                                              ModCodecs<RecipeIngredient1, RegistryFriendlyByteBuf> ingredient1Codecs,
+                                              String ingredient2FieldName,
+                                              ModCodecs<RecipeIngredient2, RegistryFriendlyByteBuf> ingredient2Codecs,
+                                              String resultFieldName,
+                                              ModCodecs<RecipeResult, RegistryFriendlyByteBuf> resultCodecs,
                                               Function3<RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe> recipeFactory) {
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(ingredient1FieldName), "Ingredient 1 field name must not be null nor empty");
-        Preconditions.checkNotNull(ingredient1Codec, "Ingredient 1 codec must not be null");
-        Preconditions.checkNotNull(ingredient1Factory, "Ingredient 1 factory must not be null");
+        Preconditions.checkNotNull(ingredient1Codecs, "Ingredient 1 codecs must not be null");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(ingredient2FieldName), "Ingredient 2 field name must not be null nor empty");
-        Preconditions.checkNotNull(ingredient2Codec, "Ingredient 2 codec must not be null");
-        Preconditions.checkNotNull(ingredient2Factory, "Ingredient 2 factory must not be null");
+        Preconditions.checkNotNull(ingredient2Codecs, "Ingredient 2 codecs must not be null");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(resultFieldName), "Result field name must not be null nor empty");
-        Preconditions.checkNotNull(resultCodec, "Result codec must not be null");
-        Preconditions.checkNotNull(resultFactory, "Result factory must not be null");
+        Preconditions.checkNotNull(resultCodecs, "Result codecs must not be null");
         Preconditions.checkNotNull(recipeFactory, "Recipe factory must not be null");
 
-        final Codec<Recipe> codec = RecordCodecBuilder.create(instance ->
+        final MapCodec<Recipe> codec = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        ingredient1Codec.fieldOf(ingredient1FieldName).forGetter(AbstractTwoToOneRecipe::getIngredient1),
-                        ingredient2Codec.fieldOf(ingredient2FieldName).forGetter(AbstractTwoToOneRecipe::getIngredient2),
-                        resultCodec.fieldOf(resultFieldName).forGetter(AbstractTwoToOneRecipe::getResult)
+                        ingredient1Codecs.field(ingredient1FieldName, AbstractTwoToOneRecipe::getIngredient1),
+                        ingredient2Codecs.field(ingredient2FieldName, AbstractTwoToOneRecipe::getIngredient2),
+                        resultCodecs.field(resultFieldName, AbstractTwoToOneRecipe::getResult)
                 ).apply(instance,  recipeFactory));
+
+        final StreamCodec<RegistryFriendlyByteBuf, Recipe> streamCodec = StreamCodec.composite(
+                ingredient1Codecs.streamCodec(), AbstractTwoToOneRecipe::getIngredient1,
+                ingredient2Codecs.streamCodec(), AbstractTwoToOneRecipe::getIngredient2,
+                resultCodecs.streamCodec(), AbstractTwoToOneRecipe::getResult,
+                recipeFactory
+        );
 
         return new RecipeSerializer<>() {
 
             @Override
-            public Codec<Recipe> codec() {
+            public MapCodec<Recipe> codec() {
                 return codec;
             }
 
             @Override
-            public Recipe fromNetwork(FriendlyByteBuf buffer) {
-
-                final RecipeIngredient1 ingredient1 = ingredient1Factory.apply(buffer);
-                final RecipeIngredient2 ingredient2 = ingredient2Factory.apply(buffer);
-                final RecipeResult result = resultFactory.apply(buffer);
-
-                return recipeFactory.apply(ingredient1, ingredient2, result);
-            }
-
-            @Override
-            public void toNetwork(FriendlyByteBuf buffer, Recipe recipe) {
-
-                recipe.getIngredient1().serializeTo(buffer);
-                recipe.getIngredient2().serializeTo(buffer);
-                recipe.getResult().serializeTo(buffer);
+            public StreamCodec<RegistryFriendlyByteBuf, Recipe> streamCodec() {
+                return streamCodec;
             }
         };
     }

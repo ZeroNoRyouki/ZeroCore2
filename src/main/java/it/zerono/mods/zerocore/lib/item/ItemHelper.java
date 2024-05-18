@@ -18,9 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.item;
 
-import com.google.common.base.Preconditions;
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -36,11 +35,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.wrapper.EmptyHandler;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -66,7 +64,6 @@ public final class ItemHelper {
         return Component.translatable(stack.getDescriptionId());
     }
 
-    @Nullable
     public static Item getItemFrom(final String id) {
         return getItemFrom(new ResourceLocation(id));
     }
@@ -75,7 +72,6 @@ public final class ItemHelper {
         return getItemFromOrAir(new ResourceLocation(id));
     }
 
-    @Nullable
     public static Item getItemFrom(final ResourceLocation id) {
         return BuiltInRegistries.ITEM.get(id);
     }
@@ -134,20 +130,10 @@ public final class ItemHelper {
         }
 
         if (result && options.contains(MatchOption.NBT)) {
-            result = Objects.equals(stackA.getTag(), stackB.getTag());
+            result = Objects.equals(stackA.getComponents(), stackB.getComponents());
         }
 
         return result;
-    }
-
-    /**
-     * Create a stack of size 1 for the given IItemProvider
-     *
-     * @param provider the item provider
-     * @return the newly create stack
-     */
-    public static ItemStack stackFrom(final ItemLike provider) {
-        return ItemHelper.stackFrom(provider, 1, null);
     }
 
     /**
@@ -157,18 +143,25 @@ public final class ItemHelper {
      * @return the newly create stack or an empty stack if the supplier return null
      */
     public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier) {
-        return ItemHelper.stackFrom(supplier, 1, null);
+        return supplier.get().asItem().getDefaultInstance();
     }
 
     /**
-     * Create a stack for the given IItemProvider
+     * Create a stack for the given item
      *
      * @param provider the item provider
      * @param amount the number of items to put into the stack
      * @return the newly create stack
      */
-    public static ItemStack stackFrom(final ItemLike provider, final int amount) {
-        return ItemHelper.stackFrom(provider, amount, null);
+    public static ItemStack stackFrom(ItemLike provider, int amount) {
+
+        final ItemStack stack = provider.asItem().getDefaultInstance();
+
+        if (!stack.isEmpty()) {
+            stack.setCount(amount);
+        }
+
+        return stack;
     }
 
     /**
@@ -178,8 +171,8 @@ public final class ItemHelper {
      * @param amount the number of items to put into the stack
      * @return the newly create stack or an empty stack if the supplier return null
      */
-    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier, final int amount) {
-        return ItemHelper.stackFrom(supplier, amount, null);
+    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<@NotNull T> supplier, final int amount) {
+        return ItemHelper.stackFrom(supplier.get(), amount);
     }
 
     /**
@@ -194,7 +187,10 @@ public final class ItemHelper {
 
         final ItemStack stack = ItemHelper.stackFrom(provider, amount);
 
-        stack.setDamageValue(damage);
+        if (!stack.isEmpty()) {
+            stack.setDamageValue(damage);
+        }
+
         return stack;
     }
 
@@ -206,42 +202,8 @@ public final class ItemHelper {
      * @param damage the stack damage value
      * @return the newly create stack or an empty stack if the supplier return null
      */
-    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier, final int amount, final int damage) {
-
-        final ItemStack stack = ItemHelper.stackFrom(supplier, amount);
-
-        if (!stack.isEmpty()) {
-            stack.setDamageValue(damage);
-        }
-
-        return stack;
-    }
-
-    /**
-     * Create a stack for the given item
-     *
-     * @param provider the item provider
-     * @param amount the number of items to put into the stack
-     * @param nbt the capabilities data to be associated with the stack
-     * @return the newly create stack
-     */
-    public static ItemStack stackFrom(final ItemLike provider, final int amount, @Nullable final CompoundTag nbt) {
-        return new ItemStack(provider, amount, nbt);
-    }
-
-    /**
-     * Create a stack for the given item
-     *
-     * @param supplier a supplier of an item provider
-     * @param amount the number of items to put into the stack
-     * @param nbt the capabilities data to be associated with the stack
-     * @return the newly create stack
-     */
-    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<T> supplier, final int amount, @Nullable final CompoundTag nbt) {
-
-        final ItemLike provider = supplier.get();
-
-        return null != provider ? new ItemStack(provider, amount, nbt) : ItemHelper.stackEmpty();
+    public static <T extends ItemLike> ItemStack stackFrom(final Supplier<@NotNull T> supplier, final int amount, final int damage) {
+        return ItemHelper.stackFrom(supplier.get(), amount, damage);
     }
 
     /**
@@ -252,127 +214,31 @@ public final class ItemHelper {
      * @return a newly create stack containing the specified amount of items
      */
     public static ItemStack stackFrom(final BlockState state, final int amount) {
-        return ItemHelper.stackFrom(state.getBlock(), amount, null);
+        return ItemHelper.stackFrom(state.getBlock(), amount);
     }
 
-    /**
-     * Create a stack from the given NBT data
-     *
-     * @param nbt an NBT Tag Compound containing the data of the stack to create
-     * @return the newly create stack
-     */
-    public static ItemStack stackFrom(final CompoundTag nbt) {
-        return ItemStack.of(nbt);
+    public static Tag stackSerializeToNBT(HolderLookup.Provider registries, ItemStack stack) {
+        return stack.isEmpty() ? new CompoundTag() : stack.save(registries);
     }
 
-    /**
-     * Serialize a stack to NBT
-     *
-     * @param stack the stack to serialize
-     * @return the serialized NBT data
-     */
-    public static CompoundTag stackToNBT(final ItemStack stack) {
-        return stack.save(new CompoundTag());
+    public static Tag stackSerializeToNBT(HolderLookup.Provider registries, ItemStack stack, Tag output) {
+        return stack.isEmpty() ? new CompoundTag() : stack.save(registries, output);
     }
 
-    /**
-     * Create a copy of the given stack
-     *
-     * @param stack the stack to duplicate
-     * @return a new stack with the same properties as the one passed in
-     */
-    public static ItemStack stackFrom(final ItemStack stack) {
-        return stack.copy();
-    }
+    public static ItemStack stackDeserializeFromNBT(HolderLookup.Provider registries, Tag input) {
 
-    /**
-     * Create a copy of the given stack and modify it's size
-     *
-     * @param stack the stack to duplicate
-     * @param amount the new size of the stack
-     * @return a new stack with the same properties as the one passed in
-     */
-    public static ItemStack stackFrom(final ItemStack stack, final int amount) {
-
-        final ItemStack newStack = ItemHelper.stackFrom(stack);
-
-        if (newStack.isEmpty()) {
-            return ItemHelper.stackEmpty();
+        if (input instanceof CompoundTag compound && compound.isEmpty()) {
+            return ItemStack.EMPTY;
+        } else {
+            return ItemStack.parse(registries, input).orElse(ItemStack.EMPTY);
         }
-
-        ItemHelper.stackSetSize(newStack, amount);
-        return newStack;
-    }
-
-    /**
-     * Set the number of items inside a stack
-     *
-     * @param stack the stack to query
-     * @return the modified stack or an empty stack
-     */
-    @SuppressWarnings("UnusedReturnValue")
-    public static ItemStack stackSetSize(final ItemStack stack, final int amount) {
-
-        stack.setCount(Math.max(amount, 0));
-        return stack;
-    }
-
-    /**
-     * Set a stack as empty, removing all items from it
-     *
-     * @param stack the stack to empty
-     * @return the modified empty stack
-     */
-    public static ItemStack stackEmpty(final ItemStack stack) {
-
-        stack.setCount(0);
-        return stack;
-    }
-
-    /**
-     * Return an empty stack
-     * @return an empty stack
-     */
-    @Deprecated
-    public static ItemStack stackEmpty() {
-        return ItemStack.EMPTY;
-    }
-
-    public static Optional<CompoundTag> stackGetTag(final ItemStack stack) {
-        return Optional.ofNullable(stack.getTag());
-    }
-
-    public static boolean stackHasData(final ItemStack stack, final String key) {
-
-        Preconditions.checkArgument(!key.isEmpty(), "'key' must not be empty");
-
-        return ItemHelper.stackGetTag(stack).map(tag -> tag.contains(key)).orElse(false);
-    }
-
-    public static Optional<Tag> stackGetData(ItemStack stack, String key) {
-        return ItemHelper.stackGetTag(stack).map(tag -> tag.get(key));
-    }
-
-    public static void stackSetData(ItemStack stack, String key, Tag value) {
-
-        Preconditions.checkArgument(!key.isEmpty(), "'key' must not be empty");
-
-        CodeHelper.optionalIfPresentOrElse(ItemHelper.stackGetTag(stack),
-                tag -> tag.put(key, value),
-                () -> {
-
-                    final CompoundTag newTag = new CompoundTag();
-
-                    newTag.put(key, value);
-                    stack.setTag(newTag);
-                });
     }
 
     public static ItemStack removeStackFromSlot(final IItemHandlerModifiable inventory, final int slot) {
 
         final ItemStack stack = inventory.getStackInSlot(slot);
 
-        inventory.setStackInSlot(slot, ItemHelper.stackEmpty());
+        inventory.setStackInSlot(slot, ItemStack.EMPTY);
         return stack;
     }
 

@@ -27,7 +27,7 @@ import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -36,7 +36,7 @@ public abstract class AbstractVerticalIconGaugeBar
 
     protected AbstractVerticalIconGaugeBar(final ModContainerScreen<? extends ModContainer> gui, final String name,
                                            final double maxValue, final Supplier<Double> valueSupplier,
-                                           final NonNullSupplier<ISprite> barSprite, final NonNullSupplier<ISprite> iconSprite) {
+                                           final Supplier<@NotNull ISprite> barSprite, final Supplier<@NotNull ISprite> iconSprite) {
 
         super(gui, name);
         this.setDesiredDimension(18, 84);

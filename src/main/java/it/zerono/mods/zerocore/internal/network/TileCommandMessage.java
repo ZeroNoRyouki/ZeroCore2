@@ -18,79 +18,67 @@
 
 package it.zerono.mods.zerocore.internal.network;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import io.netty.buffer.ByteBuf;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
-import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import it.zerono.mods.zerocore.lib.network.AbstractBlockEntityPlayPacket;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.Objects;
-
 public final class TileCommandMessage
-        extends AbstractBlockEntityPlayPacket {
+        extends AbstractBlockEntityPlayPacket<TileCommandMessage> {
 
-    public static final ResourceLocation ID = ZeroCore.ROOT_LOCATION.buildWithSuffix("tile_command");
+    public static final Type<TileCommandMessage> TYPE = createType(ZeroCore.ROOT_LOCATION, "tile_command");
+
+    public static final StreamCodec<ByteBuf, TileCommandMessage> STREAM_CODEC = createStreamCodec(
+            ByteBufCodecs.STRING_UTF8, packet -> packet._name,
+            ByteBufCodecs.COMPOUND_TAG, packet -> packet._parameters,
+            TileCommandMessage::new);
 
     /**
-     * Create a parameterless command message for the provided {@link AbstractModBlockEntity}
+     * Initializes a newly created {@code TileCommandMessage} object
      *
-     * @param tile the Tile Entity
-     * @param commandName the command name
-     * @return the new command message
+     * @param position the position of the BlockEntity
+     * @param commandName the name of this command
+     * @param commandParameters the parameters of this command
      */
-    public static TileCommandMessage create(final AbstractModBlockEntity tile, final String commandName) {
-        return create(tile, commandName, NBTHelper.EMPTY_COMPOUND);
+    public TileCommandMessage(GlobalPos position, String commandName, CompoundTag commandParameters) {
+
+        super(TYPE, position);
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(commandName), "Command name must not be null or empty");
+        Preconditions.checkNotNull(commandParameters, "Command parameters must not be null");
+
+        this._name = commandName;
+        this._parameters = commandParameters;
     }
 
     /**
-     * Create a command message for the provided {@link AbstractModBlockEntity}
+     * Initializes a newly created {@code TileCommandMessage} object
      *
-     * @param tile the Tile Entity
-     * @param commandName the command name
-     * @param parameters the parameters for the command
-     * @return the new command message
+     * @param blockEntity the BlockEntity
+     * @param commandName the name of this command
+     * @param commandParameters the parameters of this command
      */
-    public static TileCommandMessage create(final AbstractModBlockEntity tile, final String commandName,
-                                                final CompoundTag parameters) {
-        return new TileCommandMessage(tile, commandName, parameters);
-    }
+    public TileCommandMessage(AbstractModBlockEntity blockEntity, String commandName, CompoundTag commandParameters) {
 
-    public TileCommandMessage(final FriendlyByteBuf buffer) {
+        super(TYPE, blockEntity);
 
-        super(ID, buffer);
-        this._name = buffer.readUtf(4096);
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(commandName), "Command name must not be null or empty");
+        Preconditions.checkNotNull(commandParameters, "Command parameters must not be null");
 
-        if (buffer.readBoolean()) {
-            this._parameters = buffer.readNbt();
-        } else {
-            this._parameters = NBTHelper.EMPTY_COMPOUND;
-        }
+        this._name = commandName;
+        this._parameters = commandParameters;
     }
 
     //region AbstractBlockEntityPlayPacket
-
-    @Override
-    public void write(FriendlyByteBuf buffer) {
-
-        super.write(buffer);
-
-        buffer.writeUtf(this._name);
-
-        if (this._parameters.isEmpty()) {
-
-            buffer.writeBoolean(false);
-
-        } else {
-
-            buffer.writeBoolean(true);
-            buffer.writeNbt(this._parameters);
-        }
-    }
 
     @Override
     protected void processBlockEntity(PacketFlow flow, BlockEntity blockEntity) {
@@ -104,20 +92,6 @@ public final class TileCommandMessage
 
     //endregion
     //region internals
-
-    /**
-     * Construct the message on the sender side
-     *
-     * @param commandName the command name
-     * @param parameters the parameters for the command, if any
-     */
-    private TileCommandMessage(final AbstractModBlockEntity tile,
-                               final String commandName, final CompoundTag parameters) {
-
-        super(ID, tile.getBlockPos(), Objects.requireNonNull(tile.getLevel()).dimension());
-        this._name = commandName;
-        this._parameters = parameters;
-    }
 
     private final String _name;
     private final CompoundTag _parameters;

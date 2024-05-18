@@ -1,6 +1,6 @@
 /*
  *
- * NonNullIntFunction.java
+ * package-info.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,13 +16,10 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.functional;
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+package it.zerono.mods.zerocore.lib.data.component;
 
-import javax.annotation.Nonnull;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-@FunctionalInterface
-public interface NonNullIntFunction<R> {
-
-    @Nonnull
-    R apply(int value);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,6 +1,6 @@
 /*
  *
- * ISerializableRecipe.java
+ * package-info.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,11 +16,10 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.recipe;
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+package it.zerono.mods.zerocore.lib.item.inventory.container.data.sync;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-public interface ISerializableRecipe {
-
-    void serializeTo(FriendlyByteBuf buffer);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -19,16 +19,18 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import it.zerono.mods.zerocore.lib.data.WideAmount;
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class WideAmountData
         implements IContainerData {
 
-    public WideAmountData(final NonNullSupplier<WideAmount> getter, final NonNullConsumer<WideAmount> setter) {
+    public WideAmountData(final Supplier<@NotNull WideAmount> getter, final Consumer<@NotNull WideAmount> setter) {
 
         this._getter = getter;
         this._setter = setter;
@@ -37,35 +39,56 @@ public class WideAmountData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final WideAmount current = this._getter.get();
 
-        if (this._lastValue.equals(current)) {
-
-            return null;
-
-        } else {
+        if (!this._lastValue.equals(current)) {
 
             this._lastValue = current.copy();
-            return buffer -> this._lastValue.serializeTo(buffer);
+            return new WideAmountEntry(this._lastValue);
         }
+
+        return null;
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(WideAmount.from(dataSource));
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return WideAmountEntry.from(buffer);
+    }
+
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
+
+        if (entry instanceof WideAmountEntry record) {
+            this._setter.accept(record.value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
 
-    private final NonNullSupplier<WideAmount> _getter;
-    private final NonNullConsumer<WideAmount> _setter;
+    private record WideAmountEntry(WideAmount value)
+            implements ISyncedSetEntry {
+
+        private static WideAmountEntry from(RegistryFriendlyByteBuf buffer) {
+            return new WideAmountEntry(WideAmount.CODECS.streamCodec().decode(buffer));
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            WideAmount.CODECS.streamCodec().encode(buffer, this.value);
+        }
+    }
+
+    //endregion
+
+    private final Supplier<@NotNull WideAmount> _getter;
+    private final Consumer<@NotNull WideAmount> _setter;
     private WideAmount _lastValue;
 
     //endregion
 }
-

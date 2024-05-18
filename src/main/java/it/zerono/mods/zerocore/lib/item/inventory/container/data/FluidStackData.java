@@ -19,20 +19,22 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
-import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.fluid.FluidStackHolder;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.AmountChangedEntry;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class FluidStackData
         implements IContainerData {
 
-    public FluidStackData(final NonNullSupplier<FluidStack> getter, final NonNullConsumer<FluidStack> setter) {
+    public FluidStackData(final Supplier<@NotNull FluidStack> getter, final Consumer<@NotNull FluidStack> setter) {
 
         this._getter = getter;
         this._setter = setter;
@@ -49,9 +51,9 @@ public class FluidStackData
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final FluidStack current = this._getter.get();
 
@@ -59,24 +61,16 @@ public class FluidStackData
             return null;
         }
 
-        final boolean equalFluid = current.isFluidEqual(this._lastValue);
+        final boolean equalFluid = FluidStack.isSameFluidSameComponents(current, this._lastValue);
 
         if (!equalFluid || current.getAmount() != this._lastValue.getAmount()) {
 
             this._lastValue = current.copy();
 
             if (equalFluid) {
-                return buffer -> {
-
-                    buffer.writeByte(1);
-                    buffer.writeVarInt(this._lastValue.getAmount());
-                };
+                return new AmountChangedEntry(this._lastValue.getAmount());
             } else {
-                return buffer -> {
-
-                    buffer.writeByte(0);
-                    buffer.writeFluidStack(this._lastValue);
-                };
+                return new FluidStackEntry(this._lastValue);
             }
         }
 
@@ -84,27 +78,46 @@ public class FluidStackData
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return AmountChangedEntry.from(buffer, FluidStackEntry::from);
+    }
 
-        switch (dataSource.readByte()) {
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
 
-            case 0:
-                // full stack
-                this._setter.accept(dataSource.readFluidStack());
-                break;
-
-            case 1:
-                // amount only
-                this._setter.accept(FluidHelper.stackFrom(this._getter.get(), dataSource.readVarInt()));
-                break;
+        if (entry instanceof FluidStackEntry record) {
+            // full stack
+            this._setter.accept(record.value);
+        } else if (entry instanceof AmountChangedEntry record) {
+            // amount only
+            this._setter.accept(this._getter.get().copyWithAmount(record.amount()));
         }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
 
-    private final NonNullSupplier<FluidStack> _getter;
-    private final NonNullConsumer<FluidStack> _setter;
+    private record FluidStackEntry(FluidStack value)
+            implements ISyncedSetEntry {
+
+        private static FluidStackEntry from(RegistryFriendlyByteBuf buffer) {
+            return new FluidStackEntry(FluidStack.OPTIONAL_STREAM_CODEC.decode(buffer));
+        }
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+
+            // mark this as a full stack update. See {@link AmountChangedEntry#from}
+            buffer.writeByte(1);
+            FluidStack.OPTIONAL_STREAM_CODEC.encode(buffer, this.value);
+        }
+    }
+
+    //endregion
+
+    private final Supplier<@NotNull FluidStack> _getter;
+    private final Consumer<@NotNull FluidStack> _setter;
     private FluidStack _lastValue;
 
     //endregion

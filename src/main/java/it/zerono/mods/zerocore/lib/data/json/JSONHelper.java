@@ -25,8 +25,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.serialization.JsonOps;
-import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import net.minecraft.Util;
@@ -35,7 +33,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 
@@ -465,33 +462,6 @@ public final class JSONHelper {
      */
     public static void jsonSetFluid(final JsonObject json, final String elementName, final Fluid value) {
         jsonSetResourceLocation(json, elementName, FluidHelper.getFluidId(value));
-    }
-
-    /**
-     * Get a mandatory Ingredient from a JSON object
-     *
-     * @param json the JSON object
-     * @param elementName the name of the element
-     * @return the Ingredient
-     */
-    public static Ingredient jsonGetIngredient(final JsonObject json, final String elementName) {
-        return Ingredient.fromJson(jsonGetMandatoryElement(json, elementName), false);
-    }
-
-    /**
-     * Set an Ingredient value in a JSON object
-     *
-     * @param json the JSON object
-     * @param elementName the name of the element
-     * @param value the value
-     */
-    public static void jsonSetIngredient(final JsonObject json, final String elementName, final Ingredient value) {
-
-        var element = Ingredient.CODEC_NONEMPTY.encodeStart(JsonOps.INSTANCE, value)
-                .resultOrPartial(error -> Log.LOGGER.error(Log.CORE, error))
-                .orElseThrow();
-
-        json.add(elementName, element);
     }
 
     public static JsonElement jsonGetMandatoryElement(final JsonObject json, final String elementName) {

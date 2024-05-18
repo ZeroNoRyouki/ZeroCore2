@@ -27,10 +27,10 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
-@Mod.EventBusSubscriber(modid = ZeroCore.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = ZeroCore.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class ChunkCache {
 
     @Nullable
@@ -86,14 +86,14 @@ public class ChunkCache {
     public static void onChunkUnload(final ChunkEvent.Unload event) {
 
         final ChunkAccess chunk = Objects.requireNonNull(event.getChunk());
-        final LevelAccessor world = chunk.getWorldForge();
+        final LevelAccessor world = chunk.getLevel();
 
-        if (null != world) {
+        if (chunk instanceof LevelChunk levelChunk && null != world) {
 
             final ChunkCache cache = s_caches.get(world);
 
             if (null != cache) {
-                cache.remove((LevelChunk)chunk);
+                cache.remove(levelChunk);
             }
         }
     }

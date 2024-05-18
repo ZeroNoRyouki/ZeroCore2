@@ -21,8 +21,6 @@ package it.zerono.mods.zerocore.lib.item.inventory.container;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.nbt.IConditionallySyncableEntity;
@@ -32,13 +30,14 @@ import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ContainerDataHandler;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotTemplate;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotGeneric;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.type.SlotType;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -49,7 +48,6 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
@@ -62,8 +60,7 @@ import java.util.Optional;
 
 @SuppressWarnings({"WeakerAccess"})
 public class ModContainer
-        extends AbstractContainerMenu
-        implements IContainerData {
+        extends AbstractContainerMenu {
 
     public static final String INVENTORYNAME_PLAYER_INVENTORY = "playerinventory";
     public static final String INVENTORY_CONTAINER = "container";
@@ -78,6 +75,7 @@ public class ModContainer
         this._registeredInventories = Maps.newHashMap();
         this._inventorySlotsGroups = Maps.newHashMap();
         this._player = playerInventory.player;
+        this._containerDataHandler = new ContainerDataHandler(windowId);
     }
 
     public static ModContainer empty(final MenuType<?> type, final int windowId, final Inventory playerInventory) {
@@ -105,16 +103,7 @@ public class ModContainer
     }
 
     public void addContainerData(final IContainerData data) {
-
-        if (null == this._dataToSync) {
-            this._dataToSync = new ObjectArrayList<>(4);
-        }
-
-        if (Short.MAX_VALUE == this._dataToSync.size()) {
-            throw new IllegalStateException("Too many container data object added!");
-        }
-
-        this._dataToSync.add(data);
+        this._containerDataHandler.add(data);
     }
 
     public Runnable subscribeContainerDataUpdate(final Runnable handler) {
@@ -160,10 +149,11 @@ public class ModContainer
         this._syncableEntity = entity;
     }
 
-    public void onContainerDataSync(final CompoundTag data) {
+    public void onContainerDataSync(CompoundTag data, HolderLookup.Provider registries) {
 
         if (null != this._syncableEntity && this._syncableEntity.getSyncableEntityId().equals(new ResourceLocation(data.getString("id")))) {
-            this._syncableEntity.syncDataFrom(data.getCompound("payload"), ISyncableEntity.SyncReason.NetworkUpdate);
+            this._syncableEntity.syncDataFrom(data.getCompound("payload"), registries,
+                    ISyncableEntity.SyncReason.NetworkUpdate);
         }
     }
 
@@ -171,63 +161,10 @@ public class ModContainer
         return this._player;
     }
 
-    //region IContainerData
-
-    /**
-     * Return a {@link FriendlyByteBuf} consumer that will be used to write this {@code IContainerData}'s data to a packet.
-     * The consumer could either serialize the whole data to a packet or only the changes occurred since the last call to this method.
-     * <p>
-     * Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).
-     *
-     * @return the consumer, or {@code null}
-     */
-    @Nullable
-    @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
-        return buffer -> {
-
-            buffer.writeInt(this.containerId);
-
-            if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
-                for (int idx = 0; idx < this._dataToSync.size(); ++idx) {
-
-                    final NonNullConsumer<FriendlyByteBuf> writer = this._dataToSync.get(idx).getContainerDataWriter();
-
-                    if (null != writer) {
-
-                        buffer.writeShort(idx);
-                        writer.accept(buffer);
-                    }
-                }
-            }
-
-            buffer.writeShort(-1);
-        };
+    public ContainerDataHandler getContainerDataHandler() {
+        return this._containerDataHandler;
     }
 
-    /**
-     * Read back the data that was serialized to a packet by a consumer provided by {@code getContainerDataWriter}
-     *
-     * @param dataSource the buffer containing the data
-     */
-    @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
-
-        if (this.containerId == dataSource.readInt() && null != this._dataToSync && !this._dataToSync.isEmpty()) {
-
-            short idx;
-
-            while (-1 != (idx = dataSource.readShort())) {
-                this._dataToSync.get(idx).readContainerData(dataSource);
-            }
-
-            if (null != this._dataUpdateEvent) {
-                this._dataUpdateEvent.raise(Runnable::run);
-            }
-        }
-    }
-
-    //endregion
     //region Container
 
     /**
@@ -279,15 +216,15 @@ public class ModContainer
 
                     if (mergedSize <= maxStackSize) {
 
-                        ItemHelper.stackSetSize(sourceStack, 0);
-                        ItemHelper.stackSetSize(targetItemStack, mergedSize);
+                        sourceStack.setCount(0);
+                        targetItemStack.setCount(mergedSize);
                         targetSlot.setChanged();
                         return true;
 
                     } else if (targetItemStack.getCount() < maxStackSize) {
 
                         sourceStack.grow(-(maxStackSize - targetItemStack.getCount()));
-                        ItemHelper.stackSetSize(targetItemStack, maxStackSize);
+                        targetItemStack.setCount(maxStackSize);
                         targetSlot.setChanged();
                         return true;
                     }
@@ -309,9 +246,9 @@ public class ModContainer
 
                 if (!targetSlot.hasItem() && targetSlot.mayPlace(sourceStack)) {
 
-                    targetSlot.set(ItemHelper.stackFrom(sourceStack));
+                    targetSlot.set(sourceStack.copy());
                     targetSlot.setChanged();
-                    ItemHelper.stackSetSize(sourceStack, 0);
+                    sourceStack.setCount(0);
                     return true;
                 }
 
@@ -382,7 +319,7 @@ public class ModContainer
         }
 
         final ItemStack clickedStack = clickedSlot.getItem();
-        final ItemStack resultStack = ItemHelper.stackFrom(clickedStack);
+        final ItemStack resultStack = clickedStack.copy();
 
         // Try to add the clicked-stack to the other slots in this container.
         // The targeted slot are chosen depending on the type of the clicked slot while favoring Special slots over others
@@ -478,20 +415,21 @@ public class ModContainer
 
         super.broadcastChanges();
 
-        if (this._player instanceof ServerPlayer) {
+        if (this._player instanceof ServerPlayer player) {
 
             if (null != this._syncableEntity && this._syncableEntity.shouldSyncEntity()) {
 
                 final CompoundTag envelope = new CompoundTag();
 
                 envelope.putString("id", this._syncableEntity.getSyncableEntityId().toString());
-                envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundTag(), ISyncableEntity.SyncReason.NetworkUpdate));
-                Lib.sendServerContainerDataSync((ServerPlayer)this._player, envelope);
+                envelope.put("payload", this._syncableEntity.syncDataTo(new CompoundTag(), player.registryAccess(),
+                        ISyncableEntity.SyncReason.NetworkUpdate));
+                Lib.sendServerContainerDataSync(player, envelope);
             }
 
-            if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
-                Lib.sendServerContainerData((ServerPlayer)this._player, this);
-            }
+            this._containerDataHandler.broadcastChanges(player);
+
+            //check sendAllDataToRemote
         }
     }
 
@@ -549,9 +487,9 @@ public class ModContainer
     private final Map<String, IItemHandler> _registeredInventories;
     private final Map<String, List<Slot>> _inventorySlotsGroups;
     private final Player _player;
+    private final ContainerDataHandler _containerDataHandler;
     private IEvent<Runnable> _dataUpdateEvent;
     private IConditionallySyncableEntity _syncableEntity;
-    private ObjectList<IContainerData> _dataToSync;
 
     //endregion
 }

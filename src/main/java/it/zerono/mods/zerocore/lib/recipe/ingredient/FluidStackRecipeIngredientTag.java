@@ -4,9 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.zerono.mods.zerocore.internal.Lib;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import it.zerono.mods.zerocore.lib.tag.TagsHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -17,11 +21,18 @@ import java.util.Objects;
 public class FluidStackRecipeIngredientTag
         implements IRecipeIngredient<FluidStack> {
 
-    public static final Codec<FluidStackRecipeIngredientTag> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    TagKey.codec(Registries.FLUID).fieldOf(Lib.NAME_TAG).forGetter(i -> i._tag),
-                    Codec.INT.fieldOf(Lib.NAME_COUNT).forGetter(i -> i._amount)
-            ).apply(instance, FluidStackRecipeIngredientTag::new)
+    public static final ModCodecs<FluidStackRecipeIngredientTag, RegistryFriendlyByteBuf> CODECS = new ModCodecs<>(
+            RecordCodecBuilder.create(instance ->
+                    instance.group(
+                            TagKey.codec(Registries.FLUID).fieldOf(Lib.NAME_TAG).forGetter(i -> i._tag),
+                            Codec.INT.fieldOf(Lib.NAME_COUNT).forGetter(i -> i._amount)
+                    ).apply(instance, FluidStackRecipeIngredientTag::new)
+            ),
+            StreamCodec.composite(
+                    ModCodecs.tagKeyStreamCodec(Registries.FLUID), i -> i._tag,
+                    ByteBufCodecs.INT, i -> i._amount,
+                    FluidStackRecipeIngredientTag::new
+            )
     );
 
     public static FluidStackRecipeIngredientTag from(TagKey<Fluid> tag, int amount) {
@@ -51,7 +62,7 @@ public class FluidStackRecipeIngredientTag
 
     @Override
     public FluidStack getMatchFrom(FluidStack stack) {
-        return this.test(stack) ? new FluidStack(stack, this._amount) : FluidStack.EMPTY;
+        return this.test(stack) ? stack.copyWithAmount(this._amount) : FluidStack.EMPTY;
     }
 
     @Override
@@ -84,13 +95,6 @@ public class FluidStackRecipeIngredientTag
     @Override
     public boolean testIgnoreAmount(FluidStack stack) {
         return this.isCompatible(stack);
-    }
-
-    @Override
-    public void serializeTo(FriendlyByteBuf buffer) {
-
-        buffer.writeResourceLocation(this._tag.location());
-        buffer.writeVarInt(this._amount);
     }
 
     //endregion

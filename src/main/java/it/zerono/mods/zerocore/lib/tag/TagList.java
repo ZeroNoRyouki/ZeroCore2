@@ -28,13 +28,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class TagList<T> {
@@ -47,7 +48,7 @@ public class TagList<T> {
         return list;
     }
 
-    public static <T> TagList<T> create(final NonNullSupplier<Registry<T>> registrySupplier) {
+    public static <T> TagList<T> create(final Supplier<@NotNull Registry<T>> registrySupplier) {
         return create(new TagSource<>(registrySupplier));
     }
 

@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.item.inventory.filter;
 
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.internal.Log;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
@@ -63,7 +64,7 @@ public final class FilterManager<T extends IFilterComponent> {
      * @return a new component initialized with the data loaded from the NBT tag or null if the component
      * could not be created (unknown component, invalid data, etc)
      */
-    public Optional<T> loadComponentFromNBT(final CompoundTag nbt) {
+    public Optional<T> loadComponentFromNBT(HolderLookup.Provider registries, CompoundTag nbt) {
 
         if (!nbt.contains(KEY_COMPONENT_ID) || !nbt.contains(KEY_COMPONENT_DATA)) {
             return Optional.empty();
@@ -78,7 +79,7 @@ public final class FilterManager<T extends IFilterComponent> {
             return Optional.empty();
         }
 
-        return factory.flatMap(f -> f.createComponent(componentId, nbt.getCompound(KEY_COMPONENT_DATA)));
+        return factory.flatMap(f -> f.createComponent(componentId, registries, nbt.getCompound(KEY_COMPONENT_DATA)));
     }
 
     /**
@@ -89,12 +90,12 @@ public final class FilterManager<T extends IFilterComponent> {
      * @param component the component to save to NBT
      * @return a new NBT tag containing the component data
      */
-    public CompoundTag storeComponentToNBT(final T component) {
+    public CompoundTag storeComponentToNBT(HolderLookup.Provider registries, T component) {
 
         final CompoundTag tag = new CompoundTag();
 
         tag.putString(KEY_COMPONENT_ID, component.getComponentId().toString());
-        tag.put(KEY_COMPONENT_DATA, component.serializeNBT());
+        tag.put(KEY_COMPONENT_DATA, component.serializeNBT(registries));
         return tag;
     }
 

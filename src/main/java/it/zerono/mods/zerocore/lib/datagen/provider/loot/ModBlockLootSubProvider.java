@@ -2,12 +2,17 @@ package it.zerono.mods.zerocore.lib.datagen.provider.loot;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -48,10 +53,12 @@ public abstract class ModBlockLootSubProvider
     }
 
     @SafeVarargs
-    protected final void dropWhenSilkTouch(Supplier<? extends Block>... blocks) {
+    protected final void dropWhenSilkTouch(Supplier<? extends Block> block, Supplier<? extends Block>... others) {
 
-        for (final var block : blocks) {
-            this.dropWhenSilkTouch(block);
+        this.dropWhenSilkTouch(block);
+
+        for (final var other : others) {
+            this.dropWhenSilkTouch(other);
         }
     }
 
@@ -64,15 +71,41 @@ public abstract class ModBlockLootSubProvider
     }
 
     @SafeVarargs
-    protected final void dropSelf(Supplier<? extends Block>... blocks) {
+    protected final void dropSelf(Supplier<? extends Block> block, Supplier<? extends Block>... others) {
 
-        for (final var block : blocks) {
-            this.dropSelf(block);
+        this.dropSelf(block);
+
+        for (final var other : others) {
+            this.dropSelf(other);
         }
     }
 
     protected void dropOre(Supplier<? extends Block> ore, Supplier<? extends Item> drop) {
         this.add(ore.get(), (block) -> this.createOreDrop(block, drop.get()));
+    }
+
+    protected void dropWithComponents(Block block, DataComponentType<?> component,
+                                      DataComponentType<?>... otherComponents) {
+
+        final CopyComponentsFunction.Builder componentsBuilder =
+                CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY);
+
+        componentsBuilder.include(component);
+
+        for (final var other : otherComponents) {
+            componentsBuilder.include(other);
+        }
+
+        final LootTable.Builder tableBuilder = LootTable.lootTable().withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1))
+                .add(LootItem.lootTableItem(block).apply(componentsBuilder)));
+
+        this.add(block, tableBuilder);
+    }
+
+    protected void dropWithComponents(Supplier<? extends Block> block, DataComponentType<?> component,
+                                      DataComponentType<?>... otherComponents) {
+        this.dropWithComponents(block.get(), component, otherComponents);
     }
 
     //region BlockLootSubProvider

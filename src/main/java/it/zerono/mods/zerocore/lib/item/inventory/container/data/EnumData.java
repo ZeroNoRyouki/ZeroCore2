@@ -18,10 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -37,9 +38,9 @@ public class EnumData<T extends Enum<T>>
 
     //region IContainerData
 
-    @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    @Nullable
+    public ISyncedSetEntry getChangedValue() {
 
         final T current = this._getter.get();
 
@@ -50,7 +51,7 @@ public class EnumData<T extends Enum<T>>
 
                 final T value = this._getter.get();
 
-                buffer.writeVarInt(null != value ? value.ordinal() : -1);
+                buffer.writeEnum(value);
             };
         }
 
@@ -58,15 +59,33 @@ public class EnumData<T extends Enum<T>>
     }
 
     @Override
-    public void readContainerData(final FriendlyByteBuf dataSource) {
+    public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
+        return new EnumEntry<>(buffer.readEnum(this._enumClass));
+    }
 
-        final int ordinal = dataSource.readVarInt();
+    @Override
+    public void updateFrom(ISyncedSetEntry entry) {
 
-        this._setter.accept(-1 == ordinal ? null : this._enumClass.getEnumConstants()[ordinal]);
+        if (entry instanceof EnumEntry) {
+            //noinspection unchecked
+            this._setter.accept(((EnumEntry<T>)entry).value);
+        }
     }
 
     //endregion
     //region internals
+    //region ISyncedSetEntry
+
+    private record EnumEntry<T extends Enum<T>>(T value)
+            implements ISyncedSetEntry {
+
+        @Override
+        public void accept(@NotNull RegistryFriendlyByteBuf buffer) {
+            buffer.writeEnum(this.value);
+        }
+    }
+
+    //endregion
 
     private final Class<T> _enumClass;
     private final Supplier<T> _getter;

@@ -25,14 +25,6 @@ import net.minecraft.world.item.ItemStack;
 @SuppressWarnings({"WeakerAccess"})
 public class ModItem extends Item {
 
-    public ItemStack createItemStack() {
-        return ItemHelper.stackFrom(this, 1);
-    }
-
-    public ItemStack createItemStack(int amount) {
-        return ItemHelper.stackFrom(this, amount);
-    }
-
     public ModItem(final Item.Properties properties) {
         super(properties);
     }

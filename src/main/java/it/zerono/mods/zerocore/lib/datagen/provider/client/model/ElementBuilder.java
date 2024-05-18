@@ -8,17 +8,18 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.json.JSONHelper;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import net.minecraft.Util;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ElementBuilder
@@ -68,7 +69,7 @@ public class ElementBuilder
      * @param builder A builder used to define the rotation.
      * @return This builder.
      */
-    public ElementBuilder rotation(NonNullConsumer<RotationBuilder> builder) {
+    public ElementBuilder rotation(Consumer<@NotNull RotationBuilder> builder) {
 
         Preconditions.checkNotNull(builder, "Builder cannot be null");
         Preconditions.checkState(null == this._rotation, "A rotation is already defined for this element");
@@ -86,7 +87,7 @@ public class ElementBuilder
      * @param builder A builder used to define the face.
      * @return This builder.
      */
-    public ElementBuilder face(Direction face, NonNullConsumer<FaceBuilder> builder) {
+    public ElementBuilder face(Direction face, Consumer<@NotNull FaceBuilder> builder) {
 
         Preconditions.checkNotNull(face, "Face cannot be null");
         Preconditions.checkNotNull(builder, "Builder cannot be null");
@@ -102,7 +103,7 @@ public class ElementBuilder
      * @param builder A builder used to define the single faces, one at the time.
      * @return This builder.
      */
-    public ElementBuilder faces(NonNullBiConsumer<Direction, FaceBuilder> builder) {
+    public ElementBuilder faces(BiConsumer<@NotNull Direction, @NotNull FaceBuilder> builder) {
         return this.faces(builder, new ObjectArrayList<>(CodeHelper.DIRECTIONS));
     }
 
@@ -114,7 +115,7 @@ public class ElementBuilder
      * @param ignored The faces that should not be defined.
      * @return This builder.
      */
-    public ElementBuilder faces(NonNullBiConsumer<Direction, FaceBuilder> builder, Direction... ignored) {
+    public ElementBuilder faces(BiConsumer<@NotNull Direction, @NotNull FaceBuilder> builder, Direction... ignored) {
 
         final var directions = new ObjectArrayList<>(CodeHelper.DIRECTIONS);
 
@@ -421,7 +422,7 @@ public class ElementBuilder
         return FloatVector.of(x, y, z);
     }
 
-    private ElementBuilder faces(NonNullBiConsumer<Direction, FaceBuilder> builder, List<Direction> directions) {
+    private ElementBuilder faces(BiConsumer<@NotNull Direction, @NotNull FaceBuilder> builder, List<Direction> directions) {
 
         Preconditions.checkNotNull(builder, "Builder cannot be null");
         Preconditions.checkState(this._faces.isEmpty(), "One or more faces are already defined for this element");

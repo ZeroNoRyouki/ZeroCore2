@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib.item.inventory;
 
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 public interface IInventorySlot {
 
@@ -187,7 +186,7 @@ public interface IInventorySlot {
 
         boolean typeMatch = false;
 
-        if (this.isSlotEmpty() || (typeMatch = ItemHandlerHelper.canItemStacksStack(this.getStackInSlot(), stack))) {
+        if (this.isSlotEmpty() || (typeMatch = ItemStack.isSameItemSameComponents(this.getStackInSlot(), stack))) {
 
             int toAdd = Math.min(stack.getCount(), needed);
 

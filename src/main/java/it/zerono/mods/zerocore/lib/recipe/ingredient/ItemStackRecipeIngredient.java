@@ -23,14 +23,16 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.internal.Lib;
-import it.zerono.mods.zerocore.lib.item.ItemHelper;
-import net.minecraft.network.FriendlyByteBuf;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.crafting.NBTIngredient;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,11 +42,18 @@ import java.util.stream.Collectors;
 public class ItemStackRecipeIngredient
     implements IRecipeIngredient<ItemStack> {
 
-    public static final Codec<ItemStackRecipeIngredient> CODEC = RecordCodecBuilder.create(instance ->
-            instance.group(
-                    Ingredient.CODEC.fieldOf(Lib.NAME_INGREDIENT).forGetter(i -> i._ingredient),
-                    Codec.INT.fieldOf(Lib.NAME_COUNT).forGetter(i -> i._amount)
-            ).apply(instance, ItemStackRecipeIngredient::new)
+    public static final ModCodecs<ItemStackRecipeIngredient, RegistryFriendlyByteBuf> CODECS = new ModCodecs<>(
+            RecordCodecBuilder.create(instance ->
+                    instance.group(
+                            Ingredient.CODEC.fieldOf(Lib.NAME_INGREDIENT).forGetter(i -> i._ingredient),
+                            Codec.INT.fieldOf(Lib.NAME_COUNT).forGetter(i -> i._amount)
+                    ).apply(instance, ItemStackRecipeIngredient::new)
+            ),
+            StreamCodec.composite(
+                    Ingredient.CONTENTS_STREAM_CODEC, i -> i._ingredient,
+                    ByteBufCodecs.INT, i -> i._amount,
+                    ItemStackRecipeIngredient::new
+            )
     );
 
     public static ItemStackRecipeIngredient from(final Ingredient ingredient) {
@@ -55,16 +64,12 @@ public class ItemStackRecipeIngredient
         return new ItemStackRecipeIngredient(ingredient, amount);
     }
 
-    public static ItemStackRecipeIngredient from(final FriendlyByteBuf buffer) {
-        return new ItemStackRecipeIngredient(Ingredient.fromNetwork(buffer), buffer.readVarInt());
-    }
-
     public static ItemStackRecipeIngredient from(final ItemStack stack) {
         return from(stack, stack.getCount());
     }
 
     public static ItemStackRecipeIngredient from(final ItemStack stack, final int amount) {
-        return from(stack.hasTag() ? NBTIngredient.of(true, stack) : Ingredient.of(stack), amount);
+        return from(!stack.getComponents().isEmpty() ? DataComponentIngredient.of(true, stack) : Ingredient.of(stack), amount);
     }
 
     public static ItemStackRecipeIngredient from(final ItemLike item) {
@@ -110,7 +115,7 @@ public class ItemStackRecipeIngredient
 
     @Override
     public ItemStack getMatchFrom(final ItemStack stack) {
-        return this.test(stack) ? ItemHelper.stackFrom(stack, this._amount) : ItemStack.EMPTY;
+        return this.test(stack) ? stack.copyWithCount(this._amount) : ItemStack.EMPTY;
     }
 
     @Override
@@ -125,7 +130,7 @@ public class ItemStackRecipeIngredient
 
             this._cachedMatchingElements = Arrays.stream(this._ingredient.getItems())
                     .filter(stack -> !stack.isEmpty())
-                    .map(stack -> stack.getCount() == this._amount ? stack : ItemHelper.stackFrom(stack, this._amount))
+                    .map(stack -> stack.getCount() == this._amount ? stack : stack.copyWithCount(this._amount))
                     .collect(ImmutableList.toImmutableList());
         }
 
@@ -140,13 +145,6 @@ public class ItemStackRecipeIngredient
     @Override
     public List<Ingredient> asVanillaIngredients() {
         return ObjectLists.singleton(this._ingredient);
-    }
-
-    @Override
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        this._ingredient.toNetwork(buffer);
-        buffer.writeVarInt(this._amount);
     }
 
     @Override

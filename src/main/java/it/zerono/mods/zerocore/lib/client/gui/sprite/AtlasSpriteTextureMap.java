@@ -23,10 +23,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class AtlasSpriteTextureMap
         implements ISpriteTextureMap {
@@ -164,7 +165,7 @@ public class AtlasSpriteTextureMap
         }
 
         @Override
-        public void applyOverlay(final NonNullConsumer<ISprite> overlayConsumer) {
+        public void applyOverlay(final Consumer<@NotNull ISprite> overlayConsumer) {
 
             if (null != this._overlay) {
                 overlayConsumer.accept(this._overlay);

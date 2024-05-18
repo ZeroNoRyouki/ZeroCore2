@@ -1,10 +1,11 @@
 package it.zerono.mods.zerocore.lib.recipe.ingredient;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
-import net.minecraft.network.FriendlyByteBuf;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
@@ -12,26 +13,19 @@ import java.util.List;
 public class FluidStackRecipeIngredientsList
         implements IRecipeIngredient<FluidStack> {
 
-    public static final Codec<FluidStackRecipeIngredientsList> CODEC =
-            FluidStackRecipeIngredient.CODEC.listOf().xmap(FluidStackRecipeIngredientsList::from, l -> l._ingredients);
+    public static final ModCodecs<FluidStackRecipeIngredientsList, RegistryFriendlyByteBuf> CODECS = new ModCodecs<>(
+            FluidStackRecipeIngredient.CODECS.listCodec().xmap(FluidStackRecipeIngredientsList::from, l -> l._ingredients),
+            StreamCodec.composite(
+                    FluidStackRecipeIngredient.CODECS.listStreamCodec(), l -> l._ingredients,
+                    FluidStackRecipeIngredientsList::from
+            )
+    );
 
     public static FluidStackRecipeIngredientsList from(FluidStackRecipeIngredient... ingredients) {
         return new FluidStackRecipeIngredientsList(List.of(ingredients));
     }
 
     public static FluidStackRecipeIngredientsList from(List<FluidStackRecipeIngredient> ingredients) {
-        return new FluidStackRecipeIngredientsList(ingredients);
-    }
-
-    public static FluidStackRecipeIngredientsList from(final FriendlyByteBuf buffer) {
-
-        final int count = buffer.readVarInt();
-        final List<FluidStackRecipeIngredient> ingredients = new ObjectArrayList<>(count);
-
-        for (int idx = 0; idx < count; ++idx) {
-            ingredients.add(FluidStackRecipeIngredient.from(buffer));
-        }
-
         return new FluidStackRecipeIngredientsList(ingredients);
     }
 
@@ -88,13 +82,6 @@ public class FluidStackRecipeIngredientsList
     @Override
     public boolean testIgnoreAmount(final FluidStack stack) {
         return this._ingredients.stream().anyMatch(ingredient -> ingredient.testIgnoreAmount(stack));
-    }
-
-    @Override
-    public void serializeTo(final FriendlyByteBuf buffer) {
-
-        buffer.writeVarInt(this._ingredients.size());
-        this._ingredients.forEach(ingredient -> ingredient.serializeTo(buffer));
     }
 
     //endregion

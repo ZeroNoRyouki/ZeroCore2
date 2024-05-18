@@ -20,14 +20,14 @@ package it.zerono.mods.zerocore.internal;
 
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.command.ZeroCoreCommand;
-import it.zerono.mods.zerocore.internal.network.ContainerDataMessage;
 import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
 import it.zerono.mods.zerocore.internal.network.InternalCommandMessage;
+import it.zerono.mods.zerocore.internal.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.internal.network.TileCommandMessage;
+import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTBuilder;
-import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import it.zerono.mods.zerocore.lib.network.ModSyncableTileMessage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ContainerDataHandler;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import it.zerono.mods.zerocore.lib.tag.TagList;
@@ -39,9 +39,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.TickEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
-import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public final class Lib {
 
@@ -50,17 +50,9 @@ public final class Lib {
     public static final ResourceLocationBuilder TEXTURES_LOCATION = ZeroCore.ROOT_LOCATION.appendPath("textures");
     public static final ResourceLocationBuilder GUI_TEXTURES_LOCATION = TEXTURES_LOCATION.appendPath("gui");
 
-    public static final String NAME_RESULT = "result";
     public static final String NAME_INGREDIENT = "ingredient";
-    public static final String NAME_INGREDIENTS = "ingredients";
-    public static final String NAME_ITEM = "item";
-    public static final String NAME_FLUID = "fluid";
     public static final String NAME_TAG = "tag";
     public static final String NAME_COUNT = "count";
-    public static final String NAME_NBT_TAG = "nbt";
-
-    public static final String NAME_TYPE = "type";
-    public static final String NAME_CONDITIONS = "conditions";
 
     public static void initialize(IEventBus modEventBus) {
 
@@ -88,21 +80,26 @@ public final class Lib {
         NETWORK_HANDLER.sendToPlayer(player, new InternalCommandMessage(InternalCommand.ContainerDataSync, data));
     }
 
-    public static void sendServerContainerData(ServerPlayer player, ModContainer container) {
-        NETWORK_HANDLER.sendToPlayer(player, new ContainerDataMessage(container));
+    public static void sendBlockEntityMessage(AbstractModBlockEntity blockEntity, String name, CompoundTag data) {
+        Lib.NETWORK_HANDLER.sendToServer(new TileCommandMessage(blockEntity, name, data));
+    }
+
+    public static void sendBlockEntityMessage(ServerPlayer player, AbstractModBlockEntity blockEntity, String name,
+                                              CompoundTag data) {
+        Lib.NETWORK_HANDLER.sendToPlayer(player, new TileCommandMessage(blockEntity, name, data));
     }
 
     //region internals
 
-    private static void onRegisterPackets(RegisterPayloadHandlerEvent event) {
+    private static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
 
-        final IPayloadRegistrar registrar = event.registrar(ZeroCore.MOD_ID).versioned("2.0.0");
+        final PayloadRegistrar registrar = event.registrar(ZeroCore.MOD_ID).versioned("2.0.0");
 
-        registrar.play(TileCommandMessage.ID, TileCommandMessage::new, TileCommandMessage::handlePacket);
-        registrar.play(ModSyncableTileMessage.ID, ModSyncableTileMessage::new, ModSyncableTileMessage::handlePacket);
-        registrar.play(ErrorReportMessage.ID, ErrorReportMessage::new, ErrorReportMessage::handlePacket);
-        registrar.play(InternalCommandMessage.ID, InternalCommandMessage::new, InternalCommandMessage::handlePacket);
-        registrar.play(ContainerDataMessage.ID, ContainerDataMessage::new, ContainerDataMessage::handlePacket);
+        registrar.playBidirectional(TileCommandMessage.TYPE, TileCommandMessage.STREAM_CODEC, TileCommandMessage::handlePacket);
+        registrar.playToClient(ModSyncableTileMessage.TYPE, ModSyncableTileMessage.STREAM_CODEC, ModSyncableTileMessage::handlePacket);
+        registrar.playToClient(ErrorReportMessage.TYPE, ErrorReportMessage.STREAM_CODEC, ErrorReportMessage::handlePacket);
+        registrar.playBidirectional(InternalCommandMessage.TYPE, InternalCommandMessage.STREAM_CODEC, InternalCommandMessage::handlePacket);
+        registrar.playToClient(ContainerDataHandler.ContainerSyncPacket.TYPE, ContainerDataHandler.ContainerSyncPacket.STREAM_CODEC, ContainerDataHandler.ContainerSyncPacket::handlePacket);
     }
 
     private static void onAddReloadListener(AddReloadListenerEvent event) {
@@ -113,9 +110,9 @@ public final class Lib {
         ZeroCoreCommand.register(event.getDispatcher());
     }
 
-    private static void onWorldTick(TickEvent.LevelTickEvent event) {
+    private static void onWorldTick(LevelTickEvent.Post event) {
 
-        if (event.side.isServer() && TickEvent.Phase.END == event.phase) {
+        if (!event.getLevel().isClientSide()) {
             s_resourceReloaded = false;
         }
     }

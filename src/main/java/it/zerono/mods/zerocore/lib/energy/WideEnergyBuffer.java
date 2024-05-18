@@ -23,6 +23,7 @@ import it.zerono.mods.zerocore.lib.IDebuggable;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.LogicalSide;
 
@@ -274,14 +275,14 @@ public class WideEnergyBuffer
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(final CompoundTag data, final SyncReason syncReason) {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         if (data.contains("wide")) {
 
-            this._capacity = WideAmount.from(data.getCompound("capacity"));
-            this._maxInsert = WideAmount.from(data.getCompound("maxInsert"));
-            this._maxExtract = WideAmount.from(data.getCompound("maxExtract"));
-            this._energy = WideAmount.from(data.getCompound("energy"));
+            this._capacity = WideAmount.deserializeFromNBT(data.getCompound("capacity"));
+            this._maxInsert = WideAmount.deserializeFromNBT(data.getCompound("maxInsert"));
+            this._maxExtract = WideAmount.deserializeFromNBT(data.getCompound("maxExtract"));
+            this._energy = WideAmount.deserializeFromNBT(data.getCompound("energy"));
 
         } else {
 
@@ -303,13 +304,13 @@ public class WideEnergyBuffer
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
 
         data.putByte("wide", (byte)1);
-        data.put("capacity", this._capacity.serializeTo(new CompoundTag()));
-        data.put("maxInsert", this._maxInsert.serializeTo(new CompoundTag()));
-        data.put("maxExtract", this._maxExtract.serializeTo(new CompoundTag()));
-        data.put("energy", this._energy.serializeTo(new CompoundTag()));
+        data.put("capacity", this._capacity.serializeToNBT());
+        data.put("maxInsert", this._maxInsert.serializeToNBT());
+        data.put("maxExtract", this._maxExtract.serializeToNBT());
+        data.put("energy", this._energy.serializeToNBT());
         return data;
     }
 

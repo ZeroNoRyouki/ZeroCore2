@@ -21,10 +21,13 @@ package it.zerono.mods.zerocore.lib.fluid;
 import it.zerono.mods.zerocore.lib.DebuggableHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
+import it.zerono.mods.zerocore.lib.data.component.FluidStackListComponent;
+import it.zerono.mods.zerocore.lib.data.component.IComponentProvider;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
 import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.data.stack.StackAdapters;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.LogicalSide;
@@ -38,23 +41,17 @@ import java.util.function.BiPredicate;
 public class FluidStackHolder
         extends AbstractStackHolder<FluidStackHolder, FluidStack>
         implements IStackHolderAccess<FluidStackHolder, FluidStack>, IFluidHandler, INBTSerializable<CompoundTag>,
-                    ISyncableEntity, IDebuggable {
+                    ISyncableEntity, IDebuggable, IComponentProvider<FluidStackListComponent> {
 
     public FluidStackHolder(final int size) {
-        this(NonNullList.withSize(size, FluidStack.EMPTY));
+        this(NonNullList.withSize(size, FluidStack.EMPTY), AbstractStackHolder::defaultValidator);
     }
 
     public FluidStackHolder(final int size, final BiPredicate<Integer, FluidStack> stackValidator) {
         this(NonNullList.withSize(size, FluidStack.EMPTY), stackValidator);
     }
 
-    public FluidStackHolder(final NonNullList<FluidStack> stacks) {
-
-        this._stacks = stacks;
-        this.setMaxCapacity(Integer.MAX_VALUE);
-    }
-
-    public FluidStackHolder(final NonNullList<FluidStack> stacks, final BiPredicate<Integer, FluidStack> stackValidator) {
+    private FluidStackHolder(final NonNullList<FluidStack> stacks, final BiPredicate<Integer, FluidStack> stackValidator) {
 
         super(stackValidator);
         this._stacks = stacks;
@@ -144,7 +141,7 @@ public class FluidStackHolder
 
                 final FluidStack content = this.getFluidInTank(tank);
 
-                if (content.isEmpty() || content.isFluidEqual(resource)) {
+                if (content.isEmpty() || FluidStack.isSameFluidSameComponents(content, resource)) {
 
                     use = Math.min(this.getFreeSpace(tank), resourceAmount);
                     filled += use;
@@ -157,7 +154,7 @@ public class FluidStackHolder
                             this._stacks.set(tank, FluidHelper.stackFrom(resource, use));
                             this.onChange(ChangeType.Added, tank);
 
-                        } else if (content.isFluidEqual(resource)) {
+                        } else if (FluidStack.isSameFluidSameComponents(content, resource)) {
 
                             content.grow(use);
                             this.onChange(ChangeType.Grown, tank);
@@ -193,7 +190,7 @@ public class FluidStackHolder
 
             final FluidStack content = this.getFluidInTank(tank);
 
-            if (!content.isEmpty() && content.isFluidEqual(resource)) {
+            if (!content.isEmpty() && FluidStack.isSameFluidSameComponents(content, resource)) {
 
                 use = Math.min(content.getAmount(), maxDrainAmount);
                 drained += use;
@@ -255,13 +252,13 @@ public class FluidStackHolder
     //region INBTSerializable<CompoundTag>
 
     @Override
-    public CompoundTag serializeNBT() {
-        return this.syncDataTo(new CompoundTag(), SyncReason.FullSync);
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
+        return this.syncDataTo(new CompoundTag(), registries, SyncReason.FullSync);
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt) {
-        this.syncDataFrom(nbt, SyncReason.FullSync);
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
+        this.syncDataFrom(nbt, registries, SyncReason.FullSync);
     }
 
     //endregion
@@ -274,8 +271,8 @@ public class FluidStackHolder
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(final CompoundTag data, final SyncReason syncReason) {
-        this.syncFrom(data, StackAdapters.FLUIDSTACK, size -> {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
+        this.syncFrom(data, registries, StackAdapters.FLUIDSTACK, size -> {
 
             if (size > 0) {
                 this.setSize(size);
@@ -293,8 +290,21 @@ public class FluidStackHolder
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
-        return this.syncTo(data, this._stacks, StackAdapters.FLUIDSTACK);
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
+        return this.syncTo(data, registries, this._stacks, StackAdapters.FLUIDSTACK);
+    }
+
+    //endregion
+    //region IComponentProvider<FluidStackListComponent>
+
+    @Override
+    public FluidStackListComponent createDataComponent() {
+        return new FluidStackListComponent(this._stacks);
+    }
+
+    @Override
+    public void mergeComponent(FluidStackListComponent component) {
+        component.copyInto(this._stacks);
     }
 
     //endregion

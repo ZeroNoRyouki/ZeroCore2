@@ -18,27 +18,16 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-
-import javax.annotation.Nullable;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jetbrains.annotations.Nullable;
 
 public interface IContainerData {
 
-    /**
-     * Return a {@link FriendlyByteBuf} consumer that will be used to write this {@code IContainerData}'s data to a packet.
-     * The consumer could either serialize the whole data to a packet or only the changes occurred since the last call to this method.
-     *
-     * Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).
-     *
-     * @return the consumer, or {@code null}
-     */
     @Nullable
-    NonNullConsumer<FriendlyByteBuf> getContainerDataWriter();
+    ISyncedSetEntry getChangedValue();
 
-    /**
-     * Read back the data that was serialized to a packet by a consumer provided by {@code getContainerDataWriter}
-     * @param dataSource the buffer containing the data
-     */
-    void readContainerData(FriendlyByteBuf dataSource);
+    ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer);
+
+    void updateFrom(ISyncedSetEntry entry);
 }

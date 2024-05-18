@@ -13,17 +13,17 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import net.minecraft.world.level.storage.loot.LootTable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface IModDataGenerator {
 
@@ -60,7 +60,7 @@ public interface IModDataGenerator {
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey, ITagDataProvider<T> provider);
 
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey,
-                             NonNullFunction<T, ResourceKey<T>> elementKeyProvider, IIntrinsicTagDataProvider<T> provider);
+                             Function<@NotNull T, ResourceKey<T>> elementKeyProvider, IIntrinsicTagDataProvider<T> provider);
 
     default void addBlockTagsProvider(IIntrinsicTagDataProvider<Block> provider) {
         //noinspection deprecation
@@ -82,23 +82,19 @@ public interface IModDataGenerator {
         this.addTagsProvider(Registries.FLUID, $ -> $.builtInRegistryHolder().key(), provider);
     }
 
-    default void addGameEventTagsProvider(IIntrinsicTagDataProvider<GameEvent> provider) {
-        //noinspection deprecation
-        this.addTagsProvider(Registries.GAME_EVENT, $ -> $.builtInRegistryHolder().key(), provider);
-    }
-
-    default void addLootProvider(Set<ResourceLocation> requiredTables,
-                                 NonNullConsumer<SubProviderBuilder> subProvidersBuilder) {
+    default void addLootProvider(Set<ResourceKey<LootTable>> requiredTables,
+                                 Consumer<@NotNull SubProviderBuilder> subProvidersBuilder) {
 
         Preconditions.checkNotNull(requiredTables, "Required tables must not be null");
         Preconditions.checkNotNull(subProvidersBuilder, "Sub providers builder must not be null");
 
-        final var builder = Util.make(new SubProviderBuilder(), subProvidersBuilder::accept);
+        final var builder = Util.make(new SubProviderBuilder(), subProvidersBuilder);
 
-        this.addProvider(output -> new LootTableProvider(output, requiredTables, builder.getEntries()));
+        this.addProvider(output -> new LootTableProvider(output, requiredTables, builder.getEntries(),
+                this.getRegistryLookup()));
     }
 
-    default void addLootProvider(NonNullConsumer<SubProviderBuilder> subProvidersBuilder) {
+    default void addLootProvider(Consumer<@NotNull SubProviderBuilder> subProvidersBuilder) {
         this.addLootProvider(Set.of(), subProvidersBuilder);
     }
 }

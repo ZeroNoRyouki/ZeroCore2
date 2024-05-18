@@ -39,7 +39,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -115,7 +115,7 @@ public class RichText
         this(ModRenderHelper.DEFAULT_FONT_RENDERER, Collections.emptyList());
     }
 
-    private RichText(final NonNullSupplier<Font> font, final List<TextLine> lines) {
+    private RichText(final Supplier<@NotNull Font> font, final List<TextLine> lines) {
 
         this._lines = lines;
         this._fontSupplier = font;
@@ -248,7 +248,7 @@ public class RichText
     //region TextChunk
 
     private static class TextChunk<T>
-            implements ITextChunk, NonNullSupplier<T> {
+            implements ITextChunk, Supplier<@NotNull T> {
 
         @FunctionalInterface
         public interface IChunkPainter<T> {
@@ -282,7 +282,7 @@ public class RichText
         }
 
         //endregion
-        //region NonNullSupplier
+        //region Supplier
 
         @Override
         public T get() {
@@ -304,9 +304,9 @@ public class RichText
     //region DynamicTextChunk
 
     private static class DynamicTextChunk
-            extends TextChunk<Supplier<String>> {
+            extends TextChunk<StringSupplier> {
 
-        public DynamicTextChunk(final Supplier<String> thing, final NonNullSupplier<Font> fontSupplier) {
+        public DynamicTextChunk(final StringSupplier thing, final Supplier<@NotNull Font> fontSupplier) {
 
             super(thing, 0, fontSupplier.get().lineHeight, DynamicTextChunk::paintString);
             this._fontSupplier = fontSupplier;
@@ -322,12 +322,12 @@ public class RichText
         //endregion
         //region internals
 
-        private static void paintString(final RichText richText, final Supplier<String> chunk,
+        private static void paintString(final RichText richText, final StringSupplier chunk,
                                         final GuiGraphics gfx, final int x, final int y) {
             RichText.paintString(richText, chunk.get(), gfx, x, y);
         }
 
-        private final NonNullSupplier<Font> _fontSupplier;
+        private final Supplier<@NotNull Font> _fontSupplier;
 
         //endregion
     }
@@ -336,9 +336,9 @@ public class RichText
     //region DynamicTextChunk
 
     private static class TranslationTextChunk
-            extends TextChunk<NonNullSupplier<Component>> {
+            extends TextChunk<ComponentSupplier> {
 
-        public TranslationTextChunk(final NonNullSupplier<Component> thing, final NonNullSupplier<Font> fontSupplier) {
+        public TranslationTextChunk(final ComponentSupplier thing, final Supplier<@NotNull Font> fontSupplier) {
 
             super(thing, 0, fontSupplier.get().lineHeight, TranslationTextChunk::paintString);
             this._fontSupplier = fontSupplier;
@@ -354,12 +354,12 @@ public class RichText
         //endregion
         //region internals
 
-        private static void paintString(final RichText richText, final NonNullSupplier<Component> chunk,
+        private static void paintString(final RichText richText, final ComponentSupplier chunk,
                                         final GuiGraphics gfx, final int x, final int y) {
             RichText.paintString(richText, chunk.get(), gfx, x, y);
         }
 
-        private final NonNullSupplier<Font> _fontSupplier;
+        private final Supplier<@NotNull Font> _fontSupplier;
 
         //endregion
     }
@@ -406,7 +406,7 @@ public class RichText
          * @param font the new font renderer
          * @return this builder
          */
-        public Builder font(final NonNullSupplier<Font> font) {
+        public Builder font(final Supplier<@NotNull Font> font) {
 
             this._fontSupplier = Objects.requireNonNull(font);
             return this;
@@ -556,11 +556,11 @@ public class RichText
                     this._fontSupplier.get().lineHeight, RichText::paintString);
         }
 
-        private ITextChunk chunk(final Supplier<String> text) {
+        private ITextChunk chunk(final StringSupplier text) {
             return new DynamicTextChunk(text, this._fontSupplier);
         }
 
-        private ITextChunk chunk(final NonNullSupplier<Component> text) {
+        private ITextChunk chunk(final ComponentSupplier text) {
             return new TranslationTextChunk(text, this._fontSupplier);
         }
 
@@ -580,12 +580,10 @@ public class RichText
 
             if (thing instanceof String) {
                 return this.chunk((String) thing);
-            } else if (thing instanceof Supplier) {
-                //noinspection unchecked
-                return this.chunk((Supplier<String>)thing);
-            } else if (thing instanceof NonNullSupplier) {
-                //noinspection unchecked
-                return this.chunk((NonNullSupplier<Component>)thing);
+            } else if (thing instanceof StringSupplier) {
+                return this.chunk((StringSupplier)thing);
+            } else if (thing instanceof ComponentSupplier) {
+                return this.chunk((ComponentSupplier)thing);
             } else if (thing instanceof Component) {
                 return this.chunk((Component)thing);
             } else if (thing instanceof ItemStack) {
@@ -607,7 +605,7 @@ public class RichText
         private final int _maxWidth;
         protected List<Component> _lines;
         protected List<Object> _objects;
-        protected NonNullSupplier<Font> _fontSupplier;
+        protected Supplier<@NotNull Font> _fontSupplier;
         protected Colour _textColour;
         protected int _interline;
 
@@ -617,7 +615,7 @@ public class RichText
     //endregion
 
     final List<TextLine> _lines;
-    final NonNullSupplier<Font> _fontSupplier;
+    final Supplier<@NotNull Font> _fontSupplier;
     private Colour _textColour;
     private int _interline;
     private Rectangle _bounds;

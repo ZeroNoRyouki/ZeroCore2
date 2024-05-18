@@ -21,10 +21,13 @@ package it.zerono.mods.zerocore.lib.item.inventory;
 import it.zerono.mods.zerocore.lib.DebuggableHelper;
 import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.IDebuggable;
+import it.zerono.mods.zerocore.lib.data.component.IComponentProvider;
+import it.zerono.mods.zerocore.lib.data.component.ItemStackListComponent;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import it.zerono.mods.zerocore.lib.data.stack.AbstractStackHolder;
 import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.data.stack.StackAdapters;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
@@ -34,7 +37,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiPredicate;
@@ -42,27 +44,15 @@ import java.util.function.BiPredicate;
 public class ItemStackHolder
         extends AbstractStackHolder<ItemStackHolder, ItemStack>
         implements IStackHolderAccess<ItemStackHolder, ItemStack>, IItemHandler, IItemHandlerModifiable,
-                    INBTSerializable<CompoundTag>, ISyncableEntity, IDebuggable {
+                    INBTSerializable<CompoundTag>, ISyncableEntity, IDebuggable,
+                    IComponentProvider<ItemStackListComponent> {
 
     public ItemStackHolder(final int size) {
-        this(NonNullList.withSize(size, ItemStack.EMPTY));
+        this(NonNullList.withSize(size, ItemStack.EMPTY), AbstractStackHolder::defaultValidator);
     }
 
     public ItemStackHolder(final int size, final BiPredicate<Integer, ItemStack> stackValidator) {
         this(NonNullList.withSize(size, ItemStack.EMPTY), stackValidator);
-    }
-
-    public ItemStackHolder(final NonNullList<ItemStack> stacks) {
-
-        this._stacks = stacks;
-        this.setMaxCapacity(this::getSlotMaxCapacityFromStack);
-    }
-
-    public ItemStackHolder(final NonNullList<ItemStack> stacks, final BiPredicate<Integer, ItemStack> stackValidator) {
-
-        super(stackValidator);
-        this._stacks = stacks;
-        this.setMaxCapacity(this::getSlotMaxCapacityFromStack);
     }
 
     public void setSize(final int size) {
@@ -168,7 +158,7 @@ public class ItemStackHolder
 
         if (!existing.isEmpty()) {
 
-            if (!ItemHandlerHelper.canItemStacksStack(stack, existing)) {
+            if (!ItemStack.isSameItemSameComponents(stack, existing)) {
                 return stack;
             }
 
@@ -185,7 +175,7 @@ public class ItemStackHolder
 
             if (existing.isEmpty()) {
 
-                this._stacks.set(slot, reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
+                this._stacks.set(slot, reachedLimit ? stack.copyWithCount(limit) : stack);
                 this.onChange(ChangeType.Added, slot);
 
             } else {
@@ -195,7 +185,7 @@ public class ItemStackHolder
             }
         }
 
-        return reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - limit) : ItemStack.EMPTY;
+        return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
     }
 
     /**
@@ -245,11 +235,11 @@ public class ItemStackHolder
 
             if (!simulate) {
 
-                this._stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.getCount() - toExtract));
+                this._stacks.set(slot, existing.copyWithCount(existing.getCount() - toExtract));
                 this.onChange(ChangeType.Shrunk, slot);
             }
 
-            return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
+            return existing.copyWithCount(toExtract);
         }
     }
 
@@ -322,13 +312,13 @@ public class ItemStackHolder
     //region INBTSerializable<CompoundTag>
 
     @Override
-    public CompoundTag serializeNBT() {
-        return this.syncDataTo(new CompoundTag(), SyncReason.FullSync);
+    public CompoundTag serializeNBT(HolderLookup.Provider registries) {
+        return this.syncDataTo(new CompoundTag(), registries, SyncReason.FullSync);
     }
 
     @Override
-    public void deserializeNBT(final CompoundTag nbt) {
-        this.syncDataFrom(nbt, SyncReason.FullSync);
+    public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
+        this.syncDataFrom(nbt, registries, SyncReason.FullSync);
     }
 
     //endregion
@@ -341,8 +331,8 @@ public class ItemStackHolder
      * @param syncReason the reason why the synchronization is necessary
      */
     @Override
-    public void syncDataFrom(final CompoundTag data, final SyncReason syncReason) {
-        this.syncFrom(data, StackAdapters.ITEMSTACK, size -> {
+    public void syncDataFrom(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
+        this.syncFrom(data, registries, StackAdapters.ITEMSTACK, size -> {
 
             if (size > 0) {
                 this.setSize(size);
@@ -360,8 +350,21 @@ public class ItemStackHolder
      * @return the {@link CompoundTag} the data was written to (usually {@code data})
      */
     @Override
-    public CompoundTag syncDataTo(final CompoundTag data, final SyncReason syncReason) {
-        return this.syncTo(data, this._stacks, StackAdapters.ITEMSTACK);
+    public CompoundTag syncDataTo(CompoundTag data, HolderLookup.Provider registries, SyncReason syncReason) {
+        return this.syncTo(data, registries, this._stacks, StackAdapters.ITEMSTACK);
+    }
+
+    //endregion
+    //region IComponentProvider<ItemStackListComponent>
+
+    @Override
+    public ItemStackListComponent createDataComponent() {
+        return new ItemStackListComponent(this._stacks);
+    }
+
+    @Override
+    public void mergeComponent(ItemStackListComponent component) {
+        component.copyInto(this._stacks);
     }
 
     //endregion
@@ -378,6 +381,13 @@ public class ItemStackHolder
 
     //endregion
     //region internals
+
+    private ItemStackHolder(final NonNullList<ItemStack> stacks, final BiPredicate<Integer, ItemStack> stackValidator) {
+
+        super(stackValidator);
+        this._stacks = stacks;
+        this.setMaxCapacity(this::getSlotMaxCapacityFromStack);
+    }
 
     protected void validateSlotIndex(final int slot) {
 
