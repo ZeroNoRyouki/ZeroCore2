@@ -40,7 +40,14 @@ public class ContainerDataHandler {
     public void broadcastChanges(ServerPlayer player) {
 
         if (!this._data.isEmpty()) {
-            Lib.NETWORK_HANDLER.sendToPlayer(player, new ContainerSyncPacket(this.getUpdates()));
+
+            final var syncSet = this.getUpdates();
+
+            if (syncSet.isEmpty()) {
+                return;
+            }
+
+            Lib.NETWORK_HANDLER.sendToPlayer(player, new ContainerSyncPacket(syncSet));
         }
     }
 
@@ -57,10 +64,10 @@ public class ContainerDataHandler {
         @Override
         public void handlePacket(IPayloadContext context) {
 
-            final ContainerDataHandler syncedData = getClientSideContainerDataHandler();
+            final ContainerDataHandler handler = getClientSideContainerDataHandler();
 
-            if (null != syncedData) {
-                syncedData.syncFrom(this._syncSet);
+            if (null != handler) {
+                handler.syncFrom(this._syncSet);
             }
         }
 
@@ -85,11 +92,13 @@ public class ContainerDataHandler {
 
     private record SyncSet(int containerId, Short2ObjectMap<ISyncedSetEntry> entries) {
 
+        public static final SyncSet EMPTY = new SyncSet(-1, Short2ObjectMaps.emptyMap());
+
         public static final StreamCodec<RegistryFriendlyByteBuf, SyncSet> STREAM_CODEC = StreamCodec.ofMember(
                 ContainerDataHandler::serializeSyncSet, ContainerDataHandler::deserializeSyncSet);
 
-        public static SyncSet empty() {
-            return new SyncSet(-1, Short2ObjectMaps.emptyMap());
+        public boolean isEmpty() {
+            return this == EMPTY || this.entries.isEmpty();
         }
     }
 
@@ -118,7 +127,11 @@ public class ContainerDataHandler {
         final ContainerDataHandler handler = getClientSideContainerDataHandler();
 
         if (null == handler) {
-            return SyncSet.empty();
+
+            // discard the packet
+
+            buffer.clear();
+            return SyncSet.EMPTY;
         }
 
         return handler.getUpdates(buffer);
@@ -142,6 +155,10 @@ public class ContainerDataHandler {
             }
         }
 
+        if (entries.isEmpty()) {
+            return SyncSet.EMPTY;
+        }
+
         return new SyncSet(this._containerId, entries);
     }
 
@@ -158,7 +175,11 @@ public class ContainerDataHandler {
         final short count = buffer.readShort();
 
         if (count > MAX_DATA) {
-            return SyncSet.empty();
+
+            // discard the packet
+
+            buffer.clear();
+            return SyncSet.EMPTY;
         }
 
         final Short2ObjectMap<ISyncedSetEntry> entries = new Short2ObjectArrayMap<>(count);
