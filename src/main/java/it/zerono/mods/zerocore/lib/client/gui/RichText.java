@@ -29,6 +29,8 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import it.zerono.mods.zerocore.lib.functional.ComponentSupplier;
+import it.zerono.mods.zerocore.lib.functional.StringSupplier;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;

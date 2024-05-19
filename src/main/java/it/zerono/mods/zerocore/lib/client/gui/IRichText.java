@@ -27,10 +27,6 @@ import java.util.function.Supplier;
 
 public interface IRichText {
 
-    interface StringSupplier extends Supplier<@NotNull String> {}
-
-    interface ComponentSupplier extends Supplier<@NotNull Component> {}
-
     void paint(GuiGraphics gfx, int x, int y, int zLevel);
 
     Rectangle bounds();

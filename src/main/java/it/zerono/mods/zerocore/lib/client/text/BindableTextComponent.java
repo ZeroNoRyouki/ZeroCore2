@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.text;
 
+import it.zerono.mods.zerocore.lib.functional.ComponentSupplier;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +29,7 @@ import java.util.function.Supplier;
 import static it.zerono.mods.zerocore.lib.CodeHelper.TEXT_EMPTY_LINE;
 
 public class BindableTextComponent<Value>
-        implements Supplier<@NotNull Component>, Consumer<Value> {
+        implements ComponentSupplier, Consumer<Value> {
 
     public BindableTextComponent(final Function<@NotNull Value, @NotNull Component> builder) {
 
