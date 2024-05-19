@@ -71,46 +71,50 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
      * Called when the block is right-clicked by a player.
      */
     @Override
-    @SuppressWarnings("deprecation")
-    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos position, Player player,
-                                            BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos position, Player player,
+                                               BlockHitResult hit) {
 
         if (CodeHelper.calledByLogicalServer(world)) {
 
-                    final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
-                    final Optional<Controller> controller = part.flatMap(IMultiblockPart::getMultiblockController);
+            final Optional<IMultiblockPart<Controller>> part = WorldHelper.getMultiblockPartFrom(world, position);
 
-                    // report any multiblock errors
+            // report any multiblock errors
 
-                    final ValidationError error = !controller.isPresent() ? ValidationError.VALIDATION_ERROR_NOT_CONNECTED :
-                            controller.filter(IMultiblockValidator::hasLastError)
-                                    .flatMap(IMultiblockValidator::getLastError)
-                                    .orElse(null);
+            if (player.isCrouching()) {
 
-                    if (null != error) {
+                final Optional<Controller> controller = part.flatMap(IMultiblockPart::getMultiblockController);
 
+                final ValidationError error = controller.isEmpty() ? ValidationError.VALIDATION_ERROR_NOT_CONNECTED :
+                        controller.filter(IMultiblockValidator::hasLastError)
+                                .flatMap(IMultiblockValidator::getLastError)
+                                .orElse(null);
 
-                        CodeHelper.reportErrorToPlayer(player, error);
-                        return InteractionResult.SUCCESS;
-                    }
+                if (null != error) {
 
-                // open block GUI
-
-                if (part.filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
-                        .map(p -> (AbstractModBlockEntity)p)
-                        .filter(mbe -> mbe.canOpenGui(world, position, state))
-                        .map(mbe -> this.openGui((ServerPlayer) player, mbe))
-                        .orElse(false)) {
-                    return InteractionResult.CONSUME;
+                    CodeHelper.reportErrorToPlayer(player, error);
+                    return InteractionResult.SUCCESS;
                 }
-        } else {
+            }
 
-            return WorldHelper.getMultiblockPartFrom(world, position)
-                    .filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
+            // open block GUI
+
+            if (part.filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
                     .map(p -> (AbstractModBlockEntity)p)
                     .filter(mbe -> mbe.canOpenGui(world, position, state))
-                    .map(mbe -> InteractionResult.CONSUME)
-                    .orElse(InteractionResult.PASS);
+                    .map(mbe -> this.openGui((ServerPlayer) player, mbe))
+                    .orElse(false)) {
+                return InteractionResult.CONSUME;
+            }
+        } else {
+
+//            return WorldHelper.getMultiblockPartFrom(world, position)
+//                    .filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
+//                    .map(p -> (AbstractModBlockEntity)p)
+//                    .filter(mbe -> mbe.canOpenGui(world, position, state))
+//                    .map(mbe -> InteractionResult.CONSUME)
+//                    .orElse(InteractionResult.PASS);
+
+            return InteractionResult.SUCCESS;
         }
 
         return super.useWithoutItem(state, world, position, player, hit);
