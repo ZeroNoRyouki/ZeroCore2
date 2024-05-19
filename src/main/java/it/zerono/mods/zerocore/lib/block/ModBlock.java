@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.block;
 
+import com.mojang.serialization.MapCodec;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.world.WorldHelper;
 import net.minecraft.core.BlockPos;
@@ -40,6 +41,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -302,6 +304,11 @@ public class ModBlock
 
     //endregion
     //region Block
+
+    @Override
+    protected MapCodec<? extends Block> codec() {
+        throw new NotImplementedException("Block codecs");
+    }
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos position, BlockState state, Player player) {
