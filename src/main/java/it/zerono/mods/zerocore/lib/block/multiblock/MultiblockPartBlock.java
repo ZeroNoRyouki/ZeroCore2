@@ -92,7 +92,7 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                 if (null != error) {
 
                     CodeHelper.reportErrorToPlayer(player, error);
-                    return InteractionResult.SUCCESS;
+                    return InteractionResult.sidedSuccess(false);
                 }
             }
 
@@ -103,18 +103,16 @@ public class MultiblockPartBlock<Controller extends IMultiblockController<Contro
                     .filter(mbe -> mbe.canOpenGui(world, position, state))
                     .map(mbe -> this.openGui((ServerPlayer) player, mbe))
                     .orElse(false)) {
-                return InteractionResult.CONSUME;
+                return InteractionResult.sidedSuccess(false);
             }
         } else {
 
-//            return WorldHelper.getMultiblockPartFrom(world, position)
-//                    .filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
-//                    .map(p -> (AbstractModBlockEntity)p)
-//                    .filter(mbe -> mbe.canOpenGui(world, position, state))
-//                    .map(mbe -> InteractionResult.CONSUME)
-//                    .orElse(InteractionResult.PASS);
-
-            return InteractionResult.SUCCESS;
+            return WorldHelper.getMultiblockPartFrom(world, position)
+                    .filter(p -> p instanceof MenuProvider && p instanceof AbstractModBlockEntity)
+                    .map(p -> (AbstractModBlockEntity)p)
+                    .filter(mbe -> mbe.canOpenGui(world, position, state))
+                    .map(mbe -> InteractionResult.CONSUME)
+                    .orElse(InteractionResult.PASS);
         }
 
         return super.useWithoutItem(state, world, position, player, hit);
