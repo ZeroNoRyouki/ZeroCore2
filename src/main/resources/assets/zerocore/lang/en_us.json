@@ -1,6 +1,8 @@
 {
-    "_comment": "zerocore lang file",
-    "_comment": "API - multiblock",
+    "_comment": "ZeroCore 2 Language File - English",
+    "_comment": "@author ZeroNoRyouki, ABookFreak",
+    "_comment": "-- please don't translate the _comment lines ! --",
+
     "zerocore:api.multiblock.validation.success": "Machine validation was successful.",
     "zerocore:api.multiblock.validation.block_not_connected": "The block is not connected to a multiblock controller.",
     "zerocore:api.multiblock.validation.too_few_parts": "Machine is too small.",
@@ -50,7 +52,7 @@
     "gui.zerocore.base.redstone.sensorbehavior.toggleonpulse.text": "Toggle on pulse",
     "gui.zerocore.base.redstone.sensorbehavior.augmentonpulse.text": "Increase on pulse",
     "gui.zerocore.base.redstone.sensorbehavior.reduceonpulse.text": "Decrease on pulse",
-    "gui.zerocore.base.redstone.sensorbehavior.performonpulse.text": "Eject on pulse",
+    "gui.zerocore.base.redstone.sensorbehavior.performonpulse.text": "Perform on pulse",
     "gui.zerocore.base.redstone.sensorbehavior.activewhileabove.text": "Active while above",
     "gui.zerocore.base.redstone.sensorbehavior.activewhilebelow.text": "Active while below",
     "gui.zerocore.base.redstone.sensorbehavior.activewhilebetween.text": "Active while between",

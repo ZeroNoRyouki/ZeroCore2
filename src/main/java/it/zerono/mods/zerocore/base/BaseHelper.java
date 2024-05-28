@@ -22,6 +22,8 @@ import net.minecraftforge.fluids.FluidStack;
 
 public final class BaseHelper {
 
+    public static final String EMPTY_TRANSLATION_KEY = "gui.zerocore.base.generic.empty";
+
     public static IFormattableTextComponent getFluidNameOrEmpty(final FluidStack stack) {
         return stack.isEmpty() ? CommonConstants.EMPTY_VALUE : FluidHelper.getFluidName(stack);
     }
