@@ -1,5 +1,6 @@
 package it.zerono.mods.zerocore.lib.data;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -82,8 +83,24 @@ public record ModCodecs<Type, Buffer extends ByteBuf>(Codec<Type> codec, StreamC
                 .map(CodeHelper::asNonNullList, Function.identity());
     }
 
+    public static <T> Codec<TagKey<T>> tagKeyCodec(ResourceKey<? extends Registry<T>> registry) {
+        return TagKey.codec(registry);
+    }
+
     public static <T> StreamCodec<ByteBuf, TagKey<T>> tagKeyStreamCodec(ResourceKey<? extends Registry<T>> registry) {
         return ResourceLocation.STREAM_CODEC.map(tagId -> TagKey.create(registry, tagId), TagKey::location);
+    }
+
+    public static <F, S> Codec<Pair<F, S>> pairCodec(Codec<F> firstCodec, Codec<S> secondCodec) {
+        return RecordCodecBuilder.create(instance -> instance.group(
+                firstCodec.fieldOf("fist").forGetter(Pair::getFirst),
+                secondCodec.fieldOf("second").forGetter(Pair::getSecond)
+        ).apply(instance, Pair::of));
+    }
+
+    public static <Buffer, F, S> StreamCodec<Buffer, Pair<F, S>> pairStreamCodec(StreamCodec<? super Buffer, F> firstCodec,
+                                                                                 StreamCodec<? super Buffer, S> secondCodec) {
+        return StreamCodec.composite(firstCodec, Pair::getFirst, secondCodec, Pair::getSecond, Pair::of);
     }
 
     //endregion
