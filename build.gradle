@@ -131,9 +131,9 @@ dependencies {
 	implementation "net.neoforged:neoforge:${project.forge_version}"
 
 	// cc-tweaked
-//    compileOnly("cc.tweaked:cc-tweaked-1.20.5-core-api:${project.cctweaked_version}")
-//    compileOnly("cc.tweaked:cc-tweaked-1.20.5-forge-api:${project.cctweaked_version}")
-//    runtimeOnly("cc.tweaked:cc-tweaked-1.20.5-forge:${project.cctweaked_version}")
+    compileOnly("cc.tweaked:cc-tweaked-1.20.6-core-api:${project.cctweaked_version}")
+    compileOnly("cc.tweaked:cc-tweaked-1.20.6-forge-api:${project.cctweaked_version}")
+    runtimeOnly("cc.tweaked:cc-tweaked-1.20.6-forge:${project.cctweaked_version}")
 
     // patchouli
 //    compileOnly "vazkii.patchouli:Patchouli:${project.patchouli_version}-NEOFORGE"
