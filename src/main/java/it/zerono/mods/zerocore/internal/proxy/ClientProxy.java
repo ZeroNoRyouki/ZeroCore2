@@ -21,13 +21,10 @@ package it.zerono.mods.zerocore.internal.proxy;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
-import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
-import it.zerono.mods.zerocore.internal.network.Network;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.GuiHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
-import it.zerono.mods.zerocore.lib.client.model.BakedModelSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -35,7 +32,6 @@ import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.crafting.RecipeManager;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.resources.IReloadableResourceManager;
@@ -76,7 +72,6 @@ public class ClientProxy
         final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
 
         modBus.register(this);
-        modBus.register(BakedModelSupplier.INSTANCE);
         modBus.register(AtlasSpriteSupplier.INSTANCE);
 
         final IEventBus forgeBus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
