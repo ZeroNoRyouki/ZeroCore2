@@ -43,6 +43,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.DrawHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -80,6 +81,11 @@ public class ClientProxy
         forgeBus.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
+        forgeBus.addListener(this::onLoggedOut);
+    }
+
+    public void onLoggedOut(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+        this.clearErrorReport();
     }
 
     /**
