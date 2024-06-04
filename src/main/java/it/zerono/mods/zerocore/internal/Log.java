@@ -29,6 +29,7 @@ public class Log {
     public static final Logger LOGGER = LogManager.getLogger(ZeroCore.MOD_ID);
 
     public static final Marker CORE = MarkerManager.getMarker("core");
+    public static final Marker SERVICE_LOADER = MarkerManager.getMarker("service_loader");
     public static final Marker MULTIBLOCK = MarkerManager.getMarker("multiblock");
     public static final Marker NETWORK = MarkerManager.getMarker("network");
     public static final Marker COMPAT_COMPUTERS = MarkerManager.getMarker("compat.computers");

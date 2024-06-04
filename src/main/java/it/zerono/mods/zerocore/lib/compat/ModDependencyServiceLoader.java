@@ -3,8 +3,8 @@ package it.zerono.mods.zerocore.lib.compat;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
 /**
@@ -22,9 +22,9 @@ public class ModDependencyServiceLoader<T>
      * @param service The {@link Class} of the service
      * @param fallbackFactory A {@link Supplier} for the fallback service implementation
      */
-    public ModDependencyServiceLoader(String modId, Class<T> service, Supplier<T> fallbackFactory) {
+    public ModDependencyServiceLoader(String modId, Class<T> service, Supplier<@NotNull T> fallbackFactory) {
 
-        super(buildSupplier(modId, service, fallbackFactory));
+        super(supplier(modId, service, fallbackFactory));
         this._modId = modId;
     }
 
@@ -38,24 +38,17 @@ public class ModDependencyServiceLoader<T>
 
     //region internals
 
-    private static <T> com.google.common.base.Supplier<T> buildSupplier(String modId, Class<T> service,
-                                                                        Supplier<T> fallbackFactory) {
+    private static <T> com.google.common.base.Supplier<@NotNull T> supplier(String modId, Class<T> service,
+                                                                            Supplier<@NotNull T> fallbackSupplier) {
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(modId), "Mod ID must not be null or empty");
-        Preconditions.checkNotNull(service, "Service must not be null");
-        Preconditions.checkNotNull(fallbackFactory, "Fallback factory must not be null");
-
-        final com.google.common.base.Supplier<T> supplier;
+        Preconditions.checkNotNull(fallbackSupplier, "Fallback factory must not be null");
 
         if (CodeHelper.isModLoaded(modId)) {
-            supplier = () -> ServiceLoader.load(service)
-                    .findFirst()
-                    .orElseThrow(() -> new NullPointerException("Failed to load mod service for " + service.getName()));
+            return loadOrFallback(service, fallbackSupplier);
         } else {
-            supplier = fallbackFactory::get;
+            return fallbackSupplier::get;
         }
-
-        return supplier;
     }
 
     private final String _modId;
