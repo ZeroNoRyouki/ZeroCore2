@@ -18,21 +18,39 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class BlockPosData
+        extends AbstractData<BlockPos>
         implements IContainerData {
 
-    public BlockPosData(final NonNullSupplier<BlockPos> getter, final NonNullConsumer<BlockPos> setter) {
+    public static BlockPosData immutable(ModContainer container, boolean isClientSide, BlockPos value) {
+        return of(container, isClientSide, () -> () -> value);
+    }
 
-        this._getter = getter;
-        this._setter = setter;
-        this._lastHash = 0;
+    public static BlockPosData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                       NonNullSupplier<Supplier<BlockPos>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static BlockPosData of(ModContainer container, boolean isClientSide,
+                                  NonNullSupplier<Supplier<BlockPos>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final BlockPosData data = isClientSide ? new BlockPosData() : new BlockPosData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
     }
 
     //region IContainerData
@@ -47,7 +65,7 @@ public class BlockPosData
         if (this._lastHash != currentHash) {
 
             this._lastHash = currentHash;
-            return buffer -> buffer.writeBlockPos(this._getter.get());
+            return buffer -> buffer.writeBlockPos(current);
         }
 
         return null;
@@ -55,14 +73,30 @@ public class BlockPosData
 
     @Override
     public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readBlockPos());
+        this.notify(dataSource.readBlockPos());
+    }
+
+    //endregion
+    //region IBindableData<BlockPos>
+
+    @Nullable
+    @Override
+    public BlockPos defaultValue() {
+        return BlockPos.ZERO;
     }
 
     //endregion
     //region internals
 
-    private final NonNullSupplier<BlockPos> _getter;
-    private final NonNullConsumer<BlockPos> _setter;
+    private BlockPosData() {
+    }
+
+    private BlockPosData(NonNullSupplier<Supplier<BlockPos>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastHash = 0;
+    }
+
     private int _lastHash;
 
     //endregion

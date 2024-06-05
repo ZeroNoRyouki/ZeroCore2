@@ -29,7 +29,7 @@ public interface IContainerData {
      * Return a {@link FriendlyByteBuf} consumer that will be used to write this {@code IContainerData}'s data to a packet.
      * The consumer could either serialize the whole data to a packet or only the changes occurred since the last call to this method.
      *
-     * Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).
+     * <p>Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).</p>
      *
      * @return the consumer, or {@code null}
      */

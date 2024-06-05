@@ -71,15 +71,15 @@ public class AnchoredLayoutEngine
         final Rectangle parentBounds = controlsContainer.getBounds();
         final int horizontalMargin = this.getHorizontalMargin();
         final int verticalMargin = this.getVerticalMargin();
-        final int undefinedWidth = this.computeUndefinedDimensionSize(controlsContainer, DesiredDimension.Width, parentBounds.Width);
-        final int undefinedHeight = this.computeUndefinedDimensionSize(controlsContainer, DesiredDimension.Height, parentBounds.Height);
+        final int defaultWidth = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Width, parentBounds.Width);
+        final int defaultHeight = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Height, parentBounds.Height);
         final int bandMaxWidth = parentBounds.Width - (horizontalMargin * 2);
         final int bandMaxHeight = parentBounds.Height - (verticalMargin * 2);
 
         for (final IControl control : controlsContainer) {
 
-            final int controlWidth = Math.min(bandMaxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, undefinedWidth));
-            final int controlHeight = Math.min(bandMaxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, undefinedHeight));
+            final int controlWidth = Math.min(bandMaxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, defaultWidth));
+            final int controlHeight = Math.min(bandMaxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, defaultHeight));
             final Rectangle newBounds;
 
             switch (this.getAnchorFrom(control)) {

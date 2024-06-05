@@ -19,8 +19,6 @@
 package it.zerono.mods.zerocore.base;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 
 public final class CommonConstants {
@@ -33,10 +31,6 @@ public final class CommonConstants {
     public static String COMMAND_SET_SENSOR = "setsensor";
     public static String COMMAND_DISABLE_SENSOR = "nosensor";
     public static String COMMAND_EJECT = "eject";
-
-    //region UI
-
-    public static final MutableComponent EMPTY_VALUE = Component.translatable("gui.zerocore.base.generic.empty");
 
     //region UI styles
 
@@ -52,7 +46,6 @@ public final class CommonConstants {
             .withColor(ChatFormatting.DARK_PURPLE)
             .withItalic(true);
 
-    //endregion
     //endregion
     //region internals
 

@@ -28,5 +28,5 @@ public interface InputSensorAction<T> {
      * @param isExternallyPowered true if the Redstone Port is receiving a signal, false otherwise
      * @param externalPowerLevel the signal level (0 - 15)
      */
-    void inputAction(T machine, Boolean isExternallyPowered, int externalPowerLevel);
+    void inputAction(T machine, boolean isExternallyPowered, int externalPowerLevel);
 }

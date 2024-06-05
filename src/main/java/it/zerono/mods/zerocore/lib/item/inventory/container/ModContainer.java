@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
@@ -31,6 +32,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
@@ -71,17 +73,21 @@ public class ModContainer
     public static final String SLOTGROUPNAME_PLAYER_INVENTORY = "playerinventory_main";
     public static final String SLOTGROUPNAME_PLAYER_HOTBAR = "playerinventory_hotbar";
 
-    public ModContainer(final ContainerFactory factory, final MenuType<?> type, final int windowId, final Inventory playerInventory) {
+    public ModContainer(final int ticksBetweenUpdates, final ContainerFactory factory, final MenuType<?> type,
+                        final int windowId, final Inventory playerInventory) {
 
         super(type, windowId);
         this._factory = factory;
         this._registeredInventories = Maps.newHashMap();
         this._inventorySlotsGroups = Maps.newHashMap();
         this._player = playerInventory.player;
+        this._ticksBetweenUpdates = ticksBetweenUpdates;
+        this._ticksSinceLastUpdate = 0;
     }
 
     public static ModContainer empty(final MenuType<?> type, final int windowId, final Inventory playerInventory) {
-        return new ModContainer(ContainerFactory.EMPTY, type, windowId, playerInventory) {
+        return new ModContainer(200, ContainerFactory.EMPTY, type, windowId, playerInventory) {
+
             @Override
             public void setItem(int slotID, int p_182408_, ItemStack stack) {
             }
@@ -104,6 +110,13 @@ public class ModContainer
         this.addInventory(name, new PlayerInvWrapper(inventory));
     }
 
+    public void addBindableData(final IBindableData<?> data) {
+
+        Preconditions.checkArgument(data instanceof IContainerData, "Data must implement IContainerData too.");
+        this.addContainerData((IContainerData) data);
+    }
+
+    @Deprecated // use addBindableData()
     public void addContainerData(final IContainerData data) {
 
         if (null == this._dataToSync) {
@@ -219,10 +232,6 @@ public class ModContainer
 
             while (-1 != (idx = dataSource.readShort())) {
                 this._dataToSync.get(idx).readContainerData(dataSource);
-            }
-
-            if (null != this._dataUpdateEvent) {
-                this._dataUpdateEvent.raise(Runnable::run);
             }
         }
     }
@@ -490,7 +499,14 @@ public class ModContainer
             }
 
             if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
-                Network.sendServerContainerData((ServerPlayer)this._player, this);
+
+                ++this._ticksSinceLastUpdate;
+
+                if (this._ticksSinceLastUpdate >= this._ticksBetweenUpdates) {
+
+                    this._ticksSinceLastUpdate = 0;
+                    Network.sendServerContainerData((ServerPlayer)this._player, this);
+                }
             }
         }
     }
@@ -549,6 +565,8 @@ public class ModContainer
     private final Map<String, IItemHandler> _registeredInventories;
     private final Map<String, List<Slot>> _inventorySlotsGroups;
     private final Player _player;
+    private final int _ticksBetweenUpdates;
+    private int _ticksSinceLastUpdate;
     private IEvent<Runnable> _dataUpdateEvent;
     private IConditionallySyncableEntity _syncableEntity;
     private ObjectList<IContainerData> _dataToSync;

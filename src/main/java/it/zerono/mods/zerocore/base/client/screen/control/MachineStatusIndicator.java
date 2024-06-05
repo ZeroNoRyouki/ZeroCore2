@@ -25,23 +25,25 @@ import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
 import it.zerono.mods.zerocore.lib.client.gui.control.Picture;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class MachineStatusIndicator
-        extends AbstractCompositeControl
-        implements Consumer<Boolean> {
+        extends AbstractCompositeControl {
 
-    public MachineStatusIndicator(final ModContainerScreen<? extends ModContainer> gui, final String name) {
+    public MachineStatusIndicator(final ModContainerScreen<? extends ModContainer> gui, final String name,
+                                  final IBindableData<Boolean> bindableStatus) {
 
         super(gui, name);
         this._statusOn = new Picture(gui, "on", BaseIcons.MachineStatusOn);
         this._statusOff = new Picture(gui, "off", BaseIcons.MachineStatusOff);
 
         this._statusOn.setVisible(false);
-        this._statusOff.setVisible(false);
+        this._statusOff.setVisible(true);
+
+        bindableStatus.bind(this::updateStatus);
 
         this.addChildControl(this._statusOn, this._statusOff);
     }
@@ -74,14 +76,6 @@ public class MachineStatusIndicator
         }
     }
 
-    //region Consumer<Boolean>
-
-    @Override
-    public void accept(final Boolean active) {
-        this.updateStatus(active);
-    }
-
-    //endregion
     //region AbstractCompoundControl
 
     @Override

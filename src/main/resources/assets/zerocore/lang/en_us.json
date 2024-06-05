@@ -1,6 +1,8 @@
 {
-    "_comment": "zerocore lang file",
-    "_comment": "API - multiblock",
+    "_comment": "ZeroCore 2 Language File - English",
+    "_comment": "@author ZeroNoRyouki, ABookFreak",
+    "_comment": "-- please don't translate the _comment lines ! --",
+
     "zerocore:api.multiblock.validation.success": "Machine validation was successful.",
     "zerocore:api.multiblock.validation.block_not_connected": "The block is not connected to a multiblock controller.",
     "zerocore:api.multiblock.validation.too_few_parts": "Machine is too small.",
@@ -26,6 +28,10 @@
 
     "_comment": "GUI",
     "gui.zerocore.base.generic.empty": "Empty",
+    "gui.zerocore.base.generic.disable": "Disable",
+    "gui.zerocore.base.generic.save": "Save",
+    "gui.zerocore.base.generic.reset": "Reset",
+    "gui.zerocore.base.generic.unknown": "Unknown",
     "gui.zerocore.base.screen.ioport.mode": "Operational mode:",
     "gui.zerocore.base.control.energybar.line1": "Internal Energy Buffer",
     "gui.zerocore.base.control.energybar.line2a": "  @0",
@@ -36,5 +42,19 @@
     "gui.zerocore.base.control.fluidbar.line3a": "  @1",
     "gui.zerocore.base.control.fluidbar.line3b": " / %1$s",
     "gui.zerocore.base.control.fluidbar.line4a": "  @2",
-    "gui.zerocore.base.control.fluidbar.line4b": "% full"
+    "gui.zerocore.base.control.fluidbar.line4b": "% full",
+
+    "gui.zerocore.base.redstone.sensortype.input": "Signal direction: input",
+    "gui.zerocore.base.redstone.sensortype.output": "Signal direction: output",
+    "gui.zerocore.base.redstone.sensorbehavior.setfromsignal.text": "Set from signal",
+    "gui.zerocore.base.redstone.sensorbehavior.setfromsignallevel.text": "Set from signal level",
+    "gui.zerocore.base.redstone.sensorbehavior.setonpulse.text": "Set on pulse",
+    "gui.zerocore.base.redstone.sensorbehavior.toggleonpulse.text": "Toggle on pulse",
+    "gui.zerocore.base.redstone.sensorbehavior.augmentonpulse.text": "Increase on pulse",
+    "gui.zerocore.base.redstone.sensorbehavior.reduceonpulse.text": "Decrease on pulse",
+    "gui.zerocore.base.redstone.sensorbehavior.performonpulse.text": "Perform on pulse",
+    "gui.zerocore.base.redstone.sensorbehavior.activewhileabove.text": "Active while above",
+    "gui.zerocore.base.redstone.sensorbehavior.activewhilebelow.text": "Active while below",
+    "gui.zerocore.base.redstone.sensorbehavior.activewhilebetween.text": "Active while between",
+    "gui.zerocore.base.redstone.validation.invalidminmax.text": "The maximum value should be greater then the minimum value"
 }

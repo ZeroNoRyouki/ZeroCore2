@@ -18,21 +18,39 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class EnumData<T extends Enum<T>>
+        extends AbstractData<T>
         implements IContainerData {
 
-    public EnumData(final Class<T> enumClass, final Supplier<T> getter, final Consumer<T> setter) {
+    public static <T extends Enum<T>> EnumData<T> immutable(ModContainer container, boolean isClientSide,
+                                                            Class<T> enumClass, T value) {
+        return of(container, isClientSide, enumClass, () -> () -> value);
+    }
 
-        this._enumClass = enumClass;
-        this._getter = getter;
-        this._setter = setter;
+    public static <T extends Enum<T>> EnumData<T> sampled(int frequency, ModContainer container, boolean isClientSide,
+                                                          Class<T> enumClass, NonNullSupplier<Supplier<T>> serverSideGetter) {
+        return of(container, isClientSide, enumClass, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static <T extends Enum<T>> EnumData<T> of(ModContainer container, boolean isClientSide,
+                                                     Class<T> enumClass, NonNullSupplier<Supplier<T>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final EnumData<T> data = isClientSide ? new EnumData<>(enumClass) : new EnumData<>(enumClass, serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
     }
 
     //region IContainerData
@@ -46,12 +64,7 @@ public class EnumData<T extends Enum<T>>
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> {
-
-                final T value = this._getter.get();
-
-                buffer.writeVarInt(null != value ? value.ordinal() : -1);
-            };
+            return buffer -> buffer.writeVarInt(null != current ? current.ordinal() : -1);
         }
 
         return null;
@@ -61,16 +74,35 @@ public class EnumData<T extends Enum<T>>
     public void readContainerData(final FriendlyByteBuf dataSource) {
 
         final int ordinal = dataSource.readVarInt();
+        final T data = -1 == ordinal ? null : this._enumClass.getEnumConstants()[ordinal];
 
-        this._setter.accept(-1 == ordinal ? null : this._enumClass.getEnumConstants()[ordinal]);
+        this.notify(data);
+    }
+
+    //endregion
+    //region IBindableData<T>
+
+    @Nullable
+    @Override
+    public T defaultValue() {
+        return this._enumClass.getEnumConstants()[0];
     }
 
     //endregion
     //region internals
 
+    private EnumData(Class<T> enumClass) {
+        this._enumClass = enumClass;
+    }
+
+    private EnumData(Class<T> enumClass, NonNullSupplier<Supplier<T>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._enumClass = enumClass;
+        this._lastValue = null;
+    }
+
     private final Class<T> _enumClass;
-    private final Supplier<T> _getter;
-    private final Consumer<T> _setter;
     private T _lastValue;
 
     //endregion

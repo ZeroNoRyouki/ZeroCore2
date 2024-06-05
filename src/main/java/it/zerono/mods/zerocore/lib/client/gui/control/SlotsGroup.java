@@ -97,7 +97,6 @@ public class SlotsGroup
         slots.stream()
                 .filter(slot -> slot instanceof SlotGeneric)
                 .map(slot -> (SlotGeneric)slot)
-                //.forEach(slot -> slot.translate(this::translateX, this::translateY));
                 .forEach(slot -> slot.translate(this::translateSlot));
     }
 

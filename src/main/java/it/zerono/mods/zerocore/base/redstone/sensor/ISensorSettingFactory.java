@@ -22,7 +22,7 @@ import it.zerono.mods.zerocore.lib.IMachineReader;
 
 public interface ISensorSettingFactory<Reader extends IMachineReader, Writer,
         SensorType extends Enum<SensorType> & ISensorType<Reader>,
-        SensorSetting extends AbstractSensorSetting<Reader, Writer, SensorType>> {
+        SensorSetting extends AbstractSensorSetting<Reader, Writer, SensorType, SensorSetting>> {
 
-    SensorSetting create(SensorType sensor, SensorBehavior behavior, int v1, int v2);
+    SensorSetting createSetting(SensorType sensor, SensorBehavior behavior, int v1, int v2);
 }

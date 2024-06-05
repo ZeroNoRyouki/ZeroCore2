@@ -1,7 +1,6 @@
- 
- /*
+/*
  *
- * package-info.java
+ * ISensorValidator.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -17,10 +16,13 @@
  *
  */
 
- @ParametersAreNonnullByDefault
- @MethodsReturnNonnullByDefault
- package it.zerono.mods.zerocore.lib.client.text;
+package it.zerono.mods.zerocore.base.client.screen.control.redstone.sensor;
 
- import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.common.util.NonNullConsumer;
 
- import javax.annotation.ParametersAreNonnullByDefault;
+@FunctionalInterface
+public interface ISensorValidator {
+
+    void validate(NonNullConsumer<Component> errors, int... values);
+}

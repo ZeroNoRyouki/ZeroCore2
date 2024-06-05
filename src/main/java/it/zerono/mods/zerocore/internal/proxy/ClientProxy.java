@@ -44,6 +44,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.ScreenEvent;
@@ -70,7 +71,6 @@ public class ClientProxy
         final IEventBus modBus = Mod.EventBusSubscriber.Bus.MOD.bus().get();
 
         modBus.register(this);
-//        modBus.register(BakedModelSupplier.INSTANCE);
         modBus.register(AtlasSpriteSupplier.INSTANCE);
 
         final IEventBus forgeBus = Mod.EventBusSubscriber.Bus.FORGE.bus().get();
@@ -79,6 +79,11 @@ public class ClientProxy
         forgeBus.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
         forgeBus.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
+        forgeBus.addListener(this::onLoggedOut);
+    }
+
+    public void onLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        this.clearErrorReport();
     }
 
     /**

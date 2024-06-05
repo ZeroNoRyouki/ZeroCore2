@@ -18,39 +18,67 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import it.unimi.dsi.fastutil.bytes.ByteConsumer;
-import it.zerono.mods.zerocore.lib.functional.ByteSupplier;
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class ByteData
+        extends AbstractData<Byte>
         implements IContainerData {
 
-    public ByteData(final ByteSupplier getter, final ByteConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static ByteData immutable(ModContainer container, boolean isClientSide, byte value) {
+        return of(container, isClientSide, () -> () -> value);
     }
 
-    public static ByteData wrap(final byte[] array, final int index) {
-        return new ByteData(() -> array[index], v -> array[index] = v);
+    public static ByteData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                   NonNullSupplier<Supplier<Byte>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
     }
 
-    //region IContainerData
+    public static ByteData of(ModContainer container, boolean isClientSide,
+                              NonNullSupplier<Supplier<Byte>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final ByteData data = isClientSide ? new ByteData() : new ByteData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static ByteData of(ModContainer container, boolean isClientSide, byte[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        final ByteData data = of(container, isClientSide, () -> () -> array[index]);
+
+        if (isClientSide) {
+            data.bind(v -> array[index] = v);
+        }
+
+        return data;
+    }
+
+    //region
+    // IContainerData
 
     @Nullable
     @Override
     public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
 
-        final byte current = this._getter.getAsByte();
+        final byte current = this._getter.get();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeByte(this._getter.getAsByte());
+            return buffer -> buffer.writeByte(current);
         }
 
         return null;
@@ -58,14 +86,30 @@ public class ByteData
 
     @Override
     public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readByte());
+        this.notify(dataSource.readByte());
+    }
+
+    //endregion
+    //region IBindableData<Byte>
+
+    @Nullable
+    @Override
+    public Byte defaultValue() {
+        return 0;
     }
 
     //endregion
     //region internals
 
-    private final ByteSupplier _getter;
-    private final ByteConsumer _setter;
+    private ByteData() {
+    }
+
+    private ByteData(NonNullSupplier<Supplier<Byte>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastValue = 0;
+    }
+
     private byte _lastValue;
 
     //endregion

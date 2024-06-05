@@ -43,10 +43,12 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param playerInventory the player inventory
      * @param tile      the TileEntity to link with
      */
-    public ModTileContainer(final ContainerFactory factory, final MenuType<? extends ModTileContainer<T>> type,
-                            final int windowId, final Inventory playerInventory, final T tile) {
+    public ModTileContainer(final int ticksBetweenUpdates, final ContainerFactory factory,
+                            final MenuType<? extends ModTileContainer<T>> type, final int windowId,
+                            final Inventory playerInventory, final T tile) {
 
-        super(factory, type, windowId, playerInventory);
+        super(ticksBetweenUpdates, factory, type, windowId, playerInventory);
+
         this._tile = tile;
 
         if (tile instanceof IConditionallySyncableEntity) {
@@ -64,10 +66,11 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
      * @param tile      the TileEntity to link with
      * @param player    the player
      */
-    public ModTileContainer(final ContainerFactory factory, final MenuType<? extends ModTileContainer<T>> type,
-                            final int windowId, final T tile, final ServerPlayer player) {
+    public ModTileContainer(final int ticksBetweenUpdates, final ContainerFactory factory,
+                            final MenuType<? extends ModTileContainer<T>> type, final int windowId, final T tile,
+                            final ServerPlayer player) {
 
-        this(factory, type, windowId, player.getInventory(), tile);
+        this(ticksBetweenUpdates, factory, type, windowId, player.getInventory(), tile);
 
         if (this._tile instanceof INetworkTileEntitySyncProvider) {
             ((INetworkTileEntitySyncProvider)this._tile).enlistForUpdates(player, true);
@@ -77,7 +80,8 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
     public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
                                                                                final int windowId, final Inventory playerInventory,
                                                                                final T tile) {
-        return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, playerInventory, tile) {
+        return new ModTileContainer<T>(200, ContainerFactory.EMPTY, type, windowId, playerInventory, tile) {
+
             @Override
             public void setItem(int slotID, int stateId, ItemStack stack) {
             }
@@ -87,7 +91,8 @@ public class ModTileContainer<T extends AbstractModBlockEntity>
     public static <T extends AbstractModBlockEntity> ModTileContainer<T> empty(final MenuType<? extends ModTileContainer<T>> type,
                                                                                final int windowId, final T tile,
                                                                                final ServerPlayer player) {
-        return new ModTileContainer<T>(ContainerFactory.EMPTY, type, windowId, tile, player) {
+        return new ModTileContainer<T>(200, ContainerFactory.EMPTY, type, windowId, tile, player) {
+
             @Override
             public void setItem(int slotID, int stateId, ItemStack stack) {
             }

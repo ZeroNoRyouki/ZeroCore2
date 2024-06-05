@@ -18,25 +18,52 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import it.unimi.dsi.fastutil.shorts.ShortConsumer;
-import it.zerono.mods.zerocore.lib.functional.ShortSupplier;
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class ShortData
+        extends AbstractData<Short>
         implements IContainerData {
 
-    public ShortData(final ShortSupplier getter, final ShortConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static ShortData immutable(ModContainer container, boolean isClientSide, short value) {
+        return of(container, isClientSide, () -> () -> value);
     }
 
-    public static ShortData wrap(final short[] array, final int index) {
-        return new ShortData(() -> array[index], v -> array[index] = v);
+    public static ShortData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                    NonNullSupplier<Supplier<Short>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static ShortData of(ModContainer container, boolean isClientSide,
+                               NonNullSupplier<Supplier<Short>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final ShortData data = isClientSide ? new ShortData() : new ShortData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static ShortData of(ModContainer container, boolean isClientSide, short[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        final ShortData data = of(container, isClientSide, () -> () -> array[index]);
+
+        if (isClientSide) {
+            data.bind(v -> array[index] = v);
+        }
+
+        return data;
     }
 
     //region IContainerData
@@ -45,12 +72,12 @@ public class ShortData
     @Override
     public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
 
-        final short current = this._getter.getAsShort();
+        final short current = this._getter.get();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeVarInt(this._getter.getAsShort());
+            return buffer -> buffer.writeVarInt(current);
         }
 
         return null;
@@ -58,14 +85,30 @@ public class ShortData
 
     @Override
     public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readShort());
+        this.notify(dataSource.readShort());
+    }
+
+    //endregion
+    //region IBindableData<Short>
+
+    @Nullable
+    @Override
+    public Short defaultValue() {
+        return 0;
     }
 
     //endregion
     //region internals
 
-    private final ShortSupplier _getter;
-    private final ShortConsumer _setter;
+    private ShortData() {
+    }
+
+    private ShortData(NonNullSupplier<Supplier<Short>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastValue = 0;
+    }
+
     private short _lastValue;
 
     //endregion

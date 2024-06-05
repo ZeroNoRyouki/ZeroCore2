@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.base.multiblock.client.screen.io;
 
 import it.zerono.mods.zerocore.base.CommonConstants;
 import it.zerono.mods.zerocore.base.client.screen.BaseIcons;
+import it.zerono.mods.zerocore.base.client.screen.ClientBaseHelper;
 import it.zerono.mods.zerocore.base.multiblock.client.screen.AbstractMultiblockScreen;
 import it.zerono.mods.zerocore.base.multiblock.part.AbstractMultiblockEntity;
 import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
@@ -135,8 +136,8 @@ public abstract class AbstractIOPortScreen<Controller extends AbstractCuboidMult
         directionsPanel.addControl(directionButtonsLabel);
 
         // -- input direction button
-        this.setButtonSpritesAndOverlayForState(this._btnInputDirection, ButtonState.Default, BaseIcons.ButtonInputDirection);
-        this.setButtonSpritesAndOverlayForState(this._btnInputDirection, ButtonState.Active, BaseIcons.ButtonInputDirectionActive);
+        ClientBaseHelper.setButtonSpritesAndOverlayForState(this._btnInputDirection, ButtonState.Default, BaseIcons.ButtonInputDirection);
+        ClientBaseHelper.setButtonSpritesAndOverlayForState(this._btnInputDirection, ButtonState.Active, BaseIcons.ButtonInputDirectionActive);
         this._btnInputDirection.setDesiredDimension(18, 18);
         this._btnInputDirection.setLayoutEngineHint(TabularLayoutEngine.hintBuilder()
                 .setHorizontalAlignment(HorizontalAlignment.Center)
@@ -147,8 +148,8 @@ public abstract class AbstractIOPortScreen<Controller extends AbstractCuboidMult
         this._btnInputDirection.Activated.subscribe(this::onInputActivated);
 
         // -- output direction button
-        this.setButtonSpritesAndOverlayForState(this._btnOutputDirection, ButtonState.Default, BaseIcons.ButtonOutputDirection);
-        this.setButtonSpritesAndOverlayForState(this._btnOutputDirection, ButtonState.Active, BaseIcons.ButtonOutputDirectionActive);
+        ClientBaseHelper.setButtonSpritesAndOverlayForState(this._btnOutputDirection, ButtonState.Default, BaseIcons.ButtonOutputDirection);
+        ClientBaseHelper.setButtonSpritesAndOverlayForState(this._btnOutputDirection, ButtonState.Active, BaseIcons.ButtonOutputDirectionActive);
         this._btnOutputDirection.setDesiredDimension(18, 18);
         this._btnOutputDirection.setLayoutEngineHint(TabularLayoutEngine.hintBuilder()
                 .setHorizontalAlignment(HorizontalAlignment.Center)

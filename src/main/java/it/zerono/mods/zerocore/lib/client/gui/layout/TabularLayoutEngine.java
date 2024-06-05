@@ -22,6 +22,8 @@ import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.Padding;
+import it.zerono.mods.zerocore.lib.client.gui.control.ITableCellLayoutBuilder;
+import it.zerono.mods.zerocore.lib.client.gui.control.ITableLayoutBuilder;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 
 import java.util.Arrays;
@@ -49,7 +51,8 @@ public class TabularLayoutEngine
 
     //region Builder
 
-    public static class Builder {
+    public static class Builder
+            implements ITableLayoutBuilder {
 
         Builder() {
             this._columnsCount = this._rowsCount = -1;
@@ -59,6 +62,9 @@ public class TabularLayoutEngine
             return new TabularLayoutEngine(this._columnDefinition, this._rowDefinition).setZeroMargins();
         }
 
+        //region ITableLayoutBuilder
+
+        @Override
         public Builder columns(final int count, int... sizesInPixels) {
 
             this.validateColumns(count);
@@ -68,6 +74,7 @@ public class TabularLayoutEngine
             return this;
         }
 
+        @Override
         public Builder columns(final int count, double... sizesInPercentage) {
 
             this.validateColumns(count);
@@ -77,6 +84,7 @@ public class TabularLayoutEngine
             return this;
         }
 
+        @Override
         public Builder columns(final int count) {
 
             this.validateColumns(count);
@@ -90,6 +98,7 @@ public class TabularLayoutEngine
             return this;
         }
 
+        @Override
         public Builder rows(final int count, int... sizesInPixels) {
 
             this.validateRows(count);
@@ -99,6 +108,7 @@ public class TabularLayoutEngine
             return this;
         }
 
+        @Override
         public Builder rows(final int count) {
 
             this.validateRows(count);
@@ -112,6 +122,7 @@ public class TabularLayoutEngine
             return this;
         }
 
+        @Override
         public Builder rows(final int count, double... sizesInPercentage) {
 
             this.validateRows(count);
@@ -121,6 +132,7 @@ public class TabularLayoutEngine
             return this;
         }
 
+        //endregion
         //region internals
 
         private void validateColumns(final int count) {
@@ -213,7 +225,8 @@ public class TabularLayoutEngine
 
         //region Builder
 
-        public static class Builder {
+        public static class Builder
+                implements ITableCellLayoutBuilder {
 
             Builder() {
 
@@ -227,6 +240,8 @@ public class TabularLayoutEngine
                 return new TabularLayoutHint(this._columnsSpan, this._rowsSpan, this._horizontalAlignment,
                         this._verticalAlignment, this._padding);
             }
+
+            //region ITableCellLayoutBuilder
 
             public Builder setColumnsSpan(final int span) {
 
@@ -258,6 +273,7 @@ public class TabularLayoutEngine
                 return this;
             }
 
+            //endregion
             //region internals
 
             private int _columnsSpan;

@@ -23,6 +23,10 @@ import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.DoubleData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.FloatData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IntData;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.LongData;
 import net.minecraft.client.gui.GuiGraphics;
 
 public abstract class AbstractGaugeBar
@@ -42,6 +46,22 @@ public abstract class AbstractGaugeBar
 
     public void setMaxValue(final double value) {
         this._maxValue = value;
+    }
+
+    public void bindMaxValue(DoubleData bindableValue) {
+        bindableValue.bind(this::setMaxValue);
+    }
+
+    public void bindMaxValue(FloatData bindableValue) {
+        bindableValue.bind(this::setMaxValue);
+    }
+
+    public void bindMaxValue(LongData bindableValue) {
+        bindableValue.bind(this::setMaxValue);
+    }
+
+    public void bindMaxValue(IntData bindableValue) {
+        bindableValue.bind(this::setMaxValue);
     }
 
     public void setOverlay(final ISprite overlay) {

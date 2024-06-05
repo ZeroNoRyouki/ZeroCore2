@@ -18,25 +18,52 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
-import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 public class LongData
+        extends AbstractData<Long>
         implements IContainerData {
 
-    public LongData(final LongSupplier getter, final LongConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static LongData immutable(ModContainer container, boolean isClientSide, long value) {
+        return of(container, isClientSide, () -> () -> value);
     }
 
-    public static LongData wrap(final long[] array, final int index) {
-        return new LongData(() -> array[index], v -> array[index] = v);
+    public static LongData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                   NonNullSupplier<Supplier<Long>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static LongData of(ModContainer container, boolean isClientSide,
+                              NonNullSupplier<Supplier<Long>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final LongData data = isClientSide ? new LongData() : new LongData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static LongData of(ModContainer container, boolean isClientSide, long[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        final LongData data = of(container, isClientSide, () -> () -> array[index]);
+
+        if (isClientSide) {
+            data.bind(v -> array[index] = v);
+        }
+
+        return data;
     }
 
     //region IContainerData
@@ -45,12 +72,12 @@ public class LongData
     @Override
     public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
 
-        final long current = this._getter.getAsLong();
+        final long current = this._getter.get();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeVarLong(this._getter.getAsLong());
+            return buffer -> buffer.writeVarLong(current);
         }
 
         return null;
@@ -58,14 +85,30 @@ public class LongData
 
     @Override
     public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readVarLong());
+        this.notify(dataSource.readVarLong());
+    }
+
+    //endregion
+    //region IBindableData<Long>
+
+    @Nullable
+    @Override
+    public Long defaultValue() {
+        return 0L;
     }
 
     //endregion
     //region internals
 
-    private final LongSupplier _getter;
-    private final LongConsumer _setter;
+    private LongData() {
+    }
+
+    private LongData(NonNullSupplier<Supplier<Long>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastValue = 0;
+    }
+
     private long _lastValue;
 
     //endregion

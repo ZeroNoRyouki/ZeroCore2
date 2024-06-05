@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
@@ -34,6 +35,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -142,7 +144,7 @@ public class ModContainerScreen<C extends ModContainer>
 
         if (!errors.isEmpty()) {
 
-            CodeHelper.reportErrorToPlayer(Objects.requireNonNull(this.getMinecraft().player), null, errors);
+            ZeroCore.getProxy().displayErrorToPlayer(null, errors);
             return false;
         }
 
@@ -281,6 +283,10 @@ public class ModContainerScreen<C extends ModContainer>
 
         this._theme = Objects.requireNonNull(theme);
         this._windowsManager.onThemeChanged(theme);
+    }
+
+    public Font getFont() {
+        return this.font;
     }
 
     //region slot groups

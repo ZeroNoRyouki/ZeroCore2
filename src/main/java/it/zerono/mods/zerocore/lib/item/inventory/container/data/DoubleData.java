@@ -18,25 +18,52 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nullable;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class DoubleData
+        extends AbstractData<Double>
         implements IContainerData {
 
-    public DoubleData(final DoubleSupplier getter, final DoubleConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0.0;
+    public static DoubleData immutable(ModContainer container, boolean isClientSide, double value) {
+        return of(container, isClientSide, () -> () -> value);
     }
 
-    public static DoubleData wrap(final double[] array, final int index) {
-        return new DoubleData(() -> array[index], v -> array[index] = v);
+    public static DoubleData sampled(int frequency, ModContainer container, boolean isClientSide,
+                                     NonNullSupplier<Supplier<Double>> serverSideGetter) {
+        return of(container, isClientSide, () -> new Sampler<>(frequency, serverSideGetter));
+    }
+
+    public static DoubleData of(ModContainer container, boolean isClientSide,
+                                NonNullSupplier<Supplier<Double>> serverSideGetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+        Preconditions.checkNotNull(serverSideGetter, "Server side getter must not be null.");
+
+        final DoubleData data = isClientSide ? new DoubleData() : new DoubleData(serverSideGetter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static DoubleData of(ModContainer container, boolean isClientSide, double[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        final DoubleData data = of(container, isClientSide, () -> () -> array[index]);
+
+        if (isClientSide) {
+            data.bind(v -> array[index] = v);
+        }
+
+        return data;
     }
 
     //region IContainerData
@@ -45,12 +72,12 @@ public class DoubleData
     @Override
     public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
 
-        final double current = this._getter.getAsDouble();
+        final double current = this._getter.get();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return buffer -> buffer.writeDouble(this._getter.getAsDouble());
+            return buffer -> buffer.writeDouble(current);
         }
 
         return null;
@@ -58,14 +85,30 @@ public class DoubleData
 
     @Override
     public void readContainerData(final FriendlyByteBuf dataSource) {
-        this._setter.accept(dataSource.readDouble());
+        this.notify(dataSource.readDouble());
+    }
+
+    //endregion
+    //region IBindableData<Double>
+
+    @Nullable
+    @Override
+    public Double defaultValue() {
+        return 0.0;
     }
 
     //endregion
     //region internals
 
-    private final DoubleSupplier _getter;
-    private final DoubleConsumer _setter;
+    private DoubleData() {
+    }
+
+    private DoubleData(NonNullSupplier<Supplier<Double>> serverSideGetter) {
+
+        super(serverSideGetter);
+        this._lastValue = 0;
+    }
+
     private double _lastValue;
 
     //endregion
