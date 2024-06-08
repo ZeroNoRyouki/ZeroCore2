@@ -18,10 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.layout;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
+
+import java.util.List;
 
 public class VerticalLayoutEngine
         extends AbstractLayoutEngine<VerticalLayoutEngine> {
@@ -30,19 +33,36 @@ public class VerticalLayoutEngine
     public void layout(final IControlContainer controlsContainer) {
 
         final Rectangle parentBounds = controlsContainer.getBounds();
-        final int defaultHeight = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Height, parentBounds.Height);
+        final int defaultHeight = this.computeDefaultValueForUndefinedDimension(controlsContainer,
+                DesiredDimension.Height, parentBounds.Height);
 
-        int top = this.getVerticalMargin();
+        final int spacing = this.getControlsSpacing();
+        final int horizontalMargin = this.getHorizontalMargin();
+        final int maxWidth = parentBounds.Width - 2 * horizontalMargin;
+
+        final List<ControlLayoutPosition> positions = new ObjectArrayList<>(controlsContainer.getControlsCount());
+        int availableSpace = parentBounds.Height - (2 * this.getVerticalMargin()) -
+                ((controlsContainer.getControlsCount() - 1) * spacing);
 
         for (final IControl control : controlsContainer) {
 
-            final int controlHeight = Math.min(parentBounds.Height - top, this.getControlDesiredDimension(control, DesiredDimension.Height, defaultHeight));
-            final Rectangle newBounds = this.getControlAlignedBounds(control, this.getHorizontalMargin(), top,
-                    parentBounds.Width - this.getHorizontalMargin() * 2, controlHeight);
+            final int controlHeight = Math.min(availableSpace, this.getControlDesiredDimension(control,
+                    DesiredDimension.Height, defaultHeight));
 
-            control.setBounds(newBounds);
+            positions.add(this.computeLayoutPosition(control, horizontalMargin, 0, maxWidth, controlHeight));
+            availableSpace -= controlHeight;
+        }
 
-            top += controlHeight + this.getControlsSpacing();
+        int top = switch (this.getVerticalAlignment()) {
+            case Top -> 0;
+            case Bottom -> availableSpace;
+            case Center -> availableSpace / 2;
+        };
+
+        for (final var position : positions) {
+
+            position.layoutAtY(top);
+            top += position.height() + spacing;
         }
     }
 }

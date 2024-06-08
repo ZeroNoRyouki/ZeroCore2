@@ -45,6 +45,7 @@ class SensorBehaviorGroupPanel<Reader extends IMachineReader, Writer, SensorType
         this.setDesiredDimension(builder.getWidth(), builder.getHeight());
         this.setLayoutEngine(new VerticalLayoutEngine()
                 .setZeroMargins()
+                .setControlsSpacing(3)
                 .setHorizontalAlignment(HorizontalAlignment.Left)
                 .setVerticalAlignment(VerticalAlignment.Top)
         );

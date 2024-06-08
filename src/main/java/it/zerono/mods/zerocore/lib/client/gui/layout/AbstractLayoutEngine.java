@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
-import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
 public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
@@ -99,13 +98,12 @@ public abstract class AbstractLayoutEngine<E extends AbstractLayoutEngine<?>>
         return DesiredDimension.UNDEFINED_VALUE == value ? defaultValue : value;
     }
 
-    protected Rectangle getControlAlignedBounds(final IControl control, final int x, final int y,
-                                                final int maxWidth, final int maxHeight) {
+    protected ControlLayoutPosition computeLayoutPosition(IControl control, int x, int y, int maxWidth, int maxHeight) {
 
         final int desiredWidth = Math.min(maxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, maxWidth));
         final int desiredHeight = Math.min(maxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, maxHeight));
 
-        return new Rectangle(
+        return new ControlLayoutPosition(control,
                 this._horizontalAlignment.align(x, desiredWidth, maxWidth),
                 this._verticalAlignment.align(y, desiredHeight, maxHeight),
                 desiredWidth, desiredHeight);
