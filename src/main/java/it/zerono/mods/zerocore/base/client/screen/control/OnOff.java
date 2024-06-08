@@ -1,4 +1,3 @@
-package it.zerono.mods.zerocore.base.client.screen.control;
 /*
  * OnOff
  *
@@ -16,6 +15,9 @@ package it.zerono.mods.zerocore.base.client.screen.control;
  *
  */
 
+package it.zerono.mods.zerocore.base.client.screen.control;
+
+import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
 import it.zerono.mods.zerocore.lib.client.gui.control.SwitchButton;
@@ -32,16 +34,24 @@ public class OnOff
     public OnOff(final ModContainerScreen<? extends ModContainer> gui,
                  final IBindableData<Boolean> bindableState, final Consumer<SwitchButton> activeStateChangedCallback,
                  final Component onTooltip, final Component offTooltip) {
+        this(gui, 25, 16, bindableState, activeStateChangedCallback, onTooltip, offTooltip);
+    }
+
+    public OnOff(final ModContainerScreen<? extends ModContainer> gui, int buttonWidth, int buttonHeight,
+                 final IBindableData<Boolean> bindableState, final Consumer<SwitchButton> activeStateChangedCallback,
+                 final Component onTooltip, final Component offTooltip) {
 
         super(gui, "onoff");
-        this.setDesiredDimension(50, 16);
+        this.setDesiredDimension(2 * buttonWidth, buttonHeight);
 
         this._on = new SwitchButton(gui, "on", "ON", false, "onoff");
+        this._on.setDesiredDimension(buttonWidth, buttonHeight);
         this._on.Activated.subscribe(activeStateChangedCallback);
         this._on.Deactivated.subscribe(activeStateChangedCallback);
         this._on.setTooltips(onTooltip);
 
         this._off = new SwitchButton(gui, "off", "OFF", true, "onoff");
+        this._off.setDesiredDimension(buttonWidth, buttonHeight);
         this._off.setTooltips(offTooltip);
 
         bindableState.bind(active -> {
@@ -59,8 +69,14 @@ public class OnOff
     public void setBounds(final Rectangle bounds) {
 
         super.setBounds(bounds);
-        this._on.setBounds(new Rectangle(0, 0, 25, 16));
-        this._off.setBounds(new Rectangle(25, 0, 25, 16));
+
+        this._on.setBounds(new Rectangle(0, 0,
+                this._on.getDesiredDimension(DesiredDimension.Width),
+                this._on.getDesiredDimension(DesiredDimension.Height)));
+
+        this._off.setBounds(new Rectangle(this._on.getDesiredDimension(DesiredDimension.Width), 0,
+                this._off.getDesiredDimension(DesiredDimension.Width),
+                this._off.getDesiredDimension(DesiredDimension.Height)));
     }
 
     //endregion
