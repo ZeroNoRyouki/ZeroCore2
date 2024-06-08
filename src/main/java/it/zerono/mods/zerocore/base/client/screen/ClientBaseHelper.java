@@ -30,6 +30,7 @@ public final class ClientBaseHelper {
     public static final int LABEL_HEIGHT = 10;
     public static final int PUSH_BUTTON_HEIGHT = 16;
     public static final int SQUARE_BUTTON_DIMENSION = 18;
+    public static final int INVENTORY_SLOTS_ROW_WIDTH = 162;
 
     public static MutableComponent formatAsTitle(MutableComponent text) {
         return text.setStyle(CommonConstants.STYLE_TOOLTIP_TITLE);
