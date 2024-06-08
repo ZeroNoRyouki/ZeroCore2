@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class TabularLayoutEngine
         extends AbstractLayoutEngine<TabularLayoutEngine> {
 
-    public static final TabularLayoutHint DEFAULT_HINT = new TabularLayoutHint();
+    public static final ILayoutEngineHint DEFAULT_HINT = new TabularLayoutHint();
 
     public static Builder builder() {
         return new Builder();
@@ -337,7 +337,7 @@ public class TabularLayoutEngine
             final TabularLayoutHint hint = control.getLayoutEngineHint()
                     .filter(h -> h instanceof TabularLayoutHint)
                     .map(h -> (TabularLayoutHint)h)
-                    .orElse(DEFAULT_HINT);
+                    .orElse((TabularLayoutHint)DEFAULT_HINT);
 
             int columnSpan = (this._currentColumn + hint.CellColumnsSpan <= this._maxColumns) ? hint.CellColumnsSpan : Math.min(0, this._maxColumns - this._currentColumn);
             int rowSpan = (this._currentRow + hint.CellRowsSpan <= this._maxRows) ? hint.CellRowsSpan : Math.min(0, this._maxRows - this._currentRow);
