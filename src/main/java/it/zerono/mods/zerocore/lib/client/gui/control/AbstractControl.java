@@ -513,7 +513,11 @@ public abstract class AbstractControl
         this.paintHollowRect(gfx, 0, 0, this.getBounds().Width, this.getBounds().Height, colour);
 
         if (Screen.hasShiftDown()) {
-            gfx.renderTooltip(this.getGui().getFont(), TextHelper.literal(this.getName()), 0, 20);
+
+            final var bounds = this.getBounds();
+
+            gfx.renderTooltip(this.getGui().getFont(), TextHelper.literal("%s (%d;%d - %d x %d)", this.getName(),
+                    bounds.Origin.X, bounds.Origin.Y, bounds.Width, bounds.Height), 0, 20);
         }
     }
 
