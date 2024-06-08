@@ -36,11 +36,11 @@ public class AnchoredLayoutEngine
          */
         Right,
         /**
-         * Align the control on the top side of the parent and set its width equal to the parent width
+         * Align the control on the top side of the parent and set its width equal to the parent width (if the control allow it), then center it horizontally
          */
         Top,
         /**
-         * Align the control on the bottom side of the parent and set its width equal to the parent width
+         * Align the control on the bottom side of the parent and set its width equal to the parent width (if the control allow it), then center it horizontally
          */
         Bottom,
         /**
@@ -85,11 +85,13 @@ public class AnchoredLayoutEngine
             switch (this.getAnchorFrom(control)) {
 
                 case Top:
-                    newBounds = new Rectangle(horizontalMargin, verticalMargin, bandMaxWidth, controlHeight);
+                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2, verticalMargin,
+                            controlWidth, controlHeight);
                     break;
 
                 case Bottom:
-                    newBounds = new Rectangle(horizontalMargin, parentBounds.Height - controlHeight - verticalMargin, bandMaxWidth, controlHeight);
+                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2,
+                            parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case Left:
@@ -97,7 +99,8 @@ public class AnchoredLayoutEngine
                     break;
 
                 case Right:
-                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin, verticalMargin, controlWidth, bandMaxHeight);
+                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin,
+                            verticalMargin, controlWidth, bandMaxHeight);
                     break;
 
                 case TopLeft:
@@ -105,19 +108,23 @@ public class AnchoredLayoutEngine
                     break;
 
                 case TopRight:
-                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin, verticalMargin, controlWidth, controlHeight);
+                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin,
+                            verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case BottomLeft:
-                    newBounds = new Rectangle(horizontalMargin, parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
+                    newBounds = new Rectangle(horizontalMargin,
+                            parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case BottomRight:
-                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin, parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
+                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin,
+                            parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case Center:
-                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2, (bandMaxHeight - controlHeight) / 2, controlWidth, controlHeight);
+                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2,
+                            (bandMaxHeight - controlHeight) / 2 - 1, controlWidth, controlHeight);
                     break;
 
                 default:
