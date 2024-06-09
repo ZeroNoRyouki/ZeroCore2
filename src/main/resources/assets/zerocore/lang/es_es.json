@@ -25,6 +25,7 @@
     "_comment": "Miscellanea",
     "zerocore:gui.patchouli.missing": "Es necesario instalar el mod Patchouli para utilizar esta función.",
     "zerocore:gui.manual.open": "Abrir la página del manual.",
+    "zerocore:gui.jei.missing": "Es necesario instalar el mod JEI para utilizar esta función.",
 
     "_comment": "GUI",
     "gui.zerocore.base.generic.empty": "Vacío",

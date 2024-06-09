@@ -25,6 +25,7 @@
     "_comment": "Miscellanea",
     "zerocore:gui.patchouli.missing": "O mod Patchouli precisa estar instalado para usar este recurso.",
     "zerocore:gui.manual.open": "Abra a página do manual.",
+    "zerocore:gui.jei.missing": "O mod JEI precisa ser instalado para usar este recurso.",
 
     "_comment": "GUI",
     "gui.zerocore.base.generic.empty": "Vazio",

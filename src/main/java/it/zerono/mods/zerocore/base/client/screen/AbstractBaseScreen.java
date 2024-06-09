@@ -100,7 +100,7 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & Menu
         this._contentPanel.setLayoutEngine(new FixedLayoutEngine());
         this.setContentBounds(0, 0);
 
-        this._helpButton = null;
+        this._helpButton = this._recipesButton = null;
     }
 
     protected void addControl(final IControl control) {
@@ -142,6 +142,10 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & Menu
 
     protected void addPatchouliHelpButton(final ResourceLocation bookId, final ResourceLocation entryId, final int pageNum) {
         this._helpButton = this.createPatchouliHelpButton(bookId, entryId, pageNum);
+    }
+
+    protected void addRecipesButton(Runnable onClick, String tooltipTranslationKey) {
+        this._recipesButton = this.createRecipesButton(onClick, tooltipTranslationKey);
     }
 
     @Nullable
@@ -207,11 +211,22 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & Menu
             titleWidth -= 10;
         }
 
+        int helpButtonsX = guiWidth - 18;
+
         if (null != this._helpButton) {
 
-            this._helpButton.setLayoutEngineHint(FixedLayoutEngine.hint(guiWidth - 18, 6, 12, 12));
+            this._helpButton.setLayoutEngineHint(FixedLayoutEngine.hint(helpButtonsX, 6, 12, 12));
             titlePanel.addControl(this._helpButton);
             titleWidth -= 12;
+            helpButtonsX -= 12 + 1;
+        }
+
+        if (null != this._recipesButton) {
+
+            this._recipesButton.setLayoutEngineHint(FixedLayoutEngine.hint(helpButtonsX, 6, 12, 12));
+            titlePanel.addControl(this._recipesButton);
+            titleWidth -= 12;
+            helpButtonsX -= 12 + 1;
         }
 
         final Label title = new Label(this, "title", this.getTitle());
@@ -257,6 +272,7 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & Menu
     private final ISprite _invSingleSprite;
     private final IControlContainer _contentPanel;
     private IControl _helpButton;
+    private IControl _recipesButton;
 
     //endregion
 }

@@ -1,17 +1,13 @@
 package it.zerono.mods.zerocore.internal.compat.jei;
 
 import com.google.common.base.Preconditions;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.runtime.IJeiRuntime;
+import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 @SuppressWarnings("unused")
 @JeiPlugin
@@ -28,21 +24,14 @@ public class ZeroCoreJeiPlugin
         return s_instance;
     }
 
-    public void displayRecipeType(RecipeType<?> type, RecipeType<?>... others) {
+    public IJeiRuntime getJeiRuntime() {
 
-        if (null == this._jeiRuntime) {
-            return;
-        }
+        Preconditions.checkState(null != this._jeiRuntime, "JEI Runtime not available");
+        return this._jeiRuntime;
+    }
 
-        final List<RecipeType<?>> types = new ObjectArrayList<>(1 + others.length);
-
-        types.add(type);
-
-        if (others.length > 0) {
-            Collections.addAll(types, others);
-        }
-
-        this._jeiRuntime.getRecipesGui().showTypes(types);
+    public IRecipesGui getRecipesGui() {
+        return getJeiRuntime().getRecipesGui();
     }
 
     //region IModPlugin
