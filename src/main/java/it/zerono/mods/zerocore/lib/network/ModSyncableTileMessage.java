@@ -21,10 +21,10 @@ package it.zerono.mods.zerocore.lib.network;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.nbt.INestedSyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraftforge.fml.LogicalSide;
 
 /**

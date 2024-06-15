@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.block.property;
 
 import it.zerono.mods.zerocore.lib.block.BlockFacings;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import java.util.EnumSet;
 

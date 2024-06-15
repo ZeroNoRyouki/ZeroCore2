@@ -18,8 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.world;
 
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 
 @Deprecated
 public abstract class Zone implements Comparable<Zone> {
