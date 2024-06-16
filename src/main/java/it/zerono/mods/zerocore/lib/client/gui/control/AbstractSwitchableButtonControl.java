@@ -25,6 +25,7 @@ import it.zerono.mods.zerocore.lib.client.gui.ButtonState;
 import it.zerono.mods.zerocore.lib.client.gui.IWindow;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -78,6 +79,10 @@ public abstract class AbstractSwitchableButtonControl
 
             this.onDeactivated();
         }
+    }
+
+    public void bindActive(IBindableData<Boolean> bindableValue) {
+        bindableValue.bind(this::setActive);
     }
 
     protected abstract void onActivated();

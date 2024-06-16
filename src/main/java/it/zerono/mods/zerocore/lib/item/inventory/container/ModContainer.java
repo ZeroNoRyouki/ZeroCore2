@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
@@ -31,6 +32,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotIndexSet;
@@ -49,16 +51,17 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @SuppressWarnings({"WeakerAccess"})
 public class ModContainer
@@ -71,7 +74,8 @@ public class ModContainer
     public static final String SLOTGROUPNAME_PLAYER_INVENTORY = "playerinventory_main";
     public static final String SLOTGROUPNAME_PLAYER_HOTBAR = "playerinventory_hotbar";
 
-    public ModContainer(final ContainerFactory factory, final MenuType<?> type, final int windowId, final Inventory playerInventory) {
+    public ModContainer(final int ticksBetweenUpdates, final ContainerFactory factory, final MenuType<?> type,
+                        final int windowId, final Inventory playerInventory) {
 
         super(type, windowId);
         this._factory = factory;
@@ -81,7 +85,8 @@ public class ModContainer
     }
 
     public static ModContainer empty(final MenuType<?> type, final int windowId, final Inventory playerInventory) {
-        return new ModContainer(ContainerFactory.EMPTY, type, windowId, playerInventory) {
+        return new ModContainer(200, ContainerFactory.EMPTY, type, windowId, playerInventory) {
+
             @Override
             public void setItem(int slotID, int p_182408_, ItemStack stack) {
             }
@@ -104,6 +109,13 @@ public class ModContainer
         this.addInventory(name, new PlayerInvWrapper(inventory));
     }
 
+    public void addBindableData(final IBindableData<?> data) {
+
+        Preconditions.checkArgument(data instanceof IContainerData, "Data must implement IContainerData too.");
+        this.addContainerData((IContainerData) data);
+    }
+
+    @Deprecated // use addBindableData()
     public void addContainerData(final IContainerData data) {
 
         if (null == this._dataToSync) {
@@ -183,7 +195,7 @@ public class ModContainer
      */
     @Nullable
     @Override
-    public NonNullConsumer<FriendlyByteBuf> getContainerDataWriter() {
+    public Consumer<@NotNull FriendlyByteBuf> getContainerDataWriter() {
         return buffer -> {
 
             buffer.writeInt(this.containerId);
@@ -191,7 +203,7 @@ public class ModContainer
             if (null != this._dataToSync && !this._dataToSync.isEmpty()) {
                 for (int idx = 0; idx < this._dataToSync.size(); ++idx) {
 
-                    final NonNullConsumer<FriendlyByteBuf> writer = this._dataToSync.get(idx).getContainerDataWriter();
+                    final Consumer<@NotNull FriendlyByteBuf> writer = this._dataToSync.get(idx).getContainerDataWriter();
 
                     if (null != writer) {
 
@@ -219,10 +231,6 @@ public class ModContainer
 
             while (-1 != (idx = dataSource.readShort())) {
                 this._dataToSync.get(idx).readContainerData(dataSource);
-            }
-
-            if (null != this._dataUpdateEvent) {
-                this._dataUpdateEvent.raise(Runnable::run);
             }
         }
     }

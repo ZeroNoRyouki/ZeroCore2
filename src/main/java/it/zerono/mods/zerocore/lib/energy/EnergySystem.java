@@ -112,6 +112,10 @@ public enum EnergySystem {
         return CodeHelper.formatAsHumanReadableNumber(value, this.getUnit());
     }
 
+    public String asHumanReadableNumber(final WideAmount value) {
+        return CodeHelper.formatAsHumanReadableNumber(value, this.getUnit());
+    }
+
     //region Object
 
     /**

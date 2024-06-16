@@ -19,17 +19,18 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public class Sprite implements ISprite {
 
     public static final ISprite EMPTY = SpriteTextureMap.EMPTY.sprite().build();
-    public static final NonNullSupplier<ISprite> EMPTY_SUPPLIER = () -> EMPTY;
+    public static final Supplier<@NotNull ISprite> EMPTY_SUPPLIER = () -> EMPTY;
 
     public Sprite(final ISpriteTextureMap textureMap) {
         this(16, 16, textureMap, 0, 0, null);

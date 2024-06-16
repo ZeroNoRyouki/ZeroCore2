@@ -26,6 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.Set;
@@ -51,7 +52,7 @@ public class NetworkTileEntitySyncProvider implements INetworkTileEntitySyncProv
      * @param entity the {@link INestedSyncableEntity} containing the entity to sync
      * @return the new NetworkTileEntitySyncProvider
      */
-    public static NetworkTileEntitySyncProvider create(final NonNullSupplier<BlockPos> coordinatesSupplier, final INestedSyncableEntity entity) {
+    public static NetworkTileEntitySyncProvider create(final Supplier<@NotNull BlockPos> coordinatesSupplier, final INestedSyncableEntity entity) {
         return new NetworkTileEntitySyncProvider(() -> ModSyncableTileMessage.create(coordinatesSupplier.get(), entity));
     }
 

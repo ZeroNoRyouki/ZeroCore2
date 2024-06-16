@@ -37,7 +37,7 @@ public interface IMultiblockPartType
 
     /**
      * Return a single byte hash representing this part type
-     *
+     * <p>
      * The default implementation check if IMultiblockPartType is implemented as an Enum and, if so, return the Enum ordinal as a result.
      * If you are not using an Enum for your implementation you must override this method
      *

@@ -75,7 +75,7 @@ import java.util.stream.Stream;
 /**
  * This class contains the base logic for "multiblock controllers". Conceptually, they are
  * meta-TileEntities. They govern the logic for an associated group of TileEntities.
- * 
+ * <p>
  * Subordinate TileEntities implement the IMultiblockPart class and, generally, should not have an update() loop.
  */
 @SuppressWarnings("WeakerAccess")

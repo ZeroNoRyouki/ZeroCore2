@@ -25,17 +25,22 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * A single control in a GUI
  * <p>
- * The coordinates system used by a control is always relative to it's parent control container
+ * The coordinates system used by a control is always relative to its parent control container
  */
 @SuppressWarnings("unused")
 public interface IControl {
@@ -120,9 +125,17 @@ public interface IControl {
 
     void setVisible(boolean visible);
 
+    default void bindVisible(IBindableData<Boolean> bindableValue) {
+        bindableValue.bind(this::setVisible);
+    }
+
     boolean getEnabled();
 
     void setEnabled(boolean enabled);
+
+    default void bindEnabled(IBindableData<Boolean> bindableValue) {
+        bindableValue.bind(this::setEnabled);
+    }
 
     boolean canAcceptFocus();
 
@@ -160,7 +173,7 @@ public interface IControl {
      * Return the maximum width for the tooltips popup of this control
      *
      * @return the maximum width in pixels or -1 to not wrap the tooltips text
-    */
+     */
     default int getTooltipsPopupMaxWidth() {
         return this.getGui().getTooltipsPopupMaxWidth();
     }
@@ -175,7 +188,20 @@ public interface IControl {
 
     void setTooltips(List<Component> lines, List<Object> objects);
 
+    default void setTooltips(ToolTipsBuilder builder) {
+
+        final ImmutablePair<List<Component>, List<Object>> values = builder.build();
+
+        this.setTooltips(values.getLeft(), values.getRight());
+    }
+
+    default void setTooltips(Consumer<@NotNull ToolTipsBuilder> builder) {
+        this.setTooltips(Util.make(new ToolTipsBuilder(), builder::accept));
+    }
+
     void useTooltipsFrom(@Nullable IControl control);
+
+    void clearTooltips();
 
     Point controlToScreen(int x, int y);
 

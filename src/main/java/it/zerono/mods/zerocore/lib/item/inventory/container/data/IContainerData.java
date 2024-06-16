@@ -19,9 +19,10 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 
 public interface IContainerData {
 
@@ -29,12 +30,12 @@ public interface IContainerData {
      * Return a {@link FriendlyByteBuf} consumer that will be used to write this {@code IContainerData}'s data to a packet.
      * The consumer could either serialize the whole data to a packet or only the changes occurred since the last call to this method.
      *
-     * Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).
+     * <p>Return {@code null} if no data need to be serialized to the packet (maybe because no changes occurred since the last invocation of this method).</p>
      *
      * @return the consumer, or {@code null}
      */
     @Nullable
-    NonNullConsumer<FriendlyByteBuf> getContainerDataWriter();
+    Consumer<@NotNull FriendlyByteBuf> getContainerDataWriter();
 
     /**
      * Read back the data that was serialized to a packet by a consumer provided by {@code getContainerDataWriter}

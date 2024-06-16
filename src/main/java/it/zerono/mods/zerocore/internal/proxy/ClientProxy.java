@@ -46,10 +46,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.util.thread.EffectiveSide;
-import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
-import net.neoforged.neoforge.client.event.RenderGuiOverlayEvent;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.TickEvent;
@@ -73,10 +70,10 @@ public class ClientProxy
         NeoForge.EVENT_BUS.addListener(this::onRenderTick);
         NeoForge.EVENT_BUS.addListener(ClientProxy::onRegisterReloadListeners);
         NeoForge.EVENT_BUS.addListener(ClientProxy::onRecipesUpdated);
+        NeoForge.EVENT_BUS.addListener(this::onLoggedOut);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
-
     }
 
     @Override
@@ -165,6 +162,10 @@ public class ClientProxy
 
     //endregion
     //region internals
+
+    private void onLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        this.clearErrorReport();
+    }
 
     private static void onRegisterReloadListeners(AddReloadListenerEvent event) {
         event.addListener(AtlasSpriteSupplier.INSTANCE);

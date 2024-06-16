@@ -20,10 +20,7 @@ package it.zerono.mods.zerocore.lib.client.gui.control;
 
 import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
-import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalAlignment;
-import it.zerono.mods.zerocore.lib.client.gui.layout.HorizontalLayoutEngine;
-import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
-import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalLayoutEngine;
+import it.zerono.mods.zerocore.lib.client.gui.layout.*;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -40,6 +37,12 @@ public class Panel
 
     public Panel(final ModContainerScreen<? extends ModContainer> gui, final String name) {
         super(gui, name);
+    }
+
+    public Panel(final ModContainerScreen<? extends ModContainer> gui, final String name, ILayoutEngine layoutEngine) {
+
+        super(gui, name);
+        this.setLayoutEngine(layoutEngine);
     }
 
     public void setCustomBackgroundPainter(final BiConsumer<AbstractControl, GuiGraphics> painter) {

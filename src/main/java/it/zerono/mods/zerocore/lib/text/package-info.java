@@ -18,7 +18,7 @@
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package it.zerono.mods.zerocore.base.multiblock.client.screen.io;
+package it.zerono.mods.zerocore.lib.text;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

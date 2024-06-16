@@ -18,7 +18,8 @@
 
 package it.zerono.mods.zerocore.lib;
 
-import java.util.logging.Level;
+
+import net.minecraft.world.level.Level;
 
 public interface IMachineReader {
 

@@ -20,13 +20,13 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
+import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.control.HelpButton;
 import it.zerono.mods.zerocore.lib.client.gui.control.SlotsGroup;
 import it.zerono.mods.zerocore.lib.client.gui.databind.BindingGroup;
 import it.zerono.mods.zerocore.lib.client.gui.databind.IBinding;
-import it.zerono.mods.zerocore.lib.client.gui.layout.FixedLayoutEngine;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.event.ConcurrentEvent;
@@ -34,6 +34,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -76,6 +77,7 @@ public class ModContainerScreen<C extends ModContainer>
         this._ignoreCloseOnInventoryKey = false;
         this._nextBogusId = 0;
         this._theme = Theme.DEFAULT;
+        this._keepScreenAlive = false;
 
         this.Create = new Event<>();
         this.Close = new ConcurrentEvent<>();
@@ -142,7 +144,7 @@ public class ModContainerScreen<C extends ModContainer>
 
         if (!errors.isEmpty()) {
 
-            CodeHelper.reportErrorToPlayer(Objects.requireNonNull(this.getMinecraft().player), null, errors);
+            ZeroCore.getProxy().displayErrorToPlayer(null, errors);
             return false;
         }
 
@@ -266,11 +268,15 @@ public class ModContainerScreen<C extends ModContainer>
     }
 
     protected IControl createPatchouliHelpButton(final ResourceLocation bookId, final ResourceLocation entryId, final int pageNum) {
+        return HelpButton.patchouli(this, "helpPatchouli", bookId, entryId, pageNum);
+    }
 
-        final IControl help = HelpButton.patchouli(this, "helpPatchouli", bookId, entryId, pageNum);
+    protected IControl createRecipesButton(Runnable onClick, String tooltipTranslationKey) {
+        return HelpButton.jeiRecipes(this, "recipes", tooltipTranslationKey, () -> {
 
-        help.setLayoutEngineHint(FixedLayoutEngine.hint(this.getGuiWidth() - 30, this.getGuiHeight() - 41));
-        return help;
+            this._keepScreenAlive = true;
+            onClick.run();
+        });
     }
 
     public Theme getTheme() {
@@ -281,6 +287,10 @@ public class ModContainerScreen<C extends ModContainer>
 
         this._theme = Objects.requireNonNull(theme);
         this._windowsManager.onThemeChanged(theme);
+    }
+
+    public Font getFont() {
+        return this.font;
     }
 
     //region slot groups
@@ -355,6 +365,13 @@ public class ModContainerScreen<C extends ModContainer>
      */
     @Override
     public final void removed() {
+
+        if (this._keepScreenAlive) {
+
+            this._keepScreenAlive = false;
+            // do not run cleanup if this screen was replaced by a temporary one (like JEI recipes GUI)
+            return;
+        }
 
         super.removed();
         this.raiseScreenClose();
@@ -537,6 +554,7 @@ public class ModContainerScreen<C extends ModContainer>
     private int _nextBogusId;
     private BindingGroup _bindings;
     private Theme _theme;
+    private boolean _keepScreenAlive;
 
     //endregion
 }

@@ -3,8 +3,8 @@ package it.zerono.mods.zerocore.lib.compat;
 import com.google.common.base.Preconditions;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ServiceLoader;
 import java.util.function.Supplier;
 
 /**
@@ -21,9 +21,9 @@ public class SidedDependencyServiceLoader<T>
      * @param service The {@link Class} of the service
      * @param physicalSideFallbackFactory A {@link Supplier} for the physical side service implementation
      */
-    public SidedDependencyServiceLoader(Class<T> service, Supplier<T> physicalSideFallbackFactory) {
+    public SidedDependencyServiceLoader(Class<T> service, Supplier<@NotNull T> physicalSideFallbackFactory) {
 
-        super(buildSupplier(service, physicalSideFallbackFactory));
+        super(supplier(service, physicalSideFallbackFactory, FMLEnvironment.dist));
         this._distribution = FMLEnvironment.dist;
     }
 
@@ -33,22 +33,17 @@ public class SidedDependencyServiceLoader<T>
 
     //region internals
 
-    private static <T> com.google.common.base.Supplier<T> buildSupplier(Class<T> service, Supplier<T> fallbackFactory) {
+    private static <T> com.google.common.base.Supplier<@NotNull T> supplier(Class<T> service,
+                                                                            Supplier<@NotNull T> physicalSideFallbackFactory,
+                                                                            @SuppressWarnings("SameParameterValue") Dist distribution) {
 
-        Preconditions.checkNotNull(service, "Service must not be null");
-        Preconditions.checkNotNull(fallbackFactory, "Fallback factory must not be null");
+        Preconditions.checkNotNull(physicalSideFallbackFactory, "Physical side fallback factory must not be null");
 
-        final com.google.common.base.Supplier<T> supplier;
-
-        if (FMLEnvironment.dist.isClient()) {
-            supplier = () -> ServiceLoader.load(service)
-                    .findFirst()
-                    .orElseThrow(() -> new NullPointerException("Failed to load mod service for " + service.getName()));
+        if (distribution.isClient()) {
+            return loadOrFail(service);
         } else {
-            supplier = fallbackFactory::get;
+            return physicalSideFallbackFactory::get;
         }
-
-        return supplier;
     }
 
     private final Dist _distribution;

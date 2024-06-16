@@ -36,11 +36,11 @@ public class AnchoredLayoutEngine
          */
         Right,
         /**
-         * Align the control on the top side of the parent and set its width equal to the parent width
+         * Align the control on the top side of the parent and set its width equal to the parent width (if the control allow it), then center it horizontally
          */
         Top,
         /**
-         * Align the control on the bottom side of the parent and set its width equal to the parent width
+         * Align the control on the bottom side of the parent and set its width equal to the parent width (if the control allow it), then center it horizontally
          */
         Bottom,
         /**
@@ -71,25 +71,27 @@ public class AnchoredLayoutEngine
         final Rectangle parentBounds = controlsContainer.getBounds();
         final int horizontalMargin = this.getHorizontalMargin();
         final int verticalMargin = this.getVerticalMargin();
-        final int undefinedWidth = this.computeUndefinedDimensionSize(controlsContainer, DesiredDimension.Width, parentBounds.Width);
-        final int undefinedHeight = this.computeUndefinedDimensionSize(controlsContainer, DesiredDimension.Height, parentBounds.Height);
+        final int defaultWidth = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Width, parentBounds.Width);
+        final int defaultHeight = this.computeDefaultValueForUndefinedDimension(controlsContainer, DesiredDimension.Height, parentBounds.Height);
         final int bandMaxWidth = parentBounds.Width - (horizontalMargin * 2);
         final int bandMaxHeight = parentBounds.Height - (verticalMargin * 2);
 
         for (final IControl control : controlsContainer) {
 
-            final int controlWidth = Math.min(bandMaxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, undefinedWidth));
-            final int controlHeight = Math.min(bandMaxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, undefinedHeight));
+            final int controlWidth = Math.min(bandMaxWidth, this.getControlDesiredDimension(control, DesiredDimension.Width, defaultWidth));
+            final int controlHeight = Math.min(bandMaxHeight, this.getControlDesiredDimension(control, DesiredDimension.Height, defaultHeight));
             final Rectangle newBounds;
 
             switch (this.getAnchorFrom(control)) {
 
                 case Top:
-                    newBounds = new Rectangle(horizontalMargin, verticalMargin, bandMaxWidth, controlHeight);
+                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2, verticalMargin,
+                            controlWidth, controlHeight);
                     break;
 
                 case Bottom:
-                    newBounds = new Rectangle(horizontalMargin, parentBounds.Height - controlHeight - verticalMargin, bandMaxWidth, controlHeight);
+                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2,
+                            parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case Left:
@@ -97,7 +99,8 @@ public class AnchoredLayoutEngine
                     break;
 
                 case Right:
-                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin, verticalMargin, controlWidth, bandMaxHeight);
+                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin,
+                            verticalMargin, controlWidth, bandMaxHeight);
                     break;
 
                 case TopLeft:
@@ -105,19 +108,23 @@ public class AnchoredLayoutEngine
                     break;
 
                 case TopRight:
-                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin, verticalMargin, controlWidth, controlHeight);
+                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin,
+                            verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case BottomLeft:
-                    newBounds = new Rectangle(horizontalMargin, parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
+                    newBounds = new Rectangle(horizontalMargin,
+                            parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case BottomRight:
-                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin, parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
+                    newBounds = new Rectangle(parentBounds.Width - controlWidth - horizontalMargin,
+                            parentBounds.Height - controlHeight - verticalMargin, controlWidth, controlHeight);
                     break;
 
                 case Center:
-                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2, (bandMaxHeight - controlHeight) / 2, controlWidth, controlHeight);
+                    newBounds = new Rectangle((bandMaxWidth - controlWidth) / 2,
+                            (bandMaxHeight - controlHeight) / 2 - 1, controlWidth, controlHeight);
                     break;
 
                 default:

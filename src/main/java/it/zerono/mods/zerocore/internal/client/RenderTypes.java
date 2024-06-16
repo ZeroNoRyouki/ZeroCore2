@@ -20,15 +20,17 @@ package it.zerono.mods.zerocore.internal.client;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import it.zerono.mods.zerocore.ZeroCore;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.OptionalDouble;
 
 public final class RenderTypes
     extends RenderType {
 
-    public static final RenderType ERROR_BLOCK_HIGHLIGHT = create("zc_mb_error_block",
+    public static final RenderType ERROR_BLOCK_HIGHLIGHT = create(ZeroCore.MOD_ID + ":zc_mb_error_block",
             DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 256, false, false,
             RenderType.CompositeState.builder()
                     .setShaderState(RENDERTYPE_LINES_SHADER)
@@ -40,9 +42,21 @@ public final class RenderTypes
                     .setCullState(NO_CULL)
                     .createCompositeState(false));
 
+    public static final RenderType FLUID_COLUMN = create(ZeroCore.MOD_ID + ":fluid_column",
+            DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
+            VertexFormat.Mode.QUADS, 256, false, true,
+            CompositeState.builder()
+                    .setLightmapState(LIGHTMAP)
+                    .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER)
+                    .setTextureState(new RenderStateShard.TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setCullState(NO_CULL)
+                    .createCompositeState(false));
+
     //region internals
 
-    protected RenderTypes(String nameIn, VertexFormat formatIn, VertexFormat.Mode drawModeIn, int bufferSizeIn, boolean useDelegateIn, boolean needsSortingIn, Runnable setupTaskIn, Runnable clearTaskIn) {
+    private RenderTypes(String nameIn, VertexFormat formatIn, VertexFormat.Mode drawModeIn, int bufferSizeIn,
+                        boolean useDelegateIn, boolean needsSortingIn, Runnable setupTaskIn, Runnable clearTaskIn) {
         super(nameIn, formatIn, drawModeIn, bufferSizeIn, useDelegateIn, needsSortingIn, setupTaskIn, clearTaskIn);
     }
 

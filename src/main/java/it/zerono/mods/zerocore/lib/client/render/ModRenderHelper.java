@@ -253,6 +253,79 @@ public final class ModRenderHelper {
         return font.getSplitter().splitLines(line, maxLineWidth, lineStyle);
     }
 
+    public static int addBlockLight(int combinedLight, int blockLight) {
+        return (combinedLight & 0xFFFF0000) | Math.max(blockLight << 4, combinedLight & 0xFFFF);
+    }
+
+    public static void renderBlockFace(VertexConsumer renderer, Matrix4f matrix, Direction face,
+                                       float x1, float y1, float z1, float x2, float y2, float z2,
+                                       float minU, float maxU, float minV, float maxV, int color, int brightness) {
+
+        final int alpha = color >> 24 & 0xFF;
+        final int red = color >> 16 & 0xFF;
+        final int green = color >> 8 & 0xFF;
+        final int blue = color & 0xFF;
+        final int light1 = brightness & 0xFFFF;
+        final int light2 = brightness >> 0x10 & 0xFFFF;
+
+        switch (face) {
+
+            case DOWN: {
+
+                renderer.vertex(matrix, x1, y1, z2).color(red, green, blue, alpha).uv(minU, maxV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y1, z1).color(red, green, blue, alpha).uv(minU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y1, z1).color(red, green, blue, alpha).uv(maxU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y1, z2).color(red, green, blue, alpha).uv(maxU, maxV).uv2(light1, light2).endVertex();
+                break;
+            }
+
+            case UP: {
+
+                renderer.vertex(matrix, x1, y2, z1).color(red, green, blue, alpha).uv(minU, maxV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y2, z2).color(red, green, blue, alpha).uv(minU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y2, z2).color(red, green, blue, alpha).uv(maxU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y2, z1).color(red, green, blue, alpha).uv(maxU, maxV).uv2(light1, light2).endVertex();
+                break;
+            }
+
+            case NORTH: {
+
+                renderer.vertex(matrix, x1, y1, z1).color(red, green, blue, alpha).uv(minU, maxV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y2, z1).color(red, green, blue, alpha).uv(minU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y2, z1).color(red, green, blue, alpha).uv(maxU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y1, z1).color(red, green, blue, alpha).uv(maxU, maxV).uv2(light1, light2).endVertex();
+                break;
+            }
+
+            case SOUTH: {
+
+                renderer.vertex(matrix, x2, y1, z2).color(red, green, blue, alpha).uv(minU, maxV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y2, z2).color(red, green, blue, alpha).uv(minU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y2, z2).color(red, green, blue, alpha).uv(maxU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y1, z2).color(red, green, blue, alpha).uv(maxU, maxV).uv2(light1, light2).endVertex();
+                break;
+            }
+
+            case WEST: {
+
+                renderer.vertex(matrix, x1, y1, z2).color(red, green, blue, alpha).uv(minU, maxV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y2, z2).color(red, green, blue, alpha).uv(minU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y2, z1).color(red, green, blue, alpha).uv(maxU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x1, y1, z1).color(red, green, blue, alpha).uv(maxU, maxV).uv2(light1, light2).endVertex();
+                break;
+            }
+
+            case EAST: {
+
+                renderer.vertex(matrix, x2, y1, z1).color(red, green, blue, alpha).uv(minU, maxV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y2, z1).color(red, green, blue, alpha).uv(minU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y2, z2).color(red, green, blue, alpha).uv(maxU, minV).uv2(light1, light2).endVertex();
+                renderer.vertex(matrix, x2, y1, z2).color(red, green, blue, alpha).uv(maxU, maxV).uv2(light1, light2).endVertex();
+                break;
+            }
+        }
+    }
+
     //region render BakedQuad(s)
 
     /**

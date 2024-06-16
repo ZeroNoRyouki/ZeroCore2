@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -31,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.functional.NonNullBiFunction;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import net.minecraft.Util;
@@ -1005,6 +1005,10 @@ public final class CodeHelper {
     //endregion
     //region format string
 
+    public static String formatAsHumanReadableNumber(WideAmount value, final String unit) {
+        return formatAsHumanReadableNumber(value.doubleValue(), unit);
+    }
+
     public static String formatAsHumanReadableNumber(double value, final String unit) {
 
         int order = 0;
@@ -1027,7 +1031,7 @@ public final class CodeHelper {
         int decimals = 2;
         final String format = String.format("%%.%1$df %%2$s%%3$s", decimals);
 
-        return String.format(format, value, s_siPrefixes.get(order), unit);
+        return String.format(format, value, getSiPrefix(order), unit);
     }
 
     public static String formatAsHumanReadableNumber(long value, final String unit) {
@@ -1049,7 +1053,13 @@ public final class CodeHelper {
             }
         }
 
-        return value + " " + s_siPrefixes.get(order) + unit;
+        return value + " " + getSiPrefix(order) + unit;
+    }
+
+    public static String getSiPrefix(int order) {
+
+        order = Math.min(MAX_SI_PREFIX_ORDER, Math.max(MIN_SI_PREFIX_ORDER, order));
+        return s_siPrefixes.get(order);
     }
 
     public static String formatAsMillibuckets(float value) {
@@ -1101,6 +1111,8 @@ public final class CodeHelper {
     //region internals
 
     private static final long UNSIGNED_MASK = 0x7FFFFFFFFFFFFFFFL;
+    private static final int MAX_SI_PREFIX_ORDER = 30;
+    private static final int MIN_SI_PREFIX_ORDER = -30;
 
     private static final Int2ObjectMap<String> s_siPrefixes;
     private static final RandomSource s_fakeRandom;
@@ -1110,8 +1122,10 @@ public final class CodeHelper {
 
         s_fakeRandom = RandomSource.create();
 
-        final Map<Integer, String> prefixes = Maps.newHashMap();
+        final Int2ObjectMap<String> prefixes = new Int2ObjectArrayMap<>(21);
 
+        prefixes.put(30, "Q"); // quetta, 10^30
+        prefixes.put(27, "R"); // ronna, 10^27
         prefixes.put(24, "Y"); // yotta, 10^24
         prefixes.put(21, "Z"); // zetta, 10^21
         prefixes.put(18, "E"); // exa, 10^18
@@ -1129,8 +1143,10 @@ public final class CodeHelper {
         prefixes.put(-18, "a"); // atto, 10^-18
         prefixes.put(-21, "z"); // zepto, 10^-21
         prefixes.put(-24, "y"); // yocto, 10^-24
+        prefixes.put(-27, "r"); // ronto, 10^-27
+        prefixes.put(-30, "q"); // quecto, 10^-24
 
-        s_siPrefixes = Int2ObjectMaps.unmodifiable(new Int2ObjectArrayMap<>(prefixes));
+        s_siPrefixes = Int2ObjectMaps.unmodifiable(prefixes);
 
         // perpendicular directions
 

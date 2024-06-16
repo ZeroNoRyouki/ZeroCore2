@@ -1,4 +1,3 @@
-package it.zerono.mods.zerocore.internal.network;
 /*
  * ContainerDataMessage
  *
@@ -16,6 +15,8 @@ package it.zerono.mods.zerocore.internal.network;
  *
  */
 
+package it.zerono.mods.zerocore.internal.network;
+
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
@@ -23,10 +24,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class ContainerDataMessage
         extends AbstractPlayPacket {
@@ -61,7 +63,7 @@ public class ContainerDataMessage
     @Override
     public void write(FriendlyByteBuf buffer) {
 
-        final NonNullConsumer<FriendlyByteBuf> writer = Objects.requireNonNull(this._container).getContainerDataWriter();
+        final Consumer<@NotNull FriendlyByteBuf> writer = Objects.requireNonNull(this._container).getContainerDataWriter();
 
         if (null != writer) {
             writer.accept(buffer);

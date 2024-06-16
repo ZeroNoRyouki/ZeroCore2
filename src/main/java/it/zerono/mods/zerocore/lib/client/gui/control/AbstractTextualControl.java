@@ -24,6 +24,7 @@ import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import joptsimple.internal.Strings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -31,6 +32,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.function.Function;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class AbstractTextualControl
@@ -58,7 +61,11 @@ public abstract class AbstractTextualControl
     }
 
     public void setText(final Component text) {
-        this.setText(text./*getFormattedText*/getString());
+        this.setText(text.getString());
+    }
+
+    public <V> void bindText(IBindableData<V> bindableValue, Function<V, String> stringFactory) {
+        bindableValue.bind(v -> this.setText(Objects.requireNonNull(stringFactory.apply(v))));
     }
 
     public Colour getColor() {
