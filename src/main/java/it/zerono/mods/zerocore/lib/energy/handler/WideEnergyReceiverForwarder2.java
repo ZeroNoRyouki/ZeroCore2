@@ -23,6 +23,10 @@ import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyReceiver2;
 import net.minecraft.core.Direction;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5b00cf82848e23507eb78e2e5accaf7316ee164e
 import org.jetbrains.annotations.Nullable;
 
 public class WideEnergyReceiverForwarder2

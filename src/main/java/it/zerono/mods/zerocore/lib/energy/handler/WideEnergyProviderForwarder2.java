@@ -23,6 +23,7 @@ import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyProvider2;
 import net.minecraft.core.Direction;
+
 import org.jetbrains.annotations.Nullable;
 
 public class WideEnergyProviderForwarder2

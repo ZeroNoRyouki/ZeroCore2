@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.energy;
 
 import it.zerono.mods.zerocore.lib.data.WideAmount;
 import net.minecraft.core.Direction;
+
 import org.jetbrains.annotations.Nullable;
 
 /**
