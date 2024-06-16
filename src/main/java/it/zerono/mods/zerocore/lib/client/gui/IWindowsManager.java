@@ -19,8 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui;
 
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public interface IWindowsManager<C extends ModContainer> {

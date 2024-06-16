@@ -31,7 +31,7 @@ import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalAlignment;
 import it.zerono.mods.zerocore.lib.client.gui.layout.VerticalLayoutEngine;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 class SensorBehaviorPanel<Reader extends IMachineReader, Writer, SensorType extends Enum<SensorType> & ISensorType<Reader>,

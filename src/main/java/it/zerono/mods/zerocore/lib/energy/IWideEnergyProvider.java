@@ -19,8 +19,7 @@
 package it.zerono.mods.zerocore.lib.energy;
 
 import net.minecraft.core.Direction;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Implement this interface on entities which should provide energy, generally storing it

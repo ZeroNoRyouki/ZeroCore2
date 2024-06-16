@@ -23,13 +23,13 @@ import it.zerono.mods.zerocore.internal.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import org.jetbrains.annotations.Nullable;
 import vazkii.patchouli.client.book.BookContentsBuilder;
 import vazkii.patchouli.client.book.BookEntry;
 import vazkii.patchouli.client.book.BookPage;
 import vazkii.patchouli.client.book.gui.GuiBookEntry;
 import vazkii.patchouli.client.book.template.TemplateComponent;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
 public abstract class AbstractStandardPageComponent<PageType extends BookPage>

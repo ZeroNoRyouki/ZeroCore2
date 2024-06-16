@@ -20,8 +20,7 @@ package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface IContainerData {
 

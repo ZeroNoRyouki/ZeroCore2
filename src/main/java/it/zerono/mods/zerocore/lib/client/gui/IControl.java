@@ -32,7 +32,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullConsumer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 

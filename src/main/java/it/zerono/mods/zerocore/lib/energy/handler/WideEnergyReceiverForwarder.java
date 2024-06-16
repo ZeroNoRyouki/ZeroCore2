@@ -22,7 +22,7 @@ import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyReceiver;
 import net.minecraft.core.Direction;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Deprecated //use WideEnergyReceiverForwarder2
 public class WideEnergyReceiverForwarder

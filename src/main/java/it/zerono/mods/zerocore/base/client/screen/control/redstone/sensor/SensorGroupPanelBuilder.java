@@ -37,8 +37,8 @@ import it.zerono.mods.zerocore.lib.text.TextHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 

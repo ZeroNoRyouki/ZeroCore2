@@ -29,8 +29,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.WideAmountData;
 import it.zerono.mods.zerocore.lib.text.TextHelper;
 import net.minecraft.network.chat.MutableComponent;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class EnergyBar
         extends AbstractVerticalIconSingleValueGaugeBar {

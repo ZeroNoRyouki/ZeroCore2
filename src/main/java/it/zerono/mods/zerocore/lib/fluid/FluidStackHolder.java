@@ -31,8 +31,8 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.LogicalSide;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiPredicate;
 
 public class FluidStackHolder
@@ -100,7 +100,7 @@ public class FluidStackHolder
         return this._stacks.size();
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack getFluidInTank(final int tank) {
 
@@ -178,7 +178,7 @@ public class FluidStackHolder
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(final FluidStack resource, final FluidAction action) {
 
@@ -228,7 +228,7 @@ public class FluidStackHolder
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(final int maxDrain, final FluidAction action) {
 

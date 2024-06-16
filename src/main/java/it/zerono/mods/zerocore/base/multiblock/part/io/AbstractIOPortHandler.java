@@ -31,8 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullPredicate;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractIOPortHandler<Controller extends AbstractCuboidMultiblockController<Controller>,
         T extends AbstractMultiblockEntity<Controller> & IIoEntity> {

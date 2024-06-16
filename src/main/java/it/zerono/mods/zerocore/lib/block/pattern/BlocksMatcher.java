@@ -21,8 +21,8 @@ package it.zerono.mods.zerocore.lib.block.pattern;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockPredicate;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Predicate;

@@ -18,7 +18,8 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 
 public interface IDragSource {

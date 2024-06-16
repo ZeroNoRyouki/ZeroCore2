@@ -24,7 +24,7 @@ import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyReceiver2;
 import net.minecraft.core.Direction;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class WideEnergyReceiverForwarder2
         extends AbstractWideEnergyHandlerForwarder2<IWideEnergyReceiver2>

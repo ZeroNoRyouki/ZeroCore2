@@ -27,8 +27,8 @@ import it.zerono.mods.zerocore.lib.data.geometry.Point;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.gui.GuiGraphics;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -267,13 +267,13 @@ public abstract class AbstractCompoundControl
         this._children = Lists.newArrayList();
     }
 
-    protected void addChildControl(@Nonnull IControl control) {
+    protected void addChildControl(@NotNull IControl control) {
 
         this._children.add(control);
         control.setParent(this);
     }
 
-    protected void addChildControl(@Nonnull IControl... controls) {
+    protected void addChildControl(@NotNull IControl... controls) {
 
         for (final IControl control: controls) {
 
@@ -282,7 +282,7 @@ public abstract class AbstractCompoundControl
         }
     }
 
-    protected void removeChildControl(@Nonnull IControl control) {
+    protected void removeChildControl(@NotNull IControl control) {
 
         this._children.remove(control);
         control.setParent(null);

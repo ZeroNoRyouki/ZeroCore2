@@ -18,10 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.functional;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 @FunctionalInterface
 public interface NonNullToIntFunction<T> {
 
-    int applyAsInt(@Nonnull T value);
+    int applyAsInt(@NotNull T value);
 }

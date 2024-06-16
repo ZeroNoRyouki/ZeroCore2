@@ -24,8 +24,8 @@ import it.zerono.mods.zerocore.lib.text.BindableText;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 

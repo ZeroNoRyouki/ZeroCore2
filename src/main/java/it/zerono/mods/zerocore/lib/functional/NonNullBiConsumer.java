@@ -18,15 +18,16 @@
 
 package it.zerono.mods.zerocore.lib.functional;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public interface NonNullBiConsumer<T1, T2> {
 
-    void accept(@Nonnull T1 t1, @Nonnull T2 t2);
+    void accept(@NotNull T1 t1, @NotNull T2 t2);
 
-    @Nonnull
-    default NonNullBiConsumer<T1, T2> andThen(@Nonnull NonNullBiConsumer<? super T1, ? super T2> after) {
+    @NotNull
+    default NonNullBiConsumer<T1, T2> andThen(@NotNull NonNullBiConsumer<? super T1, ? super T2> after) {
 
         Objects.requireNonNull(after);
 
