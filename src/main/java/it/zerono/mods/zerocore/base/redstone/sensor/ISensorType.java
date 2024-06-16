@@ -19,12 +19,13 @@
 package it.zerono.mods.zerocore.base.redstone.sensor;
 
 import it.zerono.mods.zerocore.lib.IMachineReader;
-import it.zerono.mods.zerocore.lib.functional.NonNullToIntFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.ToIntFunction;
 
 public interface ISensorType<Reader extends IMachineReader>
-    extends NonNullToIntFunction<Reader> {
+    extends ToIntFunction<@NotNull Reader> {
 
     List<SensorBehavior> getBehaviors();
 

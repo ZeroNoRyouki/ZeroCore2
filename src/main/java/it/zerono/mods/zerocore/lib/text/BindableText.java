@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.lib.text;
 
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.functional.ComponentSupplier;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,22 +30,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public abstract class BindableText
-        implements Supplier<@NotNull Component> {
+        implements ComponentSupplier {
 
-    public static <T> Supplier<@NotNull Component> of(IBindableData<T> bindableData,
-                                                      Function<T, MutableComponent> textFactory) {
+    public static <T> ComponentSupplier of(IBindableData<T> bindableData,
+                                           Function<T, MutableComponent> textFactory) {
         return of(bindableData, bindableData.defaultValue(), textFactory, TextHelper.IDENTITY_TEXT_POST_PROCESSOR);
     }
 
-    public static <T> Supplier<@NotNull Component> of(IBindableData<T> bindableData, @Nullable T initialValue,
+    public static <T> ComponentSupplier of(IBindableData<T> bindableData, @Nullable T initialValue,
                                                       Function<T, MutableComponent> textFactory) {
         return of(bindableData, initialValue, textFactory, TextHelper.IDENTITY_TEXT_POST_PROCESSOR);
     }
 
-    public static <T> Supplier<@NotNull Component> of(IBindableData<T> bindableData, @Nullable T initialValue,
+    public static <T> ComponentSupplier of(IBindableData<T> bindableData, @Nullable T initialValue,
                                                       Function<T, MutableComponent> textFactory,
                                                       Function<@NotNull MutableComponent, @NotNull MutableComponent> postProcessor) {
 
@@ -54,19 +54,19 @@ public abstract class BindableText
         return text;
     }
 
-    public static <T, U> Supplier<@NotNull Component> of(IBindableData<T> firstBindableData, IBindableData<U> secondBindableData,
+    public static <T, U> ComponentSupplier of(IBindableData<T> firstBindableData, IBindableData<U> secondBindableData,
                                                          BiFunction<T, U, MutableComponent> textFactory) {
         return of(firstBindableData, firstBindableData.defaultValue(), secondBindableData, secondBindableData.defaultValue(),
                 textFactory, TextHelper.IDENTITY_TEXT_POST_PROCESSOR);
     }
 
-    public static <T, U> Supplier<@NotNull Component> of(IBindableData<T> firstBindableData, @Nullable T firstInitialValue,
+    public static <T, U> ComponentSupplier of(IBindableData<T> firstBindableData, @Nullable T firstInitialValue,
                                                          IBindableData<U> secondBindableData, @Nullable U secondInitialValue,
                                                          BiFunction<T, U, MutableComponent> textFactory) {
         return of(firstBindableData, firstInitialValue, secondBindableData, secondInitialValue, textFactory, TextHelper.IDENTITY_TEXT_POST_PROCESSOR);
     }
 
-    public static <T, U> Supplier<@NotNull Component> of(IBindableData<T> firstBindableData, @Nullable T firstInitialValue,
+    public static <T, U> ComponentSupplier of(IBindableData<T> firstBindableData, @Nullable T firstInitialValue,
                                                          IBindableData<U> secondBindableData, @Nullable U secondInitialValue,
                                                          BiFunction<T, U, MutableComponent> textFactory,
                                                          Function<@NotNull MutableComponent, @NotNull MutableComponent> postProcessor) {

@@ -19,9 +19,11 @@
 package it.zerono.mods.zerocore.base.multiblock.part.io;
 
 import it.zerono.mods.zerocore.lib.data.IoDirection;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 public interface ILinkedIOPortHandler<Handler> {
 
-    void update(NonNullFunction<IoDirection, Handler> handlerProvider);
+    void update(Function<@NotNull IoDirection, @NotNull Handler> handlerProvider);
 }

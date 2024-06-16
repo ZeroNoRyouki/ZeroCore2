@@ -24,19 +24,20 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.neoforged.neoforge.common.util.NonNullFunction;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"WeakerAccess"})
 public class TagSource<T> {
 
-    public TagSource(final NonNullSupplier<Registry<T>> registrySupplier) {
+    public TagSource(final Supplier<@NotNull Registry<T>> registrySupplier) {
         this._registry = registrySupplier;
     }
 
@@ -48,7 +49,7 @@ public class TagSource<T> {
         return this.createKey(new ResourceLocation(id));
     }
 
-    public TagKey<T> createKey(final String id, final NonNullFunction<String, ResourceLocation> factory) {
+    public TagKey<T> createKey(final String id, final Function<@NotNull String, @NotNull ResourceLocation> factory) {
         return this.createKey(factory.apply(id));
     }
 
@@ -67,7 +68,7 @@ public class TagSource<T> {
     }
 
     public boolean existWithContent(final TagKey<T> tagKey) {
-        return this.getObjects(tagKey).size() > 0;
+        return !this.getObjects(tagKey).isEmpty();
     }
 
     public List<T> getObjects(final TagKey<T> tagKey) {
@@ -100,7 +101,7 @@ public class TagSource<T> {
 
     //region internals
 
-    private final NonNullSupplier<Registry<T>> _registry;
+    private final Supplier<@NotNull Registry<T>> _registry;
 
     //endregion
 }

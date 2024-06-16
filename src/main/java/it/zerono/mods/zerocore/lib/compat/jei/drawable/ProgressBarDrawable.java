@@ -25,7 +25,9 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.Sprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.gui.GuiGraphics;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class ProgressBarDrawable
         extends SpriteDrawable {
@@ -60,7 +62,7 @@ public class ProgressBarDrawable
         this._tint = tint;
     }
 
-    public ProgressBarDrawable(final NonNullSupplier<ISprite> sprite, final int zLevel, final Padding padding,
+    public ProgressBarDrawable(final Supplier<@NotNull ISprite> sprite, final int zLevel, final Padding padding,
                                final int areaWidth, final int areaHeight, final Orientation orientation) {
 
         super(sprite, zLevel, padding);

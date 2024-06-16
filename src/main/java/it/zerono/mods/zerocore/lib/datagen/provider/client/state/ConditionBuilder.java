@@ -4,10 +4,11 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.data.models.blockstates.Condition;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A builder for a multipart block state {@link Condition}.
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class ConditionBuilder {
 
-    static Condition root(NonNullConsumer<ConditionBuilder> rootConditionBuilder) {
+    static Condition root(Consumer<@NotNull ConditionBuilder> rootConditionBuilder) {
 
         final List<Condition> conditions = new ObjectArrayList<>(16);
         final var builder = new ConditionBuilder(condition -> {
@@ -38,7 +39,7 @@ public class ConditionBuilder {
         return conditions.get(0);
     }
 
-    static List<Condition> nested(NonNullConsumer<ConditionBuilder> nestedConditionBuilder) {
+    static List<Condition> nested(Consumer<@NotNull ConditionBuilder> nestedConditionBuilder) {
 
         final List<Condition> conditions = new ObjectArrayList<>(16);
         final var builder = new ConditionBuilder(conditions::add);
@@ -66,7 +67,7 @@ public class ConditionBuilder {
      * @param nestedConditionBuilder The {@link ConditionBuilder} to be used to build the nested conditions.
      * @return This builder.
      */
-    public ConditionBuilder and(NonNullConsumer<ConditionBuilder> nestedConditionBuilder) {
+    public ConditionBuilder and(Consumer<@NotNull ConditionBuilder> nestedConditionBuilder) {
         return this.composite(Condition::and, nestedConditionBuilder);
     }
 
@@ -76,7 +77,7 @@ public class ConditionBuilder {
      * @param nestedConditionBuilder The {@link ConditionBuilder} to be used to build the nested conditions.
      * @return This builder.
      */
-    public ConditionBuilder or(NonNullConsumer<ConditionBuilder> nestedConditionBuilder) {
+    public ConditionBuilder or(Consumer<@NotNull ConditionBuilder> nestedConditionBuilder) {
         return this.composite(Condition::or, nestedConditionBuilder);
     }
 
@@ -166,12 +167,12 @@ public class ConditionBuilder {
 
     //region internals
 
-    private ConditionBuilder(NonNullConsumer<Condition> conditionSink) {
+    private ConditionBuilder(Consumer<@NotNull Condition> conditionSink) {
         this._sink = conditionSink;
     }
 
-    private ConditionBuilder composite(NonNullFunction<Condition[], Condition> factory,
-                                       NonNullConsumer<ConditionBuilder> nestedConditionBuilder) {
+    private ConditionBuilder composite(Function<@NotNull Condition[], @NotNull Condition> factory,
+                                       Consumer<@NotNull ConditionBuilder> nestedConditionBuilder) {
 
         Preconditions.checkNotNull(nestedConditionBuilder);
         this._condition = factory.apply(nested(nestedConditionBuilder).toArray(Condition[]::new));
@@ -195,7 +196,7 @@ public class ConditionBuilder {
         return (Condition.TerminalCondition)this._condition;
     }
 
-    private final NonNullConsumer<Condition> _sink;
+    private final Consumer<@NotNull Condition> _sink;
     private Condition _condition;
 
     //endregion

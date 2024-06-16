@@ -31,7 +31,6 @@ import it.zerono.mods.zerocore.lib.client.gui.control.Label;
 import it.zerono.mods.zerocore.lib.client.gui.control.TextConstraints;
 import it.zerono.mods.zerocore.lib.client.gui.control.TextInput;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.text.TextHelper;
 import net.minecraft.network.chat.Component;
@@ -39,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -185,7 +185,7 @@ class SensorGroupPanelBuilder<Reader extends IMachineReader, SensorType extends 
                                                                                     String amountBelowLabelTranslationKey,
                                                                                     String amountBetweenMinLabelTranslationKey,
                                                                                     String amountBetweenMaxLabelTranslationKey,
-                                                                                    NonNullBiConsumer<SensorBehavior, TextInput> configurator) {
+                                                                                    BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator) {
 
             this.addBehavior(SensorBehavior.ActiveWhileAbove)
                     .addNumberField(amountAboveLabelTranslationKey, "above", suffix, configurator);
@@ -206,7 +206,7 @@ class SensorGroupPanelBuilder<Reader extends IMachineReader, SensorType extends 
                                                                                         String amountBelowLabelTranslationKey,
                                                                                         String amountBetweenMinLabelTranslationKey,
                                                                                         String amountBetweenMaxLabelTranslationKey,
-                                                                                        NonNullBiConsumer<SensorBehavior, TextInput> configurator) {
+                                                                                        BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator) {
 
             this.addBehavior(SensorBehavior.ActiveWhileAbove)
                     .addPercentageField(amountAboveLabelTranslationKey, "above", configurator);
@@ -286,7 +286,7 @@ class SensorGroupPanelBuilder<Reader extends IMachineReader, SensorType extends 
             @Override
             public IBehaviorBuilder<Reader, SensorType> addNumberField(String controlLabelTranslationKey, String name,
                                                                        String suffix,
-                                                                       NonNullBiConsumer<SensorBehavior, TextInput> configurator) {
+                                                                       BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator) {
 
                 final TextInput input = this.createInputField(name, suffix);
 
@@ -300,7 +300,7 @@ class SensorGroupPanelBuilder<Reader extends IMachineReader, SensorType extends 
             @Override
             public IBehaviorBuilder<Reader, SensorType> addPercentageField(String controlLabelTranslationKey,
                                                                            String name,
-                                                                           NonNullBiConsumer<SensorBehavior, TextInput> configurator) {
+                                                                           BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator) {
 
                 final TextInput input = this.createInputField(name, "%");
 

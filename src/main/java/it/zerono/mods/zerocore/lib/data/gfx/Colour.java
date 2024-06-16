@@ -19,10 +19,11 @@
 package it.zerono.mods.zerocore.lib.data.gfx;
 
 import com.google.common.base.Strings;
-import it.zerono.mods.zerocore.lib.functional.NonNullIntFunction;
 import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.IntFunction;
 
 @SuppressWarnings({"WeakerAccess"})
 public class Colour {
@@ -226,7 +227,7 @@ public class Colour {
         this.A = (byte)255;
     }
 
-    private static Colour fromHexString(String text, NonNullIntFunction<Colour> factory) {
+    private static Colour fromHexString(String text, IntFunction<@NotNull Colour> factory) {
 
         if (Strings.isNullOrEmpty(text)) {
             throw new IllegalArgumentException("Invalid colour string");

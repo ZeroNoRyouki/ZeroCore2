@@ -23,11 +23,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.lib.recipe.AbstractManyToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class ManyToOneRecipeBuilder<Ingredient, Result,
         RecipeIngredient extends IRecipeIngredient<Ingredient>, RecipeResult extends IRecipeResult<Result>,
@@ -60,7 +61,7 @@ public class ManyToOneRecipeBuilder<Ingredient, Result,
 
     //region internals
 
-    private final NonNullSupplier<Recipe> _recipeFactory;
+    private final Supplier<@NotNull Recipe> _recipeFactory;
     private final List<RecipeIngredient> _ingredients;
 
     //endregion

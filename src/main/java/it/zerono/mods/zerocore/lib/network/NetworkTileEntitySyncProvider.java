@@ -25,7 +25,6 @@ import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;

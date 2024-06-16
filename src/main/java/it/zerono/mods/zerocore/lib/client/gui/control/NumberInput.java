@@ -33,16 +33,17 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public abstract class NumberInput<Type>
         extends AbstractCompositeControl
-        implements NonNullSupplier<Type> {
+        implements Supplier<@NotNull Type> {
 
     public final IEvent<BiConsumer<NumberInput<Type>, Type>> Changed; // 2nd arg: the current numeric value
 

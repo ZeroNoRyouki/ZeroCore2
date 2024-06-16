@@ -19,9 +19,10 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public interface ISprite {
 
@@ -72,7 +73,7 @@ public interface ISprite {
 
     Optional<ISprite> getSpriteOverlay();
 
-    void applyOverlay(NonNullConsumer<ISprite> overlayConsumer);
+    void applyOverlay(Consumer<@NotNull ISprite> overlayConsumer);
 
     ISprite copy();
 

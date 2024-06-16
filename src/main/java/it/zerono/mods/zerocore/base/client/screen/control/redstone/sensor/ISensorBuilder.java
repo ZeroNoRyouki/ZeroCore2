@@ -23,9 +23,9 @@ import it.zerono.mods.zerocore.base.redstone.sensor.SensorBehavior;
 import it.zerono.mods.zerocore.lib.IMachineReader;
 import it.zerono.mods.zerocore.lib.client.gui.control.TextInput;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 public interface ISensorBuilder<Reader extends IMachineReader, SensorType extends Enum<SensorType> & ISensorType<Reader>> {
@@ -43,7 +43,7 @@ public interface ISensorBuilder<Reader extends IMachineReader, SensorType extend
                                                                              String amountBelowLabelTranslationKey,
                                                                              String amountBetweenMinLabelTranslationKey,
                                                                              String amountBetweenMaxLabelTranslationKey,
-                                                                             NonNullBiConsumer<SensorBehavior, TextInput> configurator);
+                                                                             BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator);
 
         default ISensorBuilder<Reader, SensorType> addStandardOutputBehaviorsNumbers(String suffix,
                                                                                      String amountAboveLabelTranslationKey,
@@ -58,7 +58,7 @@ public interface ISensorBuilder<Reader extends IMachineReader, SensorType extend
                                                                                  String amountBelowLabelTranslationKey,
                                                                                  String amountBetweenMinLabelTranslationKey,
                                                                                  String amountBetweenMaxLabelTranslationKey,
-                                                                                 NonNullBiConsumer<SensorBehavior, TextInput> configurator);
+                                                                                 BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator);
 
         default ISensorBuilder<Reader, SensorType> addStandardOutputBehaviorsPercentages(String amountAboveLabelTranslationKey,
                                                                                          String amountBelowLabelTranslationKey,
@@ -81,7 +81,7 @@ public interface ISensorBuilder<Reader extends IMachineReader, SensorType extend
         }
 
         IBehaviorBuilder<Reader, SensorType> addNumberField(String controlLabelTranslationKey, String name,
-                                                            String suffix, NonNullBiConsumer<SensorBehavior, TextInput> configurator);
+                                                            String suffix, BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator);
 
         default IBehaviorBuilder<Reader, SensorType> addPercentageField(String controlLabelTranslationKey,
                                                                         String name) {
@@ -89,7 +89,7 @@ public interface ISensorBuilder<Reader extends IMachineReader, SensorType extend
         }
 
         IBehaviorBuilder<Reader, SensorType> addPercentageField(String controlLabelTranslationKey,
-                                                                String name, NonNullBiConsumer<SensorBehavior, TextInput> configurator);
+                                                                String name, BiConsumer<@NotNull SensorBehavior, @NotNull TextInput> configurator);
 
         IBehaviorBuilder<Reader, SensorType> setValidator(ISensorValidator validator);
 

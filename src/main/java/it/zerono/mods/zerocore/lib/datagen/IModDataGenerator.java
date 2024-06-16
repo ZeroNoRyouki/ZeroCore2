@@ -19,11 +19,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface IModDataGenerator {
 
@@ -60,7 +61,7 @@ public interface IModDataGenerator {
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey, ITagDataProvider<T> provider);
 
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey,
-                             NonNullFunction<T, ResourceKey<T>> elementKeyProvider, IIntrinsicTagDataProvider<T> provider);
+                             Function<@NotNull T, @NotNull ResourceKey<T>> elementKeyProvider, IIntrinsicTagDataProvider<T> provider);
 
     default void addBlockTagsProvider(IIntrinsicTagDataProvider<Block> provider) {
         //noinspection deprecation
@@ -88,17 +89,17 @@ public interface IModDataGenerator {
     }
 
     default void addLootProvider(Set<ResourceLocation> requiredTables,
-                                 NonNullConsumer<SubProviderBuilder> subProvidersBuilder) {
+                                 Consumer<@NotNull SubProviderBuilder> subProvidersBuilder) {
 
         Preconditions.checkNotNull(requiredTables, "Required tables must not be null");
         Preconditions.checkNotNull(subProvidersBuilder, "Sub providers builder must not be null");
 
-        final var builder = Util.make(new SubProviderBuilder(), subProvidersBuilder::accept);
+        final var builder = Util.make(new SubProviderBuilder(), subProvidersBuilder);
 
         this.addProvider(output -> new LootTableProvider(output, requiredTables, builder.getEntries()));
     }
 
-    default void addLootProvider(NonNullConsumer<SubProviderBuilder> subProvidersBuilder) {
+    default void addLootProvider(Consumer<@NotNull SubProviderBuilder> subProvidersBuilder) {
         this.addLootProvider(Set.of(), subProvidersBuilder);
     }
 }

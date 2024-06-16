@@ -7,15 +7,16 @@ import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
-import it.zerono.mods.zerocore.lib.functional.NonNullBiConsumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 public abstract class AbstractCodecDataProvider<T>
         extends AbstractDataProvider {
@@ -34,7 +35,7 @@ public abstract class AbstractCodecDataProvider<T>
         this._codec = codec;
     }
 
-    protected abstract void processData(NonNullBiConsumer<ResourceLocation, T> consumer);
+    protected abstract void processData(BiConsumer<@NotNull ResourceLocation, @NotNull T> consumer);
 
     //region AbstractDataProvider
 

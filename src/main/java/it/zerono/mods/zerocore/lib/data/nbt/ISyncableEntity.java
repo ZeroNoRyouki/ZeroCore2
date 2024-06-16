@@ -21,8 +21,10 @@ package it.zerono.mods.zerocore.lib.data.nbt;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.zerono.mods.zerocore.lib.item.inventory.ItemStackHolder;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 /**
  * Sync a generic entity from/to NBT
@@ -107,13 +109,13 @@ public interface ISyncableEntity {
     }
 
     /**
-     * Call the provided {@link NonNullConsumer} if the specified {@link CompoundTag} element is present in the parent data.
+     * Call the provided {@link Consumer} if the specified {@link CompoundTag} element is present in the parent data.
      *
      * @param dataKey       the name of the element
      * @param parentData    the {@link CompoundTag} to read the element from
-     * @param consumer      a {@link NonNullConsumer} that will be called if the element is present
+     * @param consumer      a {@link Consumer} that will be called if the element is present
      */
-    default void syncDataElementFrom(String dataKey, CompoundTag parentData, NonNullConsumer<CompoundTag> consumer) {
+    default void syncDataElementFrom(String dataKey, CompoundTag parentData, Consumer<@NotNull CompoundTag> consumer) {
 
         if (parentData.contains(dataKey)) {
             consumer.accept(parentData.getCompound(dataKey));

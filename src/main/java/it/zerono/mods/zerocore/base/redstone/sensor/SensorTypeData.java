@@ -21,9 +21,10 @@ package it.zerono.mods.zerocore.base.redstone.sensor;
 import com.google.common.collect.ImmutableList;
 import it.zerono.mods.zerocore.lib.IMachineReader;
 import it.zerono.mods.zerocore.lib.data.IoDirection;
-import it.zerono.mods.zerocore.lib.functional.NonNullToIntFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.ToIntFunction;
 
 public final class SensorTypeData<Reader extends IMachineReader>
         implements ISensorType<Reader> {
@@ -32,7 +33,7 @@ public final class SensorTypeData<Reader extends IMachineReader>
         return new SensorTypeData<>(IoDirection.Input, SensorTypeData::inputSensorTest, behaviors);
     }
 
-    public static <Reader extends IMachineReader> SensorTypeData<Reader> output(final NonNullToIntFunction<Reader> outputSupplier,
+    public static <Reader extends IMachineReader> SensorTypeData<Reader> output(final ToIntFunction<@NotNull Reader> outputSupplier,
                                                                                 final SensorBehavior... behaviors) {
         return new SensorTypeData<>(IoDirection.Output, outputSupplier, behaviors);
     }
@@ -72,7 +73,7 @@ public final class SensorTypeData<Reader extends IMachineReader>
     //endregion
     //region internals
 
-    private SensorTypeData(final IoDirection direction, final NonNullToIntFunction<Reader> outputSupplier,
+    private SensorTypeData(final IoDirection direction, final ToIntFunction<@NotNull Reader> outputSupplier,
                            final SensorBehavior... behaviors) {
 
         this._direction = direction;
@@ -86,7 +87,7 @@ public final class SensorTypeData<Reader extends IMachineReader>
 
     private final IoDirection _direction;
     private final List<SensorBehavior> _validBehaviors;
-    private final NonNullToIntFunction<Reader> _outputTestSupplier;
+    private final ToIntFunction<@NotNull Reader> _outputTestSupplier;
 
     //endregion
 }

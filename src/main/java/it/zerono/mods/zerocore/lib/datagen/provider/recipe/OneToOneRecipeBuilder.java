@@ -22,10 +22,11 @@ import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.recipe.AbstractOneToOneRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class OneToOneRecipeBuilder<Ingredient, Result,
         RecipeIngredient extends IRecipeIngredient<Ingredient>, RecipeResult extends IRecipeResult<Result>,
@@ -52,7 +53,7 @@ public class OneToOneRecipeBuilder<Ingredient, Result,
 
     //region internals
 
-    private final NonNullSupplier<Recipe> _recipeFactory;
+    private final Supplier<@NotNull Recipe> _recipeFactory;
 
     //endregion
 }

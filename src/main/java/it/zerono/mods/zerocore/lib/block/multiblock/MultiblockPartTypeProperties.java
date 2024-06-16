@@ -26,28 +26,30 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.util.NonNullFunction;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class MultiblockPartTypeProperties<Controller extends IMultiblockController<Controller>,
                                             PartType extends IMultiblockPartType> {
 
-    public MultiblockPartTypeProperties(final NonNullSupplier<NonNullSupplier<BlockEntityType<?>>> tileTypeSupplier,
-                                        final NonNullFunction<MultiblockPartBlock.MultiblockPartProperties<PartType>,
-                                                MultiblockPartBlock<Controller, PartType>> blockFactory,
+    public MultiblockPartTypeProperties(final Supplier<@NotNull Supplier<@NotNull BlockEntityType<?>>> tileTypeSupplier,
+                                        final Function<MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>,
+                                                @NotNull MultiblockPartBlock<Controller, PartType>> blockFactory,
                                         final String translationKey,
-                                        final NonNullFunction<Block.Properties, Block.Properties> blockPropertiesFixer) {
+                                        final Function<Block.@NotNull Properties, Block.@NotNull Properties> blockPropertiesFixer) {
         this(tileTypeSupplier, blockFactory, translationKey, blockPropertiesFixer, ep -> ep);
     }
 
-    public MultiblockPartTypeProperties(final NonNullSupplier<NonNullSupplier<BlockEntityType<?>>> tileTypeSupplier,
-                                        final NonNullFunction<MultiblockPartBlock.MultiblockPartProperties<PartType>,
-                                                MultiblockPartBlock<Controller, PartType>> blockFactory,
+    public MultiblockPartTypeProperties(final Supplier<@NotNull Supplier<@NotNull BlockEntityType<?>>> tileTypeSupplier,
+                                        final Function<MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>,
+                                                @NotNull MultiblockPartBlock<Controller, PartType>> blockFactory,
                                         final String translationKey,
-                                        final NonNullFunction<Block.Properties, Block.Properties> blockPropertiesFixer,
-                                        final NonNullFunction<MultiblockPartBlock.MultiblockPartProperties<PartType>, MultiblockPartBlock.MultiblockPartProperties<PartType>> partPropertiesFixer) {
+                                        final Function<Block.@NotNull Properties, Block.@NotNull Properties> blockPropertiesFixer,
+                                        final Function<MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>,
+                                                MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>> partPropertiesFixer) {
 
         this._tileTypeSupplier = tileTypeSupplier;
         this._blockFactory = blockFactory;
@@ -82,12 +84,12 @@ public class MultiblockPartTypeProperties<Controller extends IMultiblockControll
 
     //region internals
 
-    private final NonNullSupplier<NonNullSupplier<BlockEntityType<?>>> _tileTypeSupplier;
-    private final NonNullFunction<MultiblockPartBlock.MultiblockPartProperties<PartType>,
-            MultiblockPartBlock<Controller, PartType>> _blockFactory;
-    private final NonNullFunction<Block.Properties, Block.Properties> _blockPropertiesFixer;
-    private final NonNullFunction<MultiblockPartBlock.MultiblockPartProperties<PartType>,
-            MultiblockPartBlock.MultiblockPartProperties<PartType>> _extendedPropertiesFixer;
+    private final Supplier<@NotNull Supplier<@NotNull BlockEntityType<?>>> _tileTypeSupplier;
+    private final Function<MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>,
+            @NotNull MultiblockPartBlock<Controller, PartType>> _blockFactory;
+    private final Function<Block.@NotNull Properties, Block.@NotNull Properties> _blockPropertiesFixer;
+    private final Function<MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>,
+            MultiblockPartBlock.@NotNull MultiblockPartProperties<PartType>> _extendedPropertiesFixer;
     private final String _translationKey;
 
     //endregion

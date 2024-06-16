@@ -19,11 +19,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.*;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class BlockStateDataProvider
@@ -182,7 +183,7 @@ public abstract class BlockStateDataProvider
     }
 
     public <B extends Block> void axisAligned(Supplier<B> block,
-                                              NonNullFunction<Direction.Axis, ResourceLocation> modelProvider) {
+                                              Function<Direction.@NotNull Axis, @NotNull ResourceLocation> modelProvider) {
 
         Preconditions.checkNotNull(block, "Block must not be null");
         Preconditions.checkNotNull(modelProvider, "Model provider must not be null");

@@ -20,9 +20,11 @@ package it.zerono.mods.zerocore.base.multiblock.part.io.fluid;
 
 import it.zerono.mods.zerocore.base.multiblock.part.io.EmptyIOPortHandler;
 import it.zerono.mods.zerocore.lib.data.IoDirection;
-import net.neoforged.neoforge.common.util.NonNullFunction;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Function;
 
 public class EmptyFluidPortHandler
     extends EmptyIOPortHandler
@@ -52,7 +54,7 @@ public class EmptyFluidPortHandler
     }
 
     @Override
-    public void update(NonNullFunction<IoDirection, IFluidHandler> handlerProvider) {
+    public void update(Function<@NotNull IoDirection, @NotNull IFluidHandler> handlerProvider) {
     }
 
     //endregion

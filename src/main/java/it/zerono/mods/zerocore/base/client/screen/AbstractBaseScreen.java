@@ -41,9 +41,10 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & MenuProvider, C extends ModTileContainer<T>>
@@ -53,13 +54,13 @@ public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & Menu
     public static final int DEFAULT_GUI_HEIGHT = 166;
 
     protected AbstractBaseScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
-                                 final Component title, final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
+                                 final Component title, final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
         this(container, inventory, inventoryUsage, title, DEFAULT_GUI_WIDTH, DEFAULT_GUI_HEIGHT, mainTextureSupplier.get());
     }
 
     protected AbstractBaseScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
                                  final Component title, final int guiWidth, final int guiHeight,
-                                 final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
+                                 final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
         this(container, inventory, inventoryUsage, title, guiWidth, guiHeight, mainTextureSupplier.get());
     }
 

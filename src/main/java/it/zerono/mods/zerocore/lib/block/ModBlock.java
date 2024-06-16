@@ -40,7 +40,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.util.NonNullConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -77,7 +77,7 @@ public class ModBlock
     public interface IStackStorableTooltipBuilder {
 
         void build(ItemStack stack, CompoundTag data, @Nullable BlockGetter world,
-                   NonNullConsumer<Component> appender, boolean isAdvancedTooltip);
+                   Consumer<@NotNull Component> appender, boolean isAdvancedTooltip);
     }
 
     public static class ExtendedProperties<T extends ExtendedProperties<T>> {

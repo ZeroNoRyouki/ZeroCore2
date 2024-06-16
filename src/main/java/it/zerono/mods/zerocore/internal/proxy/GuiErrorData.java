@@ -23,20 +23,21 @@ import it.zerono.mods.zerocore.lib.client.gui.CompositeRichText;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.RichText;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
-import it.zerono.mods.zerocore.lib.functional.NonNullIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 class GuiErrorData
-        implements Predicate<BlockPos>, NonNullIntFunction<IRichText> {
+        implements Predicate<BlockPos>, IntFunction<@NotNull IRichText> {
 
     public GuiErrorData() {
 

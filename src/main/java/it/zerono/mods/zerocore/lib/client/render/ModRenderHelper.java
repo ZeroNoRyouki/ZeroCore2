@@ -63,8 +63,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -76,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 @SuppressWarnings("WeakerAccess")
@@ -86,7 +87,7 @@ public final class ModRenderHelper {
     public static final int GUI_TOPMOST_Z = 900;
     public static final int GUI_ITEM_Z = 600;
 
-    public static final NonNullSupplier<Font> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().font;
+    public static final Supplier<@NotNull Font> DEFAULT_FONT_RENDERER = () -> Minecraft.getInstance().font;
 
     public static long getLastRenderTime() {
         return ZeroCore.getProxy().getLastRenderTime();

@@ -18,15 +18,16 @@ package it.zerono.mods.zerocore.lib.multiblock.storage.collection;
 
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
-import net.neoforged.neoforge.common.util.NonNullPredicate;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface IPartCollection<Controller extends IMultiblockController<Controller>,
                                     Part extends IMultiblockPart<Controller>>
-        extends Iterable<Part>, NonNullPredicate<IMultiblockPart<Controller>> {
+        extends Iterable<Part>, Predicate<@NotNull IMultiblockPart<Controller>> {
 
     int size();
 

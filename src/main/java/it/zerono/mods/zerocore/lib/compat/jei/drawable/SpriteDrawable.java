@@ -23,16 +23,18 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.ISprite;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
 import net.minecraft.client.gui.GuiGraphics;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class SpriteDrawable
         implements IDrawableStatic {
 
-    public SpriteDrawable(final NonNullSupplier<ISprite> sprite, final int zLevel) {
+    public SpriteDrawable(final Supplier<@NotNull ISprite> sprite, final int zLevel) {
         this(sprite, zLevel, Padding.ZERO);
     }
 
-    public SpriteDrawable(final NonNullSupplier<ISprite> sprite, final int zLevel, final Padding padding) {
+    public SpriteDrawable(final Supplier<@NotNull ISprite> sprite, final int zLevel, final Padding padding) {
 
         this._sprite = sprite;
         this._padding = padding;
@@ -79,7 +81,7 @@ public class SpriteDrawable
     //endregion
     //region internals
 
-    private final NonNullSupplier<ISprite> _sprite;
+    private final Supplier<@NotNull ISprite> _sprite;
     private final Padding _padding;
     private final int _zLevel;
 

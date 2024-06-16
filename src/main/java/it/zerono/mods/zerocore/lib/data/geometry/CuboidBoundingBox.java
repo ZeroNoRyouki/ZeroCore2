@@ -25,12 +25,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.common.util.NonNullFunction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class CuboidBoundingBox
         implements Iterable<BlockPos> {
@@ -190,8 +191,8 @@ public class CuboidBoundingBox
         return mapper.apply(this.getMin(), this.getMax());
     }
 
-    public <R> R map(final BiFunction<BlockPos, BlockPos, R> mapper, final NonNullFunction<BlockPos, BlockPos> minRemapper,
-                     final NonNullFunction<BlockPos, BlockPos> maxRemapper) {
+    public <R> R map(final BiFunction<BlockPos, BlockPos, R> mapper, final Function<@NotNull BlockPos, @NotNull BlockPos> minRemapper,
+                     final Function<@NotNull BlockPos, @NotNull BlockPos> maxRemapper) {
         return mapper.apply(minRemapper.apply(this.getMin()), maxRemapper.apply(this.getMax()));
     }
 
@@ -199,8 +200,8 @@ public class CuboidBoundingBox
         consumer.accept(this.getMin(), this.getMax());
     }
 
-    public void accept(final BiConsumer<BlockPos, BlockPos> consumer, final NonNullFunction<BlockPos, BlockPos> minRemapper,
-                       final NonNullFunction<BlockPos, BlockPos> maxRemapper) {
+    public void accept(final BiConsumer<BlockPos, BlockPos> consumer, final Function<@NotNull BlockPos, @NotNull BlockPos> minRemapper,
+                       final Function<@NotNull BlockPos, @NotNull BlockPos> maxRemapper) {
         consumer.accept(minRemapper.apply(this.getMin()), maxRemapper.apply(this.getMax()));
     }
 

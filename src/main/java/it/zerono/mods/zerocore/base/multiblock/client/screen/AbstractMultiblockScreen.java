@@ -30,16 +30,14 @@ import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockCon
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class AbstractMultiblockScreen<Controller extends AbstractCuboidMultiblockController<Controller> & IMultiblockMachine,
                                                 T extends AbstractMultiblockEntity<Controller> & MenuProvider,
                                                 C extends ModTileContainer<T>>
@@ -47,7 +45,7 @@ public abstract class AbstractMultiblockScreen<Controller extends AbstractCuboid
 
     protected AbstractMultiblockScreen(final C container, final Inventory inventory,
                                        final PlayerInventoryUsage inventoryUsage, final Component title,
-                                       final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
+                                       final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
 
         super(container, inventory, inventoryUsage, title, DEFAULT_GUI_WIDTH, DEFAULT_GUI_HEIGHT, mainTextureSupplier.get());
     }
@@ -55,7 +53,7 @@ public abstract class AbstractMultiblockScreen<Controller extends AbstractCuboid
     protected AbstractMultiblockScreen(final C container, final Inventory inventory,
                                        final PlayerInventoryUsage inventoryUsage, final Component title,
                                        final int guiWidth, final int guiHeight,
-                                       final NonNullSupplier<SpriteTextureMap> mainTextureSupplier) {
+                                       final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
 
         super(container, inventory, inventoryUsage, title, guiWidth, guiHeight, mainTextureSupplier.get());
     }
