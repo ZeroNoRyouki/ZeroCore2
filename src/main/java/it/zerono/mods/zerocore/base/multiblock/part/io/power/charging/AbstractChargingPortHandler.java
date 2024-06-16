@@ -35,8 +35,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractChargingPortHandler<Controller extends AbstractCuboidMultiblockController<Controller>,
             T extends AbstractMultiblockEntity<Controller> & IChargingPort>

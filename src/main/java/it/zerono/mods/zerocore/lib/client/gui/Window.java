@@ -30,9 +30,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -131,7 +131,7 @@ public class Window<C extends ModContainer>
     }
 
     @Override
-    public void startDragging(@Nonnull final IDraggable draggable, final IDragSource source) {
+    public void startDragging(@NotNull final IDraggable draggable, final IDragSource source) {
         this._manager.startDragging(draggable, source);
     }
 

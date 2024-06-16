@@ -21,8 +21,7 @@ package it.zerono.mods.zerocore.lib.energy.handler;
 import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 import it.zerono.mods.zerocore.lib.energy.IWideEnergyProvider;
 import net.minecraft.core.Direction;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Deprecated //use WideEnergyProviderForwarder2
 public class WideEnergyProviderForwarder

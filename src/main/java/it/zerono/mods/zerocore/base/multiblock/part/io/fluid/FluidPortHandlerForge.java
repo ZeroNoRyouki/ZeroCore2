@@ -35,8 +35,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockController<Controller>,
             T extends AbstractMultiblockEntity<Controller> & IFluidPort>

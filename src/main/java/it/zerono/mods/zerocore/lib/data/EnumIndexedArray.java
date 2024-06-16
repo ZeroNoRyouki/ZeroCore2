@@ -19,8 +19,8 @@
 package it.zerono.mods.zerocore.lib.data;
 
 import it.zerono.mods.zerocore.lib.CodeHelper;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;

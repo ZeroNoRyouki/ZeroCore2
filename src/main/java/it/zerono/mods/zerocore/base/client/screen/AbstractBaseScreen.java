@@ -42,8 +42,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.NonNullSupplier;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & MenuProvider, C extends ModTileContainer<T>>

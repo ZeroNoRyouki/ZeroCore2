@@ -23,8 +23,8 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class EnumData<T extends Enum<T>>

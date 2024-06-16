@@ -32,8 +32,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class PowerPortHandlerForgeEnergy<Controller extends AbstractCuboidMultiblockController<Controller>,
             T extends AbstractMultiblockEntity<Controller> & IPowerPort>

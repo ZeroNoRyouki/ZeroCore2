@@ -20,8 +20,7 @@ package it.zerono.mods.zerocore.lib.fluid.handler;
 
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class FluidHandlerForwarder implements IFluidHandler {
 
@@ -65,7 +64,7 @@ public class FluidHandlerForwarder implements IFluidHandler {
      * @param tank Tank to query.
      * @return FluidStack in a given tank. NULL if the tank is empty.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack getFluidInTank(int tank) {
         return this.getHandler().getFluidInTank(tank);
@@ -92,7 +91,7 @@ public class FluidHandlerForwarder implements IFluidHandler {
      * (Basically, is a given fluid EVER allowed in this tank?) Return FALSE if the answer to that question is 'no.'
      */
     @Override
-    public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
         return this.getHandler().isFluidValid(tank, stack);
     }
 
@@ -116,7 +115,7 @@ public class FluidHandlerForwarder implements IFluidHandler {
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
         return this.getHandler().drain(resource, action);
@@ -132,7 +131,7 @@ public class FluidHandlerForwarder implements IFluidHandler {
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
         return this.getHandler().drain(maxDrain, action);

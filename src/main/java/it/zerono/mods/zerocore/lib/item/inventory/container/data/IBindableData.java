@@ -23,9 +23,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.common.util.NonNullFunction;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -37,29 +37,29 @@ public interface IBindableData<T> {
      *
      * @param consumer The consumer.
      */
-    void bind(@Nonnull Consumer<T> consumer);
+    void bind(@NotNull Consumer<T> consumer);
 
     @Nullable
     default T defaultValue() {
         return null;
     }
 
-    default NonNullSupplier<Component> asBindableText(@Nonnull Function<T, MutableComponent> textFactory) {
+    default NonNullSupplier<Component> asBindableText(@NotNull Function<T, MutableComponent> textFactory) {
         return asBindableText(this.defaultValue(), textFactory);
     }
 
-    default NonNullSupplier<Component> asBindableText(@Nullable T initialValue, @Nonnull Function<T, MutableComponent> textFactory) {
+    default NonNullSupplier<Component> asBindableText(@Nullable T initialValue, @NotNull Function<T, MutableComponent> textFactory) {
         return BindableText.of(this, initialValue, textFactory);
     }
 
-    default NonNullSupplier<Component> asBindableText(@Nonnull Function<T, MutableComponent> textFactory,
-                                                           @Nonnull NonNullFunction<MutableComponent, MutableComponent> textPostProcessor) {
+    default NonNullSupplier<Component> asBindableText(@NotNull Function<T, MutableComponent> textFactory,
+                                                           @NotNull NonNullFunction<MutableComponent, MutableComponent> textPostProcessor) {
         return asBindableText(this.defaultValue(), textFactory, textPostProcessor);
     }
 
     default NonNullSupplier<Component> asBindableText(@Nullable T initialValue,
-                                                           @Nonnull Function<T, MutableComponent> textFactory,
-                                                           @Nonnull NonNullFunction<MutableComponent, MutableComponent> textPostProcessor) {
+                                                           @NotNull Function<T, MutableComponent> textFactory,
+                                                           @NotNull NonNullFunction<MutableComponent, MutableComponent> textPostProcessor) {
         return BindableText.of(this, initialValue, textFactory, textPostProcessor);
     }
 }

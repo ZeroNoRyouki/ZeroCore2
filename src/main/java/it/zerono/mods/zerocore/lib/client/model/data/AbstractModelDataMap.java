@@ -22,7 +22,7 @@
 //import net.minecraftforge.client.model.data.ModelData;
 //import net.minecraftforge.client.model.data.ModelProperty;
 //
-//import javax.annotation.Nullable;
+//import org.jetbrains.annotations.Nullable;
 //import java.util.IdentityHashMap;
 //import java.util.Map;
 //

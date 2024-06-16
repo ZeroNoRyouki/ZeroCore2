@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 

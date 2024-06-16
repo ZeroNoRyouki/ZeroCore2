@@ -24,8 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractMultiblockEntity<Controller extends AbstractCuboidMultiblockController<Controller>>
         extends AbstractCuboidMultiblockPart<Controller> {
@@ -76,7 +75,7 @@ public abstract class AbstractMultiblockEntity<Controller extends AbstractCuboid
      *
      * @return Your model data
      */
-    @Nonnull
+    @NotNull
     @Override
     public ModelData getModelData() {
 

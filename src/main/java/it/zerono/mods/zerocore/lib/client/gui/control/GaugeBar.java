@@ -28,8 +28,7 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class GaugeBar
         extends AbstractGaugeBar {
@@ -139,7 +138,7 @@ public class GaugeBar
     }
 
     private double _value;
-    @Nonnull
+    @NotNull
     private ISprite _barSprite;
     private Colour _barSpriteTint;
 

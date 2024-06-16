@@ -32,8 +32,8 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
@@ -206,17 +206,17 @@ public class PanelGroup<Index extends Enum<Index>>
     }
 
     @Override
-    public void addControl(@Nonnull IControl control) {
+    public void addControl(@NotNull IControl control) {
         this.getActivePanel().ifPresent(p -> p.addControl(control));
     }
 
     @Override
-    public void addControl(@Nonnull IControl... controls) {
+    public void addControl(@NotNull IControl... controls) {
         this.getActivePanel().ifPresent(p -> p.addControl(controls));
     }
 
     @Override
-    public void removeControl(@Nonnull IControl control) {
+    public void removeControl(@NotNull IControl control) {
         this.getActivePanel().ifPresent(p -> p.removeControl(control));
     }
 

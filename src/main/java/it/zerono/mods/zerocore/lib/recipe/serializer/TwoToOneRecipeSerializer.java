@@ -28,8 +28,8 @@ import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 

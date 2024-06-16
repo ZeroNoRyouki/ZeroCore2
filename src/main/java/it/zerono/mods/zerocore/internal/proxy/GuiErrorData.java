@@ -27,9 +27,9 @@ import it.zerono.mods.zerocore.lib.functional.NonNullIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
@@ -87,7 +87,7 @@ class GuiErrorData
 
     //region NonNullIntFunction<IRichText>
 
-    @Nonnull
+    @NotNull
     @Override
     public IRichText apply(final int maxTextWidth) {
 

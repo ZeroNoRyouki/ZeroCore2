@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.functional;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 @FunctionalInterface
 public interface NonNullIntFunction<R> {
 
-    @Nonnull
+    @NotNull
     R apply(int value);
 }

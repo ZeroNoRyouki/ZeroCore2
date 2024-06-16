@@ -64,10 +64,10 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -646,7 +646,7 @@ public final class CodeHelper {
     public static <T> NonNullSupplier<T> lazy(NonNullSupplier<T> supplier) {
         return new NonNullSupplier<T>() {
 
-            @Nonnull
+            @NotNull
             @Override
             public T get() {
 
@@ -666,7 +666,7 @@ public final class CodeHelper {
         return new NonNullFunction<T, R>() {
 
             @Override
-            public @Nonnull R apply(@Nonnull T arg1) {
+            public @NotNull R apply(@NotNull T arg1) {
 
                 if (null == this._resolvedValue) {
                     this._resolvedValue = Preconditions.checkNotNull(function.apply(arg1));
@@ -684,7 +684,7 @@ public final class CodeHelper {
         return new NonNullBiFunction<T1, T2, R>() {
 
             @Override
-            public @Nonnull R apply(@Nonnull T1 arg1, @Nonnull T2 arg2) {
+            public @NotNull R apply(@NotNull T1 arg1, @NotNull T2 arg2) {
 
                 if (null == this._resolvedValue) {
                     this._resolvedValue = Preconditions.checkNotNull(function.apply(arg1, arg2));

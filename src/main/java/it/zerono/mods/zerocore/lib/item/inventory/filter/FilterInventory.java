@@ -26,8 +26,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
@@ -291,12 +291,12 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
         fm.registerFactory(COMPONENT_ID, new IFilterComponentFactory<>() {
 
             @Override
-            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId) {
+            public Optional<FilterInventory> createComponent(@NotNull ResourceLocation componentId) {
                 return Optional.of(new FilterInventory(1));
             }
 
             @Override
-            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId, CompoundTag nbt) {
+            public Optional<FilterInventory> createComponent(@NotNull ResourceLocation componentId, CompoundTag nbt) {
                 return Optional.empty();
             }
         });

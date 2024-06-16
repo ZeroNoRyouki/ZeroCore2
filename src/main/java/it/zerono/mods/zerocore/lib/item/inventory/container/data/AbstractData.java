@@ -22,9 +22,9 @@ import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import net.minecraftforge.common.util.NonNullSupplier;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -49,7 +49,7 @@ public abstract class AbstractData<T>
         return new IBindableData<O>() {
 
             @Override
-            public void bind(@Nonnull Consumer<O> consumer) {
+            public void bind(@NotNull Consumer<O> consumer) {
 
                 Preconditions.checkNotNull(consumer, "Consumer must not be null.");
 

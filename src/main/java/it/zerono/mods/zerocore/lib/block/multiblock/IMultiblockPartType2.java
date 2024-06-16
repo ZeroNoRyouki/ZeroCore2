@@ -23,8 +23,7 @@ import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface IMultiblockPartType2<Controller extends IMultiblockController<Controller>,
                                         PartType extends IMultiblockPartType2<Controller, PartType>>
