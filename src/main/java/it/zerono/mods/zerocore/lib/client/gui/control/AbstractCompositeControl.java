@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
+import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.network.chat.Component;
@@ -32,12 +33,23 @@ public class AbstractCompositeControl
 
     @Override
     public void setTooltips(final List<Component> lines) {
+
+        super.setTooltips(lines);
         this.setTooltips(lines, Collections.emptyList());
     }
 
     @Override
     public void setTooltips(final List<Component> lines, final List<Object> objects) {
+
+        super.setTooltips(lines, objects);
         this.forEach(c -> c.setTooltips(lines, objects));
+    }
+
+    @Override
+    public void clearTooltips() {
+
+        super.clearTooltips();
+        this.forEach(IControl::clearTooltips);
     }
 
     //endregion

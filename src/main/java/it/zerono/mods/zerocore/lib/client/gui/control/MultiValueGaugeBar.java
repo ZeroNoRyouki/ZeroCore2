@@ -26,6 +26,7 @@ import it.zerono.mods.zerocore.lib.data.EnumIndexedArray;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
@@ -54,6 +55,10 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
         this._values.setElement(index, Mth.clamp(value, 0, this.getMaxValueFor(index)));
     }
 
+    public void bindValue(final Index index, final IBindableData<Integer> bindableValue) {
+        bindableValue.bind(value -> this.setValue(index, value));
+    }
+
     public void setBarSprite(final Index index, final ISprite sprite) {
         this._sprites.setElement(index, Preconditions.checkNotNull(sprite));
     }
@@ -64,6 +69,16 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
 
     public void setBarSpriteTint(final Index index, final Colour tint) {
         this._tints.setElement(index, tint);
+    }
+
+    public double getFillRatio() {
+        return this._values.stream()
+                .mapToDouble(Double::doubleValue)
+                .sum() / this.getMaxValue();
+    }
+
+    public double getFillRatio(final Index index) {
+        return this.getValue(index) / this.getMaxValue();
     }
 
     //region AbstractGaugeBar
@@ -90,16 +105,6 @@ public class MultiValueGaugeBar<Index extends Enum<Index>>
 
     //endregion
     //region internals
-
-    protected double getFillRatio() {
-        return this._values.stream()
-                .mapToDouble(Double::doubleValue)
-                .sum() / this.getMaxValue();
-    }
-
-    protected double getFillRatio(final Index index) {
-        return this.getValue(index) / this.getMaxValue();
-    }
 
     protected double getMaxValueFor(final Index index) {
         return this.getMaxValue();

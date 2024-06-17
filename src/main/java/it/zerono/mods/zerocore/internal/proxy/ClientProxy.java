@@ -69,6 +69,7 @@ public class ClientProxy
         NeoForge.EVENT_BUS.addListener(this::onRenderTick);
         NeoForge.EVENT_BUS.addListener(ClientProxy::onRegisterReloadListeners);
         NeoForge.EVENT_BUS.addListener(ClientProxy::onRecipesUpdated);
+        NeoForge.EVENT_BUS.addListener(this::onLoggedOut);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onHighlightBlock);
@@ -177,6 +178,10 @@ public class ClientProxy
 
     //endregion
     //region internals
+
+    private void onLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        this.clearErrorReport();
+    }
 
     private static void onRegisterReloadListeners(AddReloadListenerEvent event) {
         event.addListener(AtlasSpriteSupplier.INSTANCE);

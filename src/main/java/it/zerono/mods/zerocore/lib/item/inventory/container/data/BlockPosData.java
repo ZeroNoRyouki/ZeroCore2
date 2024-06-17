@@ -18,6 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,13 +31,27 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class BlockPosData
+        extends AbstractData<BlockPos>
         implements IContainerData {
 
-    public BlockPosData(Supplier<@NotNull BlockPos> getter, Consumer<@NotNull BlockPos> setter) {
+    public static BlockPosData immutable(ModContainer container, BlockPos value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
+    }
 
-        this._getter = getter;
-        this._setter = setter;
-        this._lastHash = 0;
+    public static BlockPosData sampled(int frequency, ModContainer container, Supplier<@NotNull BlockPos> getter,
+                                       Consumer<@NotNull BlockPos> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static BlockPosData of(ModContainer container, Supplier<@NotNull BlockPos> getter,
+                                  Consumer<@NotNull BlockPos> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new BlockPosData(getter, clientSideSetter) : new BlockPosData(getter);
+
+        container.addBindableData(data);
+        return data;
     }
 
     //region IContainerData
@@ -43,7 +60,7 @@ public class BlockPosData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final BlockPos current = this._getter.get();
+        final BlockPos current = this.getValue();
         final int currentHash = current.hashCode();
 
         if (this._lastHash != currentHash) {
@@ -64,8 +81,19 @@ public class BlockPosData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof BlockPosEntry record) {
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<BlockPos>
+
+    @Nullable
+    @Override
+    public BlockPos defaultValue() {
+        return BlockPos.ZERO;
     }
 
     //endregion
@@ -87,8 +115,16 @@ public class BlockPosData
 
     //endregion
 
-    private final Supplier<@NotNull BlockPos> _getter;
-    private final Consumer<@NotNull BlockPos> _setter;
+    private BlockPosData(Supplier<BlockPos> getter, Consumer<BlockPos> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private BlockPosData(Supplier<BlockPos> getter) {
+
+        super(getter);
+        this._lastHash = 0;
+    }
+
     private int _lastHash;
 
     //endregion

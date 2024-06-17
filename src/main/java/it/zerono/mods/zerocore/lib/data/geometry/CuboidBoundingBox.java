@@ -174,7 +174,9 @@ public class CuboidBoundingBox
     }
 
     public int getInternalVolume() {
-        return this.isEmpty() ? 0 : CodeHelper.mathVolume(this._min.offset(1, 1, 1), this._max.offset(-1, -1, -1));
+        return this.isEmpty() ? 0 : CodeHelper.mathVolume(
+                this._min.getX() + 1, this._min.getY() + 1, this._min.getZ() + 1,
+                this._max.getX() - 1, this._max.getY() - 1, this._max.getZ() - 1);
     }
 
     public BlockPos getCenter() {

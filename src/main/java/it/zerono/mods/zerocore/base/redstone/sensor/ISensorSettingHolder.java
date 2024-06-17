@@ -1,7 +1,6 @@
- 
- /*
+/*
  *
- * package-info.java
+ * ISensorSettingHolder.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -17,10 +16,13 @@
  *
  */
 
- @ParametersAreNonnullByDefault
- @MethodsReturnNonnullByDefault
- package it.zerono.mods.zerocore.lib.client.text;
+package it.zerono.mods.zerocore.base.redstone.sensor;
 
- import net.minecraft.MethodsReturnNonnullByDefault;
+import it.zerono.mods.zerocore.lib.IMachineReader;
 
- import javax.annotation.ParametersAreNonnullByDefault;
+public interface ISensorSettingHolder<Reader extends IMachineReader, Writer,
+                                      SensorType extends Enum<SensorType> & ISensorType<Reader>,
+                                      SensorSetting extends AbstractSensorSetting<Reader, Writer, SensorType, SensorSetting>> {
+
+    SensorSetting getSensorSetting();
+}

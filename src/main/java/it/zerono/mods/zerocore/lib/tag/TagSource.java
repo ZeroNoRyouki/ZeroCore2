@@ -53,7 +53,7 @@ public class TagSource<T> {
         return this.createKey(new ResourceLocation(namespace, name));
     }
 
-    public TagKey<T> createKey(final String id, final Function<@NotNull String, ResourceLocation> factory) {
+    public TagKey<T> createKey(final String id, final Function<@NotNull String, @NotNull ResourceLocation> factory) {
         return this.createKey(factory.apply(id));
     }
 
@@ -76,7 +76,7 @@ public class TagSource<T> {
     }
 
     public boolean existWithContent(final TagKey<T> tagKey) {
-        return this.getObjects(tagKey).size() > 0;
+        return !this.getObjects(tagKey).isEmpty();
     }
 
     public List<T> getObjects(final TagKey<T> tagKey) {
@@ -92,7 +92,7 @@ public class TagSource<T> {
 
         final List<T> objects = this.getObjects(tagKey);
 
-        return objects.isEmpty() ? Optional.empty() : Optional.ofNullable(objects.get(0));
+        return objects.isEmpty() ? Optional.empty() : Optional.ofNullable(objects.getFirst());
     }
 
     public List<TagKey<T>> getTags(final T object) {

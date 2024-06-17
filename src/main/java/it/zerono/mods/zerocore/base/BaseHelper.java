@@ -17,13 +17,20 @@
 package it.zerono.mods.zerocore.base;
 
 import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
+import it.zerono.mods.zerocore.lib.text.TextHelper;
 import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public final class BaseHelper {
 
+    public static final String EMPTY_TRANSLATION_KEY = "gui.zerocore.base.generic.empty";
+
+    public static MutableComponent emptyValue() {
+        return TextHelper.translatable(EMPTY_TRANSLATION_KEY);
+    }
+
     public static MutableComponent getFluidNameOrEmpty(final FluidStack stack) {
-        return stack.isEmpty() ? CommonConstants.EMPTY_VALUE : FluidHelper.getFluidName(stack);
+        return stack.isEmpty() ? emptyValue() : FluidHelper.getFluidName(stack);
     }
 
     //region internals

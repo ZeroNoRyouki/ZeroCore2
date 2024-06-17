@@ -38,7 +38,7 @@ import java.util.function.BiFunction;
 
 /**
  * A positive number with an integer part defined by an unsigned long, and a decimal part stored in a short
- *
+ * <p>
  * Based upon the FloatingLong class from aidancbrady's Mekanism
  */
 @SuppressWarnings("unused")

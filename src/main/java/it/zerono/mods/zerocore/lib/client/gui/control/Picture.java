@@ -33,6 +33,11 @@ public class Picture
         this(gui, name, picture.get());
     }
 
+    public Picture(final ModContainerScreen<? extends ModContainer> gui, final String name,
+                   final Supplier<@NotNull ISprite> picture, final int width, final int height) {
+        this(gui, name, picture.get(), width, height);
+    }
+
     public Picture(final ModContainerScreen<? extends ModContainer> gui, final String name, final ISprite picture) {
         this(gui, name, picture, picture.getWidth(), picture.getHeight());
     }

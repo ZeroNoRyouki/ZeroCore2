@@ -23,10 +23,13 @@ import it.zerono.mods.zerocore.lib.data.nbt.NBTHelper;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public abstract class AbstractSensorSetting<Reader extends IMachineReader, Writer, SensorType extends ISensorType<Reader>>
+public abstract class AbstractSensorSetting<Reader extends IMachineReader, Writer,
+                                            SensorType extends Enum<SensorType> & ISensorType<Reader>,
+                                            SensorSetting extends AbstractSensorSetting<Reader, Writer, SensorType, SensorSetting>>
         implements Predicate<@NotNull Reader>, InputSensorAction<Writer> {
 
     public final SensorType Sensor;
@@ -63,6 +66,12 @@ public abstract class AbstractSensorSetting<Reader extends IMachineReader, Write
         return data;
     }
 
+    public abstract SensorSetting copy();
+
+    public int getValue(int index) {
+        return 0 == index ? this.Value1 : this.Value2;
+    }
+
     //region NonNullPredicate<Reader>
 
     /**
@@ -74,6 +83,14 @@ public abstract class AbstractSensorSetting<Reader extends IMachineReader, Write
     @Override
     public boolean test(final Reader reader) {
         return this.Sensor.isOutput() && this.Behavior.outputTest(this.Sensor.applyAsInt(reader), this.Value1, this.Value2);
+    }
+
+    //endregion
+    //region Object
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.Sensor, this.Behavior, this.Value1, this.Value2);
     }
 
     //endregion

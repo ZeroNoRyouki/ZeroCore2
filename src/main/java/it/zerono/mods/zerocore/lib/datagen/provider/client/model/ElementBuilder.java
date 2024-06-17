@@ -93,7 +93,7 @@ public class ElementBuilder
         Preconditions.checkNotNull(builder, "Builder cannot be null");
         Preconditions.checkState(!this._faces.containsKey(face), "The specified face is already defined for this element");
 
-        this._faces.put(face, Util.make(new FaceBuilder(), builder::accept));
+        this._faces.put(face, Util.make(new FaceBuilder(), builder));
         return this;
     }
 

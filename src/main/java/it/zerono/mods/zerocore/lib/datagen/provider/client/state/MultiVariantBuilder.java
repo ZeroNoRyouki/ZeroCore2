@@ -263,7 +263,7 @@ public class MultiVariantBuilder
 
         for (final var property : this._properties) {
 
-            if (builder.length() > 0) {
+            if (!builder.isEmpty()) {
                 builder.append(',');
             }
 

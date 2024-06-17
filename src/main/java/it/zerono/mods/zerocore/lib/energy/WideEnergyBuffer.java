@@ -347,7 +347,7 @@ public class WideEnergyBuffer
     //endregion
     //region internals
 
-    private WideAmount convertIf(final EnergySystem system, final WideAmount amount) {
+    protected WideAmount convertIf(final EnergySystem system, final WideAmount amount) {
         return this.getEnergySystem() != system ? this.getEnergySystem().convertTo(system, amount.copy()) : amount.copy();
     }
 

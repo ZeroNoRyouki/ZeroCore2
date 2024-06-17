@@ -26,9 +26,9 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
@@ -36,7 +36,7 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 class GuiErrorData
-        implements Predicate<BlockPos>, IntFunction<IRichText> {
+        implements Predicate<BlockPos>, IntFunction<@NotNull IRichText> {
 
     public GuiErrorData() {
 
@@ -87,7 +87,7 @@ class GuiErrorData
 
     //region NonNullIntFunction<IRichText>
 
-    @Nonnull
+    @NotNull
     @Override
     public IRichText apply(final int maxTextWidth) {
 
@@ -114,7 +114,7 @@ class GuiErrorData
 
                     if (null == errorPosition && 1 == errorMessages.size()) {
 
-                        texts = this._errorText = textFrom(errorMessages.get(0), maxTextWidth);
+                        texts = this._errorText = textFrom(errorMessages.getFirst(), maxTextWidth);
 
                     } else {
 

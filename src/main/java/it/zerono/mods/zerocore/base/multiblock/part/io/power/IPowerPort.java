@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.base.multiblock.part.io.power;
 
 import it.zerono.mods.zerocore.lib.data.IIoEntity;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.energy.EnergySystem;
 
 public interface IPowerPort
         extends IIoEntity {
@@ -28,5 +29,9 @@ public interface IPowerPort
 
     default WideAmount getMaxTransferRate() {
         return WideAmount.MAX_VALUE;
+    }
+
+    default EnergySystem getPowerPortEnergySystem() {
+        return this.getPowerPortHandler().getEnergySystem();
     }
 }

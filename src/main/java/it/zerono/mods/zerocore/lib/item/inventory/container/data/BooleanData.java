@@ -18,26 +18,47 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class BooleanData
+        extends AbstractData<Boolean>
         implements IContainerData {
 
-    public BooleanData(final BooleanSupplier getter, final BooleanConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = false;
+    public static BooleanData immutable(ModContainer container, boolean value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
-    public static BooleanData wrap(final boolean[] array, final int index) {
-        return new BooleanData(() -> array[index], v -> array[index] = v);
+    public static BooleanData sampled(int frequency, ModContainer container, Supplier<@NotNull Boolean> getter,
+                                      Consumer<@NotNull Boolean> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static BooleanData of(ModContainer container, Supplier<@NotNull Boolean> getter,
+                                 Consumer<@NotNull Boolean> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new BooleanData(getter, clientSideSetter) : new BooleanData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static BooleanData of(ModContainer container, boolean[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        return of(container, () -> array[index], v -> array[index] = v);
     }
 
     //region IContainerData
@@ -46,7 +67,7 @@ public class BooleanData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final boolean current = this._getter.getAsBoolean();
+        final boolean current = this.getValue();
 
         if (this._lastValue != current) {
 
@@ -66,8 +87,19 @@ public class BooleanData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof BooleanEntry record) {
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<Boolean>
+
+    @Nullable
+    @Override
+    public Boolean defaultValue() {
+        return Boolean.FALSE;
     }
 
     //endregion
@@ -89,8 +121,16 @@ public class BooleanData
 
     //endregion
 
-    private final BooleanSupplier _getter;
-    private final BooleanConsumer _setter;
+    private BooleanData(Supplier<Boolean> getter, Consumer<Boolean> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private BooleanData(Supplier<Boolean> getter) {
+
+        super(getter);
+        this._lastValue = false;
+    }
+
     private boolean _lastValue;
 
     //endregion

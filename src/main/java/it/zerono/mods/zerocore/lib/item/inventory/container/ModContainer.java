@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
@@ -29,6 +30,7 @@ import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.ItemHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.PlayerInventoryUsage;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ContainerDataHandler;
 import it.zerono.mods.zerocore.lib.item.inventory.container.slot.SlotFactory;
@@ -51,8 +53,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,8 @@ public class ModContainer
     public static final String SLOTGROUPNAME_PLAYER_INVENTORY = "playerinventory_main";
     public static final String SLOTGROUPNAME_PLAYER_HOTBAR = "playerinventory_hotbar";
 
-    public ModContainer(final ContainerFactory factory, final MenuType<?> type, final int windowId, final Inventory playerInventory) {
+    public ModContainer(boolean isClientSide, final int ticksBetweenUpdates, final ContainerFactory factory, final MenuType<?> type,
+                        final int windowId, final Inventory playerInventory) {
 
         super(type, windowId);
         this._factory = factory;
@@ -76,14 +79,21 @@ public class ModContainer
         this._inventorySlotsGroups = Maps.newHashMap();
         this._player = playerInventory.player;
         this._containerDataHandler = new ContainerDataHandler(windowId);
+        this._isClientSide = isClientSide;
     }
 
-    public static ModContainer empty(final MenuType<?> type, final int windowId, final Inventory playerInventory) {
-        return new ModContainer(ContainerFactory.EMPTY, type, windowId, playerInventory) {
+    public static ModContainer empty(boolean isClientSide, final MenuType<?> type, final int windowId,
+                                     final Inventory playerInventory) {
+        return new ModContainer(isClientSide, 200, ContainerFactory.EMPTY, type, windowId, playerInventory) {
+
             @Override
             public void setItem(int slotID, int p_182408_, ItemStack stack) {
             }
         };
+    }
+
+    public boolean isClientSide() {
+        return this._isClientSide;
     }
 
     public Optional<IItemHandler> getInventory(final String name) {
@@ -102,6 +112,13 @@ public class ModContainer
         this.addInventory(name, new PlayerInvWrapper(inventory));
     }
 
+    public void addBindableData(final IBindableData<?> data) {
+
+        Preconditions.checkArgument(data instanceof IContainerData, "Data must implement IContainerData too.");
+        this.addContainerData((IContainerData) data);
+    }
+
+    @Deprecated // use addBindableData()
     public void addContainerData(final IContainerData data) {
         this._containerDataHandler.add(data);
     }
@@ -288,10 +305,10 @@ public class ModContainer
 
     /**
      * Called when a player shift-clicks a slot in the GUI
-     *
+     * <p>
      * When the slot shift-clicked is in the player hotbar or in the player inventory, move the ItemStack contained in
      * the clicked slot to the first available position in the other inventories handled by the container
-     *
+     * <p>
      * When the slot shift-clicked is in the other inventories handled by the container, move the ItemStack contained in
      * the clicked slot to the first available position in the player hotbar or in the player inventory
      *
@@ -306,7 +323,7 @@ public class ModContainer
 
         final Optional<SlotTemplate> clickedTemplate = this._factory.getSlotTemplate(clickedSlotIndex);
 
-        if (!clickedTemplate.isPresent()) {
+        if (clickedTemplate.isEmpty()) {
 
             Log.LOGGER.warn("Unknown slot clicked in a ModContainer at index " + clickedSlotIndex);
             return ItemStack.EMPTY;
@@ -395,7 +412,7 @@ public class ModContainer
 
     /**
      * Adds an item slot to this container
-     *
+     * <p>
      * DO NOT CALL THIS DIRECTLY
      *
      * @param slotIn    the slot to be added
@@ -488,6 +505,7 @@ public class ModContainer
     private final Map<String, List<Slot>> _inventorySlotsGroups;
     private final Player _player;
     private final ContainerDataHandler _containerDataHandler;
+    private final boolean _isClientSide;
     private IEvent<Runnable> _dataUpdateEvent;
     private IConditionallySyncableEntity _syncableEntity;
 

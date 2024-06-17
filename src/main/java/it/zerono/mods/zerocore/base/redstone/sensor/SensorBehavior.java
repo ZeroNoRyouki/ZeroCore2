@@ -20,16 +20,60 @@ package it.zerono.mods.zerocore.base.redstone.sensor;
 
 public enum SensorBehavior {
 
+    /**
+     * The sensor is disabled.
+     * Direction: N/A
+     */
     Disabled,
+    /**
+     * Change a state depending on the presence or absence of a redstone signal.
+     * Direction: input
+     */
     SetFromSignal,
+    /**
+     * Change a state depending on the level of a redstone signal.
+     * Direction: input
+     */
     SetFromSignalLevel,
+    /**
+     * Change a state on a redstone signal pulse.
+     * Direction: input
+     */
     SetOnPulse,
+    /**
+     * Toggle a state on a redstone signal pulse.
+     * Direction: input
+     */
     ToggleOnPulse,
-    InsertOnPulse,
-    RetractOnPulse,
-    EjectOnPulse,
+    /**
+     * Augment a state on a redstone signal pulse.
+     * Direction: input
+     */
+    AugmentOnPulse,
+    /**
+     * Reduce a state on a redstone signal pulse.
+     * Direction: input
+     */
+    ReduceOnPulse,
+    /**
+     * Do something on a redstone signal pulse.
+     * Direction: input
+     */
+    PerformOnPulse,
+    /**
+     * Emit a redstone signal when a state is greater than a specified value.
+     * Direction: output
+     */
     ActiveWhileAbove,
+    /**
+     * Emit a redstone signal when a state is lower than a specified value.
+     * Direction: output
+     */
     ActiveWhileBelow,
+    /**
+     * Emit a redstone signal when a state is in a specified range of values.
+     * Direction: output
+     */
     ActiveWhileBetween
     ;
 
@@ -39,9 +83,9 @@ public enum SensorBehavior {
 
             case SetOnPulse:
             case ToggleOnPulse:
-            case InsertOnPulse:
-            case RetractOnPulse:
-            case EjectOnPulse:
+            case AugmentOnPulse:
+            case ReduceOnPulse:
+            case PerformOnPulse:
                 return true;
 
             default:

@@ -20,7 +20,6 @@ package it.zerono.mods.zerocore.lib;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
@@ -31,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
@@ -62,10 +62,9 @@ import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -625,7 +624,8 @@ public final class CodeHelper {
         };
     }
 
-    public static <T, R> Function<T, R> asNonNull(final Function<T, R> function, final Function<@NotNull T, @NotNull R> fallbackValue) {
+    public static <T, R> Function<@NotNull T, @NotNull R> asNonNull(final Function<T, R> function, 
+                                                                    final Function<@NotNull T, @NotNull R> fallbackValue) {
         return (T v) -> {
 
             final R current = function.apply(v);
@@ -640,7 +640,7 @@ public final class CodeHelper {
     public static <T> Supplier<@NotNull T> lazy(Supplier<@NotNull T> supplier) {
         return new Supplier<@NotNull T>() {
 
-            @Nonnull
+            @NotNull
             @Override
             public T get() {
 
@@ -660,7 +660,7 @@ public final class CodeHelper {
         return new Function<@NotNull T, @NotNull R>() {
 
             @Override
-            public @Nonnull R apply(@Nonnull T arg1) {
+            public @NotNull R apply(@NotNull T arg1) {
 
                 if (null == this._resolvedValue) {
                     this._resolvedValue = Preconditions.checkNotNull(function.apply(arg1));
@@ -679,7 +679,7 @@ public final class CodeHelper {
         return new BiFunction<@NotNull T1, @NotNull T2, @NotNull R>() {
 
             @Override
-            public @Nonnull R apply(@Nonnull T1 arg1, @Nonnull T2 arg2) {
+            public @NotNull R apply(@NotNull T1 arg1, @NotNull T2 arg2) {
 
                 if (null == this._resolvedValue) {
                     this._resolvedValue = Preconditions.checkNotNull(function.apply(arg1, arg2));
@@ -760,7 +760,7 @@ public final class CodeHelper {
      * @throws NullPointerException if the supplying function is {@code null} or produces a {@code null} result
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static <T> Optional<T> optionalOr(Optional<T> opt, Supplier<@NotNull ? extends Optional<? extends T>> supplier) {
+    public static <T> Optional<T> optionalOr(Optional<T> opt, Supplier<? extends Optional<? extends T>> supplier) {
 
         Objects.requireNonNull(supplier);
 
@@ -771,7 +771,7 @@ public final class CodeHelper {
         } else {
 
             @SuppressWarnings("unchecked")
-            Optional<T> r = (Optional<T>) supplier.get();
+            Optional<T> r = Objects.requireNonNull((Optional<T>) supplier.get());
 
             return Objects.requireNonNull(r);
         }
@@ -828,7 +828,7 @@ public final class CodeHelper {
     /**
      * If the provided {@link Optional} contains a value, returns a sequential {@link Stream} containing only
      * that value, otherwise returns an empty {@link Stream}.
-     *
+     * <p>
      * This method can be used to transform a {@link Stream} of optional elements to a {@link Stream} of present
      * value elements:
      *
@@ -843,7 +843,7 @@ public final class CodeHelper {
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <T> Stream<T> optionalStream(Optional<T> opt) {
-        return opt.map(Stream::of).orElseGet(Stream::empty);
+        return opt.stream();
     }
 
     /**
@@ -855,7 +855,7 @@ public final class CodeHelper {
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <T> boolean optionalIsEmpty(Optional<T> opt) {
-        return !opt.isPresent();
+        return opt.isEmpty();
     }
 
     /**
@@ -872,6 +872,10 @@ public final class CodeHelper {
 
     //endregion
     //region misc
+
+    public static <T> Consumer<T> emptyConsumer() {
+        return $ -> {};
+    }
 
     public static <E> NonNullList<E> asNonNullList(Collection<E> source) {
 
@@ -1032,6 +1036,10 @@ public final class CodeHelper {
     //endregion
     //region format string
 
+    public static String formatAsHumanReadableNumber(WideAmount value, final String unit) {
+        return formatAsHumanReadableNumber(value.doubleValue(), unit);
+    }
+
     public static String formatAsHumanReadableNumber(double value, final String unit) {
 
         int order = 0;
@@ -1054,7 +1062,7 @@ public final class CodeHelper {
         int decimals = 2;
         final String format = String.format("%%.%1$df %%2$s%%3$s", decimals);
 
-        return String.format(format, value, s_siPrefixes.get(order), unit);
+        return String.format(format, value, getSiPrefix(order), unit);
     }
 
     public static String formatAsHumanReadableNumber(long value, final String unit) {
@@ -1076,7 +1084,13 @@ public final class CodeHelper {
             }
         }
 
-        return value + " " + s_siPrefixes.get(order) + unit;
+        return value + " " + getSiPrefix(order) + unit;
+    }
+
+    public static String getSiPrefix(int order) {
+
+        order = Math.min(MAX_SI_PREFIX_ORDER, Math.max(MIN_SI_PREFIX_ORDER, order));
+        return s_siPrefixes.get(order);
     }
 
     public static String formatAsMillibuckets(float value) {
@@ -1128,6 +1142,8 @@ public final class CodeHelper {
     //region internals
 
     private static final long UNSIGNED_MASK = 0x7FFFFFFFFFFFFFFFL;
+    private static final int MAX_SI_PREFIX_ORDER = 30;
+    private static final int MIN_SI_PREFIX_ORDER = -30;
 
     private static final Int2ObjectMap<String> s_siPrefixes;
     private static final RandomSource s_fakeRandom;
@@ -1137,8 +1153,10 @@ public final class CodeHelper {
 
         s_fakeRandom = RandomSource.create();
 
-        final Map<Integer, String> prefixes = Maps.newHashMap();
+        final Int2ObjectMap<String> prefixes = new Int2ObjectArrayMap<>(21);
 
+        prefixes.put(30, "Q"); // quetta, 10^30
+        prefixes.put(27, "R"); // ronna, 10^27
         prefixes.put(24, "Y"); // yotta, 10^24
         prefixes.put(21, "Z"); // zetta, 10^21
         prefixes.put(18, "E"); // exa, 10^18
@@ -1156,8 +1174,10 @@ public final class CodeHelper {
         prefixes.put(-18, "a"); // atto, 10^-18
         prefixes.put(-21, "z"); // zepto, 10^-21
         prefixes.put(-24, "y"); // yocto, 10^-24
+        prefixes.put(-27, "r"); // ronto, 10^-27
+        prefixes.put(-30, "q"); // quecto, 10^-24
 
-        s_siPrefixes = Int2ObjectMaps.unmodifiable(new Int2ObjectArrayMap<>(prefixes));
+        s_siPrefixes = Int2ObjectMaps.unmodifiable(prefixes);
 
         // perpendicular directions
 

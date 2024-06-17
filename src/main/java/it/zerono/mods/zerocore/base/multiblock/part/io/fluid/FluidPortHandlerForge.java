@@ -93,7 +93,7 @@ public class FluidPortHandlerForge<Controller extends AbstractCuboidMultiblockCo
     }
 
     @Override
-    public void update(Function<@NotNull IoDirection, IFluidHandler> handlerProvider) {
+    public void update(Function<@NotNull IoDirection, @NotNull IFluidHandler> handlerProvider) {
         this._capabilityForwarder.setHandler(handlerProvider.apply(this.getIoEntity().getIoDirection()));
     }
 

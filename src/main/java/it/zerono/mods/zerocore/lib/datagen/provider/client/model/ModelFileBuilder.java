@@ -725,7 +725,7 @@ public class ModelFileBuilder
                     .filter(e -> e.getKey() != ItemDisplayContext.NONE)
                     .forEach(e -> display.add(e.getKey().getSerializedName(), e.getValue().get()));
 
-            if (display.size() > 0) {
+            if (!display.isEmpty()) {
                 json.add("display", display);
             }
         }
@@ -777,7 +777,7 @@ public class ModelFileBuilder
 
     private final ResourceLocation _id;
     private final boolean _targetIsItem;
-    private final BiConsumer<ResourceLocation, Supplier<JsonElement>> _sink;
+    private final BiConsumer<@NotNull ResourceLocation, @NotNull Supplier<JsonElement>> _sink;
     private final List<Supplier<JsonElement>> _elements;
     private final Map<ItemDisplayContext, ItemTransformBuilder> _itemTransformations;
     private final List<Supplier<JsonElement>> _itemOverrides;

@@ -21,16 +21,15 @@ package it.zerono.mods.zerocore.lib.client.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import it.zerono.mods.zerocore.internal.Log;
+import it.zerono.mods.zerocore.lib.block.multiblock.IMultiblockPartType;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BlockVariantsModelBuilder implements ICustomModelBuilder {
@@ -120,6 +119,24 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
 
     protected BlockVariantsModel createReplacementModel(int blockCount, boolean ambientOcclusion, boolean guid3D, boolean builtInRenderer) {
         return new BlockVariantsModel(blockCount, ambientOcclusion, guid3D, builtInRenderer);
+    }
+
+    protected void addBlockWithVariants(Function<String, ResourceLocation> modelToReplaceIdGetter,
+                                        Function<String, ResourceLocation> variantModelIdGetter,
+                                        IMultiblockPartType partType, String blockCommonName,
+                                        String... additionalVariantsModelNames) {
+
+        final ResourceLocation modelToReplaceId = modelToReplaceIdGetter.apply(blockCommonName);
+        this.addBlock(partType.getByteHashCode(), modelToReplaceId, 0, false);
+
+        final List<ResourceLocation> variants = Lists.newArrayListWithCapacity(1 + additionalVariantsModelNames.length);
+
+        variants.add(modelToReplaceId);
+        Arrays.stream(additionalVariantsModelNames)
+                .map(variantModelIdGetter)
+                .collect(Collectors.toCollection(() -> variants));
+
+        this.addModels(partType.getByteHashCode(), variants);
     }
 
     //region ICustomModelBuilder

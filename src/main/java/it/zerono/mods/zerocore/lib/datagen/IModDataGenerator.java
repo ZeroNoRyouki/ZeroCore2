@@ -60,7 +60,7 @@ public interface IModDataGenerator {
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey, ITagDataProvider<T> provider);
 
     <T> void addTagsProvider(ResourceKey<? extends Registry<T>> registryKey,
-                             Function<@NotNull T, ResourceKey<T>> elementKeyProvider, IIntrinsicTagDataProvider<T> provider);
+                             Function<@NotNull T, @NotNull ResourceKey<T>> elementKeyProvider, IIntrinsicTagDataProvider<T> provider);
 
     default void addBlockTagsProvider(IIntrinsicTagDataProvider<Block> provider) {
         //noinspection deprecation

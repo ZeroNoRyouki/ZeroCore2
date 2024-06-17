@@ -140,9 +140,9 @@ dependencies {
 //    runtimeOnly "vazkii.patchouli:Patchouli:${project.patchouli_version}-NEOFORGE"
 
     // JEI
-//    compileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
-//    compileOnly("mezz.jei:jei-${project.minecraft_version}-neoforge-api:${project.jei_version}")
-//    runtimeOnly("mezz.jei:jei-${project.minecraft_version}-neoforge:${project.jei_version}")
+    compileOnly("mezz.jei:jei-${project.minecraft_version}-common-api:${project.jei_version}")
+    compileOnly("mezz.jei:jei-${project.minecraft_version}-neoforge-api:${project.jei_version}")
+    runtimeOnly("mezz.jei:jei-${project.minecraft_version}-neoforge:${project.jei_version}")
 }
 
 jar {

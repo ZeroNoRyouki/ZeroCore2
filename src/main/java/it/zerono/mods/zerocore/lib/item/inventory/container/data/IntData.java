@@ -18,26 +18,47 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class IntData
+        extends AbstractData<Integer>
         implements IContainerData {
 
-    public IntData(final IntSupplier getter, final IntConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static IntData immutable(ModContainer container, int value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
-    public static IntData wrap(final int[] array, final int index) {
-        return new IntData(() -> array[index], v -> array[index] = v);
+    public static IntData sampled(int frequency, ModContainer container, Supplier<@NotNull Integer> getter,
+                                  Consumer<@NotNull Integer> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static IntData of(ModContainer container, Supplier<@NotNull Integer> getter,
+                             Consumer<@NotNull Integer> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new IntData(getter, clientSideSetter) : new IntData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static IntData of(ModContainer container, int[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        return of(container, () -> array[index], v -> array[index] = v);
     }
 
     //region IContainerData
@@ -46,7 +67,7 @@ public class IntData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final int current = this._getter.getAsInt();
+        final int current = this.getValue();
 
         if (this._lastValue != current) {
 
@@ -66,8 +87,19 @@ public class IntData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof IntEntry record) {
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<Integer>
+
+    @Nullable
+    @Override
+    public Integer defaultValue() {
+        return 0;
     }
 
     //endregion
@@ -89,8 +121,16 @@ public class IntData
 
     //endregion
 
-    private final IntSupplier _getter;
-    private final IntConsumer _setter;
+    private IntData(Supplier<Integer> getter, Consumer<Integer> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private IntData(Supplier<Integer> getter) {
+
+        super(getter);
+        this._lastValue = 0;
+    }
+
     private int _lastValue;
 
     //endregion

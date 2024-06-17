@@ -18,6 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
+import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.IControl;
 import it.zerono.mods.zerocore.lib.client.gui.IControlContainer;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
@@ -116,6 +117,20 @@ public abstract class AbstractControlContainer
     }
 
     @Override
+    public void setDesiredDimension(DesiredDimension dimension, int value) {
+
+        super.setDesiredDimension(dimension, value);
+        this.setBoundsFromDesiredDimension();
+    }
+
+    @Override
+    public void setDesiredDimension(int width, int height) {
+
+        super.setDesiredDimension(width, height);
+        this.setBoundsFromDesiredDimension();
+    }
+
+    @Override
     public void setBounds(final Rectangle bounds) {
 
         super.setBounds(bounds);
@@ -162,6 +177,14 @@ public abstract class AbstractControlContainer
 
         this._layoutEngine.layout(this);
         this._flags.remove(ContainerFlags.RunLayoutEngine);
+    }
+
+    private void setBoundsFromDesiredDimension() {
+
+        final Rectangle bounds = new Rectangle(this.getBounds().Origin, this.getDesiredDimension(DesiredDimension.Width),
+                this.getDesiredDimension(DesiredDimension.Height));
+
+        this.setBounds(bounds);
     }
 
     private enum ContainerFlags {

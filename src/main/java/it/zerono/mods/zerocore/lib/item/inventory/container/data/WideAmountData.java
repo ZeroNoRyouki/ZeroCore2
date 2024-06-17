@@ -18,7 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.WideAmount;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -28,13 +31,41 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class WideAmountData
+        extends AbstractData<WideAmount>
         implements IContainerData {
 
-    public WideAmountData(final Supplier<@NotNull WideAmount> getter, final Consumer<@NotNull WideAmount> setter) {
+    public static WideAmountData immutable(ModContainer container, WideAmount value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
+    }
 
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = WideAmount.ZERO;
+    public static WideAmountData empty(ModContainer container) {
+        return immutable(container, WideAmount.ZERO);
+    }
+
+    public static WideAmountData sampled(int frequency, ModContainer container, Supplier<@NotNull WideAmount> getter,
+                                         Consumer<@NotNull WideAmount> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static WideAmountData of(ModContainer container, Supplier<@NotNull WideAmount> getter,
+                                    Consumer<@NotNull WideAmount> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new WideAmountData(getter, clientSideSetter) : new WideAmountData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public IBindableData<Double> asDouble() {
+
+        if (null == this._asDoubleBindable) {
+            this._asDoubleBindable = AbstractData.as(0.0, doubleConsumer ->
+                    this.bind(wideAmount -> doubleConsumer.accept(wideAmount.doubleValue())));
+        }
+
+        return this._asDoubleBindable;
     }
 
     //region IContainerData
@@ -43,7 +74,7 @@ public class WideAmountData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final WideAmount current = this._getter.get();
+        final WideAmount current = this.getValue();
 
         if (!this._lastValue.equals(current)) {
 
@@ -63,8 +94,19 @@ public class WideAmountData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof WideAmountEntry record) {
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<WideAmount>
+
+    @Nullable
+    @Override
+    public WideAmount defaultValue() {
+        return WideAmount.ZERO;
     }
 
     //endregion
@@ -86,9 +128,19 @@ public class WideAmountData
 
     //endregion
 
-    private final Supplier<@NotNull WideAmount> _getter;
-    private final Consumer<@NotNull WideAmount> _setter;
+    private WideAmountData(Supplier<WideAmount> getter, Consumer<WideAmount> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private WideAmountData(Supplier<WideAmount> getter) {
+
+        super(getter);
+        this._lastValue = WideAmount.ZERO;
+    }
+
     private WideAmount _lastValue;
+    @Nullable
+    private IBindableData<Double> _asDoubleBindable;
 
     //endregion
 }

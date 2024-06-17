@@ -29,6 +29,7 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.event.Event;
 import it.zerono.mods.zerocore.lib.event.IEvent;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
@@ -73,6 +74,10 @@ public class PanelGroup<Index extends Enum<Index>>
         return Optional.ofNullable(this._activePanel);
     }
 
+    public boolean isPanelIndexValid(Index index) {
+        return this._panels.isIndexValid(index);
+    }
+
     public Optional<Panel> getActivePanel() {
         return this.getActivePanelIndex().flatMap(this._panels::getElement);
     }
@@ -86,6 +91,10 @@ public class PanelGroup<Index extends Enum<Index>>
 
         CodeHelper.optionalIfPresent(this.getActivePanelIndex(), this.getActivePanel(),
                 (index, panel) -> this.PostPanelChange.raise(c -> c.accept(index, panel)));
+    }
+
+    public void bindActivePanel(final IBindableData<Index> bindableValue) {
+        bindableValue.bind(this::setActivePanel);
     }
 
     public void clearActivePanel() {

@@ -18,7 +18,9 @@
 
 package it.zerono.mods.zerocore.lib.client.gui.control;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.compat.patchouli.IPatchouliService;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
@@ -31,12 +33,12 @@ public class HelpButton
     public static HelpButton patchouli(final ModContainerScreen<? extends ModContainer> gui, final String name,
                                        final ResourceLocation bookId, final ResourceLocation entryId, final int pageNum) {
 
-        final HelpButton button = new HelpButton(gui, name);
+        final HelpButton button = new HelpButton(gui, name, "?",
+                () -> IPatchouliService.SERVICE.get().openBookEntry(bookId, entryId, pageNum));
 
         if (IPatchouliService.SERVICE.isModLoaded()) {
 
-            button.Clicked.subscribe((control, mb) -> control.enqueueTask(() ->
-                    IPatchouliService.SERVICE.get().openBookEntry(bookId, entryId, pageNum)));
+            button.Clicked.subscribe(button::onClick);
             button.setTooltips(ImmutableList.of(Component.translatable("zerocore:gui.manual.open")));
 
         } else {
@@ -48,13 +50,48 @@ public class HelpButton
         return button;
     }
 
+    public static HelpButton jeiRecipes(ModContainerScreen<? extends ModContainer> gui, String name,
+                                        String tooltipTranslationKey, Runnable onClick) {
+
+        final HelpButton button = new HelpButton(gui, name, "#", onClick);
+
+        if (CodeHelper.isModLoaded("jei")) {
+
+            button.Clicked.subscribe(button::onClick);
+            button.setTooltips(ImmutableList.of(Component.translatable(tooltipTranslationKey)));
+
+        } else {
+
+            button.setTooltips(ImmutableList.of(Component.translatable("zerocore:gui.jei.missing")));
+            button.setEnabled(false);
+        }
+
+        return button;
+    }
+
     //region internals
 
-    protected HelpButton(final ModContainerScreen<? extends ModContainer> gui, final String name) {
+    protected HelpButton(ModContainerScreen<? extends ModContainer> gui, String name, String label, Runnable onClick) {
 
-        super(gui, name, "?");
+        super(gui, name, label);
+
+        Preconditions.checkNotNull(onClick, "On Click must not be null");
+        this._onClick = onClick;
+
         this.setDesiredDimension(14, 14);
     }
+
+    private void onClick(Button button, int mouseButton) {
+
+        button.enqueueTask(() -> {
+
+            this._onClick.run();
+            this.setMouseOver(false, 0, 0);
+
+        });
+    }
+
+    protected final Runnable _onClick;
 
     //endregion
 }

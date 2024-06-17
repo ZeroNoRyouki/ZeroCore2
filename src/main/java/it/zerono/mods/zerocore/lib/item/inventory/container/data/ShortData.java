@@ -18,25 +18,47 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
-import it.unimi.dsi.fastutil.shorts.ShortConsumer;
-import it.zerono.mods.zerocore.lib.functional.ShortSupplier;
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public class ShortData
+        extends AbstractData<Short>
         implements IContainerData {
 
-    public ShortData(final ShortSupplier getter, final ShortConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static ShortData immutable(ModContainer container, short value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
-    public static ShortData wrap(final short[] array, final int index) {
-        return new ShortData(() -> array[index], v -> array[index] = v);
+    public static ShortData sampled(int frequency, ModContainer container, Supplier<@NotNull Short> getter,
+                                    Consumer<@NotNull Short> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static ShortData of(ModContainer container, Supplier<@NotNull Short> getter,
+                               Consumer<@NotNull Short> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new ShortData(getter, clientSideSetter) : new ShortData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static ShortData of(ModContainer container, short[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        return of(container, () -> array[index], v -> array[index] = v);
     }
 
     //region IContainerData
@@ -45,12 +67,12 @@ public class ShortData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final short current = this._getter.getAsShort();
+        final short current = this.getValue();
 
         if (this._lastValue != current) {
 
             this._lastValue = current;
-            return new ShortEntry(current);
+            return new ShortData.ShortEntry(current);
         }
 
         return null;
@@ -58,15 +80,26 @@ public class ShortData
 
     @Override
     public ISyncedSetEntry getValueFrom(RegistryFriendlyByteBuf buffer) {
-        return ShortEntry.from(buffer);
+        return ShortData.ShortEntry.from(buffer);
     }
 
     @Override
     public void updateFrom(ISyncedSetEntry entry) {
 
-        if (entry instanceof ShortEntry record) {
-            this._setter.accept(record.value);
+        if (entry instanceof ShortData.ShortEntry record) {
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<Short>
+
+    @Nullable
+    @Override
+    public Short defaultValue() {
+        return 0;
     }
 
     //endregion
@@ -88,8 +121,16 @@ public class ShortData
 
     //endregion
 
-    private final ShortSupplier _getter;
-    private final ShortConsumer _setter;
+    private ShortData(Supplier<Short> getter, Consumer<Short> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private ShortData(Supplier<Short> getter) {
+
+        super(getter);
+        this._lastValue = 0;
+    }
+
     private short _lastValue;
 
     //endregion

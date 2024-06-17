@@ -36,4 +36,12 @@ public interface ISensorType<Reader extends IMachineReader>
     boolean isOutput();
 
     String getTranslationBaseName();
+
+    default String getNameTranslationKey() {
+        return this.getTranslationBaseName() + ".title";
+    }
+
+    default String getDescriptionTranslationKey() {
+        return this.getTranslationBaseName() + ".body";
+    }
 }

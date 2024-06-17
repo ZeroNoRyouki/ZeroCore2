@@ -18,8 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.stack.IStackHolderAccess;
 import it.zerono.mods.zerocore.lib.fluid.FluidStackHolder;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.AmountChangedEntry;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.core.NonNullList;
@@ -32,21 +35,58 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class FluidStackData
+        extends AbstractData<FluidStack>
         implements IContainerData {
 
-    public FluidStackData(final Supplier<@NotNull FluidStack> getter, final Consumer<@NotNull FluidStack> setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = FluidStack.EMPTY;
+    public static FluidStackData immutable(ModContainer container, FluidStack value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
-    public static FluidStackData wrap(final NonNullList<FluidStack> list, final int index) {
-        return new FluidStackData(() -> list.get(index), v -> list.set(index, v));
+    public static FluidStackData empty(ModContainer container) {
+        return immutable(container, FluidStack.EMPTY);
     }
 
-    public static FluidStackData wrap(final IStackHolderAccess<FluidStackHolder, FluidStack> holder, final int index) {
-        return new FluidStackData(() -> holder.getStackAt(index), v -> holder.setStackAt(index, v));
+    public static FluidStackData sampled(int frequency, ModContainer container, Supplier<@NotNull FluidStack> getter,
+                                         Consumer<@NotNull FluidStack> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static FluidStackData of(ModContainer container, Supplier<@NotNull FluidStack> getter,
+                                    Consumer<@NotNull FluidStack> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new FluidStackData(getter, clientSideSetter) : new FluidStackData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static FluidStackData of(ModContainer container, NonNullList<FluidStack> list, int index) {
+
+        Preconditions.checkNotNull(list, "List must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < list.size(), "Index must be a valid index for the list.");
+
+        return of(container, () -> list.get(index), v -> list.set(index, v));
+    }
+
+    public static FluidStackData of(ModContainer container, IStackHolderAccess<FluidStackHolder, FluidStack> holder,
+                                    int index) {
+
+        Preconditions.checkNotNull(holder, "Holder must not be null.");
+
+        return of(container, () -> holder.getStackAt(index), v -> holder.setStackAt(index, v));
+
+    }
+
+    public IBindableData<Integer> amount() {
+
+        if (null == this._amountData) {
+            this._amountData = AbstractData.as(0, intConsumer ->
+                    this.bind(stack -> intConsumer.accept(stack.getAmount())));
+        }
+
+        return this._amountData;
     }
 
     //region IContainerData
@@ -86,12 +126,25 @@ public class FluidStackData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof FluidStackEntry record) {
+
             // full stack
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
+
         } else if (entry instanceof AmountChangedEntry record) {
+
             // amount only
-            this._setter.accept(this._getter.get().copyWithAmount(record.amount()));
+
+            this.setClientSideValue(this.getValue().copyWithAmount(record.amount()));
         }
+    }
+
+    //endregion
+    //region IBindableData<ByteConsumer>
+
+    public FluidStack defaultValue() {
+        return FluidStack.EMPTY;
     }
 
     //endregion
@@ -116,9 +169,18 @@ public class FluidStackData
 
     //endregion
 
-    private final Supplier<@NotNull FluidStack> _getter;
-    private final Consumer<@NotNull FluidStack> _setter;
+    private FluidStackData(Supplier<FluidStack> getter, Consumer<FluidStack> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private FluidStackData(Supplier<FluidStack> getter) {
+
+        super(getter);
+        this._lastValue = FluidStack.EMPTY;
+    }
+
     private FluidStack _lastValue;
+    private IBindableData<Integer> _amountData;
 
     //endregion
 }

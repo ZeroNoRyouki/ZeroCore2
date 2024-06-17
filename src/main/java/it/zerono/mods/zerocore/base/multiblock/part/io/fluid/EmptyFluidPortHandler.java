@@ -54,7 +54,7 @@ public class EmptyFluidPortHandler
     }
 
     @Override
-    public void update(Function<@NotNull IoDirection, IFluidHandler> handlerProvider) {
+    public void update(Function<@NotNull IoDirection, @NotNull IFluidHandler> handlerProvider) {
     }
 
     //endregion

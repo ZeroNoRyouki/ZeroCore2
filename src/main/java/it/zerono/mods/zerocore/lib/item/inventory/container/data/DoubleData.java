@@ -18,26 +18,47 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class DoubleData
+        extends AbstractData<Double>
         implements IContainerData {
 
-    public DoubleData(final DoubleSupplier getter, final DoubleConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0.0;
+    public static DoubleData immutable(ModContainer container, double value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
-    public static DoubleData wrap(final double[] array, final int index) {
-        return new DoubleData(() -> array[index], v -> array[index] = v);
+    public static DoubleData sampled(int frequency, ModContainer container, Supplier<@NotNull Double> getter,
+                                     Consumer<@NotNull Double> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static DoubleData of(ModContainer container, Supplier<@NotNull Double> getter,
+                                Consumer<@NotNull Double> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new DoubleData(getter, clientSideSetter) : new DoubleData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static DoubleData of(ModContainer container, double[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        return of(container, () -> array[index], v -> array[index] = v);
     }
 
     //region IContainerData
@@ -46,7 +67,7 @@ public class DoubleData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final double current = this._getter.getAsDouble();
+        final double current = this.getValue();
 
         if (this._lastValue != current) {
 
@@ -66,8 +87,19 @@ public class DoubleData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof DoubleEntry record) {
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<Double>
+
+    @Nullable
+    @Override
+    public Double defaultValue() {
+        return 0.0;
     }
 
     //endregion
@@ -89,8 +121,16 @@ public class DoubleData
 
     //endregion
 
-    private final DoubleSupplier _getter;
-    private final DoubleConsumer _setter;
+    private DoubleData(Supplier<Double> getter, Consumer<Double> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private DoubleData(Supplier<Double> getter) {
+
+        super(getter);
+        this._lastValue = 0;
+    }
+
     private double _lastValue;
 
     //endregion

@@ -18,26 +18,47 @@
 
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
+import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
+import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class LongData
+        extends AbstractData<Long>
         implements IContainerData {
 
-    public LongData(final LongSupplier getter, final LongConsumer setter) {
-
-        this._getter = getter;
-        this._setter = setter;
-        this._lastValue = 0;
+    public static LongData immutable(ModContainer container, long value) {
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
-    public static LongData wrap(final long[] array, final int index) {
-        return new LongData(() -> array[index], v -> array[index] = v);
+    public static LongData sampled(int frequency, ModContainer container, Supplier<@NotNull Long> getter,
+                                   Consumer<@NotNull Long> clientSideSetter) {
+        return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static LongData of(ModContainer container, Supplier<@NotNull Long> getter,
+                              Consumer<@NotNull Long> clientSideSetter) {
+
+        Preconditions.checkNotNull(container, "Container must not be null.");
+
+        final var data = container.isClientSide() ? new LongData(getter, clientSideSetter) : new LongData(getter);
+
+        container.addBindableData(data);
+        return data;
+    }
+
+    public static LongData of(ModContainer container, long[] array, int index) {
+
+        Preconditions.checkNotNull(array, "Array must not be null.");
+        Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
+
+        return of(container, () -> array[index], v -> array[index] = v);
     }
 
     //region IContainerData
@@ -46,7 +67,7 @@ public class LongData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final long current = this._getter.getAsLong();
+        final long current = this.getValue();
 
         if (this._lastValue != current) {
 
@@ -66,8 +87,19 @@ public class LongData
     public void updateFrom(ISyncedSetEntry entry) {
 
         if (entry instanceof LongEntry record) {
-            this._setter.accept(record.value);
+
+            this.setClientSideValue(record.value);
+            this.notify(record.value);
         }
+    }
+
+    //endregion
+    //region IBindableData<Long>
+
+    @Nullable
+    @Override
+    public Long defaultValue() {
+        return 0L;
     }
 
     //endregion
@@ -89,8 +121,16 @@ public class LongData
 
     //endregion
 
-    private final LongSupplier _getter;
-    private final LongConsumer _setter;
+    private LongData(Supplier<Long> getter, Consumer<Long> clientSideSetter) {
+        super(getter, clientSideSetter);
+    }
+
+    private LongData(Supplier<Long> getter) {
+
+        super(getter);
+        this._lastValue = 0;
+    }
+
     private long _lastValue;
 
     //endregion

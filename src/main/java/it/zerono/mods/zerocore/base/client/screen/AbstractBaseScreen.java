@@ -1,6 +1,6 @@
 /*
  *
- * AbstractScreen.java
+ * AbstractBaseScreen.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProvider, C extends ModTileContainer<T>>
+public abstract class AbstractBaseScreen<T extends AbstractModBlockEntity & MenuProvider, C extends ModTileContainer<T>>
         extends ModTileContainerScreen<T, C> {
 
     public static final int DEFAULT_GUI_WIDTH = 224;
@@ -65,20 +65,20 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
             .withColor(ChatFormatting.DARK_PURPLE)
             .withItalic(true);
 
-    protected AbstractScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
-                             final Component title, final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
+    protected AbstractBaseScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
+                                 final Component title, final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
         this(container, inventory, inventoryUsage, title, DEFAULT_GUI_WIDTH, DEFAULT_GUI_HEIGHT, mainTextureSupplier.get());
     }
 
-    protected AbstractScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
-                             final Component title, final int guiWidth, final int guiHeight,
-                             final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
+    protected AbstractBaseScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
+                                 final Component title, final int guiWidth, final int guiHeight,
+                                 final Supplier<@NotNull SpriteTextureMap> mainTextureSupplier) {
         this(container, inventory, inventoryUsage, title, guiWidth, guiHeight, mainTextureSupplier.get());
     }
 
-    protected AbstractScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
-                             final Component title, final int guiWidth, final int guiHeight,
-                             final SpriteTextureMap mainTexture) {
+    protected AbstractBaseScreen(final C container, final Inventory inventory, final PlayerInventoryUsage inventoryUsage,
+                                 final Component title, final int guiWidth, final int guiHeight,
+                                 final SpriteTextureMap mainTexture) {
 
         super(container, inventory, title, guiWidth, guiHeight);
         this._mainTextMap = mainTexture;
@@ -110,7 +110,10 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
         }
 
         this._contentPanel = new Panel(this, "content");
-        this._helpButton = null;
+        this._contentPanel.setLayoutEngine(new FixedLayoutEngine());
+        this.setContentBounds(0, 0);
+
+        this._helpButton = this._recipesButton = null;
     }
 
     protected void addControl(final IControl control) {
@@ -127,6 +130,27 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
 
     protected void setContentLayoutEngine(final ILayoutEngine engine) {
         this._contentPanel.setLayoutEngine(engine);
+    }
+
+    protected void setContentBounds(int horizontalMargin, int verticalMargin) {
+        this.setContentBounds(horizontalMargin, verticalMargin, this.getGuiWidth(), this.getGuiHeight());
+    }
+
+    protected void setContentBounds(int horizontalMargin, int verticalMargin, int width, int height) {
+
+        width = Math.min(width - 2 * horizontalMargin, this.getGuiWidth());
+        height = Math.min(height - 2 * verticalMargin - TITLE_PANEL_HEIGHT, this.getGuiHeight());
+
+        this._contentPanel.setDesiredDimension(width, height);
+        this._contentPanel.setLayoutEngineHint(FixedLayoutEngine.hint(horizontalMargin, TITLE_PANEL_HEIGHT + verticalMargin, width, height));
+    }
+
+    protected int getContentWidth() {
+        return this._contentPanel.getDesiredDimension(DesiredDimension.Width);
+    }
+
+    protected int getContentHeight() {
+        return this._contentPanel.getDesiredDimension(DesiredDimension.Height);
     }
 
     protected void addPatchouliHelpButton(final ResourceLocation bookId, final ResourceLocation entryId, final int pageNum) {
@@ -152,6 +176,11 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
 
         withOverlay = standardSprite.copyWith(BaseIcons.Button16x16DisabledOverlay.get());
         button.setIconForState(withOverlay, standardState.getDisabled());
+
+    }
+
+    protected void addRecipesButton(Runnable onClick, String tooltipTranslationKey) {
+        this._recipesButton = this.createRecipesButton(onClick, tooltipTranslationKey);
     }
 
     @Nullable
@@ -190,7 +219,6 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
 
         final Panel mainPanel = new Panel(this, "mainPanel");
         final Panel titlePanel = new Panel(this, "titlePanel");
-        final int contentHeight = guiHeight - TITLE_PANEL_HEIGHT;
 
         // - main panel
 
@@ -218,11 +246,22 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
             titleWidth -= 10;
         }
 
+        int helpButtonsX = guiWidth - 18;
+
         if (null != this._helpButton) {
 
-            this._helpButton.setLayoutEngineHint(FixedLayoutEngine.hint(guiWidth - 18, 6, 12, 12));
+            this._helpButton.setLayoutEngineHint(FixedLayoutEngine.hint(helpButtonsX, 6, 12, 12));
             titlePanel.addControl(this._helpButton);
             titleWidth -= 12;
+            helpButtonsX -= 12 + 1;
+        }
+
+        if (null != this._recipesButton) {
+
+            this._recipesButton.setLayoutEngineHint(FixedLayoutEngine.hint(helpButtonsX, 6, 12, 12));
+            titlePanel.addControl(this._recipesButton);
+            titleWidth -= 12;
+            helpButtonsX -= 12 + 1;
         }
 
         final Label title = new Label(this, "title", this.getTitle());
@@ -238,11 +277,6 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
         // MC calls the init() method (witch rise onScreenCreated()) also when the main windows is resized: clear
         // the controls in the content panel to avoid duplications
         this._contentPanel.removeControls();
-
-        this._contentPanel.setLayoutEngine(new FixedLayoutEngine());
-        this._contentPanel.setDesiredDimension(DesiredDimension.Height, contentHeight);
-        this._contentPanel.setDesiredDimension(DesiredDimension.Width, guiWidth);
-        this._contentPanel.setLayoutEngineHint(FixedLayoutEngine.hint(0, TITLE_PANEL_HEIGHT, guiWidth, contentHeight));
 
         // create main window
 
@@ -271,9 +305,9 @@ public abstract class AbstractScreen<T extends AbstractModBlockEntity & MenuProv
     private final ISprite _invMainSprite;
     private final ISprite _invHotBarSprite;
     private final ISprite _invSingleSprite;
-
     private final IControlContainer _contentPanel;
     private IControl _helpButton;
+    private IControl _recipesButton;
 
     //endregion
 }

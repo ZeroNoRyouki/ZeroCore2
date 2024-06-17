@@ -1,4 +1,3 @@
-package it.zerono.mods.zerocore.base.client.screen.control;
 /*
  * OnOff
  *
@@ -16,35 +15,50 @@ package it.zerono.mods.zerocore.base.client.screen.control;
  *
  */
 
+package it.zerono.mods.zerocore.base.client.screen.control;
+
+import it.zerono.mods.zerocore.lib.client.gui.DesiredDimension;
 import it.zerono.mods.zerocore.lib.client.gui.ModContainerScreen;
 import it.zerono.mods.zerocore.lib.client.gui.control.AbstractCompositeControl;
 import it.zerono.mods.zerocore.lib.client.gui.control.SwitchButton;
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class OnOff
         extends AbstractCompositeControl {
 
     public OnOff(final ModContainerScreen<? extends ModContainer> gui,
-                 final Supplier<Boolean> activeStateSupplier, final Consumer<SwitchButton> activeStateChangedCallback,
+                 final IBindableData<Boolean> bindableState, final Consumer<SwitchButton> activeStateChangedCallback,
+                 final Component onTooltip, final Component offTooltip) {
+        this(gui, 25, 16, bindableState, activeStateChangedCallback, onTooltip, offTooltip);
+    }
+
+    public OnOff(final ModContainerScreen<? extends ModContainer> gui, int buttonWidth, int buttonHeight,
+                 final IBindableData<Boolean> bindableState, final Consumer<SwitchButton> activeStateChangedCallback,
                  final Component onTooltip, final Component offTooltip) {
 
         super(gui, "onoff");
-        this.setDesiredDimension(50, 16);
+        this.setDesiredDimension(2 * buttonWidth, buttonHeight);
 
         this._on = new SwitchButton(gui, "on", "ON", false, "onoff");
+        this._on.setDesiredDimension(buttonWidth, buttonHeight);
         this._on.Activated.subscribe(activeStateChangedCallback);
         this._on.Deactivated.subscribe(activeStateChangedCallback);
         this._on.setTooltips(onTooltip);
-        gui.addDataBinding(activeStateSupplier, this._on::setActive);
 
         this._off = new SwitchButton(gui, "off", "OFF", true, "onoff");
+        this._off.setDesiredDimension(buttonWidth, buttonHeight);
         this._off.setTooltips(offTooltip);
-        gui.addDataBinding(activeStateSupplier, active -> this._off.setActive(!active));
+
+        bindableState.bind(active -> {
+
+            this._on.setActive(active);
+            this._off.setActive(!active);
+        });
 
         this.addChildControl(this._on, this._off);
     }
@@ -55,8 +69,14 @@ public class OnOff
     public void setBounds(final Rectangle bounds) {
 
         super.setBounds(bounds);
-        this._on.setBounds(new Rectangle(0, 0, 25, 16));
-        this._off.setBounds(new Rectangle(25, 0, 25, 16));
+
+        this._on.setBounds(new Rectangle(0, 0,
+                this._on.getDesiredDimension(DesiredDimension.Width),
+                this._on.getDesiredDimension(DesiredDimension.Height)));
+
+        this._off.setBounds(new Rectangle(this._on.getDesiredDimension(DesiredDimension.Width), 0,
+                this._off.getDesiredDimension(DesiredDimension.Width),
+                this._off.getDesiredDimension(DesiredDimension.Height)));
     }
 
     //endregion

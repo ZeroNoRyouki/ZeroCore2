@@ -50,7 +50,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 public class RichText
-    implements IRichText {
+        implements IRichText {
 
     public static final RichText EMPTY = new RichText();
     public static final int NO_MAX_WIDTH = -1;
@@ -442,7 +442,6 @@ public class RichText
 
             // splits the lines in chunks of the requested max width, also splitting lines at every \n
 
-            //noinspection UnstableApiUsage
             return this._lines.stream()
                     .map(this._objects.isEmpty() ? this::splitPlainText : this::splitFormattedText)
                     .flatMap(Collection::stream)
@@ -456,7 +455,6 @@ public class RichText
             if (textProperties.isEmpty()) {
                 return EMPTY_LINE;
             } else {
-                //noinspection UnstableApiUsage
                 return textProperties.stream()
                         .map(this::line)
                         .collect(ImmutableList.toImmutableList());
@@ -509,7 +507,7 @@ public class RichText
 
                             // replace the placeholder with the corresponding object
 
-                            if (sb.length() > 0) {
+                            if (!sb.isEmpty()) {
 
                                 // save the line so far
                                 chunks.add(this.chunk(sb, component.getStyle()));
@@ -526,7 +524,7 @@ public class RichText
                     ++index;
                 }
 
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     chunks.add(this.chunk(sb, component.getStyle()));
                 }
 
