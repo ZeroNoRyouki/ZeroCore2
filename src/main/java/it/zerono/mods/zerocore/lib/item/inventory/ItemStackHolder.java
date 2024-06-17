@@ -37,8 +37,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiPredicate;
 
 public class ItemStackHolder
@@ -116,7 +116,7 @@ public class ItemStackHolder
      * @param slot Slot to query
      * @return ItemStack in given slot. Empty Itemstack if the slot is empty.
      **/
-    @Nonnull
+    @NotNull
     @Override
     public ItemStack getStackInSlot(final int slot) {
 
@@ -138,7 +138,7 @@ public class ItemStackHolder
      * May be the same as the input ItemStack if unchanged, otherwise a new ItemStack.
      * The returned ItemStack can be safely modified after.
      **/
-    @Nonnull
+    @NotNull
     @Override
     public ItemStack insertItem(final int slot, final ItemStack stack, final boolean simulate) {
 
@@ -201,7 +201,7 @@ public class ItemStackHolder
      * @return ItemStack extracted from the slot, must be empty if nothing can be extracted.
      * The returned ItemStack can be safely modified after, so item handlers should return a new or copied stack.
      **/
-    @Nonnull
+    @NotNull
     @Override
     public ItemStack extractItem(final int slot, final int amount, final boolean simulate) {
 

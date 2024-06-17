@@ -25,13 +25,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**
  * An inventory based Filter with ItemStack defined conditions
- *
+ * <p>
  * Each inventory "slot" is represented by an ItemStackFilterCondition
  */
 @SuppressWarnings({"WeakerAccess"})
@@ -290,12 +290,12 @@ public class FilterInventory extends Filter implements IItemHandlerModifiable {
         fm.registerFactory(COMPONENT_ID, new IFilterComponentFactory<>() {
 
             @Override
-            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId) {
+            public Optional<FilterInventory> createComponent(@NotNull ResourceLocation componentId) {
                 return Optional.of(new FilterInventory(1));
             }
 
             @Override
-            public Optional<FilterInventory> createComponent(@Nonnull ResourceLocation componentId,
+            public Optional<FilterInventory> createComponent(@NotNull ResourceLocation componentId,
                                                              HolderLookup.Provider registries, CompoundTag nbt) {
                 return Optional.empty();
             }

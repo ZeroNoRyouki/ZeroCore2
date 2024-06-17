@@ -29,7 +29,7 @@
 //import vazkii.patchouli.client.book.gui.GuiBookEntry;
 //import vazkii.patchouli.client.book.template.TemplateComponent;
 //
-//import javax.annotation.Nullable;
+//import org.jetbrains.annotations.Nullable;
 //import java.lang.reflect.Field;
 //
 //public abstract class AbstractStandardPageComponent<PageType extends BookPage>

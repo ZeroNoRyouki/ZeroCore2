@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.compat.computer;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
 public interface IComputerMethodHandler<Peripheral extends ComputerPeripheral<Peripheral>> {

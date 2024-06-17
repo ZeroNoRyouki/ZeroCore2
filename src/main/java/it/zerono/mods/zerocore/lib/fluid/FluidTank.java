@@ -30,8 +30,8 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiPredicate;
 
 public class FluidTank
@@ -89,7 +89,7 @@ public class FluidTank
     /**
      * @return FluidStack representing the fluid in the tank, null if the tank is empty.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack getFluid() {
         return this._content;
@@ -149,7 +149,7 @@ public class FluidTank
      * @param tank Tank to query.
      * @return FluidStack in a given tank. FluidStack.EMPTY if the tank is empty.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack getFluidInTank(final int tank) {
         return this.getFluid();
@@ -245,7 +245,7 @@ public class FluidTank
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(final FluidStack resource, final FluidAction action) {
 
@@ -266,7 +266,7 @@ public class FluidTank
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(final int maxDrain, final FluidAction action) {
 

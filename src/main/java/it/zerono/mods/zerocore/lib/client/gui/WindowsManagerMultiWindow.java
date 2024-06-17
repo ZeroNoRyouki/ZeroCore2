@@ -20,8 +20,8 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import com.google.common.collect.Lists;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;

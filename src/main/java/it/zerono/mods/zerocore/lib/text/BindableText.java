@@ -25,9 +25,8 @@ import it.zerono.mods.zerocore.lib.item.inventory.container.data.IBindableData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -87,7 +86,7 @@ public abstract class BindableText
 
     //region NonNullSupplier<Component>
 
-    @Nonnull
+    @NotNull
     @Override
     public Component get() {
 

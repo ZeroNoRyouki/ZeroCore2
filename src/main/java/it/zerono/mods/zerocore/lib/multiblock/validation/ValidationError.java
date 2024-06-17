@@ -47,8 +47,7 @@ import it.zerono.mods.zerocore.lib.IDebuggable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.LogicalSide;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class ValidationError implements IDebuggable {
 

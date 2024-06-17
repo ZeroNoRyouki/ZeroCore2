@@ -18,7 +18,7 @@
 
 package it.zerono.mods.zerocore.lib.client.gui;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public interface IWindow {

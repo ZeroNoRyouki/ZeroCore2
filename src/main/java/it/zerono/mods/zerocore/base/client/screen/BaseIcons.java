@@ -25,7 +25,6 @@ import it.zerono.mods.zerocore.lib.client.gui.sprite.ISpriteTextureMap;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.SpriteTextureMap;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public enum BaseIcons
@@ -68,7 +67,7 @@ public enum BaseIcons
     //region NonNullSupplier<ISprite>
 
     @Override
-    @Nonnull
+    @NotNull
     public ISprite get() {
         return this._sprite;
     }

@@ -24,8 +24,7 @@ import it.zerono.mods.zerocore.lib.data.stack.OperationMode;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 
 public class IndexedFluidHandlerForwarder<Index extends Enum<Index>>
         implements IFluidHandler {
@@ -108,7 +107,7 @@ public class IndexedFluidHandlerForwarder<Index extends Enum<Index>>
      * (Basically, is a given fluid EVER allowed in this tank?) Return FALSE if the answer to that question is 'no.'
      */
     @Override
-    public boolean isFluidValid(int tank, @Nonnull FluidStack stack) {
+    public boolean isFluidValid(int tank, @NotNull FluidStack stack) {
         return this.getContainer().isStackValidForIndex(this.getIndex(), stack);
     }
 
@@ -137,7 +136,7 @@ public class IndexedFluidHandlerForwarder<Index extends Enum<Index>>
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
 
@@ -158,7 +157,7 @@ public class IndexedFluidHandlerForwarder<Index extends Enum<Index>>
      * @return FluidStack representing the Fluid and amount that was (or would have been, if
      * simulated) drained.
      */
-    @Nonnull
+    @NotNull
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
 

@@ -42,8 +42,8 @@
 package it.zerono.mods.zerocore.lib.multiblock;
 
 import net.minecraft.core.BlockPos;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 

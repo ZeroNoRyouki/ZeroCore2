@@ -20,10 +20,6 @@ package it.zerono.mods.zerocore.lib.client.gui;
 
 import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Supplier;
 
 public interface IRichText {
 

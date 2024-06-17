@@ -48,9 +48,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.util.FakePlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.*;
@@ -543,7 +543,7 @@ public abstract class AbstractModBlockEntity
         }
     }
 
-    @Nonnull
+    @NotNull
     @Override
     public BlockState buildUpdatedState(BlockState currentState, BlockGetter reader, BlockPos position,
                                         @Nullable BlockEntity tileEntity) {

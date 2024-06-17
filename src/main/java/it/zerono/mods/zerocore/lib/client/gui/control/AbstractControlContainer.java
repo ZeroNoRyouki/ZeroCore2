@@ -30,8 +30,8 @@ import it.zerono.mods.zerocore.lib.data.geometry.Rectangle;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -42,21 +42,21 @@ public abstract class AbstractControlContainer
     //region IControlContainer
 
     @Override
-    public void addControl(@Nonnull IControl control) {
+    public void addControl(@NotNull IControl control) {
 
         this.addChildControl(control);
         this.requestLayoutRun();
     }
 
     @Override
-    public void addControl(@Nonnull IControl... controls) {
+    public void addControl(@NotNull IControl... controls) {
 
         this.addChildControl(controls);
         this.requestLayoutRun();
     }
 
     @Override
-    public void removeControl(@Nonnull IControl control) {
+    public void removeControl(@NotNull IControl control) {
 
         this.removeChildControl(control);
         this.requestLayoutRun();

@@ -2,8 +2,8 @@ package it.zerono.mods.zerocore.lib.fluid;
 
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 public class SimpleFluidTypeRenderProperties
