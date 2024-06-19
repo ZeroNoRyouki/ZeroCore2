@@ -43,6 +43,10 @@ public class BlockPosData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static BlockPosData sampled(int frequency, ModContainer container, Supplier<@NotNull BlockPos> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static BlockPosData of(ModContainer container, Supplier<@NotNull BlockPos> getter,
                                   Consumer<@NotNull BlockPos> clientSideSetter) {
 
@@ -52,6 +56,10 @@ public class BlockPosData
 
         container.addBindableData(data);
         return data;
+    }
+
+    public static BlockPosData of(ModContainer container, Supplier<@NotNull BlockPos> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     //region IContainerData

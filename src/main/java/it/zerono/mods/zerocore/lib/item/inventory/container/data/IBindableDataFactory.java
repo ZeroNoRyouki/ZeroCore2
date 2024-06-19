@@ -19,12 +19,11 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 @FunctionalInterface
 public interface IBindableDataFactory<T> {
 
-    IBindableData<T> create(ModContainer container, boolean isClientSide, Supplier<@NotNull Supplier<T>> serverSideGetter);
+    IBindableData<T> create(ModContainer container, Supplier<T> getter);
 }

@@ -42,6 +42,10 @@ public class IntData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static IntData sampled(int frequency, ModContainer container, Supplier<@NotNull Integer> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static IntData of(ModContainer container, Supplier<@NotNull Integer> getter,
                              Consumer<@NotNull Integer> clientSideSetter) {
 
@@ -59,6 +63,10 @@ public class IntData
         Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
 
         return of(container, () -> array[index], v -> array[index] = v);
+    }
+
+    public static IntData of(ModContainer container, Supplier<@NotNull Integer> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     //region IContainerData

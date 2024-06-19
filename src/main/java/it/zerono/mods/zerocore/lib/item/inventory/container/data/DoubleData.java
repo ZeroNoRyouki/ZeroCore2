@@ -42,6 +42,10 @@ public class DoubleData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static DoubleData sampled(int frequency, ModContainer container, Supplier<@NotNull Double> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static DoubleData of(ModContainer container, Supplier<@NotNull Double> getter,
                                 Consumer<@NotNull Double> clientSideSetter) {
 
@@ -59,6 +63,10 @@ public class DoubleData
         Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
 
         return of(container, () -> array[index], v -> array[index] = v);
+    }
+
+    public static DoubleData of(ModContainer container, Supplier<@NotNull Double> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     //region IContainerData

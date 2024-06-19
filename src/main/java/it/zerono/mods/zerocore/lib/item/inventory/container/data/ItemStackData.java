@@ -53,6 +53,10 @@ public class ItemStackData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static ItemStackData sampled(int frequency, ModContainer container, Supplier<@NotNull ItemStack> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static ItemStackData of(ModContainer container, Supplier<@NotNull ItemStack> getter,
                                    Consumer<@NotNull ItemStack> clientSideSetter) {
 
@@ -86,6 +90,10 @@ public class ItemStackData
         Preconditions.checkNotNull(holder, "Holder must not be null.");
 
         return of(container, () -> holder.getStackAt(index), v -> holder.setStackAt(index, v));
+    }
+
+    public static ItemStackData of(ModContainer container, Supplier<@NotNull ItemStack> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     public IBindableData<Integer> amount() {

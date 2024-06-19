@@ -43,6 +43,11 @@ public class EnumData<T extends Enum<T>>
         return of(container, enumClass, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static <T extends Enum<T>> EnumData<T> sampled(int frequency, ModContainer container, Class<T> enumClass,
+                                                          Supplier<@NotNull T> getter) {
+        return of(container, enumClass, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static <T extends Enum<T>> EnumData<T> of(ModContainer container, Class<T> enumClass,
                                                      Supplier<@NotNull T> getter,
                                                      Consumer<@NotNull T> clientSideSetter) {
@@ -53,6 +58,10 @@ public class EnumData<T extends Enum<T>>
 
         container.addBindableData(data);
         return data;
+    }
+
+    public static <T extends Enum<T>> EnumData<T> of(ModContainer container, Class<T> enumClass, Supplier<@NotNull T> getter) {
+        return of(container, enumClass, getter, CodeHelper.emptyConsumer());
     }
 
     //region IContainerData

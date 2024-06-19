@@ -47,6 +47,10 @@ public class WideAmountData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static WideAmountData sampled(int frequency, ModContainer container, Supplier<@NotNull WideAmount> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static WideAmountData of(ModContainer container, Supplier<@NotNull WideAmount> getter,
                                     Consumer<@NotNull WideAmount> clientSideSetter) {
 
@@ -56,6 +60,10 @@ public class WideAmountData
 
         container.addBindableData(data);
         return data;
+    }
+
+    public static WideAmountData of(ModContainer container, Supplier<@NotNull WideAmount> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     public IBindableData<Double> asDouble() {

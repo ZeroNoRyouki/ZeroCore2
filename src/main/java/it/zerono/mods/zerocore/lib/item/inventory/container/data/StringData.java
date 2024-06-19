@@ -49,6 +49,11 @@ public class StringData
         return of(container, maxLength, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static StringData sampled(int frequency, ModContainer container, int maxLength,
+                                     Supplier<@NotNull String> getter) {
+        return of(container, maxLength, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static StringData of(ModContainer container, int maxLength, Supplier<@NotNull String> getter,
                                 Consumer<@NotNull String> clientSideSetter) {
 
@@ -59,6 +64,10 @@ public class StringData
 
         container.addBindableData(data);
         return data;
+    }
+
+    public static StringData of(ModContainer container, int maxLength, Supplier<@NotNull String> getter) {
+        return of(container, maxLength, getter, CodeHelper.emptyConsumer());
     }
 
     public static StringData of(ModContainer container, int maxLength, String[] array, int index) {

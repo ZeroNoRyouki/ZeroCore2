@@ -42,6 +42,10 @@ public class ShortData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static ShortData sampled(int frequency, ModContainer container, Supplier<@NotNull Short> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static ShortData of(ModContainer container, Supplier<@NotNull Short> getter,
                                Consumer<@NotNull Short> clientSideSetter) {
 
@@ -59,6 +63,10 @@ public class ShortData
         Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
 
         return of(container, () -> array[index], v -> array[index] = v);
+    }
+
+    public static ShortData of(ModContainer container, Supplier<@NotNull Short> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     //region IContainerData

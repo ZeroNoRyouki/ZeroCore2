@@ -51,6 +51,10 @@ public class FluidStackData
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
     }
 
+    public static FluidStackData sampled(int frequency, ModContainer container, Supplier<@NotNull FluidStack> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
+    }
+
     public static FluidStackData of(ModContainer container, Supplier<@NotNull FluidStack> getter,
                                     Consumer<@NotNull FluidStack> clientSideSetter) {
 
@@ -79,6 +83,10 @@ public class FluidStackData
 
     }
 
+    public static FluidStackData of(ModContainer container, Supplier<@NotNull FluidStack> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
+    }
+
     public IBindableData<Integer> amount() {
 
         if (null == this._amountData) {
@@ -95,7 +103,7 @@ public class FluidStackData
     @Nullable
     public ISyncedSetEntry getChangedValue() {
 
-        final FluidStack current = this._getter.get();
+        final FluidStack current = this.getValue();
 
         if (this._lastValue.isEmpty() && current.isEmpty()) {
             return null;

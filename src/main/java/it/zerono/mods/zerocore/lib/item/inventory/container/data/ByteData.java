@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data;
 
 import com.google.common.base.Preconditions;
+import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ISyncedSetEntry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -33,12 +34,16 @@ public class ByteData
         implements IContainerData {
 
     public static ByteData immutable(ModContainer container, byte value) {
-        return of(container, () -> value, $ -> {});
+        return of(container, () -> value, CodeHelper.emptyConsumer());
     }
 
     public static ByteData sampled(int frequency, ModContainer container, Supplier<@NotNull Byte> getter,
                                       Consumer<@NotNull Byte> clientSideSetter) {
         return of(container, new Sampler<>(frequency, getter), clientSideSetter);
+    }
+
+    public static ByteData sampled(int frequency, ModContainer container, Supplier<@NotNull Byte> getter) {
+        return of(container, new Sampler<>(frequency, getter), CodeHelper.emptyConsumer());
     }
 
     public static ByteData of(ModContainer container, Supplier<@NotNull Byte> getter,
@@ -58,6 +63,10 @@ public class ByteData
         Preconditions.checkArgument(index >= 0 && index < array.length, "Index must be a valid index for the array.");
 
         return of(container, () -> array[index], v -> array[index] = v);
+    }
+
+    public static ByteData of(ModContainer container, Supplier<@NotNull Byte> getter) {
+        return of(container, getter, CodeHelper.emptyConsumer());
     }
 
     //region
