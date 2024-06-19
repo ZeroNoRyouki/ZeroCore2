@@ -78,8 +78,8 @@ public class ModContainer
         this._registeredInventories = Maps.newHashMap();
         this._inventorySlotsGroups = Maps.newHashMap();
         this._player = playerInventory.player;
-        this._containerDataHandler = new ContainerDataHandler(windowId);
-        this._isClientSide = isClientSide;
+        this._isClientSide = isClientSide; // always initialize before _containerDataHandler
+        this._containerDataHandler = new ContainerDataHandler(this);
     }
 
     public static ModContainer empty(boolean isClientSide, final MenuType<?> type, final int windowId,
@@ -180,6 +180,10 @@ public class ModContainer
 
     public ContainerDataHandler getContainerDataHandler() {
         return this._containerDataHandler;
+    }
+
+    public void onScreenOpened() {
+        this.getContainerDataHandler().onScreenOpened();
     }
 
     //region Container

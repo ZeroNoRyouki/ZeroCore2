@@ -360,6 +360,13 @@ public class ModContainerScreen<C extends ModContainer>
         return false;
     }
 
+    @Override
+    public void added() {
+
+        super.added();
+        Minecraft.getInstance().tell(() -> this.getMenu().onScreenOpened());
+    }
+
     /**
      * Called when the screen is unloaded. Used to disable keyboard repeat events
      */

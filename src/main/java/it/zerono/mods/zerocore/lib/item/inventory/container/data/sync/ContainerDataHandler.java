@@ -1,31 +1,47 @@
 package it.zerono.mods.zerocore.lib.item.inventory.container.data.sync;
 
 import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectArrayMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMaps;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Lib;
+import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
 import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class ContainerDataHandler {
 
-    public ContainerDataHandler(int containerId) {
+    public static void registerPackets(PayloadRegistrar registrar) {
 
-        Preconditions.checkArgument(containerId >= 0, "Container ID must be greater or equal to zero");
+        registrar.playToClient(ContainerDataHandler.ContainerSyncPacket.TYPE,
+                ContainerDataHandler.ContainerSyncPacket.STREAM_CODEC,
+                ContainerDataHandler.ContainerSyncPacket::handlePacket);
 
-        this._containerId = containerId;
+        registrar.playToServer(ContainerDataHandler.ContainerSyncAckPacket.TYPE,
+                ContainerDataHandler.ContainerSyncAckPacket.STREAM_CODEC,
+                ContainerDataHandler.ContainerSyncAckPacket::handlePacket);
+    }
+
+    public ContainerDataHandler(ModContainer container) {
+
+        Preconditions.checkNotNull(container, "Container must not be null");
+
+        this._container = container;
         this._data = new ObjectArrayList<>(8);
+        this._canSendUpdates = false;
     }
 
     public void add(IContainerData datum) {
@@ -39,7 +55,7 @@ public class ContainerDataHandler {
 
     public void broadcastChanges(ServerPlayer player) {
 
-        if (!this._data.isEmpty()) {
+        if (this._canSendUpdates && !this._data.isEmpty()) {
 
             final var syncSet = this.getUpdates();
 
@@ -47,8 +63,12 @@ public class ContainerDataHandler {
                 return;
             }
 
-            Lib.NETWORK_HANDLER.sendToPlayer(player, new ContainerSyncPacket(syncSet));
+            ContainerSyncPacket.send(player, syncSet);
         }
+    }
+
+    public void onScreenOpened() {
+        ContainerSyncAckPacket.send(this._container.containerId);
     }
 
     //region Sync packet
@@ -60,6 +80,10 @@ public class ContainerDataHandler {
 
         public static final StreamCodec<RegistryFriendlyByteBuf, ContainerSyncPacket> STREAM_CODEC = StreamCodec.composite(
                 SyncSet.STREAM_CODEC, packet -> packet._syncSet, ContainerSyncPacket::new);
+
+        static void send(ServerPlayer player, SyncSet syncSet) {
+            Lib.NETWORK_HANDLER.sendToPlayer(player, new ContainerSyncPacket(syncSet));
+        }
 
         @Override
         public void handlePacket(IPayloadContext context) {
@@ -82,6 +106,42 @@ public class ContainerDataHandler {
         }
 
         private final SyncSet _syncSet;
+
+        //endregion
+    }
+
+    //endregion
+    //region Ack packet
+
+    public static class ContainerSyncAckPacket
+            extends AbstractPlayPacket<ContainerSyncAckPacket> {
+
+        public static final Type<ContainerSyncAckPacket> TYPE = createType(ZeroCore.ROOT_LOCATION, "container_sync_ack");
+
+        public static final StreamCodec<ByteBuf, ContainerSyncAckPacket> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.INT, packet -> packet._containerId, ContainerSyncAckPacket::new);
+
+        static void send(int containerId) {
+            Lib.NETWORK_HANDLER.sendToServer(new ContainerSyncAckPacket(/*playerId,*/ containerId));
+        }
+
+        @Override
+        public void handlePacket(IPayloadContext context) {
+
+            if (context.player().containerMenu instanceof ModContainer container) {
+                container.getContainerDataHandler().syncAckFrom(this._containerId);
+            }
+        }
+
+        //region internals
+
+        private ContainerSyncAckPacket(int containerId) {
+
+            super(TYPE);
+            this._containerId = containerId;
+        }
+
+        private final int _containerId;
 
         //endregion
     }
@@ -159,7 +219,7 @@ public class ContainerDataHandler {
             return SyncSet.EMPTY;
         }
 
-        return new SyncSet(this._containerId, entries);
+        return new SyncSet(this._container.containerId, entries);
     }
 
     /**
@@ -196,9 +256,30 @@ public class ContainerDataHandler {
         return new SyncSet(remoteContainerId, entries);
     }
 
+    /**
+     * Process an ack received from the logical client side
+     *
+     * @param containerId the container that sent the ack
+     */
+    private void syncAckFrom(final int containerId) {
+
+        // called on the logical server side
+
+        if (containerId == this._container.containerId) {
+            this._canSendUpdates = true;
+        } else {
+            Log.LOGGER.warn(Log.NETWORK, "Got a sync ack from another container! Ignoring. ({} / {})",
+                    containerId, this._container.containerId);
+        }
+    }
+
+    /**
+     * Process the updates received from the logical server side
+     * @param changes the change set
+     */
     private void syncFrom(SyncSet changes) {
 
-        if (this._containerId != changes.containerId) {
+        if (this._container.containerId != changes.containerId) {
             return;
         }
 
@@ -222,8 +303,9 @@ public class ContainerDataHandler {
 
     private static final int MAX_DATA = 256;
 
-    private final int _containerId;
+    private final ModContainer _container;
     private final List<IContainerData> _data;
+    public boolean _canSendUpdates;
 
     //endregion
 }

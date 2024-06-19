@@ -99,7 +99,7 @@ public final class Lib {
         registrar.playToClient(ModSyncableTileMessage.TYPE, ModSyncableTileMessage.STREAM_CODEC, ModSyncableTileMessage::handlePacket);
         registrar.playToClient(ErrorReportMessage.TYPE, ErrorReportMessage.STREAM_CODEC, ErrorReportMessage::handlePacket);
         registrar.playBidirectional(InternalCommandMessage.TYPE, InternalCommandMessage.STREAM_CODEC, InternalCommandMessage::handlePacket);
-        registrar.playToClient(ContainerDataHandler.ContainerSyncPacket.TYPE, ContainerDataHandler.ContainerSyncPacket.STREAM_CODEC, ContainerDataHandler.ContainerSyncPacket::handlePacket);
+        ContainerDataHandler.registerPackets(registrar);
     }
 
     private static void onAddReloadListener(AddReloadListenerEvent event) {
