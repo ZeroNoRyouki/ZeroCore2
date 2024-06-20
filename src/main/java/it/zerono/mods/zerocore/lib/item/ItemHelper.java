@@ -34,7 +34,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.EmptyHandler;
+import net.neoforged.neoforge.items.wrapper.EmptyItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
@@ -46,7 +46,7 @@ import java.util.stream.IntStream;
 public final class ItemHelper {
 
     public static final String INVENTORY = "inventory";
-    public static final IItemHandlerModifiable EMPTY_ITEM_HANDLER = (IItemHandlerModifiable)EmptyHandler.INSTANCE;
+    public static final IItemHandlerModifiable EMPTY_ITEM_HANDLER = (IItemHandlerModifiable) EmptyItemHandler.INSTANCE;
 
     public static ResourceLocation getItemId(final ItemLike item) {
         return Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.asItem()));
@@ -65,11 +65,11 @@ public final class ItemHelper {
     }
 
     public static Item getItemFrom(final String id) {
-        return getItemFrom(new ResourceLocation(id));
+        return getItemFrom(ResourceLocation.parse(id));
     }
 
     public static Item getItemFromOrAir(final String id) {
-        return getItemFromOrAir(new ResourceLocation(id));
+        return getItemFromOrAir(ResourceLocation.parse(id));
     }
 
     public static Item getItemFrom(final ResourceLocation id) {

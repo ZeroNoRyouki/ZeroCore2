@@ -50,7 +50,7 @@ public final class JSONHelper {
             return name;
         }
 
-        return new ResourceLocation(name).toString();
+        return ResourceLocation.parse(name).toString();
     }
 
     /**
@@ -349,7 +349,7 @@ public final class JSONHelper {
      * @return the ResourceLocation value of the element
      */
     public static ResourceLocation jsonGetResourceLocation(final JsonObject json, final String elementName) {
-        return new ResourceLocation(jsonGetString(jsonGetMandatoryElement(json, elementName), elementName));
+        return ResourceLocation.parse(jsonGetString(jsonGetMandatoryElement(json, elementName), elementName));
     }
 
     /**

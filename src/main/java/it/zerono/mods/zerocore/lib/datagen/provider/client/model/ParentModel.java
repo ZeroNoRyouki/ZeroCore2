@@ -41,7 +41,7 @@ public class ParentModel
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "ID must not be null or empty");
 
-        return of(new ResourceLocation(id));
+        return of(ResourceLocation.parse(id));
     }
 
     /**
@@ -70,7 +70,7 @@ public class ParentModel
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "ID must not be null or empty");
 
-        return of(new ResourceLocation(id), textures);
+        return of(ResourceLocation.parse(id), textures);
     }
 
     /**
@@ -103,7 +103,7 @@ public class ParentModel
 
         Preconditions.checkArgument(!Strings.isNullOrEmpty(id), "ID must not be null or empty");
 
-        return of(new ResourceLocation(id), textures);
+        return of(ResourceLocation.parse(id), textures);
     }
 
     /**

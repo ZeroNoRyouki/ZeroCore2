@@ -46,11 +46,11 @@ public class TagSource<T> {
     }
 
     public TagKey<T> createKey(final String id) {
-        return this.createKey(new ResourceLocation(id));
+        return this.createKey(ResourceLocation.parse(id));
     }
 
     public TagKey<T> createKey(final String namespace, final String name) {
-        return this.createKey(new ResourceLocation(namespace, name));
+        return this.createKey(ResourceLocation.fromNamespaceAndPath(namespace, name));
     }
 
     public TagKey<T> createKey(final String id, final Function<@NotNull String, @NotNull ResourceLocation> factory) {

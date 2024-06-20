@@ -210,7 +210,7 @@ public class ResourceLocationBuilder {
         Preconditions.checkState(!fullName.isEmpty() || !Strings.isNullOrEmpty(this._path),
                 "A path or a name must be set before building a ResourceLocation");
 
-        return new ResourceLocation(this._namespace, null != this._path ? this._path + fullName : fullName);
+        return ResourceLocation.fromNamespaceAndPath(this._namespace, null != this._path ? this._path + fullName : fullName);
     }
 
     private final String _namespace;

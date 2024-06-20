@@ -168,7 +168,7 @@ public class ModContainer
 
     public void onContainerDataSync(CompoundTag data, HolderLookup.Provider registries) {
 
-        if (null != this._syncableEntity && this._syncableEntity.getSyncableEntityId().equals(new ResourceLocation(data.getString("id")))) {
+        if (null != this._syncableEntity && this._syncableEntity.getSyncableEntityId().equals(ResourceLocation.parse(data.getString("id")))) {
             this._syncableEntity.syncDataFrom(data.getCompound("payload"), registries,
                     ISyncableEntity.SyncReason.NetworkUpdate);
         }

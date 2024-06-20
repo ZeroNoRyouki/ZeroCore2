@@ -70,7 +70,7 @@ public final class FilterManager<T extends IFilterComponent> {
             return Optional.empty();
         }
 
-        final ResourceLocation componentId = new ResourceLocation(nbt.getString(KEY_COMPONENT_ID));
+        final ResourceLocation componentId = ResourceLocation.parse(nbt.getString(KEY_COMPONENT_ID));
         final Optional<IFilterComponentFactory<T>> factory = this.getFactory(componentId);
 
         if (!factory.isPresent()) {

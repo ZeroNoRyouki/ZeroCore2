@@ -24,16 +24,16 @@ import java.util.function.BiConsumer;
 public abstract class AtlasSpriteSourcesDataProvider
         extends AbstractCodecDataProvider<List<SpriteSource>> {
 
-    protected static final ResourceLocation ATLAS_BANNER_PATTERNS = new ResourceLocation("banner_patterns");
-    protected static final ResourceLocation ATLAS_BEDS = new ResourceLocation("beds");
-    protected static final ResourceLocation ATLAS_BLOCKS = new ResourceLocation("blocks");
-    protected static final ResourceLocation ATLAS_CHESTS = new ResourceLocation("chests");
-    protected static final ResourceLocation ATLAS_MOB_EFFECTS = new ResourceLocation("mob_effects");
-    protected static final ResourceLocation ATLAS_SHIELD_PATTERNS = new ResourceLocation("shield_patterns");
-    protected static final ResourceLocation ATLAS_SHULKER_BOXES = new ResourceLocation("shulker_boxes");
-    protected static final ResourceLocation ATLAS_SIGNS = new ResourceLocation("signs");
-    protected static final ResourceLocation ATLAS_PAINTINGS = new ResourceLocation("paintings");
-    protected static final ResourceLocation ATLAS_PARTICLES = new ResourceLocation("particles");
+    protected static final ResourceLocation ATLAS_BANNER_PATTERNS = ResourceLocation.parse("banner_patterns");
+    protected static final ResourceLocation ATLAS_BEDS = ResourceLocation.parse("beds");
+    protected static final ResourceLocation ATLAS_BLOCKS = ResourceLocation.parse("blocks");
+    protected static final ResourceLocation ATLAS_CHESTS = ResourceLocation.parse("chests");
+    protected static final ResourceLocation ATLAS_MOB_EFFECTS = ResourceLocation.parse("mob_effects");
+    protected static final ResourceLocation ATLAS_SHIELD_PATTERNS = ResourceLocation.parse("shield_patterns");
+    protected static final ResourceLocation ATLAS_SHULKER_BOXES = ResourceLocation.parse("shulker_boxes");
+    protected static final ResourceLocation ATLAS_SIGNS = ResourceLocation.parse("signs");
+    protected static final ResourceLocation ATLAS_PAINTINGS = ResourceLocation.parse("paintings");
+    protected static final ResourceLocation ATLAS_PARTICLES = ResourceLocation.parse("particles");
 
     protected AtlasSpriteSourcesDataProvider(String name, PackOutput output,
                                              CompletableFuture<HolderLookup.Provider> registryLookup,
