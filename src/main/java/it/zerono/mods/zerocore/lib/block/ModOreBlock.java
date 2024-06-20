@@ -37,8 +37,8 @@ public class ModOreBlock
     //region Block
 
     @Override
-    public int getExpDrop(BlockState state, LevelReader reader, RandomSource random, BlockPos pos, int fortune, int silktouch) {
-        return silktouch == 0 ? this.getExperience(random) : 0;
+    public int getExpDrop(BlockState state, LevelReader reader, RandomSource random, BlockPos pos) {
+        return this.getExperience(random);
     }
 
     //endregion
