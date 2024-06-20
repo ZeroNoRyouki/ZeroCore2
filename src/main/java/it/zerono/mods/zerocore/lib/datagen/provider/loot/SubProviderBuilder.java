@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.data.loot.LootTableProvider;
@@ -13,7 +14,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class SubProviderBuilder {
 
@@ -28,7 +29,8 @@ public class SubProviderBuilder {
         return this._immutableEntries;
     }
 
-    public SubProviderBuilder addSubProvider(Supplier<LootTableSubProvider> provider, LootContextParamSet paramSet) {
+    public SubProviderBuilder addSubProvider(Function<HolderLookup.Provider, LootTableSubProvider> provider,
+                                             LootContextParamSet paramSet) {
 
         Preconditions.checkNotNull(provider, "Provider must not be null");
         Preconditions.checkNotNull(paramSet, "Param set must not be null");
@@ -37,22 +39,22 @@ public class SubProviderBuilder {
         return this;
     }
 
-    public SubProviderBuilder addSubProvider(Supplier<LootTableSubProvider> provider) {
+    public SubProviderBuilder addSubProvider(Function<HolderLookup.Provider, LootTableSubProvider> provider) {
         return this.addSubProvider(provider, LootContextParamSets.ALL_PARAMS);
     }
 
-    public <P extends BlockLootSubProvider> SubProviderBuilder addBlockProvider(Supplier<P> blockProvider) {
+    public SubProviderBuilder addBlockProvider(Function<HolderLookup.Provider, BlockLootSubProvider> blockProvider) {
 
         Preconditions.checkNotNull(blockProvider, "Block provider must not be null");
 
-        return this.addSubProvider(blockProvider::get, LootContextParamSets.BLOCK);
+        return this.addSubProvider(blockProvider::apply, LootContextParamSets.BLOCK);
     }
 
-    public <P extends EntityLootSubProvider> SubProviderBuilder addEntityProvider(Supplier<P> entityProvider) {
+    public SubProviderBuilder addEntityProvider(Function<HolderLookup.Provider, EntityLootSubProvider> entityProvider) {
 
         Preconditions.checkNotNull(entityProvider, "Entity provider must not be null");
 
-        return this.addSubProvider(entityProvider::get, LootContextParamSets.ENTITY);
+        return this.addSubProvider(entityProvider::apply, LootContextParamSets.ENTITY);
     }
 
     //region internals

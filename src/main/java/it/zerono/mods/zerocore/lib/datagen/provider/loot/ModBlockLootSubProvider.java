@@ -2,6 +2,7 @@ package it.zerono.mods.zerocore.lib.datagen.provider.loot;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -21,9 +22,10 @@ import java.util.function.Supplier;
 public abstract class ModBlockLootSubProvider
         extends BlockLootSubProvider {
 
-    protected ModBlockLootSubProvider(Set<Item> explosionResistantItems, FeatureFlagSet enabledFeatures) {
+    protected ModBlockLootSubProvider(Set<Item> explosionResistantItems, FeatureFlagSet enabledFeatures,
+                                      HolderLookup.Provider provider) {
 
-        super(explosionResistantItems, enabledFeatures);
+        super(explosionResistantItems, enabledFeatures, provider);
         this._registeredBlocks = new ObjectOpenHashSet<>(128);
     }
 

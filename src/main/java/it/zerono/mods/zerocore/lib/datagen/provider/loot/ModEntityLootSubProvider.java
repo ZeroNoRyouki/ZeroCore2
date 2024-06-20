@@ -2,6 +2,7 @@ package it.zerono.mods.zerocore.lib.datagen.provider.loot;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
@@ -15,9 +16,9 @@ import java.util.stream.Stream;
 public abstract class ModEntityLootSubProvider
         extends EntityLootSubProvider {
 
-    protected ModEntityLootSubProvider(FeatureFlagSet enabledFeatures) {
+    protected ModEntityLootSubProvider(FeatureFlagSet enabledFeatures, HolderLookup.Provider provider) {
 
-        super(enabledFeatures);
+        super(enabledFeatures, provider);
         this._registeredTypes = new ObjectOpenHashSet<>(128);
     }
 
