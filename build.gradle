@@ -7,8 +7,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.132'
-    id 'net.neoforged.gradle.mixin' version '7.0.132'
+    id 'net.neoforged.gradle.userdev' version '7.0.142'
+    id 'net.neoforged.gradle.mixin' version '7.0.142'
 }
 
 version = "${project.minecraft_version}-${project.mod_version_major}.${project.mod_version_minor}.${project.mod_version_patch}"
@@ -103,13 +103,14 @@ tasks.withType(ProcessResources).configureEach {
 repositories {
 
 	mavenLocal()
+//
+//    // JEI
+//    maven {
+//        name = "Progwml6 maven"
+//        url = "https://dvs1.progwml6.com/files/maven/"
+//    }
 
-    // JEI
-    maven {
-        name = "Progwml6 maven"
-        url = "https://dvs1.progwml6.com/files/maven/"
-    }
-
+    // JEI backup and others
     maven {
         name = "ModMaven"
         url = "https://modmaven.dev"
@@ -120,7 +121,7 @@ repositories {
         url 'https://squiddev.cc/maven/'
     }
 
-    // patchouli
+    // patchouli / JEI
     maven {
         url 'https://maven.blamejared.com'
     }
@@ -131,9 +132,9 @@ dependencies {
 	implementation "net.neoforged:neoforge:${project.forge_version}"
 
 	// cc-tweaked
-    compileOnly("cc.tweaked:cc-tweaked-1.20.6-core-api:${project.cctweaked_version}")
-    compileOnly("cc.tweaked:cc-tweaked-1.20.6-forge-api:${project.cctweaked_version}")
-    runtimeOnly("cc.tweaked:cc-tweaked-1.20.6-forge:${project.cctweaked_version}")
+//    compileOnly("cc.tweaked:cc-tweaked-1.20.6-core-api:${project.cctweaked_version}")
+//    compileOnly("cc.tweaked:cc-tweaked-1.20.6-forge-api:${project.cctweaked_version}")
+//    runtimeOnly("cc.tweaked:cc-tweaked-1.20.6-forge:${project.cctweaked_version}")
 
     // patchouli
 //    compileOnly "vazkii.patchouli:Patchouli:${project.patchouli_version}-NEOFORGE"
