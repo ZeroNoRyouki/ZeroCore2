@@ -92,8 +92,8 @@ public class VoxelShapeHighlighter {
 
         voxelShape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
 
-            vertexBuilder.vertex(matrix, (float)(x1 + originX), (float)(y1 + originY), (float)(z1 + originZ)).color(red, green, blue, 0.5f).endVertex();
-            vertexBuilder.vertex(matrix, (float)(x2 + originX), (float)(y2 + originY), (float)(z2 + originZ)).color(red, green, blue, 0.5f).endVertex();
+            vertexBuilder.addVertex(matrix, (float)(x1 + originX), (float)(y1 + originY), (float)(z1 + originZ)).setColor(red, green, blue, 0.5f);
+            vertexBuilder.addVertex(matrix, (float)(x2 + originX), (float)(y2 + originY), (float)(z2 + originZ)).setColor(red, green, blue, 0.5f);
         });
     }
 

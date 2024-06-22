@@ -30,48 +30,33 @@ public class VertexBuilderWrapper
     //region IVertexBuilder
 
     @Override
-    public VertexConsumer vertex(final double x, final double y, final double z) {
-        return this._builder.vertex(x, y, z);
+    public VertexConsumer addVertex(final float x, final float y, final float z) {
+        return this._builder.addVertex(x, y, z);
     }
 
     @Override
-    public VertexConsumer color(final int red, final int green, final int blue, final int alpha) {
-        return this._builder.color(red, green, blue, alpha);
+    public VertexConsumer setColor(final int red, final int green, final int blue, final int alpha) {
+        return this._builder.setColor(red, green, blue, alpha);
     }
 
     @Override
-    public VertexConsumer uv(final float u, final float v) {
-        return this._builder.uv(u, v);
+    public VertexConsumer setUv(final float u, final float v) {
+        return this._builder.setUv(u, v);
     }
 
     @Override
-    public VertexConsumer overlayCoords(final int u, final int v) {
-        return this._builder.overlayCoords(u, v);
+    public VertexConsumer setUv1(final int u, final int v) {
+        return this._builder.setUv1(u, v);
     }
 
     @Override
-    public VertexConsumer uv2(final int u, final int v) {
-        return this._builder.uv2(u, v);
+    public VertexConsumer setUv2(final int u, final int v) {
+        return this._builder.setUv2(u, v);
     }
 
     @Override
-    public VertexConsumer normal(final float x, final float y, final float z) {
-        return this._builder.normal(x, y, z);
-    }
-
-    @Override
-    public void endVertex() {
-        this._builder.endVertex();
-    }
-
-    @Override
-    public void defaultColor(int p_166901_, int p_166902_, int p_166903_, int p_166904_) {
-        this._builder.defaultColor(p_166901_, p_166902_, p_166903_, p_166904_);
-    }
-
-    @Override
-    public void unsetDefaultColor() {
-        this._builder.unsetDefaultColor();
+    public VertexConsumer setNormal(final float x, final float y, final float z) {
+        return this._builder.setNormal(x, y, z);
     }
 
     //endregion

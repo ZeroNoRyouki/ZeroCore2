@@ -72,8 +72,8 @@ public class TintingRenderTypeBufferWrapper
         //region VertexBuilderWrapper
 
         @Override
-        public VertexConsumer color(final int red, final int green, final int blue, final int alpha) {
-            return this._builder.color((red * this._red) / 0xFF, (green * this._green) / 0xFF,
+        public VertexConsumer setColor(final int red, final int green, final int blue, final int alpha) {
+            return this._builder.setColor((red * this._red) / 0xFF, (green * this._green) / 0xFF,
                     (blue * this._blue) / 0xFF, (alpha * this._alpha) / 0xFF);
         }
 

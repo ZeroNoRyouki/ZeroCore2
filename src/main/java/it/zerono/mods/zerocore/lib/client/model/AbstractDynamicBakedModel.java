@@ -108,13 +108,11 @@ public abstract class AbstractDynamicBakedModel
     protected void createVertex(QuadBakingVertexConsumer builder, double x, double y, double z, Vector3d normal,
                                 float u, float v, ISprite sprite, Colour colour, short lightMapU, short lightMapV) {
 
-        builder.vertex(x, y, z);
-        builder.color(colour.R, colour.G, colour.B, colour.A);
-        builder.uv(sprite.getInterpolatedU(u), sprite.getInterpolatedV(v));
-
-        builder.uv2(lightMapU, lightMapV);
-        builder.normal((float)normal.X, (float)normal.Y, (float)normal.Z);
-        builder.endVertex();
+        builder.addVertex((float) x, (float) y, (float) z);
+        builder.setColor(colour.R, colour.G, colour.B, colour.A);
+        builder.setUv(sprite.getInterpolatedU(u), sprite.getInterpolatedV(v));
+        builder.setUv2(lightMapU, lightMapV);
+        builder.setNormal((float)normal.X, (float)normal.Y, (float)normal.Z);
     }
 
     //region IDynamicBakedModel
@@ -154,7 +152,7 @@ public abstract class AbstractDynamicBakedModel
 
     protected static QuadBakingVertexConsumer builder(final Consumer<BakedQuad> quadConsumer, final ISprite sprite) {
 
-        final var builder = new QuadBakingVertexConsumer(quadConsumer);
+        final var builder = new QuadBakingVertexConsumer();
 
         builder.setSprite(sprite.getAtlasSprite().orElse(ModRenderHelper.getMissingTexture()));
         return builder;

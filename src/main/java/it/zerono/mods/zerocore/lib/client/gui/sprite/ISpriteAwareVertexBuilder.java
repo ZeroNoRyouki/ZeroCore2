@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.FastColor;
 
 public class ISpriteAwareVertexBuilder implements VertexConsumer {
 
@@ -28,49 +29,49 @@ public class ISpriteAwareVertexBuilder implements VertexConsumer {
         this._sprite = sprite;
     }
 
-    public VertexConsumer vertex(double x, double y, double z) {
-        return this._builder.vertex(x, y, z);
+    @Override
+    public VertexConsumer addVertex(float x, float y, float z) {
+        return this._builder.addVertex(x, y, z);
     }
 
-    public VertexConsumer color(int red, int green, int blue, int alpha) {
-        return this._builder.color(red, green, blue, alpha);
+    @Override
+    public VertexConsumer setColor(int red, int green, int blue, int alpha) {
+        return this._builder.setColor(red, green, blue, alpha);
     }
 
-    public VertexConsumer uv(float u, float v) {
-        return this._builder.uv(this._sprite.getInterpolatedU(u * 16.0F), this._sprite.getInterpolatedV(v * 16.0F));
+    @Override
+    public VertexConsumer setUv(float u, float v) {
+        return this._builder.setUv(this._sprite.getInterpolatedU(u * 16.0F), this._sprite.getInterpolatedV(v * 16.0F));
     }
 
-    public VertexConsumer overlayCoords(int u, int v) {
-        return this._builder.overlayCoords(u, v);
+    @Override
+    public VertexConsumer setUv1(int u, int v) {
+        return this._builder.setUv1(u, v);
     }
 
-    public VertexConsumer uv2(int u, int v) {
-        return this._builder.uv2(u, v);
+    @Override
+    public VertexConsumer setUv2(int u, int v) {
+        return this._builder.setUv2(u, v);
     }
 
-    public VertexConsumer normal(float x, float y, float z) {
-        return this._builder.normal(x, y, z);
+    @Override
+    public VertexConsumer setNormal(float x, float y, float z) {
+        return this._builder.setNormal(x, y, z);
     }
 
-    public void endVertex() {
-        this._builder.endVertex();
-    }
-
-    public void vertex(float x, float y, float z, float red, float green, float blue, float alpha,
+    public void addVertex(float x, float y, float z, float red, float green, float blue, float alpha,
                           float texU, float texV, int overlayUV, int lightmapUV,
                           float normalX, float normalY, float normalZ) {
-        this._builder.vertex(x, y, z, red, green, blue, alpha, this._sprite.getInterpolatedU(texU * 16.0F),
-                this._sprite.getInterpolatedV(texV * 16.0F), overlayUV, lightmapUV, normalX, normalY, normalZ);
+        this.addVertex(x, y, z, FastColor.ARGB32.colorFromFloat(alpha, red, green, blue), texU, texV,
+                overlayUV, lightmapUV, normalX, normalY, normalZ);
     }
 
     @Override
-    public void defaultColor(int p_166901_, int p_166902_, int p_166903_, int p_166904_) {
-        this._builder.defaultColor(p_166901_, p_166902_, p_166903_, p_166904_);
-    }
-
-    @Override
-    public void unsetDefaultColor() {
-        this._builder.unsetDefaultColor();
+    public void addVertex(float x, float y, float z, int colour, float texU, float texV, int overlay, int light,
+                          float normalX, float normalY, float normalZ) {
+        this._builder.addVertex(x, y, z, colour,
+                this._sprite.getInterpolatedU(texU * 16.0F), this._sprite.getInterpolatedV(texV * 16.0F),
+                overlay, light, normalX, normalY, normalZ);
     }
 
     //region internals
