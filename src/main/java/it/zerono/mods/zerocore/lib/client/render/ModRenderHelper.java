@@ -28,6 +28,7 @@ import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.internal.mixin.client.GuiGraphicsAccessor;
+import it.zerono.mods.zerocore.internal.mixin.client.ModelBakeryAccessor;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
@@ -94,7 +95,8 @@ public final class ModRenderHelper {
     }
 
     public static UnbakedModel getModel(final ResourceLocation location) {
-        return Minecraft.getInstance().getModelManager().getModelBakery().getModel(location);
+        return ((ModelBakeryAccessor) (Minecraft.getInstance().getModelManager().getModelBakery()))
+                .zerocore_getModel(location);
     }
 
     public static BakedModel getModel(final BlockState state) {
