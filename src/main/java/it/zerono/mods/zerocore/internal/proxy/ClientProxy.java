@@ -20,6 +20,7 @@ package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
+import it.zerono.mods.zerocore.internal.client.model.MissingModel;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.GuiHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
@@ -184,7 +185,9 @@ public class ClientProxy
     }
 
     private static void onRegisterReloadListeners(AddReloadListenerEvent event) {
+
         event.addListener(AtlasSpriteSupplier.INSTANCE);
+        event.addListener(MissingModel.INSTANCE);
     }
 
     private static void onRecipesUpdated(RecipesUpdatedEvent event) {

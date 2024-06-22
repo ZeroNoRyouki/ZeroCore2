@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
+import it.zerono.mods.zerocore.internal.client.model.MissingModel;
 import it.zerono.mods.zerocore.internal.mixin.client.GuiGraphicsAccessor;
 import it.zerono.mods.zerocore.internal.mixin.client.ModelBakeryAccessor;
 import it.zerono.mods.zerocore.lib.CodeHelper;
@@ -108,12 +109,12 @@ public final class ModRenderHelper {
     }
 
     public static BakedModel getMissingModel() {
-        return getModelManager().getMissingModel();
+        return MissingModel.INSTANCE;
     }
 
     @Nullable
-    public static BakedModel getMissingModel(Map<ResourceLocation, BakedModel> modelRegistry) {
-        return modelRegistry.get(ModelBakery.MISSING_MODEL_LOCATION);
+    public static BakedModel getMissingModel(Map<ModelResourceLocation, BakedModel> modelRegistry) {
+        return modelRegistry.get(ModelBakery.MISSING_MODEL_VARIANT);
     }
 
     public static void bindTexture(final ResourceLocation textureLocation) {
