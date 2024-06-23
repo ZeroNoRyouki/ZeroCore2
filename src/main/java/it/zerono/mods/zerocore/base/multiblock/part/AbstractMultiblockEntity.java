@@ -18,11 +18,13 @@
 
 package it.zerono.mods.zerocore.base.multiblock.part;
 
+import it.zerono.mods.zerocore.lib.IDebugMessages;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.cuboid.AbstractCuboidMultiblockPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +38,27 @@ public abstract class AbstractMultiblockEntity<Controller extends AbstractCuboid
     //region client render support
 
     protected abstract ModelData getUpdatedModelData();
+
+    //endregion
+    //region IDebuggable
+
+    @Override
+    public void getDebugMessages(LogicalSide side, IDebugMessages messages) {
+
+        super.getDebugMessages(side, messages);
+
+        messages.addUnlocalized("Model data properties:");
+
+        final var data = this.getUpdatedModelData();
+
+        for (final var property : data.getProperties()) {
+
+            final var value = data.get(property);
+
+            messages.addUnlocalized("- %s = %s", property.toString(),
+                    null == value ? "NULL" : value.toString());
+        }
+    }
 
     //endregion
     //region AbstractCuboidMultiblockPart
