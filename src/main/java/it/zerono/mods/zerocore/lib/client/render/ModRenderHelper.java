@@ -19,11 +19,13 @@
 package it.zerono.mods.zerocore.lib.client.render;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
@@ -71,11 +73,13 @@ import org.joml.Matrix4f;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("WeakerAccess")
 public final class ModRenderHelper {
@@ -1884,6 +1888,36 @@ public final class ModRenderHelper {
         } catch (IOException ex) {
             Log.LOGGER.warn(Log.CLIENT, "Failed to dump atlas to {} : {}", path, ex);
         }
+    }
+
+    //endregion
+    //region debug helpers
+
+    public static Map<ModelResourceLocation, BakedModel> debugFilterModelRegistryByModId(Map<ModelResourceLocation, BakedModel> modelRegistry,
+                                                                                         String modId) {
+        return debugFilterModelRegistryByModId(modelRegistry, modId, null);
+    }
+
+    public static Map<ModelResourceLocation, BakedModel> debugFilterModelRegistryByModId(Map<ModelResourceLocation, BakedModel> modelRegistry,
+                                                                                         String modId,
+                                                                                         @Nullable String optionalPathFilter) {
+
+        Preconditions.checkNotNull(modelRegistry, "Model registry must not be null");
+        Preconditions.checkArgument(!modelRegistry.isEmpty(), "Model registry must not be empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(modId), "Mod ID must not be null or empty");
+
+        var stream = modelRegistry.entrySet().stream()
+                .filter(entry -> entry.getKey().id().getNamespace().equals(modId));
+
+        if (!Strings.isNullOrEmpty(optionalPathFilter)) {
+            stream = stream.filter(entry -> entry.getKey().id().getPath().contains(optionalPathFilter));
+        }
+        return stream.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                (model1, model2) -> {
+                    throw new IllegalStateException("Duplicated model resource locations found!");
+                },
+                () -> new Object2ObjectAVLTreeMap<>(Comparator.comparing(ModelResourceLocation::id)
+                        .thenComparing(ModelResourceLocation::getVariant, String::compareTo))));
     }
 
     //endregion
