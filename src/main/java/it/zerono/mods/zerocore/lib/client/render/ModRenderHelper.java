@@ -872,7 +872,7 @@ public final class ModRenderHelper {
                 final int tileY1 = baseY + skippedHeight;
                 final int tileY2 = baseY + spriteHeight;
 
-                bufferBuilder.addVertex(pose, tileX1, tileY2, zLevel).setUv(spriteMinU, spriteMaxV);
+                bufferBuilder.addVertex(pose, tileX1, tileY2, zLevel).setUv(spriteMinU, spriteMaxV).setColor(tint.R, tint.G, tint.B, tint.A);
                 bufferBuilder.addVertex(pose, tileX2, tileY2, zLevel).setUv(tileMaxU, spriteMaxV).setColor(tint.R, tint.G, tint.B, tint.A);
                 bufferBuilder.addVertex(pose, tileX2, tileY1, zLevel).setUv(tileMaxU, tileMinV).setColor(tint.R, tint.G, tint.B, tint.A);
                 bufferBuilder.addVertex(pose, tileX1, tileY1, zLevel).setUv(spriteMinU, tileMinV).setColor(tint.R, tint.G, tint.B, tint.A);
