@@ -18,180 +18,155 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.internal.Log;
-import it.zerono.mods.zerocore.lib.block.multiblock.IMultiblockPartType;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
-public class BlockVariantsModelBuilder implements ICustomModelBuilder {
+public class BlockVariantsModelBuilder
+        implements ICustomModelBuilder {
 
     public BlockVariantsModelBuilder(final boolean ambientOcclusion, final boolean guid3D, final boolean builtInRenderer) {
 
         this._ambientOcclusion = ambientOcclusion;
         this._guid3D = guid3D;
         this._builtInRenderer = builtInRenderer;
-        this._modelToBeReplaced = Maps.newHashMap();
-        this._modelsToBeLoaded = Maps.newHashMap();
-        this._variants = Maps.newHashMap();
-        this._particleVariantIndex = Maps.newHashMap();
-        this._hasGeneralQuads = Maps.newHashMap();
-    }
-
-    public void addBlock(final int id, final ResourceLocation modelToReplace) {
-        this.addBlock(id, modelToReplace, 0, false);
-    }
-
-    public void addBlock(final int id, final ResourceLocation modelToReplace, final int particleVariantIndex) {
-        this.addBlock(id, modelToReplace, particleVariantIndex, false);
-    }
-
-    public void addBlock(final int id, final ResourceLocation modelToReplace, final int particleVariantIndex, final boolean hasGeneralQuads) {
-
-        this._modelToBeReplaced.put(id, modelToReplace);
-        this._hasGeneralQuads.put(id, hasGeneralQuads);
-        this._particleVariantIndex.put(id, particleVariantIndex);
+        this._blocks = new Int2ObjectOpenHashMap<>();
+        this._modelsToBeLoaded = new ObjectArrayList<>(64);
     }
 
     /**
-     * Add the provided variants model the specified block.
-     * The provided models will be added to the list of models to load.
-     * Note: ModelResourceLocations will not be loaded.
+     * Request for the specified model(s) to be loaded when resources are (re)loaded
      *
-     * This is the equivalent of calling addVariant() and loadModel() for each model provided
-     *
-     * @param blockId the id of the block to add the variants to
-     * @param models the variants models
+     * @param model A model to be loaded
+     * @param others Additional models to be loaded
      */
-    public void addModels(final int blockId, ResourceLocation... models) {
+    public void loadAdditionalModel(ModelResourceLocation model, ModelResourceLocation... others) {
 
-        Collections.addAll(this._modelsToBeLoaded.computeIfAbsent(blockId, id -> Lists.newArrayListWithCapacity(models.length)), models);
-        Collections.addAll(this._variants.computeIfAbsent(blockId, id -> Lists.newArrayListWithCapacity(models.length)), models);
+        this.loadAdditionalStandaloneModels(model);
+        this.loadAdditionalStandaloneModels(others);
     }
 
     /**
-     * Add the provided variants model the specified block.
-     * The provided models will be added to the list of models to load.
-     * Note: ModelResourceLocations will not be loaded.
+     * Add a block with any additional model to this builder
      *
-     * This is the equivalent of calling addVariant() and loadModel() for each model provided
-     *
-     * @param blockId the id of the block to add the variants to
-     * @param models the variants models
+     * @param id A unique ID for the block
+     * @param originalModel The original model of the block
+     * @param hasGeneralQuads True if the original model has general quads, false otherwise
+     * @param additionalVariants Any additional models to be used a variants for the added block
      */
-    public void addModels(final int blockId, final List<ResourceLocation> models) {
+    public void addBlock(int id, ModelResourceLocation originalModel, boolean hasGeneralQuads,
+                         ModelResourceLocation... additionalVariants) {
 
-        this._modelsToBeLoaded.computeIfAbsent(blockId, id -> Lists.newArrayListWithCapacity(models.size())).addAll(models);
-        this._variants.computeIfAbsent(blockId, id -> Lists.newArrayListWithCapacity(models.size())).addAll(models);
-    }
-
-    /**
-     * Add the provided variant model the specified block
-     *
-     * @param blockId the id of the block to add the variants to
-     * @param model the variants model to add
-     */
-    public void addVariant(final int blockId, ResourceLocation model) {
-        this._variants.computeIfAbsent(blockId, id -> Lists.newArrayListWithCapacity(8)).add(model);
-    }
-
-    /**
-     * Add the provided model reference to the list of models to be loaded
-     * Note: ModelResourceLocations will be skipped
-     *
-     * @param blockId the id of the block
-     * @param model the model to be loaded
-     */
-    public void loadModel(final int blockId, ResourceLocation model) {
-
-        if (!(model instanceof ModelResourceLocation)) {
-            this._modelsToBeLoaded.computeIfAbsent(blockId, id -> Lists.newArrayListWithCapacity(8)).add(model);
+        if (additionalVariants.length == 0) {
+            additionalVariants = EMPTY_VARIANTS;
+        } else {
+            this.loadAdditionalStandaloneModels(additionalVariants);
         }
+
+        this._blocks.put(id, new BlockEntrySource(id, originalModel, additionalVariants, hasGeneralQuads));
     }
 
     protected BlockVariantsModel createReplacementModel(int blockCount, boolean ambientOcclusion, boolean guid3D, boolean builtInRenderer) {
         return new BlockVariantsModel(blockCount, ambientOcclusion, guid3D, builtInRenderer);
     }
 
-    protected void addBlockWithVariants(Function<String, ResourceLocation> modelToReplaceIdGetter,
-                                        Function<String, ResourceLocation> variantModelIdGetter,
-                                        IMultiblockPartType partType, String blockCommonName,
-                                        String... additionalVariantsModelNames) {
-
-        final ResourceLocation modelToReplaceId = modelToReplaceIdGetter.apply(blockCommonName);
-        this.addBlock(partType.getByteHashCode(), modelToReplaceId, 0, false);
-
-        final List<ResourceLocation> variants = Lists.newArrayListWithCapacity(1 + additionalVariantsModelNames.length);
-
-        variants.add(modelToReplaceId);
-        Arrays.stream(additionalVariantsModelNames)
-                .map(variantModelIdGetter)
-                .collect(Collectors.toCollection(() -> variants));
-
-        this.addModels(partType.getByteHashCode(), variants);
-    }
-
     //region ICustomModelBuilder
 
     @Override
     public void onRegisterModels(final ModelEvent.RegisterAdditional event) {
-        this._modelsToBeLoaded.values().stream()
-                .filter(list -> list.size() > 1)
-                .flatMap(List::stream)
-                .filter(resourceLocation -> !(resourceLocation instanceof ModelResourceLocation))
-                .forEach(event::register);
+        this._modelsToBeLoaded.forEach(event::register);
     }
 
     @Override
     public void onBakeModels(final ModelEvent.ModifyBakingResult event) {
 
-        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModels();
-        final Set<Integer> ids = this._modelToBeReplaced.keySet();
-        final BlockVariantsModel model = this.createReplacementModel(ids.size(), this._ambientOcclusion, this._guid3D, this._builtInRenderer);
+        // replace the existing, json-based, model with our custom one (one per builder)
 
-        for (final int id : ids) {
+        final Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
 
-            final List<BakedModel> variants = this._variants.getOrDefault(id, Collections.emptyList()).stream()
-                    .map(location -> lookupModel(modelRegistry, location))
-                    .collect(Collectors.toList());
+        // - build the replacement model
 
-            model.addBlock(id, this._hasGeneralQuads.get(id), /*this._particleVariantIndex.get(id),*/ variants);
-            modelRegistry.put(this._modelToBeReplaced.get(id), model);
+        final var replacementModel = this.createReplacementModel(this._blocks.size(), this._ambientOcclusion,
+                this._guid3D, this._builtInRenderer);
+
+        for (final var block : this._blocks.values()) {
+
+            final BakedModel[] variantsModels = new BakedModel[1 + block.variants.length];
+
+            // add the original model of the block as the first variant
+            variantsModels[0] = modelRegistry.get(block.originalModel);
+
+            if (null == variantsModels[0]) {
+
+                Log.LOGGER.warn(Log.CLIENT, "Unable to lookup the original model for a block variant: {}. Skipping block!",
+                        block.originalModel);
+                continue;
+            }
+
+            // add the additional variants...
+
+            for (int idx = 0; idx < block.variants.length; ++idx) {
+
+                final BakedModel variantModel;
+
+                if (modelRegistry.containsKey(block.variants[idx])) {
+
+                    variantModel = modelRegistry.get(block.variants[idx]);
+
+                } else {
+
+                    Log.LOGGER.warn(Log.CLIENT, "Unable to lookup model for a block variant: {}", block.variants[idx]);
+                    variantModel = ModRenderHelper.getMissingModel();
+                }
+
+                variantsModels[1 + idx] = variantModel;
+            }
+
+            replacementModel.addBlock(block.blockId, block.hasGeneralQuads, variantsModels);
+
+            // - replace the original model
+            modelRegistry.put(block.originalModel, replacementModel);
         }
     }
 
     //endregion
     //region internals
+    //region BlockEntrySource
 
-    private static BakedModel lookupModel(final Map<ResourceLocation, BakedModel> modelRegistry, final ResourceLocation location) {
+    private record BlockEntrySource(int blockId, ModelResourceLocation originalModel, ModelResourceLocation[] variants,
+                                    boolean hasGeneralQuads) {
+    }
 
-        if (modelRegistry.containsKey(location)) {
+    //endregion
 
-            return modelRegistry.get(location);
+    private void loadAdditionalStandaloneModels(ModelResourceLocation... models) {
 
-        } else {
+        // NeoForge only allow ModelResourceLocation with a "standalone" variant to be loaded...
 
-            Log.LOGGER.warn(Log.MULTIBLOCK, "Unable to find a backed model for {}", location);
-            return ModRenderHelper.getMissingModel();
+        for (final var model : models) {
+
+            if (model.variant().equals(ModelResourceLocation.STANDALONE_VARIANT)) {
+                this._modelsToBeLoaded.add(model);
+            }
         }
     }
+
+    private static final ModelResourceLocation[] EMPTY_VARIANTS = new ModelResourceLocation[0];
 
     private final boolean _ambientOcclusion;
     private final boolean _guid3D;
     private final boolean _builtInRenderer;
-    private final Map<Integer, ResourceLocation> _modelToBeReplaced;
-    private final Map<Integer, List<ResourceLocation>> _modelsToBeLoaded;
-    private final Map<Integer, List<ResourceLocation>> _variants;
-    private final Map<Integer, Integer> _particleVariantIndex;
-    private final Map<Integer, Boolean> _hasGeneralQuads;
+
+    private final Int2ObjectMap<BlockEntrySource> _blocks;
+    private final List<ModelResourceLocation> _modelsToBeLoaded;
 
     //endregion
 }

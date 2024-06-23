@@ -22,12 +22,12 @@ import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModel;
 import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModelBuilder;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
 public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
 
-    public CuboidPartVariantsModelBuilder(final ResourceLocation template, final boolean ambientOcclusion) {
+    public CuboidPartVariantsModelBuilder(final ModelResourceLocation template, final boolean ambientOcclusion) {
 
         super(ambientOcclusion, true, false);
         this._templateId = template;
@@ -57,7 +57,7 @@ public class CuboidPartVariantsModelBuilder extends BlockVariantsModelBuilder {
     //endregion
     //region internals
 
-    private final ResourceLocation _templateId;
+    private final ModelResourceLocation _templateId;
     private BakedModel _templateModel;
 
     //endregion
