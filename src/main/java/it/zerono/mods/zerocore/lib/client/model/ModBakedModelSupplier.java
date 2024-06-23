@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,21 +37,21 @@ public class ModBakedModelSupplier {
 
     public ModBakedModelSupplier(IEventBus modBus) {
 
-        this._toBeRegistered = Lists.newArrayList();
-        this._wrappers = Maps.newHashMap();
+        this._toBeRegistered = new ObjectArrayList<>(32);
+        this._wrappers = new Object2ObjectOpenHashMap<>(32);
 
         modBus.register(this);
     }
 
-    public void addModel(final ResourceLocation name) {
+    public void addModel(final ModelResourceLocation model) {
 
-        if (!this._toBeRegistered.contains(name)) {
-            this._toBeRegistered.add(name);
+        if (!this._toBeRegistered.contains(model)) {
+            this._toBeRegistered.add(model);
         }
     }
 
-    public Supplier<BakedModel> getOrCreate(final ResourceLocation name) {
-        return this._wrappers.computeIfAbsent(name, resourceLocation -> new Wrapper());
+    public Supplier<BakedModel> getOrCreate(final ModelResourceLocation model) {
+        return this._wrappers.computeIfAbsent(model, $ -> new Wrapper());
     }
 
     //region event handlers
@@ -64,14 +64,13 @@ public class ModBakedModelSupplier {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onModelBake(final BakingCompleted event) {
 
-        final Map<ResourceLocation, BakedModel> modelRegistry = event.getModels();
+        final Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
         final BakedModel missing = ModRenderHelper.getMissingModel();
 
         this._wrappers.forEach((key, value) -> value._cachedModel = modelRegistry.getOrDefault(key, missing));
     }
 
     //endregion
-
     //region internals
     //region SpriteSupplier
 
@@ -97,8 +96,8 @@ public class ModBakedModelSupplier {
         //endregion
     }
 
-    private final List<ResourceLocation> _toBeRegistered;
-    private final Map<ResourceLocation, Wrapper> _wrappers;
+    private final List<ModelResourceLocation> _toBeRegistered;
+    private final Map<ModelResourceLocation, Wrapper> _wrappers;
 
     //endregion
 }
