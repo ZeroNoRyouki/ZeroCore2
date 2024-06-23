@@ -681,6 +681,10 @@ public final class ModRenderHelper {
                                                       final ISprite sprite, final Point screenXY, final int zLevel,
                                                       final Rectangle area, final double progress, final Colour tint) {
 
+        if (0 == progress) {
+            return;
+        }
+
         switch (orientation) {
 
             case BottomToTop:
@@ -722,6 +726,10 @@ public final class ModRenderHelper {
                                                       final int areaWidth, final int areaHeight, final double progress,
                                                       final Colour tint) {
 
+        if (0 == progress) {
+            return;
+        }
+
         switch (orientation) {
 
             case BottomToTop:
@@ -745,6 +753,10 @@ public final class ModRenderHelper {
     public static void paintTopToBottomTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
+
+        if (0 == paintWidth || 0 == paintHeight) {
+            return;
+        }
 
         final Matrix4f pose = gfx.pose().last().pose();
         final float spriteMinU = sprite.getMinU();
@@ -807,6 +819,10 @@ public final class ModRenderHelper {
     public static void paintBottomToTopTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
+
+        if (0 == paintWidth || 0 == paintHeight) {
+            return;
+        }
 
         final Matrix4f pose = gfx.pose().last().pose();
         final float spriteMinU = sprite.getMinU();
@@ -871,6 +887,10 @@ public final class ModRenderHelper {
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
 
+        if (0 == paintWidth || 0 == paintHeight) {
+            return;
+        }
+
         final Matrix4f pose = gfx.pose().last().pose();
         final float spriteMinU = sprite.getMinU();
         final float spriteMaxU = sprite.getMaxU();
@@ -933,6 +953,10 @@ public final class ModRenderHelper {
     public static void paintRightToLeftTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
+
+        if (0 == paintWidth || 0 == paintHeight) {
+            return;
+        }
 
         final Matrix4f pose = gfx.pose().last().pose();
         final float spriteMinU = sprite.getMinU();
