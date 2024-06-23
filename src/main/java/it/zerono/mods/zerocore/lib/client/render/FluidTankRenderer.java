@@ -89,7 +89,7 @@ public abstract class FluidTankRenderer {
 
                 if (yIncompleteStepPercentage > 0.0f) {
 
-                    incompleteSpriteMinV = flowingSprite.getV(16.0f * yIncompleteStepPercentage);
+                    incompleteSpriteMinV = flowingSprite.getV(yIncompleteStepPercentage);
                     incompleteSpriteMaxV = flowingSprite.getV0();
 
                 } else {
@@ -109,7 +109,7 @@ public abstract class FluidTankRenderer {
 
                 if (yIncompleteStepPercentage > 0.0f) {
 
-                    incompleteSpriteMinV = flowingSprite.getV(16.0f * (1.0f - yIncompleteStepPercentage));
+                    incompleteSpriteMinV = flowingSprite.getV((1.0f - yIncompleteStepPercentage));
                     incompleteSpriteMaxV = flowingSprite.getV1();
 
                 } else {
