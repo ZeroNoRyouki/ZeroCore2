@@ -27,19 +27,24 @@ import it.zerono.mods.zerocore.internal.network.TileCommandMessage;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTBuilder;
+import it.zerono.mods.zerocore.lib.item.TintedBucketItem;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ContainerDataHandler;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
 import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import it.zerono.mods.zerocore.lib.tag.TagList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -59,6 +64,7 @@ public final class Lib {
         s_resourceReloaded = false;
 
         modEventBus.addListener(Lib::onRegisterPackets);
+        modEventBus.addListener(Lib::onRegisterCapabilities);
 
         NeoForge.EVENT_BUS.addListener(Lib::onAddReloadListener);
         NeoForge.EVENT_BUS.addListener(Lib::onRegisterCommands);
@@ -114,6 +120,16 @@ public final class Lib {
 
         if (!event.getLevel().isClientSide()) {
             s_resourceReloaded = false;
+        }
+    }
+
+    private static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+
+        for (final var item : BuiltInRegistries.ITEM) {
+
+            if (TintedBucketItem.class == item.getClass()) {
+                event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new FluidBucketWrapper(stack), item);
+            }
         }
     }
 
