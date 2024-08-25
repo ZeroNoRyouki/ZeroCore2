@@ -21,8 +21,12 @@ package it.zerono.mods.zerocore.lib.block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 public class ModOreBlock
     extends ModBlock {
@@ -37,8 +41,9 @@ public class ModOreBlock
     //region Block
 
     @Override
-    public int getExpDrop(BlockState state, LevelReader reader, RandomSource random, BlockPos pos) {
-        return this.getExperience(random);
+    public int getExpDrop(BlockState state, LevelAccessor level, BlockPos pos, @Nullable BlockEntity blockEntity,
+                          @Nullable Entity breaker, ItemStack tool) {
+        return this.getExperience(level.getRandom());
     }
 
     //endregion
