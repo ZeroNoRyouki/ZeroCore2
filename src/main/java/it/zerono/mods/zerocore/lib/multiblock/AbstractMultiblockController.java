@@ -1419,10 +1419,13 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
     }
 
     /*
-     * Marks the whole multiblock for a render update on the client. On the server, this does nothing
+     * Marks the whole multiblock for a render update on the logical client side
      */
 	protected void markMultiblockForRenderUpdate() {
-	    this.forBoundingBoxCoordinates(WorldHelper::markBlockRangeForRenderUpdate);
+
+        if (this.calledByLogicalClient()) {
+            this.forBoundingBoxCoordinates(WorldHelper::markBlockRangeForRenderUpdate);
+        }
 	}
 
     /*
