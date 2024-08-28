@@ -68,9 +68,14 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
 
             final CompoundTag itemTags = tagList.getCompound(i);
             final int slot = itemTags.getInt("Slot");
+            final var stackTag = itemTags.get("Stack");
+
+            if (null == stackTag) {
+                continue;
+            }
 
             if (slot >= 0 && slot < stacks.size()) {
-                stacks.set(slot, adapter.deserialize(registries, itemTags));
+                stacks.set(slot, adapter.deserialize(registries, stackTag));
             }
         }
 
@@ -87,9 +92,10 @@ public abstract class AbstractStackHolder<Holder extends AbstractStackHolder<Hol
             if (!adapter.isEmpty(items.get(i))) {
 
                 final CompoundTag itemTag = new CompoundTag();
+                final var stackTag = adapter.serialize(registries, items.get(i));
 
                 itemTag.putInt("Slot", i);
-                adapter.serialize(registries, items.get(i), itemTag);
+                itemTag.put("Stack", stackTag);
                 nbtTagList.add(itemTag);
             }
         }
