@@ -57,6 +57,28 @@ public abstract class AbstractStackListComponent<StackType, ContentType> {
         CodeHelper.replaceNonNullListElements(target, this._stacks);
     }
 
+    //region Object
+
+    @Override
+    public boolean equals(Object other) {
+
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        return this._stacks.equals(((AbstractStackListComponent<?, ?>) other)._stacks);
+    }
+
+    @Override
+    public int hashCode() {
+        return this._stacks.hashCode();
+    }
+
+    //endregion
     //region internals
 
     private final IStackAdapter<StackType, ContentType> _adapter;
