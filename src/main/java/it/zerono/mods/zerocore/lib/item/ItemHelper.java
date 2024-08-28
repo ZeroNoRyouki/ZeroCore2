@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -230,7 +231,9 @@ public final class ItemHelper {
         if (input instanceof CompoundTag compound && compound.isEmpty()) {
             return ItemStack.EMPTY;
         } else {
-            return ItemStack.parse(registries, input).orElse(ItemStack.EMPTY);
+            return ItemStack.OPTIONAL_CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), input)
+                    .result()
+                    .orElse(ItemStack.EMPTY);
         }
     }
 

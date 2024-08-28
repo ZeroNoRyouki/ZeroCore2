@@ -13,7 +13,7 @@ public final class FluidStackListComponent
         extends AbstractStackListComponent<FluidStack, Fluid> {
 
     public static final ModCodecs<FluidStackListComponent, RegistryFriendlyByteBuf> CODECS = createCodecs(
-            FluidStack.CODEC, FluidStack.OPTIONAL_STREAM_CODEC, FluidStackListComponent::new);
+            FluidStack.OPTIONAL_CODEC, FluidStack.OPTIONAL_STREAM_CODEC, FluidStackListComponent::new);
 
     public FluidStackListComponent(NonNullList<FluidStack> stacks) {
         super(StackAdapters.FLUIDSTACK, stacks);

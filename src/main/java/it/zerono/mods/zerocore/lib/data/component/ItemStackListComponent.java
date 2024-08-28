@@ -13,7 +13,7 @@ public final class ItemStackListComponent
         extends AbstractStackListComponent<ItemStack, Item> {
 
     public static final ModCodecs<ItemStackListComponent, RegistryFriendlyByteBuf> CODECS = createCodecs(
-            ItemStack.CODEC, ItemStack.OPTIONAL_STREAM_CODEC, ItemStackListComponent::new);
+            ItemStack.OPTIONAL_CODEC, ItemStack.OPTIONAL_STREAM_CODEC, ItemStackListComponent::new);
 
     public ItemStackListComponent(NonNullList<ItemStack> stacks) {
         super(StackAdapters.ITEMSTACK, stacks);
