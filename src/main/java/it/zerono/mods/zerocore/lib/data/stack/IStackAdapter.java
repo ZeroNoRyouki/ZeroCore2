@@ -19,6 +19,7 @@
 package it.zerono.mods.zerocore.lib.data.stack;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.List;
@@ -160,14 +161,25 @@ public interface IStackAdapter<StackType, ContentType> {
     StackType deserialize(HolderLookup.Provider registries, Tag input);
 
     /**
-     * Serialize a stack in the provided {@link Tag}
+     * Serialize a stack
      *
      * @param registries the registry data lookup
      * @param stack the stack used by the operation
-     * @param output the {@link Tag} to save to stack data into
      * @return the serialized data
      */
-    Tag serialize(HolderLookup.Provider registries, StackType stack, Tag output);
+    default Tag serialize(HolderLookup.Provider registries, StackType stack) {
+        return this.serialize(registries, stack, new CompoundTag());
+    }
+
+    /**
+     * Serialize a stack
+     *
+     * @param registries the registry data lookup
+     * @param stack the stack used by the operation
+     * @param prefix a {@link Tag} whose content will be added to the output
+     * @return the serialized data
+     */
+    Tag serialize(HolderLookup.Provider registries, StackType stack, Tag prefix);
 
     /**
      * Get a textual representation of the provided stack

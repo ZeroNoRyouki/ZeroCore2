@@ -156,8 +156,13 @@ public final class StackAdapters {
             }
 
             @Override
-            public Tag serialize(HolderLookup.Provider registries, ItemStack stack, Tag output) {
-                return ItemHelper.stackSerializeToNBT(registries, stack, output);
+            public Tag serialize(HolderLookup.Provider registries, ItemStack stack) {
+                return ItemHelper.stackSerializeToNBT(registries, stack);
+            }
+
+            @Override
+            public Tag serialize(HolderLookup.Provider registries, ItemStack stack, Tag prefix) {
+                return ItemHelper.stackSerializeToNBT(registries, stack, prefix);
             }
 
             @Override
@@ -289,8 +294,13 @@ public final class StackAdapters {
             }
 
             @Override
-            public Tag serialize(HolderLookup.Provider registries, FluidStack stack, Tag output) {
-                return FluidHelper.stackSerializeToNBT(registries, stack, output);
+            public Tag serialize(HolderLookup.Provider registries, FluidStack stack) {
+                return FluidHelper.stackSerializeToNBT(registries, stack);
+            }
+
+            @Override
+            public Tag serialize(HolderLookup.Provider registries, FluidStack stack, Tag prefix) {
+                return FluidHelper.stackSerializeToNBT(registries, stack, prefix);
             }
 
             @Override
@@ -427,13 +437,20 @@ public final class StackAdapters {
             }
 
             @Override
-            public Tag serialize(HolderLookup.Provider registries, EnergyStack stack, Tag output) {
+            public Tag serialize(HolderLookup.Provider registries, EnergyStack stack) {
+                return stack.serializeTo(new CompoundTag());
+            }
 
-                if (output instanceof CompoundTag compound) {
-                    return stack.serializeTo(compound);
+            @Override
+            public Tag serialize(HolderLookup.Provider registries, EnergyStack stack, Tag prefix) {
+
+                final var output = new CompoundTag();
+
+                if (prefix instanceof CompoundTag prefixedCompound && !prefixedCompound.isEmpty()) {
+                    output.merge(prefixedCompound);
                 }
 
-                throw new IllegalArgumentException("Output must be a CompoundTag instance");
+                return stack.serializeTo(output);
             }
 
             @Override
@@ -565,8 +582,13 @@ public final class StackAdapters {
             }
 
             @Override
-            public Tag serialize(HolderLookup.Provider registries, WideEnergyStack stack, Tag output) {
-                return WideEnergyStack.CODECS.codec().encode(stack, NbtOps.INSTANCE, output).result().orElseGet(CompoundTag::new);
+            public Tag serialize(HolderLookup.Provider registries, WideEnergyStack stack) {
+                return WideEnergyStack.CODECS.codec().encodeStart(NbtOps.INSTANCE, stack).result().orElseGet(CompoundTag::new);
+            }
+
+            @Override
+            public Tag serialize(HolderLookup.Provider registries, WideEnergyStack stack, Tag prefix) {
+                return WideEnergyStack.CODECS.codec().encode(stack, NbtOps.INSTANCE, prefix).result().orElseGet(CompoundTag::new);
             }
 
             @Override
