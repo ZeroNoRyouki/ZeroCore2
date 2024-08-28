@@ -19,6 +19,12 @@
 package it.zerono.mods.zerocore.lib.data.gfx;
 
 import com.google.common.base.Strings;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +33,21 @@ import java.util.function.IntFunction;
 
 @SuppressWarnings({"WeakerAccess"})
 public class Colour {
+
+    public static final ModCodecs<Colour, ByteBuf> CODECS = new ModCodecs<>(
+            RecordCodecBuilder.create(instance -> instance.group(
+                            Codec.BYTE.fieldOf("r").forGetter(c -> c.R),
+                            Codec.BYTE.fieldOf("g").forGetter(c -> c.G),
+                            Codec.BYTE.fieldOf("b").forGetter(c -> c.B),
+                            Codec.BYTE.fieldOf("a").forGetter(c -> c.A))
+                    .apply(instance, Colour::new)),
+            StreamCodec.composite(
+                    ByteBufCodecs.BYTE, c -> c.R,
+                    ByteBufCodecs.BYTE, c -> c.G,
+                    ByteBufCodecs.BYTE, c -> c.B,
+                    ByteBufCodecs.BYTE, c -> c.A,
+                    Colour::new)
+    );
 
     public static final Colour WHITE = new Colour(0xff, 0xff, 0xff, 0xff);
     public static final Colour BLACK = new Colour(0x00, 0x00, 0x00, 0xff);
