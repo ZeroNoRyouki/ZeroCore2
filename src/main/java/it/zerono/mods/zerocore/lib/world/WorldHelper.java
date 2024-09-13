@@ -134,8 +134,15 @@ public final class WorldHelper {
         world.sendBlockUpdated(position, oldState, newState, 3);
     }
 
-    public static void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
-        ZeroCore.getProxy().markBlockRangeForRenderUpdate(min, max);
+    /**
+     * Mark a range of block for a render update on the logical client side
+     *
+     * @param level The level. If a non-logical client side level is provided this method does nothing
+     * @param min The minimum position in the range
+     * @param max The maximum position in tha range
+     */
+    public static void markBlockRangeForRenderUpdate(Level level, BlockPos min, BlockPos max) {
+        ZeroCore.getProxy().markBlockRangeForRenderUpdate(level, min, max);
     }
 
     /**

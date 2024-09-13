@@ -501,12 +501,14 @@ public abstract class AbstractModBlockEntity
     }
 
     public void markForRenderUpdate() {
-        WorldHelper.markBlockRangeForRenderUpdate(this.getBlockPos(), this.getBlockPos());
+        if (null != this.level && this.level.isClientSide()) {
+            WorldHelper.markBlockRangeForRenderUpdate(this.level, this.getBlockPos(), this.getBlockPos());
+        }
     }
 
     public void requestClientRenderUpdate() {
 
-        if (null != this.level) {
+        if (null != this.level && this.level.isClientSide()) {
             this.level.blockEvent(this.getBlockPos(), this.getBlockType(), EVENT_CLIENT_RENDER_UPDATE, 0);
         }
     }

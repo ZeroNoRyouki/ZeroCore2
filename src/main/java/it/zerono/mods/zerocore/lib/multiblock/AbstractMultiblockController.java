@@ -1424,7 +1424,7 @@ public abstract class AbstractMultiblockController<Controller extends AbstractMu
 	protected void markMultiblockForRenderUpdate() {
 
         if (this.calledByLogicalClient()) {
-            this.forBoundingBoxCoordinates(WorldHelper::markBlockRangeForRenderUpdate);
+            this.forBoundingBoxCoordinates((min, max) -> WorldHelper.markBlockRangeForRenderUpdate(this._world, min, max));
         }
 	}
 

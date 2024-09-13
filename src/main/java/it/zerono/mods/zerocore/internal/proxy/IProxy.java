@@ -41,7 +41,14 @@ public interface IProxy {
 
     Optional<Player> getClientPlayer();
 
-    void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max);
+    /**
+     * Mark a range of block for a render update on the logical client side
+     *
+     * @param level The level. If a non-logical client side level is provided this method does nothing
+     * @param min The minimum position in the range
+     * @param max The maximum position in tha range
+     */
+    void markBlockRangeForRenderUpdate(Level level, BlockPos min, BlockPos max);
 
     void sendPlayerStatusMessage(Player player, Component message);
 

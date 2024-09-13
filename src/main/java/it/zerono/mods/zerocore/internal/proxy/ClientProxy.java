@@ -87,7 +87,12 @@ public class ClientProxy
     }
 
     @Override
-    public void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
+    public void markBlockRangeForRenderUpdate(Level level, BlockPos min, BlockPos max) {
+
+        if (!level.isClientSide()) {
+            return;
+        }
+
         Minecraft.getInstance().levelRenderer.setBlocksDirty(min.getX(), min.getY(), min.getZ(),
                 max.getX(), max.getY(), max.getZ());
     }

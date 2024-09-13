@@ -57,7 +57,7 @@ public class ServerProxy
     }
 
     @Override
-    public void markBlockRangeForRenderUpdate(BlockPos min, BlockPos max) {
+    public void markBlockRangeForRenderUpdate(Level level, BlockPos min, BlockPos max) {
         // do nothing
     }
 
