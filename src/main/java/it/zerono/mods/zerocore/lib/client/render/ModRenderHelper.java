@@ -1448,6 +1448,8 @@ public final class ModRenderHelper {
         }
 
         BufferUploader.drawWithShader(builder.buildOrThrow());
+
+        ModRenderHelper.glResetColour();
         GlStateManager._disableBlend();
     }
 
@@ -1494,6 +1496,8 @@ public final class ModRenderHelper {
         }
 
         BufferUploader.drawWithShader(builder.buildOrThrow());
+
+        ModRenderHelper.glResetColour();
         GlStateManager._disableBlend();
     }
 
@@ -1818,6 +1822,10 @@ public final class ModRenderHelper {
 
     public static void glSetColour(final Colour colour) {
         RenderSystem.setShaderColor(colour.glRed(), colour.glGreen(), colour.glBlue(), colour.glAlpha());
+    }
+
+    public static void glResetColour() {
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     public static void glSetViewport(final int x, final int y, final int width, final int height) {
