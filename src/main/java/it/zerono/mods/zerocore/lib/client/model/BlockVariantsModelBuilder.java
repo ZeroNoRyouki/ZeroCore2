@@ -27,8 +27,12 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -42,7 +46,6 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
         this._modelToBeReplaced = Maps.newHashMap();
         this._modelsToBeLoaded = Maps.newHashMap();
         this._variants = Maps.newHashMap();
-        this._particleVariantIndex = Maps.newHashMap();
         this._hasGeneralQuads = Maps.newHashMap();
     }
 
@@ -58,18 +61,17 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
 
         this._modelToBeReplaced.put(id, modelToReplace);
         this._hasGeneralQuads.put(id, hasGeneralQuads);
-        this._particleVariantIndex.put(id, particleVariantIndex);
     }
 
     /**
-     * Add the provided variants model the specified block.
+     * Add the provided models to the specified block.
      * The provided models will be added to the list of models to load.
      * Note: ModelResourceLocations will not be loaded.
-     *
+     * <p>
      * This is the equivalent of calling addVariant() and loadModel() for each model provided
      *
      * @param blockId the id of the block to add the variants to
-     * @param models the variants models
+     * @param models the models
      */
     public void addModels(final int blockId, ResourceLocation... models) {
 
@@ -78,14 +80,14 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
     }
 
     /**
-     * Add the provided variants model the specified block.
+     * Add the provided models the specified block.
      * The provided models will be added to the list of models to load.
      * Note: ModelResourceLocations will not be loaded.
-     *
+     * <p>
      * This is the equivalent of calling addVariant() and loadModel() for each model provided
      *
      * @param blockId the id of the block to add the variants to
-     * @param models the variants models
+     * @param models the models
      */
     public void addModels(final int blockId, final List<ResourceLocation> models) {
 
@@ -139,6 +141,14 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
         this.addModels(partType.getByteHashCode(), variants);
     }
 
+    protected void setFallbackModelData(int blockId, int variantIndex) {
+        this._fallbackDataBuilder = model -> model.setFallbackModelData(blockId, variantIndex);
+    }
+
+    protected void setFallbackModelData(int blockId, int variantIndex, Consumer<ModelData.@NotNull Builder> builder) {
+        this._fallbackDataBuilder = model -> model.setFallbackModelData(blockId, variantIndex, builder);
+    }
+
     //region ICustomModelBuilder
 
     @Override
@@ -157,13 +167,17 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
         final Set<Integer> ids = this._modelToBeReplaced.keySet();
         final BlockVariantsModel model = this.createReplacementModel(ids.size(), this._ambientOcclusion, this._guid3D, this._builtInRenderer);
 
+        if (null != this._fallbackDataBuilder) {
+            this._fallbackDataBuilder.accept(model);
+        }
+
         for (final int id : ids) {
 
             final List<BakedModel> variants = this._variants.getOrDefault(id, Collections.emptyList()).stream()
                     .map(location -> lookupModel(modelRegistry, location))
                     .collect(Collectors.toList());
 
-            model.addBlock(id, this._hasGeneralQuads.get(id), /*this._particleVariantIndex.get(id),*/ variants);
+            model.addBlock(id, this._hasGeneralQuads.get(id), variants);
             modelRegistry.put(this._modelToBeReplaced.get(id), model);
         }
     }
@@ -190,8 +204,9 @@ public class BlockVariantsModelBuilder implements ICustomModelBuilder {
     private final Map<Integer, ResourceLocation> _modelToBeReplaced;
     private final Map<Integer, List<ResourceLocation>> _modelsToBeLoaded;
     private final Map<Integer, List<ResourceLocation>> _variants;
-    private final Map<Integer, Integer> _particleVariantIndex;
     private final Map<Integer, Boolean> _hasGeneralQuads;
+    @Nullable
+    private Consumer<@NotNull BlockVariantsModel> _fallbackDataBuilder;
 
     //endregion
 }
