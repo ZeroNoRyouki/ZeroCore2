@@ -3,6 +3,10 @@ package it.zerono.mods.zerocore.base.multiblock.client.model;
 import it.zerono.mods.zerocore.lib.block.multiblock.MultiblockPartBlock;
 import it.zerono.mods.zerocore.lib.client.model.multiblock.CuboidPartVariantsModelBuilder;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 public abstract class AbstractCuboidMultiblockModelBuilder
         extends CuboidPartVariantsModelBuilder
@@ -68,6 +72,12 @@ public abstract class AbstractCuboidMultiblockModelBuilder
     @Override
     public ResourceLocationBuilder getModelRoot() {
         return this._modelRoot;
+    }
+
+    @Override
+    public void setFallbackModelData(MultiblockPartBlock<?, ?> part, int variantIndex,
+                                     Consumer<ModelData.@NotNull Builder> builder) {
+        this.setFallbackModelData(part.getPartType().getByteHashCode(), variantIndex, builder);
     }
 
     //endregion

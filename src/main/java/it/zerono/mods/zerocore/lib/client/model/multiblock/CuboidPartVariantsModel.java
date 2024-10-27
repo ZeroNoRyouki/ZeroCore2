@@ -46,6 +46,8 @@ public class CuboidPartVariantsModel extends BlockVariantsModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction renderSide,
                                     RandomSource rand, ModelData data, @Nullable RenderType renderType) {
 
+        data = dataOrFallback(data);
+
         if (null != renderSide && data.has(PartProperties.OUTWARD_FACING) && PartProperties.getOutwardFacing(data).except(renderSide)) {
             return this._template.getQuads(state, renderSide, rand, data, renderType);
         }

@@ -6,8 +6,11 @@ import it.zerono.mods.zerocore.lib.block.multiblock.MultiblockPartBlock;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 
 public interface IMultiblockModelBuilder {
 
@@ -43,4 +46,15 @@ public interface IMultiblockModelBuilder {
         this.addBlock(part.getPartType().getByteHashCode(), this.getBlockStateResourceLocation(part), hasGeneralQuads,
                 additionalModels);
     }
+
+    default void setFallbackModelData(MultiblockPartBlock<?, ?> part) {
+        this.setFallbackModelData(part, 0);
+    }
+
+    default void setFallbackModelData(MultiblockPartBlock<?, ?> part, int variantIndex) {
+        this.setFallbackModelData(part, variantIndex, $ -> {});
+    }
+
+    void setFallbackModelData(MultiblockPartBlock<?, ?> part, int variantIndex,
+                              Consumer<ModelData.@NotNull Builder> builder);
 }

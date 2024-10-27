@@ -6,6 +6,10 @@ import it.zerono.mods.zerocore.lib.client.model.BlockVariantsModelBuilder;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Consumer;
 
 public abstract class AbstractMultiblockModelBuilder
         extends BlockVariantsModelBuilder
@@ -42,6 +46,12 @@ public abstract class AbstractMultiblockModelBuilder
     @Override
     public ResourceLocationBuilder getModelRoot() {
         return this._modelRoot;
+    }
+
+    @Override
+    public void setFallbackModelData(MultiblockPartBlock<?, ?> part, int variantIndex,
+                                     Consumer<ModelData.@NotNull Builder> builder) {
+        this.setFallbackModelData(part.getPartType().getByteHashCode(), variantIndex, builder);
     }
 
     //endregion

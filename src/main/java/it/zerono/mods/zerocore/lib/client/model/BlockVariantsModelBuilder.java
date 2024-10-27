@@ -26,9 +26,13 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class BlockVariantsModelBuilder
         implements ICustomModelBuilder {
@@ -78,6 +82,14 @@ public class BlockVariantsModelBuilder
         return new BlockVariantsModel(blockCount, ambientOcclusion, guid3D, builtInRenderer);
     }
 
+    protected void setFallbackModelData(int blockId, int variantIndex) {
+        this._fallbackDataBuilder = model -> model.setFallbackModelData(blockId, variantIndex);
+    }
+
+    protected void setFallbackModelData(int blockId, int variantIndex, Consumer<ModelData.@NotNull Builder> builder) {
+        this._fallbackDataBuilder = model -> model.setFallbackModelData(blockId, variantIndex, builder);
+    }
+
     //region ICustomModelBuilder
 
     @Override
@@ -96,6 +108,10 @@ public class BlockVariantsModelBuilder
 
         final var replacementModel = this.createReplacementModel(this._blocks.size(), this._ambientOcclusion,
                 this._guid3D, this._builtInRenderer);
+
+        if (null != this._fallbackDataBuilder) {
+            this._fallbackDataBuilder.accept(replacementModel);
+        }
 
         for (final var block : this._blocks.values()) {
 
@@ -167,6 +183,8 @@ public class BlockVariantsModelBuilder
 
     private final Int2ObjectMap<BlockEntrySource> _blocks;
     private final List<ModelResourceLocation> _modelsToBeLoaded;
+    @Nullable
+    private Consumer<@NotNull BlockVariantsModel> _fallbackDataBuilder;
 
     //endregion
 }
