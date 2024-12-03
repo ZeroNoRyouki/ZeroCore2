@@ -17,7 +17,7 @@ public record FluidTankComponent(int capacity, FluidStack content) {
             RecordCodecBuilder.create(instance ->
                     instance.group(
                             Codec.INT.fieldOf("capacity").forGetter(FluidTankComponent::capacity),
-                            FluidStack.CODEC.fieldOf("content").forGetter(FluidTankComponent::content)
+                            FluidStack.OPTIONAL_CODEC.fieldOf("content").forGetter(FluidTankComponent::content)
                     ).apply(instance, FluidTankComponent::new)
             ),
             StreamCodec.composite(

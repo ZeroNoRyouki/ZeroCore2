@@ -18,11 +18,13 @@
 
 package it.zerono.mods.zerocore.lib.client.model;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.zerono.mods.zerocore.lib.client.model.data.GenericProperties;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -33,10 +35,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockVariantsModel
@@ -46,16 +50,39 @@ public class BlockVariantsModel
 
         super(ambientOcclusion, guid3D, builtInRenderer);
         this._entries = new Int2ObjectArrayMap<>(blocksCount);
+        this._fallbackData = DEFAULT_FALLBACK;
     }
 
     @SuppressWarnings("unused")
-    public void addBlock(int blockId, boolean hasGeneralQuads, /*int particlesModelIndex,*/ BakedModel... variants) {
-        this._entries.put(blockId, new BlockEntry(/*particlesModelIndex, */hasGeneralQuads, variants));
+    public void addBlock(int blockId, boolean hasGeneralQuads, BakedModel... variants) {
+        this._entries.put(blockId, new BlockEntry(hasGeneralQuads, variants));
     }
 
     @SuppressWarnings("unused")
-    public void addBlock(int blockId, boolean hasGeneralQuads, /*int particlesModelIndex,*/ List<BakedModel> variants) {
-        this._entries.put(blockId, new BlockEntry(/*particlesModelIndex, */hasGeneralQuads, variants));
+    public void addBlock(int blockId, boolean hasGeneralQuads, List<BakedModel> variants) {
+        this._entries.put(blockId, new BlockEntry(hasGeneralQuads, variants));
+    }
+
+    public void setFallbackModelData(int blockId, int variantIndex) {
+        this.setFallbackModelData(blockId, variantIndex, $ -> {});
+    }
+
+    public void setFallbackModelData(int blockId, int variantIndex, Consumer<ModelData.@NotNull Builder> builder) {
+
+        Preconditions.checkArgument(blockId >= 0, "Block ID must be greater or equal to zero");
+        Preconditions.checkArgument(variantIndex >= 0, "Variant index must be greater or equal to zero");
+        Preconditions.checkNotNull(builder, "Builder must not be null");
+
+        this._fallbackData = Util.make(createFallbackDataBuilder(blockId, variantIndex), builder).build();
+    }
+
+    protected ModelData dataOrFallback(final ModelData data) {
+
+        if (ModelData.EMPTY == data || data.getProperties().isEmpty()) {
+            return this._fallbackData;
+        }
+
+        return data;
     }
 
     //region IDynamicBakedModel
@@ -63,6 +90,8 @@ public class BlockVariantsModel
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction renderSide,
                                     RandomSource rand, ModelData data, @Nullable RenderType renderType) {
+
+        data = dataOrFallback(data);
 
         if (data.has(GenericProperties.ID) && data.has(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
             return this.getBlock(data).getQuads(GenericProperties.getVariantIndex(data), state, renderSide, rand, data, renderType);
@@ -72,7 +101,9 @@ public class BlockVariantsModel
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon(final ModelData data) {
+    public TextureAtlasSprite getParticleIcon(ModelData data) {
+
+        data = dataOrFallback(data);
 
         if (data.has(GenericProperties.ID) && data.has(GenericProperties.VARIANT_INDEX) && this.containsBlock(data)) {
             return this.getBlock(data).getParticleTexture(GenericProperties.getVariantIndex(data), data);
@@ -92,19 +123,25 @@ public class BlockVariantsModel
         return this._entries.get(GenericProperties.getId(data));
     }
 
+    private static ModelData.Builder createFallbackDataBuilder(int blockId, int variantIndex) {
+        return ModelData.builder()
+                .with(GenericProperties.ID, blockId)
+                .with(GenericProperties.VARIANT_INDEX, variantIndex);
+    }
+
+    //region BlockEntry
+
     private static class BlockEntry {
 
-        BlockEntry(/*final int particlesModelIndex,*/ final boolean hasGeneralQuads, final BakedModel... variants) {
+        BlockEntry(final boolean hasGeneralQuads, final BakedModel... variants) {
 
             this._variants = ImmutableList.copyOf(variants);
-            //this._particlesModelIndex = particlesModelIndex;
             this._noGeneralQuads = !hasGeneralQuads;
         }
 
-        BlockEntry(/*final int particlesModelIndex,*/ final boolean hasGeneralQuads, final List<BakedModel> variants) {
+        BlockEntry(final boolean hasGeneralQuads, final List<BakedModel> variants) {
 
             this._variants = ImmutableList.copyOf(variants);
-            //this._particlesModelIndex = particlesModelIndex;
             this._noGeneralQuads = !hasGeneralQuads;
         }
 
@@ -125,13 +162,17 @@ public class BlockVariantsModel
         //region internals
 
         private final List<BakedModel> _variants;
-        //private final int _particlesModelIndex;
         private final boolean _noGeneralQuads;
 
         //endregion
     }
 
+    //endregion
+
+    private static final ModelData DEFAULT_FALLBACK = createFallbackDataBuilder(0, 0).build();
+
     private final Int2ObjectMap<BlockEntry> _entries;
+    private ModelData _fallbackData;
 
     //endregion
 }
