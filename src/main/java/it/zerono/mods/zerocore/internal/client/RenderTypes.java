@@ -54,6 +54,30 @@ public final class RenderTypes
                     .setCullState(NO_CULL)
                     .createCompositeState(false));
 
+    public static final RenderType GUI_TRIANGLES_SOLID = create(
+            ZeroCore.MOD_ID + ":gui_triangles_solid",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.TRIANGLES,
+            786432,
+            RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_GUI_SHADER)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .createCompositeState(false)
+    );
+
+    public static final RenderType GUI_TRIANGLE_STRIP_SOLID = create(
+            ZeroCore.MOD_ID + ":gui_triangle_strip_solid",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.TRIANGLE_STRIP,
+            786432,
+            RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_GUI_SHADER)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setDepthTestState(LEQUAL_DEPTH_TEST)
+                    .createCompositeState(false)
+    );
+
     //region internals
 
     private RenderTypes(String nameIn, VertexFormat formatIn, VertexFormat.Mode drawModeIn, int bufferSizeIn,

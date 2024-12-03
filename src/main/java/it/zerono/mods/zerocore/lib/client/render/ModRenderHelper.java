@@ -20,10 +20,10 @@ package it.zerono.mods.zerocore.lib.client.render;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.zerono.mods.zerocore.ZeroCore;
@@ -45,8 +45,6 @@ import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -77,6 +75,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -118,7 +117,7 @@ public final class ModRenderHelper {
 
     @Nullable
     public static BakedModel getMissingModel(Map<ModelResourceLocation, BakedModel> modelRegistry) {
-        return modelRegistry.get(ModelBakery.MISSING_MODEL_VARIANT);
+        return modelRegistry.get(MissingBlockModel.VARIANT);
     }
 
     public static void bindTexture(final ResourceLocation textureLocation) {
@@ -142,19 +141,19 @@ public final class ModRenderHelper {
     }
 
     public static TextureAtlasSprite getFluidStillSprite(final Fluid fluid) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(fluid).getStillTexture()));
+        return getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(fluid).getStillTexture()));
     }
 
     public static TextureAtlasSprite getFluidStillSprite(final FluidStack stack) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(stack.getFluid()).getStillTexture(stack)));
+        return getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(stack.getFluid()).getStillTexture(stack)));
     }
 
     public static TextureAtlasSprite getFluidFlowingSprite(final Fluid fluid) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(fluid).getFlowingTexture()));
+        return getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(fluid).getFlowingTexture()));
     }
 
     public static TextureAtlasSprite getFluidFlowingSprite(final FluidStack stack) {
-        return ModRenderHelper.getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(stack.getFluid()).getFlowingTexture(stack)));
+        return getTextureSprite(Objects.requireNonNull(IClientFluidTypeExtensions.of(stack.getFluid()).getFlowingTexture(stack)));
     }
 
     public static TextureAtlasSprite getMissingTexture(final ResourceLocation atlasName) {
@@ -170,7 +169,7 @@ public final class ModRenderHelper {
 
         final ResourceLocation rl = IClientFluidTypeExtensions.of(fluid).getOverlayTexture();
 
-        return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
+        return null != rl ? getTextureSprite(rl) : null;
     }
 
     @Nullable
@@ -178,7 +177,7 @@ public final class ModRenderHelper {
 
         final ResourceLocation rl = IClientFluidTypeExtensions.of(stack.getFluid()).getOverlayTexture(stack);
 
-        return null != rl ? ModRenderHelper.getTextureSprite(rl) : null;
+        return null != rl ? getTextureSprite(rl) : null;
     }
 
     public static int getFluidTint(final Fluid fluid) {
@@ -261,7 +260,7 @@ public final class ModRenderHelper {
         return (combinedLight & 0xFFFF0000) | Math.max(blockLight << 4, combinedLight & 0xFFFF);
     }
 
-    public static void renderBlockFace(VertexConsumer renderer, Matrix4f matrix, Direction face,
+    public static void renderBlockFace(VertexConsumer vertexBuilder, Matrix4f matrix, Direction face,
                                        float x1, float y1, float z1, float x2, float y2, float z2,
                                        float minU, float maxU, float minV, float maxV, int color, int brightness) {
 
@@ -276,55 +275,55 @@ public final class ModRenderHelper {
 
             case DOWN: {
 
-                renderer.addVertex(matrix, x1, y1, z2).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y1, z1).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y1, z1).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y1, z2).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y1, z2).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y1, z1).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y1, z1).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y1, z2).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
                 break;
             }
 
             case UP: {
 
-                renderer.addVertex(matrix, x1, y2, z1).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y2, z2).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y2, z2).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y2, z1).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y2, z1).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y2, z2).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y2, z2).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y2, z1).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
                 break;
             }
 
             case NORTH: {
 
-                renderer.addVertex(matrix, x1, y1, z1).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y2, z1).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y2, z1).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y1, z1).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y1, z1).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y2, z1).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y2, z1).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y1, z1).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
                 break;
             }
 
             case SOUTH: {
 
-                renderer.addVertex(matrix, x2, y1, z2).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y2, z2).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y2, z2).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y1, z2).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y1, z2).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y2, z2).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y2, z2).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y1, z2).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
                 break;
             }
 
             case WEST: {
 
-                renderer.addVertex(matrix, x1, y1, z2).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y2, z2).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y2, z1).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x1, y1, z1).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y1, z2).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y2, z2).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y2, z1).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x1, y1, z1).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
                 break;
             }
 
             case EAST: {
 
-                renderer.addVertex(matrix, x2, y1, z1).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y2, z1).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y2, z2).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
-                renderer.addVertex(matrix, x2, y1, z2).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y1, z1).setColor(red, green, blue, alpha).setUv(minU, maxV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y2, z1).setColor(red, green, blue, alpha).setUv(minU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y2, z2).setColor(red, green, blue, alpha).setUv(maxU, minV).setUv2(light1, light2);
+                vertexBuilder.addVertex(matrix, x2, y1, z2).setColor(red, green, blue, alpha).setUv(maxU, maxV).setUv2(light1, light2);
                 break;
             }
         }
@@ -336,18 +335,18 @@ public final class ModRenderHelper {
      * Render a list of BakedQuads into the provided builder
      *
      * @param matrix the render system matrix to use
-     * @param builder the vertex builder to add the quads to
+     * @param vertexBuilder the vertex builder to add the quads to
      * @param quads the quads to render
      * @param combinedLight
      * @param combinedOverlay
      */
-    public static void renderQuads(final PoseStack matrix, final VertexConsumer builder, final List<BakedQuad> quads,
+    public static void renderQuads(final PoseStack matrix, final VertexConsumer vertexBuilder, final List<BakedQuad> quads,
                                    final int combinedLight, final int combinedOverlay) {
 
         final PoseStack.Pose entry = matrix.last();
 
         for (final BakedQuad quad : quads) {
-            builder.putBulkData(entry, quad, 1.0f, 1.0f, 1.0f, 1.0f, combinedLight, combinedOverlay, true);
+            vertexBuilder.putBulkData(entry, quad, 1.0f, 1.0f, 1.0f, 1.0f, combinedLight, combinedOverlay, true);
         }
     }
 
@@ -355,13 +354,13 @@ public final class ModRenderHelper {
      * Render a list of BakedQuads into the provided builder with a color tint (if the quad support it)
      *
      * @param matrix the render system matrix to use
-     * @param builder the vertex builder to add the quads to
+     * @param vertexBuilder the vertex builder to add the quads to
      * @param quads the quads to render
      * @param combinedLight
      * @param combinedOverlay
      * @param quadTintGetter get a Colour to use as a tint for the quad tint index
      */
-    public static void renderQuads(final PoseStack matrix, final VertexConsumer builder, final List<BakedQuad> quads,
+    public static void renderQuads(final PoseStack matrix, final VertexConsumer vertexBuilder, final List<BakedQuad> quads,
                                    final int combinedLight, final int combinedOverlay,
                                    final IntFunction<Colour> quadTintGetter) {
 
@@ -385,7 +384,7 @@ public final class ModRenderHelper {
                 red = green = blue = alpha = 1.0f;
             }
 
-            builder.putBulkData(entry, quad, red, green, blue, alpha, combinedLight, combinedOverlay, true);
+            vertexBuilder.putBulkData(entry, quad, red, green, blue, alpha, combinedLight, combinedOverlay, true);
         }
     }
 
@@ -398,20 +397,20 @@ public final class ModRenderHelper {
      * @param model the backed model to render
      * @param data addition data for the model
      * @param matrix the render system matrix to use
-     * @param builder the vertex builder to add the quads to
+     * @param vertexBuilder the vertex builder to add the quads to
      * @param combinedLight
      * @param combinedOverlay
      */
     public static void renderModel(final BakedModel model, final ModelData data, final PoseStack matrix,
-                                   final VertexConsumer builder, final int combinedLight, final int combinedOverlay,
+                                   final VertexConsumer vertexBuilder, final int combinedLight, final int combinedOverlay,
                                    @Nullable RenderType renderType) {
 
         for (final Direction direction : CodeHelper.DIRECTIONS) {
-            renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data, renderType),
+            renderQuads(matrix, vertexBuilder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data, renderType),
                     combinedLight, combinedOverlay);
         }
 
-        renderQuads(matrix, builder, model.getQuads(null, null, CodeHelper.fakeRandom(), data, renderType),
+        renderQuads(matrix, vertexBuilder, model.getQuads(null, null, CodeHelper.fakeRandom(), data, renderType),
                 combinedLight, combinedOverlay);
     }
 
@@ -421,21 +420,21 @@ public final class ModRenderHelper {
      * @param model the backed model to render
      * @param data addition data for the model
      * @param matrix the render system matrix to use
-     * @param builder the vertex builder to add the quads to
+     * @param vertexBuilder the vertex builder to add the quads to
      * @param combinedLight
      * @param combinedOverlay
      * @param quadTintGetter get a Colour to use as a tint for the quad tint index
      */
     public static void renderModel(final BakedModel model, final ModelData data, final PoseStack matrix,
-                                   final VertexConsumer builder, final int combinedLight, final int combinedOverlay,
+                                   final VertexConsumer vertexBuilder, final int combinedLight, final int combinedOverlay,
                                    final IntFunction<Colour> quadTintGetter, @Nullable RenderType renderType) {
 
         for (final Direction direction : CodeHelper.DIRECTIONS) {
-            renderQuads(matrix, builder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data, renderType),
+            renderQuads(matrix, vertexBuilder, model.getQuads(null, direction, CodeHelper.fakeRandom(), data, renderType),
                     combinedLight, combinedOverlay, quadTintGetter);
         }
 
-        renderQuads(matrix, builder, model.getQuads(null, null, CodeHelper.fakeRandom(), data, renderType),
+        renderQuads(matrix, vertexBuilder, model.getQuads(null, null, CodeHelper.fakeRandom(), data, renderType),
                 combinedLight, combinedOverlay, quadTintGetter);
     }
 
@@ -541,17 +540,15 @@ public final class ModRenderHelper {
     //endregion
     //region voxel shapes helpers
 
-    public static void paintVoxelShape(final VoxelShape shape, final PoseStack matrix, final MultiBufferSource bufferSource,
-                                       final RenderType renderType, final double originX, final double originY,
-                                       final double originZ, final Colour colour) {
+    public static void paintVoxelShape(final VoxelShape shape, final PoseStack matrix, final VertexConsumer vertexBuilder,
+                                       final double originX, final double originY, final double originZ, final Colour colour) {
 
-        final VertexConsumer buffer = bufferSource.getBuffer(renderType);
         final Matrix4f m = matrix.last().pose();
         final PoseStack.Pose normal = matrix.last();
-        final float red = colour.glRed();
-        final float green = colour.glGreen();
-        final float blue = colour.glBlue();
-        final float alpha = colour.glAlpha();
+//        final float red = colour.glRed();
+//        final float green = colour.glGreen();
+//        final float blue = colour.glBlue();
+//        final float alpha = colour.glAlpha();
 
         shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
 
@@ -563,11 +560,11 @@ public final class ModRenderHelper {
             deltaY = deltaY / len;
             deltaZ = deltaZ / len;
 
-            buffer.addVertex(m, (float) (x1 + originX), (float) (y1 + originY), (float) (z1 + originZ))
-                    .setColor(red, green, blue, alpha)
+            vertexBuilder.addVertex(m, (float) (x1 + originX), (float) (y1 + originY), (float) (z1 + originZ))
+                    .setColor(colour.R, colour.G, colour.B, colour.A)
                     .setNormal(normal, deltaX, deltaY, deltaZ);
-            buffer.addVertex(m, (float) (x2 + originX), (float) (y2 + originY), (float) (z2 + originZ))
-                    .setColor(red, green, blue, alpha)
+            vertexBuilder.addVertex(m, (float) (x2 + originX), (float) (y2 + originY), (float) (z2 + originZ))
+                    .setColor(colour.R, colour.G, colour.B, colour.A)
                     .setNormal(normal, deltaX, deltaY, deltaZ);
         });
     }
@@ -579,7 +576,7 @@ public final class ModRenderHelper {
     /**
      * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
      *
-     * @param gfx the GuiGraphics for the current paint operation
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
      * @param zLevel the position on the Z axis for the sprite
@@ -588,13 +585,62 @@ public final class ModRenderHelper {
      */
     public static void paintSprite(final GuiGraphics gfx, final ISprite sprite, final Point screenXY, final int zLevel,
                                    final int width, final int height) {
-        paintSprite(gfx, sprite, screenXY.X, screenXY.Y, zLevel, width, height);
+        paintSprite(RenderTypes::guiTextured, gfx, sprite, screenXY.X, screenXY.Y, zLevel, width, height, Colour.WHITE);
     }
 
     /**
      * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
      *
-     * @param gfx the GuiGraphics for the current paint operation
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     */
+    public static void paintSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                   final GuiGraphics gfx, final ISprite sprite, final Point screenXY, final int zLevel,
+                                   final int width, final int height) {
+        paintSprite(renderTypeGetter, gfx, sprite, screenXY.X, screenXY.Y, zLevel, width, height, Colour.WHITE);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     */
+    public static void paintSprite(final GuiGraphics gfx, final ISprite sprite, final Point screenXY, final int zLevel,
+                                   final int width, final int height, Colour tint) {
+        paintSprite(RenderTypes::guiTextured, gfx, sprite, screenXY.X, screenXY.Y, zLevel, width, height, tint);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     */
+    public static void paintSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                   final GuiGraphics gfx, final ISprite sprite, final Point screenXY, final int zLevel,
+                                   final int width, final int height, Colour tint) {
+        paintSprite(renderTypeGetter, gfx, sprite, screenXY.X, screenXY.Y, zLevel, width, height, tint);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
      * @param y painting coordinates relative to the top-left corner of the screen
@@ -604,26 +650,78 @@ public final class ModRenderHelper {
      */
     public static void paintSprite(final GuiGraphics gfx, final ISprite sprite, final int x, final int y,
                                    final int zLevel, final int width, final int height) {
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        final GuiGraphicsAccessor gfxAccessor = (GuiGraphicsAccessor)gfx;
-
-        gfxAccessor.zerocore_invokeInnerBlit(sprite.getTextureMap().getTextureLocation(), x, x + width, y, y + height,
-                zLevel, sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV());
-
-        RenderSystem.disableBlend();
-
-        sprite.applyOverlay(o -> paintSprite(gfx, o, x, y, zLevel, width, height));
+        paintSprite(RenderTypes::guiTextured, gfx, sprite, x, y, zLevel, width, height, Colour.WHITE);
     }
 
     /**
      * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
      *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     */
+    public static void paintSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                   final GuiGraphics gfx, final ISprite sprite, final int x, final int y,
+                                   final int zLevel, final int width, final int height) {
+        paintSprite(renderTypeGetter, gfx, sprite, x, y, zLevel, width, height, Colour.WHITE);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param tint the tint to apply to the sprite
+     */
+    public static void paintSprite(final GuiGraphics gfx, final ISprite sprite, final int x, final int y,
+                                   final int zLevel, final int width, final int height, Colour tint) {
+        paintSprite(RenderTypes::guiTextured, gfx, sprite, x, y, zLevel, width, height, tint);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param tint the tint to apply to the sprite
+     */
+    public static void paintSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                   final GuiGraphics gfx, final ISprite sprite, final int x, final int y,
+                                   final int zLevel, final int width, final int height, Colour tint) {
+
+//        RenderSystem.enableBlend();
+//        RenderSystem.defaultBlendFunc();
+
+        paintSpriteAtZ(gfx, renderTypeGetter, sprite.getTextureMap().getTextureLocation(), x, x + width, y, y + height,
+                sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV(), tint, zLevel);
+
+//        RenderSystem.disableBlend();
+
+        sprite.applyOverlay(o -> paintSprite(renderTypeGetter, gfx, o, x, y, zLevel, width, height, tint));
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     * <p>
      * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
      *
-     * @param gfx the GuiGraphics for the current paint operation
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param sprite the sprite to paint
      * @param xOffset painting coordinates relative to the top-left corner of the screen
      * @param yOffset painting coordinates relative to the top-left corner of the screen
@@ -639,9 +737,92 @@ public final class ModRenderHelper {
     public static void paintSprite(final GuiGraphics gfx, final ISprite sprite, final int xOffset, final int yOffset,
                                    final int zLevel, final Padding padding, final int width, final int height,
                                    final int maskTop, final int maskBottom, final int maskLeft, final int maskRight) {
+        paintSprite(RenderTypes::guiTextured, gfx, sprite, xOffset, yOffset, zLevel, padding, width, height,
+                maskTop, maskBottom, maskLeft, maskRight, Colour.WHITE);
+    }
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     * <p>
+     * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
+     *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param xOffset painting coordinates relative to the top-left corner of the screen
+     * @param yOffset painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param padding padding
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param maskTop mask offset form the top of the sprite
+     * @param maskBottom mask offset form the bottom of the sprite
+     * @param maskLeft mask offset form the left of the sprite
+     * @param maskRight mask offset form the right of the sprite
+     */
+    public static void paintSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                   final GuiGraphics gfx, final ISprite sprite, final int xOffset, final int yOffset,
+                                   final int zLevel, final Padding padding, final int width, final int height,
+                                   final int maskTop, final int maskBottom, final int maskLeft, final int maskRight) {
+        paintSprite(renderTypeGetter, gfx, sprite, xOffset, yOffset, zLevel, padding, width, height,
+                maskTop, maskBottom, maskLeft, maskRight, Colour.WHITE);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     * <p>
+     * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param xOffset painting coordinates relative to the top-left corner of the screen
+     * @param yOffset painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param padding padding
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param maskTop mask offset form the top of the sprite
+     * @param maskBottom mask offset form the bottom of the sprite
+     * @param maskLeft mask offset form the left of the sprite
+     * @param maskRight mask offset form the right of the sprite
+     * @param tint the tint to apply to the sprite
+     */
+    public static void paintSprite(final GuiGraphics gfx, final ISprite sprite, final int xOffset, final int yOffset,
+                                   final int zLevel, final Padding padding, final int width, final int height,
+                                   final int maskTop, final int maskBottom, final int maskLeft, final int maskRight,
+                                   Colour tint) {
+        paintSprite(RenderTypes::guiTextured, gfx, sprite, xOffset, yOffset, zLevel, padding, width, height,
+                maskTop, maskBottom, maskLeft, maskRight, tint);
+    }
+
+    /**
+     * Paint an ISprite from the associated ISpriteTextureMap at the given screen coordinates
+     * <p>
+     * Draw only part of the sprite, by masking off parts of it. For compatibly with JEI IDrawableStatic interface
+     *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param sprite the sprite to paint
+     * @param xOffset painting coordinates relative to the top-left corner of the screen
+     * @param yOffset painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the sprite
+     * @param padding padding
+     * @param width the width of the area to paint
+     * @param height the height of the area to paint
+     * @param maskTop mask offset form the top of the sprite
+     * @param maskBottom mask offset form the bottom of the sprite
+     * @param maskLeft mask offset form the left of the sprite
+     * @param maskRight mask offset form the right of the sprite
+     * @param tint the tint to apply to the sprite
+     */
+    public static void paintSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                   final GuiGraphics gfx, final ISprite sprite, final int xOffset, final int yOffset,
+                                   final int zLevel, final Padding padding, final int width, final int height,
+                                   final int maskTop, final int maskBottom, final int maskLeft, final int maskRight,
+                                   Colour tint) {
+
+//        RenderSystem.enableBlend();
+//        RenderSystem.defaultBlendFunc();
 
         final int x = xOffset + padding.getLeft() + maskLeft;
         final int y = yOffset + padding.getTop() + maskTop;
@@ -652,15 +833,15 @@ public final class ModRenderHelper {
         final float widthRatio = 1.0F / sprite.getTextureMap().getWidth();
         final float heightRatio = 1.0F / sprite.getTextureMap().getHeight();
 
-        final GuiGraphicsAccessor gfxAccessor = (GuiGraphicsAccessor)gfx;
+        paintSpriteAtZ(gfx, renderTypeGetter, sprite.getTextureMap().getTextureLocation(),
+                x, x + paintWidth, y, y + paintHeight,
+                u * widthRatio, (u + (float) paintWidth) * widthRatio,
+                v * heightRatio, (v + (float) paintHeight) * heightRatio, tint, zLevel);
 
-        gfxAccessor.zerocore_invokeInnerBlit(sprite.getTextureMap().getTextureLocation(), x, x + paintWidth, y, y + paintHeight,
-                zLevel, u * widthRatio, (u + (float) paintWidth) * widthRatio,
-                v * heightRatio, (v + (float) paintHeight) * heightRatio);
+//        RenderSystem.disableBlend();
 
-        RenderSystem.disableBlend();
-
-        sprite.applyOverlay(o -> paintSprite(gfx, o, xOffset, yOffset, zLevel, padding, width, height, maskTop, maskBottom, maskLeft, maskRight));
+        sprite.applyOverlay(o -> paintSprite(renderTypeGetter, gfx, o, xOffset, yOffset, zLevel, padding,
+                width, height, maskTop, maskBottom, maskLeft, maskRight, tint));
     }
 
     /**
@@ -668,7 +849,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param gfx the GuiGraphics for the current paint operation
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param orientation the {@link Orientation} of the progress bar
      * @param sprite the sprite to paint
      * @param screenXY painting coordinates relative to the top-left corner of the screen
@@ -680,6 +861,29 @@ public final class ModRenderHelper {
     public static void paintOrientedProgressBarSprite(final GuiGraphics gfx, final Orientation orientation,
                                                       final ISprite sprite, final Point screenXY, final int zLevel,
                                                       final Rectangle area, final double progress, final Colour tint) {
+        paintOrientedProgressBarSprite(RenderType::guiTextured, gfx, orientation, sprite, screenXY, zLevel,
+                area, progress, tint);
+    }
+
+    /**
+     * Paint a progress bar with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param orientation the {@link Orientation} of the progress bar
+     * @param sprite the sprite to paint
+     * @param screenXY painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param area the maximum area to be filled (the origin is ignored)
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     */
+    public static void paintOrientedProgressBarSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                                      final GuiGraphics gfx, final Orientation orientation,
+                                                      final ISprite sprite, final Point screenXY, final int zLevel,
+                                                      final Rectangle area, final double progress, final Colour tint) {
 
         if (0 == progress) {
             return;
@@ -688,19 +892,23 @@ public final class ModRenderHelper {
         switch (orientation) {
 
             case BottomToTop:
-                paintBottomToTopTiledSprite(gfx, sprite, tint, screenXY.X, screenXY.Y + area.Height, zLevel, area.Width, (int)(area.Height * progress));
+                paintBottomToTopTiledSprite(renderTypeGetter, gfx, sprite, tint, screenXY.X, screenXY.Y + area.Height,
+                        zLevel, area.Width, (int)(area.Height * progress));
                 break;
 
             case TopToBottom:
-                paintTopToBottomTiledSprite(gfx, sprite, tint, screenXY.X, screenXY.Y, zLevel, area.Width, (int)(area.Height * progress));
+                paintTopToBottomTiledSprite(renderTypeGetter, gfx, sprite, tint, screenXY.X, screenXY.Y,
+                        zLevel, area.Width, (int)(area.Height * progress));
                 break;
 
             case LeftToRight:
-                paintLeftToRightTiledSprite(gfx, sprite, tint, screenXY.X, screenXY.Y, zLevel, (int)(area.Width * progress), area.Height);
+                paintLeftToRightTiledSprite(renderTypeGetter, gfx, sprite, tint, screenXY.X, screenXY.Y,
+                        zLevel, (int)(area.Width * progress), area.Height);
                 break;
 
             case RightToLeft:
-                paintRightToLeftTiledSprite(gfx, sprite, tint, screenXY.X + area.Width, screenXY.Y, zLevel, (int)(area.Width * progress), area.Height);
+                paintRightToLeftTiledSprite(renderTypeGetter, gfx, sprite, tint, screenXY.X + area.Width, screenXY.Y,
+                        zLevel, (int)(area.Width * progress), area.Height);
                 break;
         }
     }
@@ -710,7 +918,7 @@ public final class ModRenderHelper {
      * <p>
      * All the coordinates are relative to the screen upper/left corner.
      *
-     * @param gfx the GuiGraphics for the current paint operation
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param orientation the {@link Orientation} of the progress bar
      * @param sprite the sprite to paint
      * @param x painting coordinates relative to the top-left corner of the screen
@@ -725,6 +933,32 @@ public final class ModRenderHelper {
                                                       final ISprite sprite, final int x, final int y, final int zLevel,
                                                       final int areaWidth, final int areaHeight, final double progress,
                                                       final Colour tint) {
+        paintOrientedProgressBarSprite(RenderType::guiTextured, gfx, orientation, sprite, x, y, zLevel,
+                areaWidth, areaHeight, progress, tint);
+    }
+
+    /**
+     * Paint a progress bar with an ISprite up to the indicated progress percentage.
+     * <p>
+     * All the coordinates are relative to the screen upper/left corner.
+     *
+     * @param renderTypeGetter the {@link RenderType} provider
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param orientation the {@link Orientation} of the progress bar
+     * @param sprite the sprite to paint
+     * @param x painting coordinates relative to the top-left corner of the screen
+     * @param y painting coordinates relative to the top-left corner of the screen
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param areaWidth the width of the maximum area to be filled
+     * @param areaHeight the height of the maximum area to be filled
+     * @param progress a percentage indicating how much to fill the rect (must be between 0.0 and 1.0)
+     * @param tint the colour to tint the sprite with
+     */
+    public static void paintOrientedProgressBarSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                                      final GuiGraphics gfx, final Orientation orientation,
+                                                      final ISprite sprite, final int x, final int y, final int zLevel,
+                                                      final int areaWidth, final int areaHeight, final double progress,
+                                                      final Colour tint) {
 
         if (0 == progress) {
             return;
@@ -733,24 +967,35 @@ public final class ModRenderHelper {
         switch (orientation) {
 
             case BottomToTop:
-                paintBottomToTopTiledSprite(gfx, sprite, tint, x, y + areaHeight, zLevel, areaWidth, (int)(areaHeight * progress));
+                paintBottomToTopTiledSprite(renderTypeGetter, gfx, sprite, tint, x, y + areaHeight, zLevel,
+                        areaWidth, (int)(areaHeight * progress));
                 break;
 
             case TopToBottom:
-                paintTopToBottomTiledSprite(gfx, sprite, tint, x, y, zLevel, areaWidth, (int)(areaHeight * progress));
+                paintTopToBottomTiledSprite(renderTypeGetter, gfx, sprite, tint, x, y, zLevel,
+                        areaWidth, (int)(areaHeight * progress));
                 break;
 
             case LeftToRight:
-                paintLeftToRightTiledSprite(gfx, sprite, tint, x, y, zLevel, (int)(areaWidth * progress), areaHeight);
+                paintLeftToRightTiledSprite(renderTypeGetter, gfx, sprite, tint, x, y, zLevel,
+                        (int)(areaWidth * progress), areaHeight);
                 break;
 
             case RightToLeft:
-                paintRightToLeftTiledSprite(gfx, sprite, tint, x + areaWidth, y, zLevel, (int)(areaWidth * progress), areaHeight);
+                paintRightToLeftTiledSprite(renderTypeGetter, gfx, sprite, tint, x + areaWidth, y, zLevel,
+                        (int)(areaWidth * progress), areaHeight);
                 break;
         }
     }
 
     public static void paintTopToBottomTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+        paintTopToBottomTiledSprite(RenderType::guiTextured, gfx, sprite, tint, x, y, zLevel, paintWidth, paintHeight);
+    }
+
+    public static void paintTopToBottomTiledSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                                   final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
 
@@ -773,11 +1018,13 @@ public final class ModRenderHelper {
         final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        bindTexture(sprite);
+//        RenderSystem.enableBlend();
+//        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
+//        bindTexture(sprite);
+//
+//        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        final VertexConsumer bufferBuilder = getVertexConsumerFromGfx(gfx, sprite, renderTypeGetter);
 
         for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
 
@@ -812,11 +1059,18 @@ public final class ModRenderHelper {
             }
         }
 
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     public static void paintBottomToTopTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+        paintBottomToTopTiledSprite(RenderType::guiTextured, gfx, sprite, tint, x, y, zLevel, paintWidth, paintHeight);
+    }
+
+    public static void paintBottomToTopTiledSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                                   final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
 
@@ -839,11 +1093,13 @@ public final class ModRenderHelper {
         final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        bindTexture(sprite);
+//        RenderSystem.enableBlend();
+//        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
+//        bindTexture(sprite);
+//
+//        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        final VertexConsumer bufferBuilder = getVertexConsumerFromGfx(gfx, sprite, renderTypeGetter);
 
         for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
 
@@ -879,11 +1135,18 @@ public final class ModRenderHelper {
             }
         }
 
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     public static void paintLeftToRightTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+        paintLeftToRightTiledSprite(RenderType::guiTextured, gfx, sprite, tint, x, y, zLevel, paintWidth, paintHeight);
+    }
+
+    public static void paintLeftToRightTiledSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                                   final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
 
@@ -906,11 +1169,13 @@ public final class ModRenderHelper {
         final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        bindTexture(sprite);
+//        RenderSystem.enableBlend();
+//        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
+//        bindTexture(sprite);
+//
+//        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        final VertexConsumer bufferBuilder = getVertexConsumerFromGfx(gfx, sprite, renderTypeGetter);
 
         for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
 
@@ -946,11 +1211,18 @@ public final class ModRenderHelper {
             }
         }
 
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     public static void paintRightToLeftTiledSprite(final GuiGraphics gfx, final ISprite sprite, final Colour tint,
+                                                   final int x, final int y, final int zLevel,
+                                                   final int paintWidth, final int paintHeight) {
+        paintRightToLeftTiledSprite(RenderType::guiTextured, gfx, sprite, tint, x, y, zLevel, paintWidth, paintHeight);
+    }
+
+    public static void paintRightToLeftTiledSprite(Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter,
+                                                   final GuiGraphics gfx, final ISprite sprite, final Colour tint,
                                                    final int x, final int y, final int zLevel,
                                                    final int paintWidth, final int paintHeight) {
 
@@ -973,11 +1245,13 @@ public final class ModRenderHelper {
         final int leftoverWidth = paintWidth - (horizontalTiles * spriteWidth);
         final int leftoverHeight = paintHeight - (verticalTiles * spriteHeight);
 
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        bindTexture(sprite);
+//        RenderSystem.enableBlend();
+//        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
+//        bindTexture(sprite);
+//
+//        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
-        final BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        final VertexConsumer bufferBuilder = getVertexConsumerFromGfx(gfx, sprite, renderTypeGetter);
 
         for (int horizontalTile = 0; horizontalTile <= horizontalTiles; ++horizontalTile) {
 
@@ -1013,8 +1287,8 @@ public final class ModRenderHelper {
             }
         }
 
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     //endregion
@@ -1025,6 +1299,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param screenXY1 starting painting coordinates relative to the top-left corner of the screen
      * @param screenXY2 ending painting coordinates relative to the top-left corner of the screen (not included in the rectangle)
      * @param zLevel the position on the Z axis for the rectangle
@@ -1032,7 +1307,7 @@ public final class ModRenderHelper {
      */
     public static void paintSolidRect(final GuiGraphics gfx, final Point screenXY1, final Point screenXY2,
                                       final int zLevel, final Colour colour) {
-        gfx.fill(RenderTypes.gui(), screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, zLevel, colour.toARGB());
+        paintSolidRect(RenderTypes.gui(), gfx, screenXY1, screenXY2, zLevel, colour);
     }
 
     /**
@@ -1040,6 +1315,24 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param screenXY1 starting painting coordinates relative to the top-left corner of the screen
+     * @param screenXY2 ending painting coordinates relative to the top-left corner of the screen (not included in the rectangle)
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param colour    the colour to be used to fill the rectangle
+     */
+    public static void paintSolidRect(RenderType renderType, final GuiGraphics gfx,
+                                      final Point screenXY1, final Point screenXY2, final int zLevel, final Colour colour) {
+        paintSolidRect(renderType, gfx, screenXY1.X, screenXY1.Y, screenXY2.X, screenXY2.Y, zLevel, colour);
+    }
+
+    /**
+     * Paint a solid color rectangle with the specified coordinates and colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1 starting point on the X axis
      * @param y1 starting point on the Y axis
      * @param x2 ending point on the X axis (not included in the rectangle)
@@ -1049,7 +1342,27 @@ public final class ModRenderHelper {
      */
     public static void paintSolidRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2,
                                       final int zLevel, final Colour colour) {
-        gfx.fill(RenderType.gui(), x1, y1, x2, y2, zLevel, colour.toARGB());
+        paintSolidRect(RenderType.gui(), gfx, x1, y1, x2, y2, zLevel, colour);
+    }
+
+    /**
+     * Paint a solid color rectangle with the specified coordinates and colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1 starting point on the X axis
+     * @param y1 starting point on the Y axis
+     * @param x2 ending point on the X axis (not included in the rectangle)
+     * @param y2 ending point on the Y axis (not included in the rectangle)
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param colour the colour to be used to fill the rectangle
+     */
+    public static void paintSolidRect(RenderType renderType, final GuiGraphics gfx,
+                                      final int x1, final int y1, final int x2, final int y2, final int zLevel,
+                                      final Colour colour) {
+        gfx.fill(renderType, x1, y1, x2, y2, zLevel, colour.toARGB());
     }
 
     /**
@@ -1057,6 +1370,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param screenXY starting painting coordinates relative to the top-left corner of the screen
      * @param width the length of the rectangle
      * @param height the height of the rectangle
@@ -1073,6 +1387,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1 starting point on the X axis
      * @param y1 starting point on the Y axis
      * @param width the length of the rectangle
@@ -1082,11 +1397,30 @@ public final class ModRenderHelper {
      */
     public static void paintHollowRect(final GuiGraphics gfx, final int x1, final int y1,
                                        final int width, final int height, final int zLevel, final Colour colour) {
+        paintHollowRect(RenderTypes.gui(), gfx, x1, y1, width, height, zLevel, colour);
+    }
 
-        paintHorizontalLine(gfx, x1, y1, width, zLevel, colour);
-        paintVerticalLine(gfx, x1 + width - 1, y1 + 1, height - 2, zLevel, colour);
-        paintHorizontalLine(gfx, x1, y1 + height - 1, width, zLevel, colour);
-        paintVerticalLine(gfx, x1, y1 + 1, height - 2, zLevel, colour);
+    /**
+     * Paint the perimeter of a rectangle with the specified coordinates and colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1 starting point on the X axis
+     * @param y1 starting point on the Y axis
+     * @param width the length of the rectangle
+     * @param height the height of the rectangle
+     * @param zLevel the position on the Z axis for all the rectangles
+     * @param colour the colour to be used to paint the perimeter
+     */
+    public static void paintHollowRect(RenderType renderType, final GuiGraphics gfx, final int x1, final int y1,
+                                       final int width, final int height, final int zLevel, final Colour colour) {
+
+        paintHorizontalLine(renderType, gfx, x1, y1, width, zLevel, colour);
+        paintVerticalLine(renderType, gfx, x1 + width - 1, y1 + 1, height - 2, zLevel, colour);
+        paintHorizontalLine(renderType, gfx, x1, y1 + height - 1, width, zLevel, colour);
+        paintVerticalLine(renderType, gfx, x1, y1 + 1, height - 2, zLevel, colour);
     }
 
     /**
@@ -1094,40 +1428,68 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
-     * @param zLevel        the position on the Z axis for the rectangle
-     * @param lightColour   the light colour to be used for the gradient
-     * @param darkColour    the dark colour to be used for the gradient
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x starting point on the X axis
+     * @param y starting point on the Y axis
+     * @param width width of the triangle on the X axis
+     * @param height height of the triangle on the Y axis
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param lightColour the light colour to be used for the gradient
+     * @param darkColour the dark colour to be used for the gradient
      */
     public static void paintTriangularGradientRect(final GuiGraphics gfx, final int x, final int y,
                                                    final int width, final int height, final int zLevel,
                                                    final Colour lightColour, final Colour darkColour) {
+        paintTriangularGradientRect(RenderType.gui(), gfx, x, y, width, height, zLevel, lightColour, darkColour);
+    }
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    /**
+     * Paint a rectangle filled with a 3D gradient from a light colour to a dark colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x starting point on the X axis
+     * @param y starting point on the Y axis
+     * @param width width of the triangle on the X axis
+     * @param height height of the triangle on the Y axis
+     * @param zLevel the position on the Z axis for the rectangle
+     * @param lightColour the light colour to be used for the gradient
+     * @param darkColour the dark colour to be used for the gradient
+     */
+    public static void paintTriangularGradientRect(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                                   final int width, final int height, final int zLevel,
+                                                   final Colour lightColour, final Colour darkColour) {
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+//        RenderSystem.enableBlend();
+//        RenderSystem.defaultBlendFunc();
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+//
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
         final Matrix4f pose = gfx.pose().last().pose();
-        final float startAlpha = lightColour.glAlpha();
-        final float startRed = lightColour.glRed();
-        final float startGreen = lightColour.glGreen();
-        final float startBlue = lightColour.glBlue();
-        final float endAlpha = darkColour.glAlpha();
-        final float endRed = darkColour.glRed();
-        final float endGreen = darkColour.glGreen();
-        final float endBlue = darkColour.glBlue();
+//        final float startAlpha = lightColour.glAlpha();
+//        final float startRed = lightColour.glRed();
+//        final float startGreen = lightColour.glGreen();
+//        final float startBlue = lightColour.glBlue();
+//        final float endAlpha = darkColour.glAlpha();
+//        final float endRed = darkColour.glRed();
+//        final float endGreen = darkColour.glGreen();
+//        final float endBlue = darkColour.glBlue();
         final int x2 = x + width - 1;
         final int y2 = y + height - 1;
 
-        builder.addVertex(pose, x2,  y, zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose,  x,  y, zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose,  x, y2, zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x2, y2, zLevel).setColor(endRed  , endGreen  , endBlue  , endAlpha);
+        builder.addVertex(pose, x2,  y, zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose,  x,  y, zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose,  x, y2, zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose, x2, y2, zLevel).setColor(darkColour.R, darkColour.G, darkColour.B, darkColour.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//
+//        RenderSystem.disableBlend();
     }
 
     //endregion
@@ -1139,6 +1501,7 @@ public final class ModRenderHelper {
      * The x,y coordinates are relative to the screen upper/left corner
      * <p>
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param screenXY starting point
      * @param length the length of the line
      * @param zLevel the position on the Z axis for the line
@@ -1146,8 +1509,7 @@ public final class ModRenderHelper {
      */
     public static void paintHorizontalLine(final GuiGraphics gfx, final Point screenXY, final int length,
                                            final int zLevel, final Colour colour) {
-        gfx.fill(RenderTypes.gui(), screenXY.X, screenXY.Y, screenXY.X + length + 1, screenXY.Y + 1,
-                zLevel, colour.toARGB());
+        paintHorizontalLine(RenderTypes.gui(), gfx, screenXY.X, screenXY.Y, length, zLevel, colour);
     }
 
     /**
@@ -1156,6 +1518,25 @@ public final class ModRenderHelper {
      * The x,y coordinates are relative to the screen upper/left corner
      * <p>
      *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param screenXY starting point
+     * @param length the length of the line
+     * @param zLevel the position on the Z axis for the line
+     * @param colour the colour to be used to paint the line
+     */
+    public static void paintHorizontalLine(RenderType renderType, final GuiGraphics gfx, final Point screenXY,
+                                           final int length, final int zLevel, final Colour colour) {
+        paintHorizontalLine(renderType, gfx, screenXY.X, screenXY.Y, length, zLevel, colour);
+    }
+
+    /**
+     * Paint a 1 pixel wide horizontal line in the provided colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     * <p>
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x starting point on the X axis
      * @param y starting point on the Y axis
      * @param length the length of the line
@@ -1164,7 +1545,26 @@ public final class ModRenderHelper {
      */
     public static void paintHorizontalLine(final GuiGraphics gfx, final int x, final int y, final int length,
                                            final int zLevel, final Colour colour) {
-        gfx.fill(RenderTypes.gui(), x, y, x + length, y + 1, zLevel, colour.toARGB());
+        paintHorizontalLine(RenderTypes.gui(), gfx, x, y, length, zLevel, colour);
+    }
+
+    /**
+     * Paint a 1 pixel wide horizontal line in the provided colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     * <p>
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x starting point on the X axis
+     * @param y starting point on the Y axis
+     * @param length the length of the line
+     * @param zLevel the position on the Z axis for the line
+     * @param colour the colour to be used to paint the line
+     */
+    public static void paintHorizontalLine(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                           final int length, final int zLevel, final Colour colour) {
+        gfx.fill(renderType, x, y, x + length, y + 1, zLevel, colour.toARGB());
     }
 
     /**
@@ -1173,16 +1573,15 @@ public final class ModRenderHelper {
      * The x,y coordinates are relative to the screen upper/left corner
      * <p>
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param screenXY starting point
      * @param length the length of the line
      * @param zLevel the position on the Z axis for the line
      * @param colour the colour to be used to paint the line
      */
-
     public static void paintVerticalLine(final GuiGraphics gfx, final Point screenXY, final int length,
                                          final int zLevel, final Colour colour) {
-        gfx.fill(RenderTypes.gui(), screenXY.X, screenXY.Y, screenXY.X + 1, screenXY.Y + length + 1,
-                zLevel, colour.toARGB());
+        paintVerticalLine(RenderTypes.gui(), gfx, screenXY.X, screenXY.Y, length, zLevel, colour);
     }
 
     /**
@@ -1191,16 +1590,53 @@ public final class ModRenderHelper {
      * The x,y coordinates are relative to the screen upper/left corner
      * <p>
      *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param screenXY starting point
+     * @param length the length of the line
+     * @param zLevel the position on the Z axis for the line
+     * @param colour the colour to be used to paint the line
+     */
+    public static void paintVerticalLine(RenderType renderType, final GuiGraphics gfx, final Point screenXY,
+                                         final int length, final int zLevel, final Colour colour) {
+        paintVerticalLine(renderType, gfx, screenXY.X, screenXY.Y, length, zLevel, colour);
+    }
+
+    /**
+     * Paint a 1 pixel wide vertical line in the provided colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     * <p>
+     *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x         starting point on the X axis
      * @param y         starting point on the Y axis
      * @param length    the length of the line
      * @param zLevel    the position on the Z axis for the line
      * @param colour    the colour to be used to paint the line
      */
-
     public static void paintVerticalLine(final GuiGraphics gfx, final int x, final int y, final int length,
                                          final int zLevel, final Colour colour) {
-        gfx.fill(RenderTypes.gui(), x, y, x + 1, y + length, zLevel, colour.toARGB());
+        paintVerticalLine(RenderTypes.gui(), gfx, x, y, length, zLevel, colour);
+    }
+
+    /**
+     * Paint a 1 pixel wide vertical line in the provided colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     * <p>
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x starting point on the X axis
+     * @param y starting point on the Y axis
+     * @param length the length of the line
+     * @param zLevel the position on the Z axis for the line
+     * @param colour the colour to be used to paint the line
+     */
+    public static void paintVerticalLine(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                         final int length, final int zLevel, final Colour colour) {
+        gfx.fill(renderType, x, y, x + 1, y + length, zLevel, colour.toARGB());
     }
 
     //endregion
@@ -1210,42 +1646,77 @@ public final class ModRenderHelper {
                                      final int zLevel, final Colour darkOutlineColour, final Colour gradientLightColour,
                                      final Colour gradientDarkColour, final Colour borderLightColour,
                                      final Colour borderDarkColour) {
-        paintButton3D(gfx, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour, gradientLightColour,
-                gradientDarkColour, borderLightColour, borderDarkColour);
+        paintButton3D(RenderTypes.gui(), gfx, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour,
+                gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
+    }
+
+    public static void paintButton3D(RenderType renderType, final GuiGraphics gfx, final Point screenXY,
+                                     final int width, final int height, final int zLevel,
+                                     final Colour darkOutlineColour, final Colour gradientLightColour,
+                                     final Colour gradientDarkColour, final Colour borderLightColour,
+                                     final Colour borderDarkColour) {
+        paintButton3D(renderType, gfx, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour,
+                gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
     }
 
     public static void paintButton3D(final GuiGraphics gfx, final int x, final int y, final int width, final int height,
                                      final int zLevel, final Colour darkOutlineColour, final Colour gradientLightColour,
                                      final Colour gradientDarkColour, final Colour borderLightColour,
                                      final Colour borderDarkColour) {
+        paintButton3D(RenderTypes.gui(), gfx, x, y, width, height, zLevel, darkOutlineColour,
+                gradientLightColour, gradientDarkColour, borderLightColour, borderDarkColour);
+    }
 
-        paintHollowRect(gfx, x, y, width, height, zLevel, darkOutlineColour);
-        paintTriangularGradientRect(gfx, x + 2, y + 2, width - 3, height - 3, zLevel, gradientLightColour, gradientDarkColour);
+    public static void paintButton3D(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                     final int width, final int height, final int zLevel,
+                                     final Colour darkOutlineColour, final Colour gradientLightColour,
+                                     final Colour gradientDarkColour, final Colour borderLightColour,
+                                     final Colour borderDarkColour) {
 
-        paintHorizontalLine(gfx, x + 1, y + 1, width - 2, zLevel, borderLightColour);
-        paintVerticalLine(gfx, x + 1, y + 1, height - 3, zLevel, borderLightColour);
-        paintHorizontalLine(gfx, x + 1, y + height - 2, width - 2, zLevel, borderDarkColour);
-        paintVerticalLine(gfx, x + width - 2, y + 2, height - 3, zLevel, borderDarkColour);
+        paintHollowRect(renderType, gfx, x, y, width, height, zLevel, darkOutlineColour);
+        paintTriangularGradientRect(renderType, gfx, x + 2, y + 2, width - 3, height - 3, zLevel,
+                gradientLightColour, gradientDarkColour);
+
+        paintHorizontalLine(renderType, gfx, x + 1, y + 1, width - 2, zLevel, borderLightColour);
+        paintVerticalLine(renderType, gfx, x + 1, y + 1, height - 3, zLevel, borderLightColour);
+        paintHorizontalLine(renderType, gfx, x + 1, y + height - 2, width - 2, zLevel, borderDarkColour);
+        paintVerticalLine(renderType, gfx, x + width - 2, y + 2, height - 3, zLevel, borderDarkColour);
     }
 
     public static void paintButton3D(final GuiGraphics gfx, final Point screenXY, final int width, final int height,
                                      final int zLevel, final Colour darkOutlineColour, final Colour flatBackgroundColour,
                                      final Colour borderLightColour, final Colour borderDarkColour) {
-        paintButton3D(gfx, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour, flatBackgroundColour,
-                borderLightColour, borderDarkColour);
+        paintButton3D(RenderTypes.gui(), gfx, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour,
+                flatBackgroundColour, borderLightColour, borderDarkColour);
+    }
+
+    public static void paintButton3D(RenderType renderType, final GuiGraphics gfx, final Point screenXY,
+                                     final int width, final int height, final int zLevel,
+                                     final Colour darkOutlineColour, final Colour flatBackgroundColour,
+                                     final Colour borderLightColour, final Colour borderDarkColour) {
+        paintButton3D(renderType, gfx, screenXY.X, screenXY.Y, width, height, zLevel, darkOutlineColour,
+                flatBackgroundColour, borderLightColour, borderDarkColour);
     }
 
     public static void paintButton3D(final GuiGraphics gfx, final int x, final int y, final int width, final int height,
                                      final int zLevel, final Colour darkOutlineColour, final Colour flatBackgroundColour,
                                      final Colour borderLightColour, final Colour borderDarkColour) {
+        paintButton3D(RenderTypes.gui(), gfx, x, y, width, height, zLevel, darkOutlineColour, flatBackgroundColour,
+                borderLightColour, borderDarkColour);
+    }
 
-        paintHollowRect(gfx, x, y, width, height, zLevel, darkOutlineColour);
-        paintSolidRect(gfx, x + 2, y + 2, x + 2 + width - 3, y + 2 + height - 3, zLevel, flatBackgroundColour);
+    public static void paintButton3D(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                     final int width, final int height, final int zLevel,
+                                     final Colour darkOutlineColour, final Colour flatBackgroundColour,
+                                     final Colour borderLightColour, final Colour borderDarkColour) {
 
-        paintHorizontalLine(gfx, x + 1, y + 1, width - 2, zLevel, borderLightColour);
-        paintVerticalLine(gfx, x + 1, y + 1, height - 3, zLevel, borderLightColour);
-        paintHorizontalLine(gfx, x + 1, y + height - 2, width - 2, zLevel, borderDarkColour);
-        paintVerticalLine(gfx, x + width - 2, y + 2, height - 3, zLevel, borderDarkColour);
+        paintHollowRect(renderType, gfx, x, y, width, height, zLevel, darkOutlineColour);
+        paintSolidRect(renderType, gfx, x + 2, y + 2, x + 2 + width - 3, y + 2 + height - 3, zLevel, flatBackgroundColour);
+
+        paintHorizontalLine(renderType, gfx, x + 1, y + 1, width - 2, zLevel, borderLightColour);
+        paintVerticalLine(renderType, gfx, x + 1, y + 1, height - 3, zLevel, borderLightColour);
+        paintHorizontalLine(renderType, gfx, x + 1, y + height - 2, width - 2, zLevel, borderDarkColour);
+        paintVerticalLine(renderType, gfx, x + width - 2, y + 2, height - 3, zLevel, borderDarkColour);
     }
 
     //endregion
@@ -1258,15 +1729,16 @@ public final class ModRenderHelper {
         final Rectangle boxBounds = message.bounds()
                 .expand(margin * 2, margin * 2)
                 .offset(x, y);
+        final var renderLayer = RenderType.gui();
 
-        paintVerticalLine(gfx, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, background);
-        paintSolidRect(gfx, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, zLevel, background);
-        paintVerticalLine(gfx, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, background);
+        paintVerticalLine(renderLayer, gfx, boxBounds.getX1(), boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, background);
+        paintSolidRect(renderLayer, gfx, boxBounds.getX1() + 1, boxBounds.getY1(), boxBounds.getX2(), boxBounds.getY2() + 1, zLevel, background);
+        paintVerticalLine(renderLayer, gfx, boxBounds.getX2(), boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, background);
 
-        paintVerticalGradientLine(gfx, boxBounds.getX1() + 1, boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, highlight1, highlight2);
-        paintHorizontalGradientLine(gfx, boxBounds.getX1() + 2, boxBounds.getY1() + 1, boxBounds.Width - 4, zLevel, highlight1, highlight2);
-        paintHorizontalGradientLine(gfx, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, zLevel, highlight1, highlight2);
-        paintVerticalGradientLine(gfx, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, highlight1, highlight2);
+        paintVerticalGradientLine(renderLayer, gfx, boxBounds.getX1() + 1, boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, highlight1, highlight2);
+        paintHorizontalGradientLine(renderLayer, gfx, boxBounds.getX1() + 2, boxBounds.getY1() + 1, boxBounds.Width - 4, zLevel, highlight1, highlight2);
+        paintHorizontalGradientLine(renderLayer, gfx, boxBounds.getX1() + 2, boxBounds.getY2() - 1, boxBounds.Width - 4, zLevel, highlight1, highlight2);
+        paintVerticalGradientLine(renderLayer, gfx, boxBounds.getX2() - 1, boxBounds.getY1() + 1, boxBounds.Height - 2, zLevel, highlight1, highlight2);
 
         message.paint(gfx, boxBounds.getX1() + margin, boxBounds.getY1() + margin, zLevel + 1);
     }
@@ -1283,7 +1755,7 @@ public final class ModRenderHelper {
         }
 
         if (highlight) {
-            paintSolidRect(gfx, x, y, x + 16, y + 16, GUI_ITEM_Z - 1, Colour.fromARGB(-2130706433));
+            paintSolidRect(RenderType.gui(), gfx, x, y, x + 16, y + 16, GUI_ITEM_Z - 1, Colour.fromARGB(-2130706433));
         }
 
         gfx.renderItem(stack, x, y);
@@ -1305,6 +1777,7 @@ public final class ModRenderHelper {
      * <p>
      * If the wrong number of vertices are passed in (not multiple of 2) an ArrayIndexOutOfBoundsException will be raised
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param colour    the colour to be used to fill the rectangle
      * @param thickness the thickness of the lines
      * @param zLevel    the position on the Z axis for all the lines
@@ -1313,16 +1786,39 @@ public final class ModRenderHelper {
      */
     public static void paintSolidLines(final GuiGraphics gfx, final Colour colour, final double thickness,
                                        final double zLevel, final double... vertices) {
+        paintSolidLines(RenderTypes.GUI_TRIANGLE_STRIP_SOLID, gfx, colour, thickness, zLevel, vertices);
+    }
+
+    /**
+     * Paint a series of lines in a solid colour.
+     * <p>
+     * The vertices parameter is interpreted as a series of 2 vertex per line (x, y).
+     * Each vertex is relative to the screen upper/left corner. The lines don't need to be connected to each others
+     * <p>
+     * If the wrong number of vertices are passed in (not multiple of 2) an ArrayIndexOutOfBoundsException will be raised
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param colour    the colour to be used to fill the rectangle
+     * @param thickness the thickness of the lines
+     * @param zLevel    the position on the Z axis for all the lines
+     * @param vertices  the vertices of the lines
+     *
+     */
+    public static void paintSolidLines(RenderType renderType, final GuiGraphics gfx, final Colour colour,
+                                       final double thickness, final double zLevel, final double... vertices) {
 
         final Matrix4f pose = gfx.pose().last().pose();
         final float halfThickness = (float)(thickness / 2.0);
         final int verticesCount = vertices.length;
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+//        RenderSystem.enableBlend();
+//        RenderSystem.defaultBlendFunc();
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+//
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
         for (int i = 0; i < verticesCount;) {
             
@@ -1401,8 +1897,8 @@ public final class ModRenderHelper {
             }
         }
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     /**
@@ -1413,44 +1909,64 @@ public final class ModRenderHelper {
      * <p>
      * If the wrong number of vertices are passed in (not multiple of 4) an ArrayIndexOutOfBoundsException will be raised
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param colour    the colour to be used to fill the rectangle
      * @param zLevel    the position on the Z axis for all the rectangles
      * @param vertices  the vertices of the rectangles
      */
     public static void paintSolidRects(final GuiGraphics gfx, final Colour colour, final double zLevel, final int... vertices) {
+        paintSolidRects(RenderType.gui(), gfx, colour, zLevel, vertices);
+    }
 
-        final Tesselator tessellator = Tesselator.getInstance();
+    /**
+     * Paint a series of solid colour rectangles with the specified coordinates and colour.
+     * <p>
+     * The vertices parameter is interpreted as a series of 4 vertex per rectangle (x1, y1, x2, y2).
+     * Each vertex is relative to the screen upper/left corner.
+     * <p>
+     * If the wrong number of vertices are passed in (not multiple of 4) an ArrayIndexOutOfBoundsException will be raised
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param colour    the colour to be used to fill the rectangle
+     * @param zLevel    the position on the Z axis for all the rectangles
+     * @param vertices  the vertices of the rectangles
+     */
+    public static void paintSolidRects(RenderType renderType, final GuiGraphics gfx, final Colour colour,
+                                       final double zLevel, final int... vertices) {
+//used by paint3DSunkenBox, used by TextInput control
+
+
         final Matrix4f pose = gfx.pose().last().pose();
 
-        GlStateManager._enableBlend();
-        GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
-                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
-        ModRenderHelper.glSetColour(colour);
+//        GlStateManager._enableBlend();
+//        GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+//                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
+//                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
+//        glSetColour(colour);
+//
+//        RenderSystem.setShader(CoreShaders.POSITION);
+//
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-
-        final int verticesCount = vertices.length;
-
-        for (int i = 0; i < verticesCount; i += 4) {
+        for (int i = 0; i < vertices.length; i += 4) {
 
             final int x1 = vertices[i];
             final int y1 = vertices[i + 1];
             final int x2 = vertices[i + 2];
             final int y2 = vertices[i + 3];
 
-            builder.addVertex(pose, x1, y2, (float)zLevel);
-            builder.addVertex(pose, x2, y2, (float)zLevel);
-            builder.addVertex(pose, x2, y1, (float)zLevel);
-            builder.addVertex(pose, x1, y1, (float)zLevel);
+            builder.addVertex(pose, x1, y2, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+            builder.addVertex(pose, x2, y2, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+            builder.addVertex(pose, x2, y1, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+            builder.addVertex(pose, x1, y1, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
         }
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-
-        ModRenderHelper.glResetColour();
-        GlStateManager._disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//
+//        glResetColour();
+//        GlStateManager._disableBlend();
     }
 
     /**
@@ -1461,27 +1977,47 @@ public final class ModRenderHelper {
      * <p>
      * If the wrong number of vertices are passed in (not multiple of 4) an ArrayIndexOutOfBoundsException will be raised
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param colour    the colour to be used to fill the rectangle
      * @param zLevel    the position on the Z axis for all the rectangles
      * @param vertices  the vertices of the rectangles
      */
     public static void paintSolidTriangles(final GuiGraphics gfx, final Colour colour, final double zLevel, final int... vertices) {
+        paintSolidTriangles(RenderTypes.GUI_TRIANGLES_SOLID, gfx, colour, zLevel, vertices);
+    }
+
+    /**
+     * Paint a series of solid colour rectangles with the specified coordinates and colour.
+     * <p>
+     * The vertices parameter is interpreted as a series of 4 vertex per rectangle (x1, y1, x2, y2).
+     * Each vertex is relative to the screen upper/left corner.
+     * <p>
+     * If the wrong number of vertices are passed in (not multiple of 4) an ArrayIndexOutOfBoundsException will be raised
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param colour    the colour to be used to fill the rectangle
+     * @param zLevel    the position on the Z axis for all the rectangles
+     * @param vertices  the vertices of the rectangles
+     */
+    public static void paintSolidTriangles(RenderType renderType, final GuiGraphics gfx, final Colour colour,
+                                           final double zLevel, final int... vertices) {
 
         final Matrix4f pose = gfx.pose().last().pose();
 
-        GlStateManager._enableBlend();
-        GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
-                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
-        ModRenderHelper.glSetColour(colour);
+//        GlStateManager._enableBlend();
+//        GlStateManager._blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+//                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
+//                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
+//        glSetColour(colour);
+//
+//        RenderSystem.setShader(CoreShaders.POSITION);
+//
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
 
-        RenderSystem.setShader(GameRenderer::getPositionShader);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
-
-        final int verticesCount = vertices.length;
-
-        for (int i = 0; i < verticesCount; i += 6) {
+        for (int i = 0; i < vertices.length; i += 6) {
 
             final int x1 = vertices[i];
             final int y1 = vertices[i + 1];
@@ -1490,15 +2026,15 @@ public final class ModRenderHelper {
             final int x3 = vertices[i + 4];
             final int y3 = vertices[i + 5];
 
-            builder.addVertex(pose, x1, y1, (float)zLevel);
-            builder.addVertex(pose, x2, y2, (float)zLevel);
-            builder.addVertex(pose, x3, y3, (float)zLevel);
+            builder.addVertex(pose, x1, y1, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+            builder.addVertex(pose, x2, y2, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+            builder.addVertex(pose, x3, y3, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
         }
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-
-        ModRenderHelper.glResetColour();
-        GlStateManager._disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//
+//        glResetColour();
+//        GlStateManager._disableBlend();
     }
 
     /**
@@ -1507,6 +2043,7 @@ public final class ModRenderHelper {
      * The x,y coordinates are relative to the screen upper/left corner
      * <p>
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x         starting point on the X axis
      * @param y         starting point on the Y axis
      * @param length    the length of the line
@@ -1514,9 +2051,30 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintHorizontalGradientLine(final GuiGraphics gfx, final int x, final int y, final int length, final double zLevel,
+    public static void paintHorizontalGradientLine(final GuiGraphics gfx, final int x, final int y, final int length,
+                                                   final double zLevel, final Colour startColour, final Colour endColour) {
+        paintHorizontalGradientLine(RenderType.gui(), gfx, x, y, length, zLevel, startColour, endColour);
+    }
+
+    /**
+     * Paint a 1 pixel wide horizontal line filled with a horizontal gradient from one colour to another.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     * <p>
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x         starting point on the X axis
+     * @param y         starting point on the Y axis
+     * @param length    the length of the line
+     * @param zLevel    the position on the Z axis for the line
+     * @param startColour   the starting colour to be used for the gradient
+     * @param endColour     the ending colour to be used for the gradient
+     */
+    public static void paintHorizontalGradientLine(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                                   final int length, final double zLevel,
                                                    final Colour startColour, final Colour endColour) {
-        ModRenderHelper.paintHorizontalGradientRect(gfx, x, y, x + length, y + 1, zLevel, startColour, endColour);
+        paintHorizontalGradientRect(renderType, gfx, x, y, x + length, y + 1, zLevel, startColour, endColour);
     }
 
     /**
@@ -1525,6 +2083,7 @@ public final class ModRenderHelper {
      * The x,y coordinates are relative to the screen upper/left corner
      * <p>
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x         starting point on the X axis
      * @param y         starting point on the Y axis
      * @param length    the length of the line
@@ -1532,9 +2091,30 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintVerticalGradientLine(final GuiGraphics gfx, final int x, final int y, final int length, final double zLevel,
+    public static void paintVerticalGradientLine(final GuiGraphics gfx, final int x, final int y, final int length,
+                                                 final double zLevel, final Colour startColour, final Colour endColour) {
+        paintVerticalGradientLine(RenderType.gui(), gfx, x, y, length, zLevel, startColour, endColour);
+    }
+
+    /**
+     * Paint a 1 pixel wide vertical line filled with a vertical gradient from one colour to another.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     * <p>
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x         starting point on the X axis
+     * @param y         starting point on the Y axis
+     * @param length    the length of the line
+     * @param zLevel    the position on the Z axis for the line
+     * @param startColour   the starting colour to be used for the gradient
+     * @param endColour     the ending colour to be used for the gradient
+     */
+    public static void paintVerticalGradientLine(RenderType renderType, final GuiGraphics gfx, final int x, final int y,
+                                                 final int length, final double zLevel,
                                                  final Colour startColour, final Colour endColour) {
-        ModRenderHelper.paintVerticalGradientRect(gfx, x, y, x + 1, y + length, zLevel, startColour, endColour);
+        paintVerticalGradientRect(gfx, x, y, x + 1, y + length, zLevel, startColour, endColour);
     }
 
     /**
@@ -1542,6 +2122,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1            starting point on the X axis
      * @param y1            starting point on the Y axis
      * @param x2            ending point on the X axis (not included in the rectangle)
@@ -1550,33 +2131,57 @@ public final class ModRenderHelper {
      * @param startColour   the starting colour to be used for the gradient
      * @param endColour     the ending colour to be used for the gradient
      */
-    public static void paintVerticalGradientRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2, final double zLevel,
+    public static void paintVerticalGradientRect(final GuiGraphics gfx, final int x1, final int y1,
+                                                 final int x2, final int y2, final double zLevel,
+                                                 final Colour startColour, final Colour endColour) {
+        paintVerticalGradientRect(RenderType.gui(), gfx, x1, y1, x2, y2, zLevel, startColour, endColour);
+    }
+
+    /**
+     * Paint a rectangle filled with a vertical gradient from one colour to another.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1            starting point on the X axis
+     * @param y1            starting point on the Y axis
+     * @param x2            ending point on the X axis (not included in the rectangle)
+     * @param y2            ending point on the Y axis (not included in the rectangle)
+     * @param zLevel        the position on the Z axis for the rectangle
+     * @param startColour   the starting colour to be used for the gradient
+     * @param endColour     the ending colour to be used for the gradient
+     */
+    public static void paintVerticalGradientRect(RenderType renderType, final GuiGraphics gfx, final int x1, final int y1,
+                                                 final int x2, final int y2, final double zLevel,
                                                  final Colour startColour, final Colour endColour) {
 
         final Matrix4f pose = gfx.pose().last().pose();
-        final float startAlpha = startColour.glAlpha();
-        final float startRed = startColour.glRed();
-        final float startGreen = startColour.glGreen();
-        final float startBlue = startColour.glBlue();
-        final float endAlpha = endColour.glAlpha();
-        final float endRed = endColour.glRed();
-        final float endGreen = endColour.glGreen();
-        final float endBlue = endColour.glBlue();
+//        final float startAlpha = startColour.glAlpha();
+//        final float startRed = startColour.glRed();
+//        final float startGreen = startColour.glGreen();
+//        final float startBlue = startColour.glBlue();
+//        final float endAlpha = endColour.glAlpha();
+//        final float endRed = endColour.glRed();
+//        final float endGreen = endColour.glGreen();
+//        final float endBlue = endColour.glBlue();
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
-                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+//        RenderSystem.enableBlend();
+//        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
+//                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+//
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        builder.addVertex(pose, x2, y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x1, y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x1, y2, (float)zLevel).setColor(endRed, endGreen, endBlue, endAlpha);
-        builder.addVertex(pose, x2, y2, (float)zLevel).setColor(endRed, endGreen, endBlue, endAlpha);
+        builder.addVertex(pose, x2, y1, (float)zLevel).setColor(startColour.R, startColour.G, startColour.B, startColour.A);
+        builder.addVertex(pose, x1, y1, (float)zLevel).setColor(startColour.R, startColour.G, startColour.B, startColour.A);
+        builder.addVertex(pose, x1, y2, (float)zLevel).setColor(endColour.R, endColour.G, endColour.B, endColour.A);
+        builder.addVertex(pose, x2, y2, (float)zLevel).setColor(endColour.R, endColour.G, endColour.B, endColour.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     /**
@@ -1584,6 +2189,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1            starting point on the X axis
      * @param y1            starting point on the Y axis
      * @param x2            ending point on the X axis (not included in the rectangle)
@@ -1594,31 +2200,54 @@ public final class ModRenderHelper {
      */
     public static void paintHorizontalGradientRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2,
                                                    final double zLevel, final Colour startColour, final Colour endColour) {
+        paintHorizontalGradientRect(RenderType.gui(), gfx, x1, y1, x2, y2, zLevel, startColour, endColour);
+    }
+
+    /**
+     * Paint a rectangle filled with a horizontal gradient from one colour to another.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1            starting point on the X axis
+     * @param y1            starting point on the Y axis
+     * @param x2            ending point on the X axis (not included in the rectangle)
+     * @param y2            ending point on the Y axis (not included in the rectangle)
+     * @param zLevel        the position on the Z axis for the rectangle
+     * @param startColour   the starting colour to be used for the gradient
+     * @param endColour     the ending colour to be used for the gradient
+     */
+    public static void paintHorizontalGradientRect(RenderType renderType, final GuiGraphics gfx, final int x1, final int y1,
+                                                   final int x2, final int y2, final double zLevel,
+                                                   final Colour startColour, final Colour endColour) {
 
         final Matrix4f pose = gfx.pose().last().pose();
-        final float startAlpha = startColour.glAlpha();
-        final float startRed = startColour.glRed();
-        final float startGreen = startColour.glGreen();
-        final float startBlue = startColour.glBlue();
-        final float endAlpha = endColour.glAlpha();
-        final float endRed = endColour.glRed();
-        final float endGreen = endColour.glGreen();
-        final float endBlue = endColour.glBlue();
+//        final float startAlpha = startColour.glAlpha();
+//        final float startRed = startColour.glRed();
+//        final float startGreen = startColour.glGreen();
+//        final float startBlue = startColour.glBlue();
+//        final float endAlpha = endColour.glAlpha();
+//        final float endRed = endColour.glRed();
+//        final float endGreen = endColour.glGreen();
+//        final float endBlue = endColour.glBlue();
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
-                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+//        RenderSystem.enableBlend();
+//        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value,
+//                GlStateManager.SourceFactor.ONE.value, GlStateManager.DestFactor.ZERO.value);
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+//
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        builder.addVertex(pose, x1, y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x1, y2, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x2, y2, (float)zLevel).setColor(endRed, endGreen, endBlue, endAlpha);
-        builder.addVertex(pose, x2, y1, (float)zLevel).setColor(endRed, endGreen, endBlue, endAlpha);
+        builder.addVertex(pose, x1, y1, (float)zLevel).setColor(startColour.R, startColour.G, startColour.B, startColour.A);
+        builder.addVertex(pose, x1, y2, (float)zLevel).setColor(startColour.R, startColour.G, startColour.B, startColour.A);
+        builder.addVertex(pose, x2, y2, (float)zLevel).setColor(endColour.R, endColour.G, endColour.B, endColour.A);
+        builder.addVertex(pose, x2, y1, (float)zLevel).setColor(endColour.R, endColour.G, endColour.B, endColour.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     /**
@@ -1626,6 +2255,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1            starting point on the X axis
      * @param y1            starting point on the Y axis
      * @param x2            ending point on the X axis (not included in the rectangle)
@@ -1636,32 +2266,54 @@ public final class ModRenderHelper {
      */
     public static void paint3DGradientRect(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                            final Colour lightColour, final Colour darkColour) {
+        paint3DGradientRect(RenderType.gui(), gfx, x1, y1, x2, y2, zLevel, lightColour, darkColour);
+    }
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
-                GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    /**
+     * Paint a rectangle filled with a 3D gradient from a light colour to a dark colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1            starting point on the X axis
+     * @param y1            starting point on the Y axis
+     * @param x2            ending point on the X axis (not included in the rectangle)
+     * @param y2            ending point on the Y axis (not included in the rectangle)
+     * @param zLevel        the position on the Z axis for the rectangle
+     * @param lightColour   the light colour to be used for the gradient
+     * @param darkColour    the dark colour to be used for the gradient
+     */
+    public static void paint3DGradientRect(RenderType renderType, final GuiGraphics gfx, final int x1, final int y1,
+                                           final int x2, final int y2, final double zLevel,
+                                           final Colour lightColour, final Colour darkColour) {
+
+//        RenderSystem.enableBlend();
+//        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+//                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
+//                GlStateManager.DestFactor.ZERO.value);
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         final Matrix4f pose = gfx.pose().last().pose();
-        final float startAlpha = lightColour.glAlpha();
-        final float startRed = lightColour.glRed();
-        final float startGreen = lightColour.glGreen();
-        final float startBlue = lightColour.glBlue();
-        final float endAlpha = darkColour.glAlpha();
-        final float endRed = darkColour.glRed();
-        final float endGreen = darkColour.glGreen();
-        final float endBlue = darkColour.glBlue();
+//        final float startAlpha = lightColour.glAlpha();
+//        final float startRed = lightColour.glRed();
+//        final float startGreen = lightColour.glGreen();
+//        final float startBlue = lightColour.glBlue();
+//        final float endAlpha = darkColour.glAlpha();
+//        final float endRed = darkColour.glRed();
+//        final float endGreen = darkColour.glGreen();
+//        final float endBlue = darkColour.glBlue();
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        builder.addVertex(pose, x2, y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x1, y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x1, y2, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, x2, y2, (float)zLevel).setColor(endRed  , endGreen  , endBlue  , endAlpha);
+        builder.addVertex(pose, x2, y1, (float)zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose, x1, y1, (float)zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose, x1, y2, (float)zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose, x2, y2, (float)zLevel).setColor(darkColour.R, darkColour.G, darkColour.B, darkColour.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     /**
@@ -1669,6 +2321,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1            position of the first vertex on the X axis
      * @param y1            position of the first vertex on the Y axis
      * @param x2            position of the second vertex on the X axis
@@ -1679,34 +2332,58 @@ public final class ModRenderHelper {
      * @param lightColour   the light colour to be used for the gradient
      * @param darkColour    the dark colour to be used for the gradient
      */
-    public static void paint3DGradientTriangle(final GuiGraphics gfx, final double x1, final double y1, final double x2, final double y2,
+    public static void paint3DGradientTriangle(GuiGraphics gfx, final double x1, final double y1, final double x2, final double y2,
                                                final double x3, final double y3, final double zLevel,
                                                final Colour lightColour, final Colour darkColour) {
+        paint3DGradientTriangle(RenderTypes.GUI_TRIANGLES_SOLID, gfx, x1, y1, x2, y2, x3, y2, zLevel, lightColour, darkColour);
+    }
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
-                GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    /**
+     * Paint a triangle filled with a 3D gradient from a light colour to a dark colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1            position of the first vertex on the X axis
+     * @param y1            position of the first vertex on the Y axis
+     * @param x2            position of the second vertex on the X axis
+     * @param y2            position of the second vertex on the Y axis
+     * @param x3            position of the third vertex on the X axis
+     * @param y3            position of the third vertex on the Y axis
+     * @param zLevel        the position on the Z axis for the rectangle
+     * @param lightColour   the light colour to be used for the gradient
+     * @param darkColour    the dark colour to be used for the gradient
+     */
+    public static void paint3DGradientTriangle(RenderType renderType, final GuiGraphics gfx, final double x1, final double y1,
+                                               final double x2, final double y2, final double x3, final double y3,
+                                               final double zLevel, final Colour lightColour, final Colour darkColour) {
+
+//        RenderSystem.enableBlend();
+//        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+//                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
+//                GlStateManager.DestFactor.ZERO.value);
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         final Matrix4f pose = gfx.pose().last().pose();
-        final float startAlpha = lightColour.glAlpha();
-        final float startRed = lightColour.glRed();
-        final float startGreen = lightColour.glGreen();
-        final float startBlue = lightColour.glBlue();
-        final float endAlpha = darkColour.glAlpha();
-        final float endRed = darkColour.glRed();
-        final float endGreen = darkColour.glGreen();
-        final float endBlue = darkColour.glBlue();
+//        final float startAlpha = lightColour.glAlpha();
+//        final float startRed = lightColour.glRed();
+//        final float startGreen = lightColour.glGreen();
+//        final float startBlue = lightColour.glBlue();
+//        final float endAlpha = darkColour.glAlpha();
+//        final float endRed = darkColour.glRed();
+//        final float endGreen = darkColour.glGreen();
+//        final float endBlue = darkColour.glBlue();
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        builder.addVertex(pose, (float)x2, (float)y2, (float)zLevel).setColor(endRed  , endGreen  , endBlue  , endAlpha);
-        builder.addVertex(pose, (float)x1, (float)y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, (float)x3, (float)y3, (float)zLevel).setColor(endRed  , endGreen  , endBlue  , endAlpha);
+        builder.addVertex(pose, (float)x2, (float)y2, (float)zLevel).setColor(darkColour.R, darkColour.G, darkColour.B, darkColour.A);
+        builder.addVertex(pose, (float)x1, (float)y1, (float)zLevel).setColor(lightColour.R, lightColour.G, lightColour.B, lightColour.A);
+        builder.addVertex(pose, (float)x3, (float)y3, (float)zLevel).setColor(darkColour.R, darkColour.G, darkColour.B, darkColour.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     /**
@@ -1714,6 +2391,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1            position of the first vertex on the X axis
      * @param y1            position of the first vertex on the Y axis
      * @param x2            position of the second vertex on the X axis
@@ -1728,23 +2406,48 @@ public final class ModRenderHelper {
     public static void paint3DGradientTriangle(final GuiGraphics gfx, final double x1, final double y1, final double x2, final double y2,
                                                final double x3, final double y3, final double zLevel,
                                                final Colour colour1, final Colour colour2, final Colour colour3) {
+        paint3DGradientTriangle(RenderTypes.GUI_TRIANGLES_SOLID, gfx, x1, y1, x2, y2, x3, y3, zLevel, colour1, colour2, colour3);
+    }
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
-                GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    /**
+     * Paint a triangle filled with a 3D gradient.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1            position of the first vertex on the X axis
+     * @param y1            position of the first vertex on the Y axis
+     * @param x2            position of the second vertex on the X axis
+     * @param y2            position of the second vertex on the Y axis
+     * @param x3            position of the third vertex on the X axis
+     * @param y3            position of the third vertex on the Y axis
+     * @param zLevel        the position on the Z axis for the triangle
+     * @param colour1       the colour for the first vertex
+     * @param colour2       the colour for the second vertex
+     * @param colour3       the colour for the third vertex
+     */
+    public static void paint3DGradientTriangle(RenderType renderType, final GuiGraphics gfx, final double x1, final double y1,
+                                               final double x2, final double y2, final double x3, final double y3, final double zLevel,
+                                               final Colour colour1, final Colour colour2, final Colour colour3) {
+
+//        RenderSystem.enableBlend();
+//        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+//                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
+//                GlStateManager.DestFactor.ZERO.value);
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         final Matrix4f pose = gfx.pose().last().pose();
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        builder.addVertex(pose, (float)x2, (float)y2, (float)zLevel).setColor(colour2.glRed(), colour2.glGreen(), colour2.glBlue(), colour2.glAlpha());
-        builder.addVertex(pose, (float)x1, (float)y1, (float)zLevel).setColor(colour1.glRed(), colour1.glGreen(), colour1.glBlue(), colour1.glAlpha());
-        builder.addVertex(pose, (float)x3, (float)y3, (float)zLevel).setColor(colour3.glRed(), colour3.glGreen(), colour3.glBlue(), colour3.glAlpha());
+        builder.addVertex(pose, (float)x2, (float)y2, (float)zLevel).setColor(colour2.R, colour2.G, colour2.B, colour2.A);
+        builder.addVertex(pose, (float)x1, (float)y1, (float)zLevel).setColor(colour1.R, colour1.G, colour1.B, colour1.A);
+        builder.addVertex(pose, (float)x3, (float)y3, (float)zLevel).setColor(colour3.R, colour3.G, colour3.B, colour3.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+        //        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     /**
@@ -1752,6 +2455,7 @@ public final class ModRenderHelper {
      * <p>
      * The x,y coordinates are relative to the screen upper/left corner
      *
+     * @param gfx the {@link GuiGraphics} for the current paint operation
      * @param x1            starting point on the X axis
      * @param y1            starting point on the Y axis
      * @param x2            ending point on the X axis (not included in the rectangle)
@@ -1761,58 +2465,94 @@ public final class ModRenderHelper {
      */
     public static void paint3DSolidTriangle(final GuiGraphics gfx, final double x1, final double y1, final double x2, final double y2,
                                             final double x3, final double y3, final double zLevel, final Colour colour) {
+        paint3DSolidTriangle(RenderTypes.GUI_TRIANGLES_SOLID, gfx, x1, y1, x2, y2, x3, y3, zLevel, colour);
+    }
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
-                GlStateManager.DestFactor.ZERO.value);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+    /**
+     * Paint a triangle filled with a solid colour.
+     * <p>
+     * The x,y coordinates are relative to the screen upper/left corner
+     *
+     * @param renderType the {@link RenderType}
+     * @param gfx the {@link GuiGraphics} for the current paint operation
+     * @param x1            starting point on the X axis
+     * @param y1            starting point on the Y axis
+     * @param x2            ending point on the X axis (not included in the rectangle)
+     * @param y2            ending point on the Y axis (not included in the rectangle)
+     * @param zLevel        the position on the Z axis for the rectangle
+     * @param colour        the colour to be used to fill the triangle
+     */
+    public static void paint3DSolidTriangle(RenderType renderType, final GuiGraphics gfx, final double x1, final double y1,
+                                            final double x2, final double y2, final double x3, final double y3,
+                                            final double zLevel, final Colour colour) {
+
+//        RenderSystem.enableBlend();
+//        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.value,
+//                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value, GlStateManager.SourceFactor.ONE.value,
+//                GlStateManager.DestFactor.ZERO.value);
+//        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         final Matrix4f pose = gfx.pose().last().pose();
-        final float startAlpha = colour.glAlpha();
-        final float startRed = colour.glRed();
-        final float startGreen = colour.glGreen();
-        final float startBlue = colour.glBlue();
-        final float endAlpha = colour.glAlpha();
-        final float endRed = colour.glRed();
-        final float endGreen = colour.glGreen();
-        final float endBlue = colour.glBlue();
+//        final float startAlpha = colour.glAlpha();
+//        final float startRed = colour.glRed();
+//        final float startGreen = colour.glGreen();
+//        final float startBlue = colour.glBlue();
+//        final float endAlpha = colour.glAlpha();
+//        final float endRed = colour.glRed();
+//        final float endGreen = colour.glGreen();
+//        final float endBlue = colour.glBlue();
 
-        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+//        final BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
+        final VertexConsumer builder = getVertexConsumerFromGfx(gfx, renderType);
 
-        builder.addVertex(pose, (float)x1, (float)y1, (float)zLevel).setColor(startRed, startGreen, startBlue, startAlpha);
-        builder.addVertex(pose, (float)x3, (float)y3, (float)zLevel).setColor(endRed  , endGreen  , endBlue  , endAlpha);
-        builder.addVertex(pose, (float)x2, (float)y2, (float)zLevel).setColor(endRed  , endGreen  , endBlue  , endAlpha);
+        builder.addVertex(pose, (float)x1, (float)y1, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+        builder.addVertex(pose, (float)x3, (float)y3, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
+        builder.addVertex(pose, (float)x2, (float)y2, (float)zLevel).setColor(colour.R, colour.G, colour.B, colour.A);
 
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
+//        BufferUploader.drawWithShader(builder.buildOrThrow());
+//        RenderSystem.disableBlend();
     }
 
     public static void paint3DSunkenBox(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                         final Colour gradientLightColour, final Colour gradientDarkColour,
                                         final Colour borderLightColour, final Colour borderDarkColour) {
+        paint3DSunkenBox(RenderType.gui(), gfx, x1, y1, x2, y2, zLevel, gradientLightColour, gradientDarkColour,
+                borderLightColour, borderDarkColour);
+    }
 
-        ModRenderHelper.paint3DGradientRect(gfx, x1 + 1, y1 + 1, x2 - 1, y2 - 1, zLevel, gradientLightColour, gradientDarkColour);
+    public static void paint3DSunkenBox(RenderType renderType, final GuiGraphics gfx, final int x1, final int y1,
+                                        final int x2, final int y2, final double zLevel,
+                                        final Colour gradientLightColour, final Colour gradientDarkColour,
+                                        final Colour borderLightColour, final Colour borderDarkColour) {
 
-        ModRenderHelper.paintSolidRects(gfx, borderDarkColour, zLevel,
+        paint3DGradientRect(renderType, gfx, x1 + 1, y1 + 1, x2 - 1, y2 - 1, zLevel, gradientLightColour, gradientDarkColour);
+
+        paintSolidRects(renderType, gfx, borderDarkColour, zLevel,
                 x1, y1, x2, y1 + 1,
                 x1, y1, x1 + 1, y2);
 
-        ModRenderHelper.paintSolidRects(gfx, borderLightColour, zLevel,
+        paintSolidRects(renderType, gfx, borderLightColour, zLevel,
                 x1, y2 - 1, x2, y2,
                 x2 - 1, y1, x2, y2);
     }
 
     public static void paint3DSunkenBox(final GuiGraphics gfx, final int x1, final int y1, final int x2, final int y2, final double zLevel,
                                         final Colour gradientLightColour, final Colour borderLightColour, final Colour borderDarkColour) {
+        paint3DSunkenBox(RenderType.gui(), gfx, x1, y1, x2, y2, zLevel, gradientLightColour,
+                borderLightColour, borderDarkColour);
+    }
 
-        ModRenderHelper.paintSolidRect(gfx, x1 + 1, y1 + 1, x2 - 1, y2 - 1, (int)zLevel, gradientLightColour);
+    public static void paint3DSunkenBox(RenderType renderType, final GuiGraphics gfx, final int x1, final int y1,
+                                        final int x2, final int y2, final double zLevel, final Colour gradientLightColour,
+                                        final Colour borderLightColour, final Colour borderDarkColour) {
 
-        ModRenderHelper.paintSolidRects(gfx, borderDarkColour, zLevel,
+        paintSolidRect(renderType, gfx, x1 + 1, y1 + 1, x2 - 1, y2 - 1, (int)zLevel, gradientLightColour);
+
+        paintSolidRects(renderType, gfx, borderDarkColour, zLevel,
                 x1, y1, x2, y1 + 1,
                 x1, y1, x1 + 1, y2);
 
-        ModRenderHelper.paintSolidRects(gfx, borderLightColour, zLevel,
+        paintSolidRects(renderType, gfx, borderLightColour, zLevel,
                 x1, y2 - 1, x2, y2,
                 x2 - 1, y1, x2, y2);
     }
@@ -1956,6 +2696,36 @@ public final class ModRenderHelper {
     //region internals
 
     private ModRenderHelper(){
+    }
+
+    private static void paintSpriteAtZ(GuiGraphics gfx, Function<ResourceLocation, RenderType> renderTypeGetter,
+                                       ResourceLocation textureMap, int x1, int x2, int y1, int y2,
+                                       float minU, float maxU, float minV, float maxV, Colour tint, int zLevel) {
+
+        final GuiGraphicsAccessor gfxAccessor = (GuiGraphicsAccessor) gfx;
+
+        if (0 != zLevel) {
+
+            final var pose = gfx.pose();
+
+            pose.pushPose();
+            pose.translate(0, 0, zLevel);
+            gfxAccessor.zerocore_invokeInnerBlit(renderTypeGetter, textureMap, x1, x2, y1, y2, minU, maxU, minV, maxV, tint.toARGB());
+            pose.popPose();
+
+        } else {
+
+            gfxAccessor.zerocore_invokeInnerBlit(renderTypeGetter, textureMap, x1, x2, y1, y2, minU, maxU, minV, maxV, tint.toARGB());
+        }
+    }
+
+    private static VertexConsumer getVertexConsumerFromGfx(GuiGraphics gfx, RenderType renderType) {
+        return ((GuiGraphicsAccessor) gfx).zerocore_getBufferSource().getBuffer(renderType);
+    }
+
+    private static VertexConsumer getVertexConsumerFromGfx(GuiGraphics gfx, ISprite sprite,
+                                                           Function<@NotNull ResourceLocation, @NotNull RenderType> renderTypeGetter) {
+        return getVertexConsumerFromGfx(gfx, renderTypeGetter.apply(sprite.getTextureMap().getTextureLocation()));
     }
 
     //endregion
