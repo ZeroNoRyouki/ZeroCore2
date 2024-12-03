@@ -18,10 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.recipe.holder;
 
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IModRecipe;
 import net.minecraft.util.Mth;
 
-public interface IHeldRecipe<Recipe extends ModRecipe>
+public interface IHeldRecipe<Recipe extends IModRecipe>
         extends IRecipeProcessing {
 
     /**

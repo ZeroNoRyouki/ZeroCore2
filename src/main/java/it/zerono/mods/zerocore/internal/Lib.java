@@ -58,6 +58,8 @@ public final class Lib {
     public static final String NAME_INGREDIENT = "ingredient";
     public static final String NAME_TAG = "tag";
     public static final String NAME_COUNT = "count";
+    public static final String NAME_AMOUNT = "amount";
+    public static final String NAME_COMPONENTS = "components";
 
     public static void initialize(IEventBus modEventBus) {
 

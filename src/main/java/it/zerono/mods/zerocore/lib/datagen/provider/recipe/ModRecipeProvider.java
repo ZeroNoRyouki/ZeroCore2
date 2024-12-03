@@ -3,73 +3,93 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
-import it.zerono.mods.zerocore.lib.datagen.IModDataProvider;
-import it.zerono.mods.zerocore.lib.datagen.provider.ProviderSettings;
+import it.zerono.mods.zerocore.lib.recipe.IManyToOneModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IOneToOneModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.ITwoToOneModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
+import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.PackOutput;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.*;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.conditions.*;
+import org.apache.commons.lang3.function.TriFunction;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public abstract class ModRecipeProvider
-        extends RecipeProvider
-        implements IModDataProvider {
+        extends RecipeProvider {
 
-    protected ModRecipeProvider(String name, PackOutput output, CompletableFuture<HolderLookup.Provider> registryLookup,
-                                ResourceLocationBuilder modLocationRoot) {
+    protected ModRecipeProvider(ModRecipeProviderRunner<? extends ModRecipeProvider> mainProvider,
+                                HolderLookup.Provider registryLookupProvider, RecipeOutput output) {
 
-        super(output, registryLookup);
+        super(registryLookupProvider, output);
 
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must not be null or empty");
-        Preconditions.checkNotNull(output, "Output must not be null");
-        Preconditions.checkNotNull(registryLookup, "Registry lookup must not be null");
-        Preconditions.checkNotNull(modLocationRoot, "Mod location root must not be null");
+        Preconditions.checkNotNull(mainProvider, "Main provider must not be null");
 
-        this._settings = new ProviderSettings(name, output, registryLookup, modLocationRoot);
+        this._mainProvider = mainProvider;
+        this._holderGettersCache = new Object2ObjectArrayMap<>(8);
+    }
+
+    protected <T> HolderGetter<T> holderGetterOf(ResourceKey<? extends Registry<? extends T>> registryKey) {
+        //noinspection unchecked
+        return (HolderGetter<T>) this._holderGettersCache.computeIfAbsent(registryKey, this.registries::lookupOrThrow);
     }
 
     protected ResourceLocationBuilder craftingRoot() {
-        return this.root().appendPath("crafting");
+        return this._mainProvider.root().appendPath("crafting");
     }
 
     protected ResourceLocationBuilder blastingRoot() {
-        return this.root().appendPath("blasting");
+        return this._mainProvider.root().appendPath("blasting");
     }
 
     protected ResourceLocationBuilder smeltingRoot() {
-        return this.root().appendPath("smelting");
+        return this._mainProvider.root().appendPath("smelting");
     }
 
     protected ResourceLocationBuilder cookingRoot() {
-        return this.root().appendPath("cooking");
+        return this._mainProvider.root().appendPath("cooking");
     }
 
     protected ResourceLocationBuilder smokingRoot() {
-        return this.root().appendPath("smoking");
+        return this._mainProvider.root().appendPath("smoking");
     }
 
     protected ResourceLocationBuilder stonecuttingRoot() {
-        return this.root().appendPath("stonecutting");
+        return this._mainProvider.root().appendPath("stonecutting");
     }
 
     protected ResourceLocationBuilder smithingRoot() {
-        return this.root().appendPath("smithing");
+        return this._mainProvider.root().appendPath("smithing");
     }
 
     protected ResourceLocationBuilder miscRoot() {
-        return this.root().appendPath("misc");
+        return this._mainProvider.root().appendPath("misc");
+    }
+
+    protected static ResourceKey<Recipe<?>> recipeKeyFrom(ResourceLocation id) {
+
+        Preconditions.checkNotNull(id, "Id must not be null");
+
+        return ResourceKey.create(Registries.RECIPE, id);
     }
 
     protected ShapedRecipeBuilder shaped(RecipeCategory category, Supplier<? extends ItemLike> result, int amount) {
@@ -77,7 +97,7 @@ public abstract class ModRecipeProvider
         validateResultAndCategory(category, result);
         Preconditions.checkArgument(amount > 0, "Amount must be greater than zero");
 
-        return ShapedRecipeBuilder.shaped(category, result.get(), amount);
+        return super.shaped(category, result.get(), amount);
     }
 
     protected ShapedRecipeBuilder shaped(RecipeCategory category, Supplier<? extends ItemLike> result) {
@@ -89,7 +109,7 @@ public abstract class ModRecipeProvider
         validateResultAndCategory(category, result);
         Preconditions.checkArgument(amount > 0, "Amount must be greater than zero");
 
-        return ShapelessRecipeBuilder.shapeless(category, result.get(), amount);
+        return super.shapeless(category, result.get(), amount);
     }
 
     protected ShapelessRecipeBuilder shapeless(RecipeCategory category, Supplier<? extends ItemLike> result) {
@@ -168,6 +188,33 @@ public abstract class ModRecipeProvider
         return SmithingTrimRecipeBuilder.smithingTrim(template, base, addition, category);
     }
 
+    protected <Ingredient1, Result, RecipeIngredient1 extends IRecipeIngredient<Ingredient1>,
+            RecipeResult extends IRecipeResult<Result>,
+            OneToOneRecipe extends IOneToOneModRecipe<Ingredient1, Result, RecipeIngredient1, RecipeResult>>
+    OneToOneRecipeBuilder<Ingredient1, Result, RecipeIngredient1, RecipeResult, OneToOneRecipe>
+    oneToOne(RecipeIngredient1 ingredient, RecipeResult result,
+             BiFunction<RecipeIngredient1, RecipeResult, @NotNull OneToOneRecipe> recipeFactory) {
+        return new OneToOneRecipeBuilder<>(this::holderGetterOf, ingredient, result, recipeFactory);
+    }
+
+    protected <Ingredient1, Ingredient2, Result, RecipeIngredient1 extends IRecipeIngredient<Ingredient1>,
+            RecipeIngredient2 extends IRecipeIngredient<Ingredient2>, RecipeResult extends IRecipeResult<Result>,
+            TwoToOneRecipe extends ITwoToOneModRecipe<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult>>
+    TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult, TwoToOneRecipe>
+    twoToOne(RecipeIngredient1 ingredient1, RecipeIngredient2 ingredient2, RecipeResult result,
+             TriFunction<@NotNull RecipeIngredient1, @NotNull RecipeIngredient2, @NotNull RecipeResult, @NotNull TwoToOneRecipe> recipeFactory) {
+        return new TwoToOneRecipeBuilder<>(this::holderGetterOf, ingredient1, ingredient2, result, recipeFactory);
+    }
+
+    protected <Ingredient1, Result, RecipeIngredient1 extends IRecipeIngredient<Ingredient1>,
+            RecipeResult extends IRecipeResult<Result>,
+            ManyToOneRecipe extends IManyToOneModRecipe<Ingredient1, Result, RecipeIngredient1, RecipeResult>>
+    ManyToOneRecipeBuilder<Ingredient1, Result, RecipeIngredient1, RecipeResult, ManyToOneRecipe>
+    manyToOne(RecipeResult result,
+              BiFunction<@NotNull List<RecipeIngredient1>, @NotNull RecipeResult, @NotNull ManyToOneRecipe> recipeFactory) {
+        return new ManyToOneRecipeBuilder<>(this::holderGetterOf, result, recipeFactory);
+    }
+
     //region conditional
 
     protected static ICondition not(ICondition condition) {
@@ -210,21 +257,21 @@ public abstract class ModRecipeProvider
 
         if (null == fallbackTag || null == fallbackName) {
 
-            recipe.apply(tag).save(output, name);
+            recipe.apply(tag).save(output, recipeKeyFrom(name));
 
         } else {
 
             final var tagCondition = new TagEmptyCondition(tag.location());
 
-            recipe.apply(tag).save(output.withConditions(not(tagCondition)), name);
-            recipe.apply(fallbackTag).save(output.withConditions(tagCondition), fallbackName);
+            recipe.apply(tag).save(output.withConditions(not(tagCondition)), recipeKeyFrom(name));
+            recipe.apply(fallbackTag).save(output.withConditions(tagCondition), recipeKeyFrom(fallbackName));
         }
     }
 
     //endregion
     //region helpers
 
-    protected void storageBlock3x3(RecipeOutput output, String name, String group,
+    protected void storageBlock3x3(RecipeOutput output, String group,
                                    ResourceLocation toStorageId, RecipeCategory toStorageCategory,
                                    Supplier<? extends ItemLike> storage,
                                    ResourceLocation toComponentId, RecipeCategory toComponentCategory,
@@ -235,14 +282,14 @@ public abstract class ModRecipeProvider
                 .requires(component.get(), 9)
                 .group(group)
                 .unlockedBy("has_item", has(component.get()))
-                .save(output, toStorageId);
+                .save(output, recipeKeyFrom(toStorageId));
 
         // 1 storage -> 9 components
         this.shapeless(toComponentCategory, component, 9)
                 .requires(storage.get())
                 .group(group)
                 .unlockedBy("has_item", has(storage.get()))
-                .save(output, toComponentId);
+                .save(output, recipeKeyFrom(toComponentId));
     }
 
     protected void storageBlock3x3(RecipeOutput output, String name, String group,
@@ -251,12 +298,12 @@ public abstract class ModRecipeProvider
 
         final var crafting = this.craftingRoot().append(name);
 
-        this.storageBlock3x3(output, name, group,
+        this.storageBlock3x3(output, group,
                 crafting.buildWithSuffix("_component_to_storage"), toStorageCategory, storage,
                 crafting.buildWithSuffix("_storage_to_component"), toComponentCategory, component);
     }
 
-    protected void storageBlock2x2(RecipeOutput output, String name, String group,
+    protected void storageBlock2x2(RecipeOutput output, String group,
                                    ResourceLocation toStorageId, RecipeCategory toStorageCategory,
                                    Supplier<? extends ItemLike> storage,
                                    ResourceLocation toComponentId, RecipeCategory toComponentCategory,
@@ -269,14 +316,14 @@ public abstract class ModRecipeProvider
                 .pattern("XX")
                 .group(group)
                 .unlockedBy("has_item", has(component.get()))
-                .save(output, toStorageId);
+                .save(output, recipeKeyFrom(toStorageId));
 
         // 1 storage -> 4 components
         this.shapeless(toComponentCategory, component, 4)
                 .requires(storage.get())
                 .group(group)
                 .unlockedBy("has_item", has(storage.get()))
-                .save(output, toComponentId);
+                .save(output, recipeKeyFrom(toComponentId));
     }
 
     protected void storageBlock2x2(RecipeOutput output, String name, String group,
@@ -285,12 +332,12 @@ public abstract class ModRecipeProvider
 
         final var crafting = this.craftingRoot().append(name);
 
-        this.storageBlock2x2(output, name, group,
+        this.storageBlock2x2(output, group,
                 crafting.buildWithSuffix("_component_to_storage2x2"), toStorageCategory, storage,
                 crafting.buildWithSuffix("_storage2x2_to_component"), toComponentCategory, component);
     }
 
-    protected void nugget(RecipeOutput output, String name, String group,
+    protected void nugget(RecipeOutput output, String group,
                           ResourceLocation toIngotId, RecipeCategory toIngotCategory, Supplier<? extends ItemLike> ingot,
                           ResourceLocation toNuggetId, RecipeCategory toNuggetCategory, Supplier<? extends ItemLike> nugget) {
 
@@ -299,14 +346,14 @@ public abstract class ModRecipeProvider
                 .requires(nugget.get(), 9)
                 .group(group)
                 .unlockedBy("has_item", has(nugget.get()))
-                .save(output, toIngotId);
+                .save(output, recipeKeyFrom(toIngotId));
 
         // 1 ingot -> 9 nuggets
         this.shapeless(toNuggetCategory, nugget, 9)
                 .requires(ingot.get())
                 .group(group)
                 .unlockedBy("has_item", has(ingot.get()))
-                .save(output, toNuggetId);
+                .save(output, recipeKeyFrom(toNuggetId));
     }
 
     protected void nugget(RecipeOutput output, String name, String group,
@@ -315,26 +362,9 @@ public abstract class ModRecipeProvider
 
         final var crafting = this.craftingRoot().append(name);
 
-        this.nugget(output, name, group,
+        this.nugget(output, group,
                 crafting.buildWithSuffix("_nugget_to_ingot"), toIngotCategory, ingot,
                 crafting.buildWithSuffix("_ingot_to_nugget"), toNuggetCategory, nugget);
-    }
-
-    //endregion
-    //region IModDataProvider
-
-    @Override
-    public void provideData() {
-    }
-
-    @Override
-    public CompletableFuture<?> processData(CachedOutput cache, HolderLookup.Provider registryLookup) {
-        return super.run(cache);
-    }
-
-    @Override
-    public ProviderSettings getSettings() {
-        return this._settings;
     }
 
     //endregion
@@ -353,7 +383,8 @@ public abstract class ModRecipeProvider
         Preconditions.checkArgument(cookingTime >= 0, "Amount must be greater than or equal to zero");
     }
 
-    private final ProviderSettings _settings;
+    private final ModRecipeProviderRunner<? extends ModRecipeProvider> _mainProvider;
+    private final Map<ResourceKey<? extends Registry<?>>, HolderGetter<?>> _holderGettersCache;
 
     //endregion
 }

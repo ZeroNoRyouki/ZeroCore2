@@ -19,33 +19,14 @@
 package it.zerono.mods.zerocore.lib.block.property;
 
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public final class OrientationProperty {
 
     /**
      * Common block-state properties for block orientation
      */
-    public static final DirectionProperty FACING = DirectionProperty.create("facing");
-    public static final DirectionProperty HFACING = DirectionProperty.create("hfacing", Direction.Plane.HORIZONTAL);
-    public static final DirectionProperty VFACING = DirectionProperty.create("vfacing", Direction.Plane.VERTICAL);
-
-    /*
-    / **
-     * Return the suggested facing for a block indirectly placed in the world (by World.setBlockState for example)
-     *
-     * @param world the current world
-     * @param position position of the block
-     * @param currentFacing the current facing
-     * @return the new facing for the block based on the surrounding blocks
-     * /
-    public static Direction suggestDefaultHorizontalFacing(IBlockReader world, BlockPos position, Direction currentFacing) {
-
-        final Direction oppositeFacing = currentFacing.getOpposite();
-        final BlockState facingState = world.getBlockState(position.offset(currentFacing));
-        final BlockState oppositeState = world.getBlockState(position.offset(oppositeFacing));
-
-        return facingState.isFullCube() && !oppositeState.isFullCube() ? oppositeFacing : currentFacing;
-    }
-    */
+    public static final EnumProperty<Direction> FACING = EnumProperty.create("facing", Direction.class);
+    public static final EnumProperty<Direction> HFACING = EnumProperty.create("hfacing", Direction.class, Direction.Plane.HORIZONTAL);
+    public static final EnumProperty<Direction> VFACING = EnumProperty.create("vfacing", Direction.class, Direction.Plane.VERTICAL);
 }

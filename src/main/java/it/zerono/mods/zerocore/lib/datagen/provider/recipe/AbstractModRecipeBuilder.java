@@ -21,45 +21,52 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IModRecipe;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
-public abstract class AbstractModRecipeBuilder<Recipe extends ModRecipe, Result, RecipeResult extends IRecipeResult<Result>,
+public abstract class AbstractModRecipeBuilder<Recipe extends IModRecipe, Result, RecipeResult extends IRecipeResult<Result>,
             Builder extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, Builder>> {
 
-    protected AbstractModRecipeBuilder(RecipeResult result) {
+    protected AbstractModRecipeBuilder(Function<ResourceKey<? extends Registry<?>>, HolderGetter<?>> holderGetterProvider) {
 
-        Preconditions.checkNotNull(result, "Result must not be null");
+        Preconditions.checkNotNull(holderGetterProvider, "Holder getter provider must not be null");
 
-        this._result = result;
+        this._holderGetterProvider = holderGetterProvider;
         this._criteria = new LinkedHashMap<>();
         this._conditions = new ObjectArrayList<>(8);
     }
 
-    protected abstract Recipe getRecipe();
+    protected abstract Recipe buildRecipe();
 
-    public void build(RecipeOutput output) {
-        this.build(output, this._result.getId());
+    protected <T> HolderGetter<T> holderGetterOf(ResourceKey<? extends Registry<? extends T>> registryKey) {
+        //noinspection unchecked
+        return (HolderGetter<T>) this._holderGetterProvider.apply(registryKey);
     }
 
-    public void build(RecipeOutput output, ResourceLocation id) {
+    public void build(RecipeOutput output) {
 
-        final var conditions = this._conditions.toArray(new ICondition[0]);
-        final var advancementHolder = buildAdvancements(output, this._criteria, id);
+        final var recipe = this.buildRecipe();
 
-        output.accept(id, this.getRecipe(), advancementHolder, conditions);
+        this.build(output, recipe, recipe.getRegistrationKey());
+    }
+
+    public void build(RecipeOutput output, ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> id) {
+        this.build(output, this.buildRecipe(), id);
     }
 
     public Builder addCriterion(String name, Criterion<?> criterion) {
@@ -87,8 +94,16 @@ public abstract class AbstractModRecipeBuilder<Recipe extends ModRecipe, Result,
         return (Builder)this;
     }
 
+    private void build(RecipeOutput output, Recipe recipe, ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> id) {
+
+        final var conditions = this._conditions.toArray(new ICondition[0]);
+        final var advancementHolder = buildAdvancements(output, this._criteria, id);
+
+        output.accept(id, recipe, advancementHolder, conditions);
+    }
+
     private static AdvancementHolder buildAdvancements(RecipeOutput output, Map<String, Criterion<?>> criteria,
-                                                       ResourceLocation id) {
+                                                       ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> id) {
 
         final var builder = output.advancement()
                 .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
@@ -97,10 +112,10 @@ public abstract class AbstractModRecipeBuilder<Recipe extends ModRecipe, Result,
 
         criteria.forEach(builder::addCriterion);
 
-        return builder.build(id.withPrefix("recipes/"));
+        return builder.build(id.location().withPrefix("recipes/"));
     }
 
-    private final RecipeResult _result;
+    private final Function<ResourceKey<? extends Registry<?>>, HolderGetter<?>> _holderGetterProvider;
     private final List<ICondition> _conditions;
     private final Map<String, Criterion<?>> _criteria;
 

@@ -18,12 +18,12 @@
 
 package it.zerono.mods.zerocore.lib.recipe.holder;
 
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IModRecipe;
 import net.minecraft.util.Mth;
 
 import java.util.Objects;
 
-public abstract class AbstractHeldRecipe<Recipe extends ModRecipe>
+public abstract class AbstractHeldRecipe<Recipe extends IModRecipe>
         implements IHeldRecipe<Recipe> {
 
     protected <Holder extends IRecipeHolder<Recipe>> AbstractHeldRecipe(final Recipe recipe, final Holder holder) {

@@ -19,7 +19,7 @@
 package it.zerono.mods.zerocore.lib.client.gui.sprite;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 
 public class ISpriteAwareVertexBuilder implements VertexConsumer {
 
@@ -62,7 +62,7 @@ public class ISpriteAwareVertexBuilder implements VertexConsumer {
     public void addVertex(float x, float y, float z, float red, float green, float blue, float alpha,
                           float texU, float texV, int overlayUV, int lightmapUV,
                           float normalX, float normalY, float normalZ) {
-        this.addVertex(x, y, z, FastColor.ARGB32.colorFromFloat(alpha, red, green, blue), texU, texV,
+        this.addVertex(x, y, z, ARGB.colorFromFloat(alpha, red, green, blue), texU, texV,
                 overlayUV, lightmapUV, normalX, normalY, normalZ);
     }
 

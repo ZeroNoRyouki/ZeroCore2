@@ -18,11 +18,11 @@
 
 package it.zerono.mods.zerocore.lib.recipe.holder;
 
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IModRecipe;
 
 import java.util.Optional;
 
-public interface IRecipeHolder<Recipe extends ModRecipe>
+public interface IRecipeHolder<Recipe extends IModRecipe>
         extends IRecipeProcessing {
 
     /**
@@ -32,7 +32,7 @@ public interface IRecipeHolder<Recipe extends ModRecipe>
 
         final Optional<HeldRecipe> current = this.getHeldRecipe();
 
-        if (!current.isPresent() || this.shouldInvalidateRecipe() || this.hasRecipeIngredientsChanged()) {
+        if (current.isEmpty() || this.shouldInvalidateRecipe() || this.hasRecipeIngredientsChanged()) {
             return this.createHeldRecipe();
         }
 

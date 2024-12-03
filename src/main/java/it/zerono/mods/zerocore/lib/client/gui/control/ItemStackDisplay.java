@@ -93,7 +93,7 @@ public class ItemStackDisplay
             }
 
             this.setTooltips(TextHelper.literal("%dx ", this._stack.getCount())
-                    .append(TextHelper.translatable(this._stack.getDescriptionId()).withStyle(ChatFormatting.BOLD)));
+                    .append(this._stack.getItemName().copy().withStyle(ChatFormatting.BOLD)));
         }
     }
 

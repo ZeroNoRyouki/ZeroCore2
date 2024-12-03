@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.lib.recipe.holder;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import it.zerono.mods.zerocore.lib.recipe.ModRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IModRecipe;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.*;
 
-public class RecipeHolder<Recipe extends ModRecipe>
+public class RecipeHolder<Recipe extends IModRecipe>
         implements IRecipeHolder<Recipe>, ISyncableEntity {
 
     /**
@@ -37,8 +37,8 @@ public class RecipeHolder<Recipe extends ModRecipe>
      *
      * @param factory a Supplier of a new recipe instance based on the available ingredients. May return null.
      */
-    public static <Recipe extends ModRecipe> Builder<Recipe> builder(final Function<IRecipeHolder<Recipe>, IHeldRecipe<Recipe>> factory,
-                                                                     final ToIntFunction<Recipe> requiredTicksSupplier) {
+    public static <Recipe extends IModRecipe> Builder<Recipe> builder(final Function<IRecipeHolder<Recipe>, IHeldRecipe<Recipe>> factory,
+                                                                      final ToIntFunction<Recipe> requiredTicksSupplier) {
         return new Builder<>(factory, requiredTicksSupplier);
     }
 
@@ -105,7 +105,7 @@ public class RecipeHolder<Recipe extends ModRecipe>
     }
 
     /**
-     * @return true if the currently held recipe should be discarded and a new one created in it's place, false otherwise
+     * @return true if the currently held recipe should be discarded and a new one created in its place, false otherwise
      */
     @Override
     public boolean shouldInvalidateRecipe() {
@@ -194,7 +194,7 @@ public class RecipeHolder<Recipe extends ModRecipe>
     //region builder
 
     @SuppressWarnings("unused")
-    public static class Builder<Recipe extends ModRecipe> {
+    public static class Builder<Recipe extends IModRecipe> {
 
         public Builder(final Function<IRecipeHolder<Recipe>, IHeldRecipe<Recipe>> factory,
                        final ToIntFunction<Recipe> requiredTicks) {

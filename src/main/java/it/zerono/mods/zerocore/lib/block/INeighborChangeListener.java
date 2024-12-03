@@ -20,6 +20,8 @@ package it.zerono.mods.zerocore.lib.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
+import org.jetbrains.annotations.Nullable;
 
 public interface INeighborChangeListener {
 
@@ -30,9 +32,8 @@ public interface INeighborChangeListener {
      * Called when a neighboring Block on a side of this TileEntity changes
      *
      * @param state the BlockState of this TileEntity block
-     * @param neighborPosition position of neighbor
      */
-    default void onNeighborBlockChanged(BlockState state, BlockPos neighborPosition, boolean isMoving) {
+    default void onNeighborBlockChanged(BlockState state, @Nullable Orientation orientation, boolean isMoving) {
     }
 
     /**

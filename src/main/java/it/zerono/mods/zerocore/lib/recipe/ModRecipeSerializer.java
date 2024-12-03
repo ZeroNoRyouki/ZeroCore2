@@ -1,6 +1,6 @@
 /*
  *
- * IRecipeResult.java
+ * ModRecipeSerializer.java
  *
  * This file is part of Zero CORE 2 by ZeroNoRyouki, a Minecraft mod.
  *
@@ -16,29 +16,14 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.recipe.result;
+package it.zerono.mods.zerocore.lib.recipe;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
-public interface IRecipeResult<T> {
-
-    /**
-     * @return Return a unique identifier for this result
-     */
-    ResourceLocation getId();
-
-    /**
-     * @return Return a new instance of the recipe result
-     */
-    T getResult();
-
-    /**
-     * @return Amount produced by each crafting
-     */
-    long getAmount();
-
-    boolean isEmpty();
-
-    SlotDisplay asSlotDisplay();
+public record ModRecipeSerializer<Recipe extends IModRecipe>(MapCodec<Recipe> codec,
+                                                             StreamCodec<RegistryFriendlyByteBuf, Recipe> streamCodec)
+        implements RecipeSerializer<Recipe> {
 }

@@ -418,7 +418,7 @@ public final class JSONHelper {
         final ResourceLocation id = jsonGetResourceLocation(json, elementName);
 
         if (BuiltInRegistries.ITEM.containsKey(id)) {
-            return Objects.requireNonNull(BuiltInRegistries.ITEM.get(id));
+            return Objects.requireNonNull(BuiltInRegistries.ITEM.getValue(id));
         } else {
             throw new JsonSyntaxException("JSON element is not a valid Item: " + elementName);
         }
@@ -447,7 +447,7 @@ public final class JSONHelper {
         final ResourceLocation id = jsonGetResourceLocation(json, elementName);
 
         if (BuiltInRegistries.FLUID.containsKey(id)) {
-            return Objects.requireNonNull(BuiltInRegistries.FLUID.get(id));
+            return Objects.requireNonNull(BuiltInRegistries.FLUID.getValue(id));
         } else {
             throw new JsonSyntaxException("JSON element is not a valid Fluid: " + elementName);
         }

@@ -9,7 +9,7 @@ import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.data.loot.LootTableSubProvider;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -30,7 +30,7 @@ public class SubProviderBuilder {
     }
 
     public SubProviderBuilder addSubProvider(Function<HolderLookup.Provider, LootTableSubProvider> provider,
-                                             LootContextParamSet paramSet) {
+                                             ContextKeySet paramSet) {
 
         Preconditions.checkNotNull(provider, "Provider must not be null");
         Preconditions.checkNotNull(paramSet, "Param set must not be null");

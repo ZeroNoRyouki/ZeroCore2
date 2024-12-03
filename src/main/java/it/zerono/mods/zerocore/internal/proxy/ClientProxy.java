@@ -21,24 +21,19 @@ package it.zerono.mods.zerocore.internal.proxy;
 import it.zerono.mods.zerocore.internal.InternalCommand;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.internal.client.model.MissingModel;
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.GuiHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.sprite.AtlasSpriteSupplier;
 import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
-import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -46,7 +41,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.util.thread.EffectiveSide;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -69,7 +63,6 @@ public class ClientProxy
 
         NeoForge.EVENT_BUS.addListener(this::onRenderTick);
         NeoForge.EVENT_BUS.addListener(ClientProxy::onRegisterReloadListeners);
-        NeoForge.EVENT_BUS.addListener(ClientProxy::onRecipesUpdated);
         NeoForge.EVENT_BUS.addListener(this::onLoggedOut);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGameOverlayRender);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, true, this::onGuiDrawScreenEventPost);
@@ -98,11 +91,6 @@ public class ClientProxy
     }
 
     @Override
-    public void sendPlayerStatusMessage(final Player player, final Component message) {
-            Minecraft.getInstance().gui.setOverlayMessage(message, false);
-    }
-
-    @Override
     public long getLastRenderTime() {
         return s_lastRenderTime;
     }
@@ -120,21 +108,6 @@ public class ClientProxy
     @Override
     public void clearErrorReport() {
         this._guiErrorData.resetErrors();
-    }
-
-    @Override
-    public RecipeManager getRecipeManager() {
-
-        if (EffectiveSide.get().isClient()) {
-
-            final ClientPacketListener handler = Minecraft.getInstance().getConnection();
-
-            return null != handler ? handler.getRecipeManager() : null;
-
-        } else {
-
-            return CodeHelper.getMinecraftServer().map(MinecraftServer::getRecipeManager).orElse(null);
-        }
     }
 
     @Override
@@ -195,10 +168,6 @@ public class ClientProxy
         event.addListener(MissingModel.INSTANCE);
     }
 
-    private static void onRecipesUpdated(RecipesUpdatedEvent event) {
-        ModRecipeType.invalidate();
-    }
-
     private void onRenderTick(final RenderFrameEvent.Post event) {
 
         s_lastRenderTime = System.currentTimeMillis();
@@ -227,9 +196,10 @@ public class ClientProxy
         if (HitResult.Type.BLOCK == result.getType() && this._guiErrorData.test(position)) {
 
             final Vec3 projectedView = event.getCamera().getPosition();
+            final var vertexBuilder = event.getMultiBufferSource().getBuffer(RenderTypes.ERROR_BLOCK_HIGHLIGHT);
 
-            ModRenderHelper.paintVoxelShape(Shapes.block(), event.getPoseStack(), event.getMultiBufferSource(),
-                    RenderTypes.ERROR_BLOCK_HIGHLIGHT, position.getX() - projectedView.x(), position.getY() - projectedView.y(),
+            ModRenderHelper.paintVoxelShape(Shapes.block(), event.getPoseStack(), vertexBuilder,
+                    position.getX() - projectedView.x(), position.getY() - projectedView.y(),
                     position.getZ() - projectedView.z(), ERROR_HIGHLIGHT1_COLOUR);
 
             event.setCanceled(true);

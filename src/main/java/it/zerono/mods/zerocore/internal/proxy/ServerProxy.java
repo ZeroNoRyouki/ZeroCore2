@@ -19,18 +19,12 @@
 package it.zerono.mods.zerocore.internal.proxy;
 
 import it.zerono.mods.zerocore.internal.InternalCommand;
-import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -62,21 +56,7 @@ public class ServerProxy
     }
 
     @Override
-    public void sendPlayerStatusMessage(final Player player, final Component message) {
-
-        if (player instanceof ServerPlayer sp) {
-            sp.sendSystemMessage(message, true);
-        }
-    }
-
-    @Override
     public void clearErrorReport() {
-    }
-
-    @Nullable
-    @Override
-    public RecipeManager getRecipeManager() {
-        return CodeHelper.getMinecraftServer().map(MinecraftServer::getRecipeManager).orElse(null);
     }
 
     @SuppressWarnings("SwitchStatementWithTooFewBranches")

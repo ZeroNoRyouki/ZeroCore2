@@ -364,7 +364,7 @@ public class ModContainerScreen<C extends ModContainer>
     public void added() {
 
         super.added();
-        Minecraft.getInstance().tell(() -> this.getMenu().onScreenOpened());
+        Minecraft.getInstance().schedule(() -> this.getMenu().onScreenOpened());
     }
 
     /**

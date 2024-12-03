@@ -19,7 +19,10 @@
 package it.zerono.mods.zerocore.lib.recipe.ingredient;
 
 import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.zerono.mods.zerocore.lib.data.ModCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -27,18 +30,7 @@ import java.util.function.Predicate;
 public interface IRecipeIngredient<T>
     extends Predicate<T> {
 
-    boolean isCompatible(T ingredient);
-
-    /**
-     * Check if this ingredient is compatible with at least one of the provided ingredients
-     * @param ingredients the ingredients to check
-     * @return true if this ingredient is compatible with at least one of the provided ingredients, false otherwise
-     */
-    boolean isCompatible(T... ingredients);
-
     T getMatchFrom(T ingredient);
-
-    long getAmount(T ingredient);
 
     List<T> getMatchingElements();
 
@@ -51,4 +43,8 @@ public interface IRecipeIngredient<T>
     default boolean testIgnoreAmount(T ingredient) {
         return this.test(ingredient);
     }
+
+    SlotDisplay asSlotDisplay();
+
+    ModCodecs<? extends IRecipeIngredient<T>, RegistryFriendlyByteBuf> getCodecs();
 }

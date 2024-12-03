@@ -24,7 +24,9 @@ import it.zerono.mods.zerocore.lib.fluid.FluidHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.crafting.display.FluidStackSlotDisplay;
 
 public class FluidStackRecipeResult
         implements IRecipeResult<FluidStack> {
@@ -70,6 +72,11 @@ public class FluidStackRecipeResult
     @Override
     public boolean isEmpty() {
         return this._result.isEmpty();
+    }
+
+    @Override
+    public SlotDisplay asSlotDisplay() {
+        return new FluidStackSlotDisplay(this._result);
     }
 
     //endregion

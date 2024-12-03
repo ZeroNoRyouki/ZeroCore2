@@ -20,14 +20,16 @@ package it.zerono.mods.zerocore.lib.recipe;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -35,10 +37,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ModRecipeType<Recipe extends ModRecipe>
+public class ModRecipeType<Recipe extends IModRecipe>
         implements RecipeType<Recipe> {
 
-    public static <Recipe extends ModRecipe> ModRecipeType<Recipe> create(final ResourceLocation id) {
+    public static <Recipe extends IModRecipe> ModRecipeType<Recipe> create(final ResourceLocation id) {
 
         final ModRecipeType<Recipe> type = new ModRecipeType<>(id);
 
@@ -54,46 +56,47 @@ public class ModRecipeType<Recipe extends ModRecipe>
         return this._id;
     }
 
-    public List<Recipe> getRecipes() {
+    public List<RecipeHolder<Recipe>> getRecipes() {
 
         if (this._cache.isEmpty()) {
-
-            final RecipeManager manager = CodeHelper.getRecipeManager();
-
-            if (null != manager) {
-
-                final var holders = manager.getAllRecipesFor(this);
-                final var list = new ObjectArrayList<Recipe>(holders.size());
-
-                holders.forEach(h -> list.add(h.value()));
-                this._cache = ObjectLists.unmodifiable(list);
-            }
+            this._cache = CodeHelper.getMinecraftServer()
+                    .map(MinecraftServer::getRecipeManager)
+                    .map(RecipeManager::recipeMap)
+                    .map(map -> map.byType(this))
+                    .map(ObjectArrayList::new)
+                    .map(ObjectLists::unmodifiable)
+                    .orElseGet(ObjectLists::emptyList);
         }
 
         return this._cache;
     }
 
-    public List<Recipe> getRecipes(final Predicate<Recipe> filter) {
-        return this.stream().filter(filter).collect(Collectors.toList());
+    public List<RecipeHolder<Recipe>> getRecipes(final Predicate<Recipe> filter) {
+        return this.stream()
+                .filter(holder -> filter.test(holder.value()))
+                .collect(Collectors.toList());
     }
 
     public <R extends Recipe> List<R> getRecipes(final Predicate<Recipe> filter, final Function<@NotNull Recipe, @NotNull R> mapping) {
         return this.stream()
+                .map(RecipeHolder::value)
                 .filter(filter)
                 .map(mapping::apply)
                 .collect(Collectors.toList());
     }
 
-    public Stream<Recipe> stream() {
+    public Stream<RecipeHolder<Recipe>> stream() {
         return this.getRecipes().stream();
     }
 
-    public Optional<Recipe> findFirst(final Predicate<Recipe> predicate) {
-        return this.stream().filter(predicate).findFirst();
+    public Optional<RecipeHolder<Recipe>> findFirst(final Predicate<Recipe> predicate) {
+        return this.stream().filter(holder -> predicate.test(holder.value())).findFirst();
     }
 
     public boolean contains(final Predicate<Recipe> predicate) {
-        return this.stream().anyMatch(predicate);
+        return this.stream()
+                .map(RecipeHolder::value)
+                .anyMatch(predicate);
     }
 
     //region Object
@@ -109,17 +112,17 @@ public class ModRecipeType<Recipe extends ModRecipe>
     protected ModRecipeType(final ResourceLocation id) {
 
         this._id = id;
-        this._cache = Collections.emptyList();
+        this._cache = ObjectLists.emptyList();
     }
 
     protected void invalidateCache() {
-        this._cache = Collections.emptyList();
+        this._cache = ObjectLists.emptyList();
     }
 
-    private static final List<ModRecipeType<? extends ModRecipe>> s_types = Lists.newLinkedList();
+    private static final List<ModRecipeType<? extends IModRecipe>> s_types = Lists.newLinkedList();
 
     private final ResourceLocation _id;
-    private List<Recipe> _cache;
+    private ObjectList<RecipeHolder<Recipe>> _cache;
 
     //endregion
 }

@@ -20,26 +20,31 @@ package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.zerono.mods.zerocore.lib.recipe.AbstractManyToOneRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IManyToOneModRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ManyToOneRecipeBuilder<Ingredient, Result,
         RecipeIngredient extends IRecipeIngredient<Ingredient>, RecipeResult extends IRecipeResult<Result>,
-        Recipe extends AbstractManyToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
+        Recipe extends IManyToOneModRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
     extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, ManyToOneRecipeBuilder<Ingredient, Result,
         RecipeIngredient, RecipeResult, Recipe>> {
 
-    public ManyToOneRecipeBuilder(RecipeResult result,
-                                  BiFunction<List<RecipeIngredient>, RecipeResult, Recipe> recipeFactory) {
+    public ManyToOneRecipeBuilder(Function<@NotNull ResourceKey<? extends Registry<?>>, @NotNull HolderGetter<?>> holderGetterProvider,
+                                  RecipeResult result,
+                                  BiFunction<@NotNull List<RecipeIngredient>, @NotNull RecipeResult, @NotNull Recipe> recipeFactory) {
 
-        super(result);
+        super(holderGetterProvider);
 
         Preconditions.checkArgument(!result.isEmpty(), "Result cannot be empty");
         Preconditions.checkNotNull(recipeFactory, "Recipe factory cannot be empty");
@@ -49,7 +54,7 @@ public class ManyToOneRecipeBuilder<Ingredient, Result,
     }
 
     @Override
-    protected Recipe getRecipe() {
+    protected Recipe buildRecipe() {
         return this._recipeFactory.get();
     }
 

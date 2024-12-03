@@ -28,7 +28,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,8 +48,6 @@ public interface IProxy {
      * @param max The maximum position in tha range
      */
     void markBlockRangeForRenderUpdate(Level level, BlockPos min, BlockPos max);
-
-    void sendPlayerStatusMessage(Player player, Component message);
 
     default long getLastRenderTime() {
         return 0;
@@ -79,9 +76,6 @@ public interface IProxy {
     }
 
     void clearErrorReport();
-
-    @Nullable
-    RecipeManager getRecipeManager();
 
     default void handleInternalCommand(final InternalCommand command, final CompoundTag data,
                                        final PacketFlow flow) {

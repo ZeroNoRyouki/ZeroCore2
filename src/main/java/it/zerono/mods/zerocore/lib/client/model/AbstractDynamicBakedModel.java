@@ -23,8 +23,8 @@ import it.zerono.mods.zerocore.lib.client.render.ModRenderHelper;
 import it.zerono.mods.zerocore.lib.data.Flags;
 import it.zerono.mods.zerocore.lib.data.geometry.Vector3d;
 import it.zerono.mods.zerocore.lib.data.gfx.Colour;
+import net.minecraft.client.renderer.block.model.BakedOverrides;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.neoforged.api.distmarker.Dist;
@@ -143,8 +143,8 @@ public abstract class AbstractDynamicBakedModel
     }
 
     @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
+    public BakedOverrides overrides() {
+        return BakedOverrides.EMPTY;
     }
 
     //endregion
@@ -163,7 +163,7 @@ public abstract class AbstractDynamicBakedModel
 
         final var builder = builder(quadConsumer, sprite);
 
-        builder.setDirection(Direction.getNearest(normal.X, normal.Y, normal.Z));
+        builder.setDirection(Direction.getApproximateNearest(normal.X, normal.Y, normal.Z));
         builder.setTintIndex(tintIndex);
         return builder;
     }
@@ -177,7 +177,7 @@ public abstract class AbstractDynamicBakedModel
     }
 
     private static Vector3d normal(final Direction direction) {
-        return Vector3d.from(direction.getNormal());
+        return Vector3d.from(direction.getUnitVec3i());
     }
 
     private enum SupportFlags {

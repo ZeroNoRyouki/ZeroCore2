@@ -66,13 +66,13 @@ public class TagSource<T> {
         final Registry<T> registry = this._registry.get();
 
         return registry.getResourceKey(object)
-                .map(registry::getHolderOrThrow)
+                .map(registry::getOrThrow)
                 .map(holder -> holder.is(tagKey))
                 .orElse(false);
     }
 
     public boolean exist(final TagKey<T> tagKey) {
-        return this._registry.get().getTag(tagKey).isPresent();
+        return this._registry.get().get(tagKey).isPresent();
     }
 
     public boolean existWithContent(final TagKey<T> tagKey) {
@@ -99,7 +99,7 @@ public class TagSource<T> {
 
         final Registry<T> registry = this._registry.get();
         final List<TagKey<T>> list = registry.getResourceKey(object)
-                .map(registry::getHolderOrThrow)
+                .map(registry::getOrThrow)
                 .map(Holder::tags)
                 .map(s -> s.collect(Collectors.toList()))
                 .orElse(Collections.emptyList());

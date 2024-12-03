@@ -19,26 +19,32 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
-import it.zerono.mods.zerocore.lib.recipe.AbstractTwoToOneRecipe;
+import it.zerono.mods.zerocore.lib.recipe.ITwoToOneModRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
         RecipeIngredient1 extends IRecipeIngredient<Ingredient1>, RecipeIngredient2 extends IRecipeIngredient<Ingredient2>,
         RecipeResult extends IRecipeResult<Result>,
-        Recipe extends AbstractTwoToOneRecipe<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult>>
+        Recipe extends ITwoToOneModRecipe<Ingredient1, Ingredient2, Result, RecipeIngredient1, RecipeIngredient2, RecipeResult>>
     extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
         RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe>> {
 
-    public TwoToOneRecipeBuilder(RecipeIngredient1 ingredient1, RecipeIngredient2 ingredient2, RecipeResult result,
-                                 TriFunction<RecipeIngredient1, RecipeIngredient2, RecipeResult, Recipe> recipeFactory) {
+    public TwoToOneRecipeBuilder(Function<@NotNull ResourceKey<? extends Registry<?>>, @NotNull HolderGetter<?>> holderGetterProvider,
+                                 RecipeIngredient1 ingredient1, RecipeIngredient2 ingredient2, RecipeResult result,
+                                 TriFunction<@NotNull RecipeIngredient1, @NotNull RecipeIngredient2,
+                                         @NotNull RecipeResult, @NotNull Recipe> recipeFactory) {
 
-        super(result);
+        super(holderGetterProvider);
 
         Preconditions.checkArgument(!ingredient1.isEmpty(), "Ingredient 1 cannot be empty");
         Preconditions.checkArgument(!ingredient2.isEmpty(), "Ingredient 2 cannot be empty");
@@ -49,7 +55,7 @@ public class TwoToOneRecipeBuilder<Ingredient1, Ingredient2, Result,
     }
 
     @Override
-    protected Recipe getRecipe() {
+    protected Recipe buildRecipe() {
         return this._recipeFactory.get();
     }
 

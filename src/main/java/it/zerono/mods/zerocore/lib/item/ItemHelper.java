@@ -18,8 +18,10 @@
 
 package it.zerono.mods.zerocore.lib.item;
 
+import it.zerono.mods.zerocore.lib.text.TextHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -62,7 +64,17 @@ public final class ItemHelper {
     }
 
     public static MutableComponent getItemName(final ItemStack stack) {
-        return Component.translatable(stack.getDescriptionId());
+
+        if (stack.has(DataComponents.ITEM_NAME)) {
+
+            final var name = stack.get(DataComponents.ITEM_NAME);
+
+            if (name instanceof MutableComponent component) {
+                return component;
+            }
+        }
+
+        return TextHelper.literal("");
     }
 
     public static Item getItemFrom(final String id) {
@@ -74,11 +86,11 @@ public final class ItemHelper {
     }
 
     public static Item getItemFrom(final ResourceLocation id) {
-        return BuiltInRegistries.ITEM.get(id);
+        return BuiltInRegistries.ITEM.getValue(id);
     }
 
     public static Item getItemFromOrAir(final ResourceLocation id) {
-        return BuiltInRegistries.ITEM.containsKey(id) ? Objects.requireNonNull(BuiltInRegistries.ITEM.get(id)) : Items.AIR;
+        return BuiltInRegistries.ITEM.containsKey(id) ? Objects.requireNonNull(BuiltInRegistries.ITEM.getValue(id)) : Items.AIR;
     }
 
     public enum MatchOption {

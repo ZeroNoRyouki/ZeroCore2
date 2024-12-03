@@ -19,25 +19,30 @@
 package it.zerono.mods.zerocore.lib.datagen.provider.recipe;
 
 import com.google.common.base.Preconditions;
-import it.zerono.mods.zerocore.lib.recipe.AbstractOneToOneRecipe;
+import it.zerono.mods.zerocore.lib.recipe.IOneToOneModRecipe;
 import it.zerono.mods.zerocore.lib.recipe.ingredient.IRecipeIngredient;
 import it.zerono.mods.zerocore.lib.recipe.result.IRecipeResult;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class OneToOneRecipeBuilder<Ingredient, Result,
         RecipeIngredient extends IRecipeIngredient<Ingredient>, RecipeResult extends IRecipeResult<Result>,
-        Recipe extends AbstractOneToOneRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
+        Recipe extends IOneToOneModRecipe<Ingredient, Result, RecipeIngredient, RecipeResult>>
     extends AbstractModRecipeBuilder<Recipe, Result, RecipeResult, OneToOneRecipeBuilder<Ingredient, Result,
         RecipeIngredient, RecipeResult, Recipe>> {
 
-    public OneToOneRecipeBuilder(RecipeIngredient ingredient, RecipeResult result,
-                                 BiFunction<RecipeIngredient, RecipeResult, Recipe> recipeFactory) {
+    public OneToOneRecipeBuilder(Function<@NotNull ResourceKey<? extends Registry<?>>, @NotNull HolderGetter<?>> holderGetterProvider,
+                                 RecipeIngredient ingredient, RecipeResult result,
+                                 BiFunction<@NotNull RecipeIngredient, @NotNull RecipeResult, @NotNull Recipe> recipeFactory) {
 
-        super(result);
+        super(holderGetterProvider);
 
         Preconditions.checkArgument(!ingredient.isEmpty(), "Ingredient cannot be empty");
         Preconditions.checkArgument(!result.isEmpty(), "Result cannot be empty");
@@ -47,7 +52,7 @@ public class OneToOneRecipeBuilder<Ingredient, Result,
     }
 
     @Override
-    protected Recipe getRecipe() {
+    protected Recipe buildRecipe() {
         return this._recipeFactory.get();
     }
 

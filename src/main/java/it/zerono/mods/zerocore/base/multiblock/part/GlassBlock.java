@@ -56,7 +56,7 @@ public class GlassBlock<Controller extends IMultiblockController<Controller>,
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 

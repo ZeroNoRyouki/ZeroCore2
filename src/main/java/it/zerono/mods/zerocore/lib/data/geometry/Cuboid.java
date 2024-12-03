@@ -133,10 +133,10 @@ public class Cuboid {
         switch (side.getAxisDirection()) {
 
             case NEGATIVE:
-                return new Cuboid(this.Min.add(Vector3d.from(side.getNormal()).multiply(amount)), this.Max);
+                return new Cuboid(this.Min.add(Vector3d.from(side.getUnitVec3i()).multiply(amount)), this.Max);
 
             case POSITIVE:
-                return new Cuboid(this.Min, this.Max.add(Vector3d.from(side.getNormal()).multiply(amount)));
+                return new Cuboid(this.Min, this.Max.add(Vector3d.from(side.getUnitVec3i()).multiply(amount)));
         }
 
         return this;
@@ -302,7 +302,7 @@ public class Cuboid {
 
         public Vector3f getNormal() {
 
-            final Vec3i n = this.FACING.getNormal();
+            final Vec3i n = this.FACING.getUnitVec3i();
 
             return new Vector3f(n.getX(), n.getY(), n.getZ());
         }

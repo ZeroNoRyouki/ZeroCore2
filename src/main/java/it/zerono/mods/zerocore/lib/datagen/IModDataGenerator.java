@@ -3,6 +3,8 @@ package it.zerono.mods.zerocore.lib.datagen;
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.datagen.provider.loot.SubProviderBuilder;
+import it.zerono.mods.zerocore.lib.datagen.provider.recipe.ModRecipeProvider;
+import it.zerono.mods.zerocore.lib.datagen.provider.recipe.ModRecipeProviderRunner;
 import it.zerono.mods.zerocore.lib.datagen.provider.tag.IIntrinsicTagDataProvider;
 import it.zerono.mods.zerocore.lib.datagen.provider.tag.ITagDataProvider;
 import net.minecraft.Util;
@@ -12,12 +14,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootTable;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
@@ -96,5 +100,14 @@ public interface IModDataGenerator {
 
     default void addLootProvider(Consumer<@NotNull SubProviderBuilder> subProvidersBuilder) {
         this.addLootProvider(Set.of(), subProvidersBuilder);
+    }
+
+    default <Provider extends ModRecipeProvider>
+    void addRecipeProvider(String name,
+                           TriFunction<@NotNull ModRecipeProviderRunner<? extends ModRecipeProvider>,
+                                   HolderLookup.@NotNull Provider, @NotNull RecipeOutput,
+                                   @NotNull Provider> providerFactory) {
+        this.addProvider((output, registryLookup, modLocationRoot) ->
+                new ModRecipeProviderRunner<>(name, registryLookup, output, modLocationRoot, providerFactory));
     }
 }

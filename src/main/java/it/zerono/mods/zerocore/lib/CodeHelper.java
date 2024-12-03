@@ -46,7 +46,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
@@ -61,6 +60,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -163,17 +163,16 @@ public final class CodeHelper {
         return s_fakeRandom;
     }
 
+    public static <T> T[] concatArrays(T first, T... others) {
+        return ArrayUtils.addFirst(others, first);
+    }
+
+    public static <T> T[] concatArrays(T[] array1, T... array2) {
+        return ArrayUtils.addAll(array1, array2);
+    }
+
     public static String neutralLowercase(final String input) {
         return input.toLowerCase(Locale.ROOT);
-    }
-
-    @Nullable
-    public static RecipeManager getRecipeManager() {
-        return ZeroCore.getProxy().getRecipeManager();
-    }
-
-    public static RecipeManager getRecipeManager(final Level world) {
-        return world.getRecipeManager();
     }
 
     public static boolean shouldInvalidateResourceCache() {
@@ -913,18 +912,12 @@ public final class CodeHelper {
         return Component.literal(I18n.get(translateKey, parameters));
     }
 
-    /**
-     * MC-Version independent wrapper around PlayerEntity::addChatMessage()
-     */
-    public static void sendChatMessage(final Player sender, final Component component) {
-        sender.sendSystemMessage(component);
+    public static void sendChatMessage(final Player player, final Component message) {
+        player.displayClientMessage(message, false);
     }
 
-    /**
-     * MC-Version independent wrapper around PlayerEntity::sendStatusMessage() [backported to MC 1.10.2]
-     */
     public static void sendStatusMessage(final Player player, final Component message) {
-        ZeroCore.getProxy().sendPlayerStatusMessage(player, message);
+        player.displayClientMessage(message, true);
     }
 
     //endregion

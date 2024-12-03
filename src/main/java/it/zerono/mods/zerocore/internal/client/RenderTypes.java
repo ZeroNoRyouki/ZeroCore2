@@ -23,6 +23,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import it.zerono.mods.zerocore.ZeroCore;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.TriState;
 import net.minecraft.world.inventory.InventoryMenu;
 
 import java.util.OptionalDouble;
@@ -48,7 +49,7 @@ public final class RenderTypes
             CompositeState.builder()
                     .setLightmapState(LIGHTMAP)
                     .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER)
-                    .setTextureState(new RenderStateShard.TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(InventoryMenu.BLOCK_ATLAS, TriState.FALSE, false))
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                     .setCullState(NO_CULL)
                     .createCompositeState(false));

@@ -40,6 +40,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -265,16 +266,17 @@ public class ModBlock
     //region INeighborChangeListener support
 
     @Override
-    public void neighborChanged(BlockState state, Level world, BlockPos blockPosition, Block block, BlockPos neighborPosition, boolean isMoving) {
+    public void neighborChanged(BlockState state, Level world, BlockPos blockPosition, Block block,
+                                @Nullable Orientation orientation, boolean isMoving) {
 
-        super.neighborChanged(state, world, blockPosition, block, neighborPosition, isMoving);
+        super.neighborChanged(state, world, blockPosition, block, orientation, isMoving);
 
         if (this instanceof INeighborChangeListener.Notifier && this instanceof EntityBlock) {
 
             WorldHelper.getTile(world, blockPosition)
                     .filter(te -> te instanceof INeighborChangeListener)
                     .map(te -> (INeighborChangeListener)te)
-                    .ifPresent(listener -> listener.onNeighborBlockChanged(state, neighborPosition, isMoving));
+                    .ifPresent(listener -> listener.onNeighborBlockChanged(state, orientation, isMoving));
         }
     }
 

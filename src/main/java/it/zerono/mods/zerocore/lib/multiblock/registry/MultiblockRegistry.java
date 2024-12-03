@@ -47,6 +47,7 @@ import it.zerono.mods.zerocore.lib.compat.SidedDependencyServiceLoader;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockRegistry;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -151,7 +152,7 @@ public class MultiblockRegistry<Controller extends IMultiblockController<Control
      */
     protected void tickStart(final Level world) {
 
-        final ProfilerFiller profiler = world.getProfiler();
+        final ProfilerFiller profiler = Profiler.get();
 
         profiler.push("Zero CORE|Multiblock|Tick");
 
