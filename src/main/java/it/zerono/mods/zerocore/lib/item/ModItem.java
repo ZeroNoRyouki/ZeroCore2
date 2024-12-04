@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.item;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 
+@Deprecated
 @SuppressWarnings({"WeakerAccess"})
 public class ModItem extends Item {
 

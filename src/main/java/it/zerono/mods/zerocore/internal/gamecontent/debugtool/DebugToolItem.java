@@ -53,8 +53,8 @@ public class DebugToolItem
         void runTest(int test, @Nullable Player player, Level world, BlockPos clickedPos);
     }
 
-    public DebugToolItem() {
-        super(new Properties().stacksTo(64));
+    public DebugToolItem(Item.Properties properties) {
+        super(properties.stacksTo(64));
     }
 
     public static void setTestCallback(@Nullable ITestCallback callback) {

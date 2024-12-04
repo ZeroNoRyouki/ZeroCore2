@@ -31,7 +31,6 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.neoforged.bus.api.IEventBus;
@@ -52,12 +51,12 @@ public class Content {
         modBus.addListener(Content::modifyCreativeTabs);
     }
 
-    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, ZeroCore.MOD_ID);
+    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ZeroCore.MOD_ID);
     private static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(BuiltInRegistries.FEATURE, ZeroCore.MOD_ID);
     private static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(BuiltInRegistries.DATA_COMPONENT_TYPE, ZeroCore.MOD_ID);
     private static final DeferredRegister<RecipeDisplay.Type<?>> RECIPE_DISPLAYS = DeferredRegister.create(BuiltInRegistries.RECIPE_DISPLAY, ZeroCore.MOD_ID);
 
-    public static final Supplier<@NotNull DebugToolItem> DEBUG_TOOL = ITEMS.register("debugtool", DebugToolItem::new);
+    public static final Supplier<@NotNull DebugToolItem> DEBUG_TOOL = ITEMS.registerItem("debugtool", DebugToolItem::new);
 
     public static final Supplier<@NotNull DataComponentType<ItemStackListComponent>> ITEMSTACK_COMPONENT_TYPE =
             registerComponent("itemstacks", ItemStackListComponent.CODECS);
