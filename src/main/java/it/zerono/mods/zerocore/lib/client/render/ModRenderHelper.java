@@ -31,7 +31,6 @@ import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.internal.client.RenderTypes;
 import it.zerono.mods.zerocore.internal.client.model.MissingModel;
 import it.zerono.mods.zerocore.internal.mixin.client.GuiGraphicsAccessor;
-import it.zerono.mods.zerocore.internal.mixin.client.ModelBakeryAccessor;
 import it.zerono.mods.zerocore.lib.CodeHelper;
 import it.zerono.mods.zerocore.lib.client.gui.IRichText;
 import it.zerono.mods.zerocore.lib.client.gui.Orientation;
@@ -50,7 +49,10 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.*;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.MissingBlockModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -96,11 +98,6 @@ public final class ModRenderHelper {
 
     public static ModelManager getModelManager() {
         return Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getModelManager();
-    }
-
-    public static UnbakedModel getModel(final ResourceLocation location) {
-        return ((ModelBakeryAccessor) (Minecraft.getInstance().getModelManager().getModelBakery()))
-                .zerocore_getModel(location);
     }
 
     public static BakedModel getModel(final BlockState state) {

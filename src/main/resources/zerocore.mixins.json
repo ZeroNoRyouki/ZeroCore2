@@ -7,8 +7,7 @@
     "SlotAccessor"
   ],
   "client":[
-    "client.GuiGraphicsAccessor",
-    "client.ModelBakeryAccessor"
+    "client.GuiGraphicsAccessor"
   ],
   "injectors":{
     "defaultRequire":1
