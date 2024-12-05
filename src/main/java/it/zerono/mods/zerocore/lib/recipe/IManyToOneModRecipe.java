@@ -62,13 +62,13 @@ public interface IManyToOneModRecipe<Ingredient, Result, RecipeIngredient extend
 
         final MapCodec<Recipe> codec = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        ingredientsCodecs.listField(ingredientsFieldName, IManyToOneModRecipe::getRecipeIngredients),
-                        resultCodecs.field(resultFieldName, IManyToOneModRecipe::getResult)
+                        ingredientsCodecs.listField(ingredientsFieldName, IManyToOneModRecipe::ingredients),
+                        resultCodecs.field(resultFieldName, IManyToOneModRecipe::result)
                 ).apply(instance, recipeFactory));
 
         final StreamCodec<RegistryFriendlyByteBuf, Recipe> streamCodec = StreamCodec.composite(
-                ingredientsCodecs.listStreamCodec(), IManyToOneModRecipe::getRecipeIngredients,
-                resultCodecs.streamCodec(), IManyToOneModRecipe::getResult,
+                ingredientsCodecs.listStreamCodec(), IManyToOneModRecipe::ingredients,
+                resultCodecs.streamCodec(), IManyToOneModRecipe::result,
                 recipeFactory
         );
 
@@ -77,16 +77,16 @@ public interface IManyToOneModRecipe<Ingredient, Result, RecipeIngredient extend
 
     int getRecipeIngredientsCount();
 
-    List<RecipeIngredient> getRecipeIngredients();
+    List<RecipeIngredient> ingredients();
 
-    RecipeResult getResult();
+    RecipeResult result();
 
     //region Predicate<List<IngredientT>>
 
     @Override
     default boolean test(List<Ingredient> stacks) {
 
-        List<RecipeIngredient> ingredients = this.getRecipeIngredients();
+        List<RecipeIngredient> ingredients = this.ingredients();
         int ingredientsCount = ingredients.size();
 
         if (ingredientsCount != stacks.size()) {
@@ -128,17 +128,17 @@ public interface IManyToOneModRecipe<Ingredient, Result, RecipeIngredient extend
 
     @Override
     default ResourceKey<Recipe<?>> getRegistrationKey() {
-        return ResourceKey.create(Registries.RECIPE, this.getResult().getId());
+        return ResourceKey.create(Registries.RECIPE, this.result().getId());
     }
 
     @Override
     default List<RecipeDisplay> display() {
 
-        final List<SlotDisplay> ingredients = this.getRecipeIngredients().stream()
+        final List<SlotDisplay> ingredients = this.ingredients().stream()
                 .map(IRecipeIngredient::asSlotDisplay)
                 .toList();
 
-        return List.of(new ManyToOneRecipeDisplay(ingredients, this.getResult().asSlotDisplay(),
+        return List.of(new ManyToOneRecipeDisplay(ingredients, this.result().asSlotDisplay(),
                 this.getCraftingStationSlotDisplay()));
     }
 

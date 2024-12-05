@@ -67,32 +67,32 @@ public interface ITwoToOneModRecipe<Ingredient1, Ingredient2, Result,
 
         final MapCodec<Recipe> codec = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        ingredient1Codecs.field(ingredient1FieldName, ITwoToOneModRecipe::getIngredient1),
-                        ingredient2Codecs.field(ingredient2FieldName, ITwoToOneModRecipe::getIngredient2),
-                        resultCodecs.field(resultFieldName, ITwoToOneModRecipe::getResult)
+                        ingredient1Codecs.field(ingredient1FieldName, ITwoToOneModRecipe::ingredient1),
+                        ingredient2Codecs.field(ingredient2FieldName, ITwoToOneModRecipe::ingredient2),
+                        resultCodecs.field(resultFieldName, ITwoToOneModRecipe::result)
                 ).apply(instance,  recipeFactory));
 
         final StreamCodec<RegistryFriendlyByteBuf, Recipe> streamCodec = StreamCodec.composite(
-                ingredient1Codecs.streamCodec(), ITwoToOneModRecipe::getIngredient1,
-                ingredient2Codecs.streamCodec(), ITwoToOneModRecipe::getIngredient2,
-                resultCodecs.streamCodec(), ITwoToOneModRecipe::getResult,
+                ingredient1Codecs.streamCodec(), ITwoToOneModRecipe::ingredient1,
+                ingredient2Codecs.streamCodec(), ITwoToOneModRecipe::ingredient2,
+                resultCodecs.streamCodec(), ITwoToOneModRecipe::result,
                 recipeFactory
         );
 
         return new ModRecipeSerializer<>(codec, streamCodec);
     }
 
-    RecipeIngredient1 getIngredient1();
+    RecipeIngredient1 ingredient1();
 
-    RecipeIngredient2 getIngredient2();
+    RecipeIngredient2 ingredient2();
 
-    RecipeResult getResult();
+    RecipeResult result();
 
     //region BiPredicate<Ingredient1, Ingredient2>
 
     @Override
     default boolean test(Ingredient1 stack1, Ingredient2 stack2) {
-        return this.getIngredient1().test(stack1) && this.getIngredient2().test(stack2);
+        return this.ingredient1().test(stack1) && this.ingredient2().test(stack2);
     }
 
     //endregion
@@ -100,13 +100,13 @@ public interface ITwoToOneModRecipe<Ingredient1, Ingredient2, Result,
 
     @Override
     default ResourceKey<Recipe<?>> getRegistrationKey() {
-        return ResourceKey.create(Registries.RECIPE, this.getResult().getId());
+        return ResourceKey.create(Registries.RECIPE, this.result().getId());
     }
 
     @Override
     default List<RecipeDisplay> display() {
-        return List.of(new TwoToOneRecipeDisplay(this.getIngredient2().asSlotDisplay(), this.getIngredient2().asSlotDisplay(),
-                this.getResult().asSlotDisplay(), this.getCraftingStationSlotDisplay()));
+        return List.of(new TwoToOneRecipeDisplay(this.ingredient2().asSlotDisplay(), this.ingredient2().asSlotDisplay(),
+                this.result().asSlotDisplay(), this.getCraftingStationSlotDisplay()));
     }
 
     //endregion

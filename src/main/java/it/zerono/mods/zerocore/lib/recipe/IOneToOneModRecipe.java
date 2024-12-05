@@ -60,28 +60,28 @@ public interface IOneToOneModRecipe<Ingredient, Result, RecipeIngredient extends
 
         final MapCodec<Recipe> codec = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        ingredientCodecs.field(ingredientFieldName, IOneToOneModRecipe::getIngredient),
-                        resultCodecs.field(resultFieldName, IOneToOneModRecipe::getResult)
+                        ingredientCodecs.field(ingredientFieldName, IOneToOneModRecipe::ingredient),
+                        resultCodecs.field(resultFieldName, IOneToOneModRecipe::result)
                 ).apply(instance, recipeFactory));
 
         final StreamCodec<RegistryFriendlyByteBuf, Recipe> streamCodec = StreamCodec.composite(
-                ingredientCodecs.streamCodec(), IOneToOneModRecipe::getIngredient,
-                resultCodecs.streamCodec(), IOneToOneModRecipe::getResult,
+                ingredientCodecs.streamCodec(), IOneToOneModRecipe::ingredient,
+                resultCodecs.streamCodec(), IOneToOneModRecipe::result,
                 recipeFactory
         );
 
         return new ModRecipeSerializer<>(codec, streamCodec);
     }
 
-    RecipeIngredient getIngredient();
+    RecipeIngredient ingredient();
 
-    RecipeResult getResult();
+    RecipeResult result();
 
     //region Predicate<RecipeIngredient>
 
     @Override
     default boolean test(Ingredient stack) {
-        return this.getIngredient().test(stack);
+        return this.ingredient().test(stack);
     }
 
     //endregion
@@ -89,12 +89,12 @@ public interface IOneToOneModRecipe<Ingredient, Result, RecipeIngredient extends
 
     @Override
     default ResourceKey<Recipe<?>> getRegistrationKey() {
-        return ResourceKey.create(Registries.RECIPE, this.getResult().getId());
+        return ResourceKey.create(Registries.RECIPE, this.result().getId());
     }
 
     @Override
     default List<RecipeDisplay> display() {
-        return List.of(new OneToOneRecipeDisplay(this.getIngredient().asSlotDisplay(), this.getResult().asSlotDisplay(),
+        return List.of(new OneToOneRecipeDisplay(this.ingredient().asSlotDisplay(), this.result().asSlotDisplay(),
                 this.getCraftingStationSlotDisplay()));
     }
 
