@@ -26,6 +26,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class ItemStackRecipeResult
     implements IRecipeResult<ItemStack> {
@@ -42,8 +45,16 @@ public class ItemStackRecipeResult
         return new ItemStackRecipeResult(stack);
     }
 
+    public static ItemStackRecipeResult from(Supplier<? extends @NotNull ItemLike> item) {
+        return from(item.get());
+    }
+
     public static ItemStackRecipeResult from(final ItemLike item) {
         return from(item, 1);
+    }
+
+    public static ItemStackRecipeResult from(Supplier<? extends @NotNull ItemLike> item, int amount) {
+        return from(item.get(), amount);
     }
 
     public static ItemStackRecipeResult from(final ItemLike item, final int amount) {

@@ -25,8 +25,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.display.FluidStackSlotDisplay;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public class FluidStackRecipeResult
         implements IRecipeResult<FluidStack> {
@@ -41,6 +45,22 @@ public class FluidStackRecipeResult
 
     public static FluidStackRecipeResult from(final FluidStack stack) {
         return new FluidStackRecipeResult(stack);
+    }
+
+    public static FluidStackRecipeResult from(Supplier<? extends @NotNull Fluid> fluid) {
+        return from(fluid.get());
+    }
+
+    public static FluidStackRecipeResult from(Fluid fluid) {
+        return from(fluid, 1000);
+    }
+
+    public static FluidStackRecipeResult from(Supplier<? extends @NotNull Fluid> fluid, int amount) {
+        return from(fluid.get(), amount);
+    }
+
+    public static FluidStackRecipeResult from(Fluid fluid, int amount) {
+        return from(new FluidStack(fluid, amount));
     }
 
     //region IRecipeResult<FluidStack>

@@ -29,13 +29,11 @@ import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentPredicate;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -45,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class FluidRecipeIngredient
         implements IRecipeIngredient<@NotNull FluidStack> {
@@ -76,11 +75,19 @@ public class FluidRecipeIngredient
         return of(1000, fluid);
     }
 
+    public static FluidRecipeIngredient of(Supplier<? extends @NotNull Fluid> fluid) {
+        return of(1000, fluid.get());
+    }
+
     public static FluidRecipeIngredient of(int amount, Fluid fluid) {
 
         Preconditions.checkNotNull(fluid, "Fluid must not be null");
 
         return new FluidRecipeIngredient(amount, Optional.empty(), fluid);
+    }
+
+    public static FluidRecipeIngredient of(int amount, Supplier<? extends @NotNull Fluid> fluid) {
+        return of(amount, fluid.get());
     }
 
     public static FluidRecipeIngredient of(int amount, DataComponentPredicate componentPredicate, Fluid fluid) {
@@ -90,8 +97,26 @@ public class FluidRecipeIngredient
         return new FluidRecipeIngredient(amount, Optional.of(componentPredicate), fluid);
     }
 
+    public static FluidRecipeIngredient of(int amount, DataComponentPredicate componentPredicate,
+                                           Supplier<? extends @NotNull Fluid> fluid) {
+        return of(amount, componentPredicate, fluid.get());
+    }
+
     public static FluidRecipeIngredient of(Fluid firstFluid, Fluid... otherFluids) {
         return of(1000, firstFluid, otherFluids);
+    }
+
+    @SafeVarargs
+    public static FluidRecipeIngredient of(Supplier<? extends @NotNull Fluid> firstFluid,
+                                           Supplier<? extends @NotNull Fluid>... otherFluids) {
+
+        Preconditions.checkNotNull(firstFluid, "First fluid must not be null");
+
+        if (otherFluids.length > 0) {
+            return of(firstFluid.get(), CodeHelper.resolveSuppliers(Fluid[]::new, otherFluids));
+        } else {
+            return of(firstFluid.get());
+        }
     }
 
     public static FluidRecipeIngredient of(int amount, Fluid firstFluid, Fluid... otherFluids) {
@@ -101,12 +126,39 @@ public class FluidRecipeIngredient
         return new FluidRecipeIngredient(amount, Optional.empty(), firstFluid, otherFluids);
     }
 
+    @SafeVarargs
+    public static FluidRecipeIngredient of(int amount, Supplier<? extends @NotNull Fluid> firstFluid,
+                                           Supplier<? extends @NotNull Fluid>... otherFluids) {
+
+        Preconditions.checkNotNull(firstFluid, "First fluid must not be null");
+
+        if (otherFluids.length > 0) {
+            return of(amount, firstFluid.get(), CodeHelper.resolveSuppliers(Fluid[]::new, otherFluids));
+        } else {
+            return of(amount, firstFluid.get());
+        }
+    }
+
     public static FluidRecipeIngredient of(int amount, DataComponentPredicate componentPredicate, Fluid firstFluid,
                                            Fluid... otherFluids) {
 
         Preconditions.checkNotNull(firstFluid, "First fluid must not be null");
 
         return new FluidRecipeIngredient(amount, Optional.of(componentPredicate), firstFluid, otherFluids);
+    }
+
+    @SafeVarargs
+    public static FluidRecipeIngredient of(int amount, DataComponentPredicate componentPredicate,
+                                           Supplier<? extends @NotNull Fluid> firstFluid,
+                                           Supplier<? extends @NotNull Fluid>... otherFluids) {
+
+        Preconditions.checkNotNull(firstFluid, "First fluid must not be null");
+
+        if (otherFluids.length > 0) {
+            return of(amount, componentPredicate, firstFluid.get(), CodeHelper.resolveSuppliers(Fluid[]::new, otherFluids));
+        } else {
+            return of(amount, componentPredicate, firstFluid.get());
+        }
     }
 
     public static FluidRecipeIngredient of(TagKey<Fluid> tag, HolderGetter<Fluid> holderGetter) {

@@ -29,7 +29,6 @@ import it.zerono.mods.zerocore.lib.data.ModCodecs;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentPredicate;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -44,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public final class ItemRecipeIngredient
         implements IRecipeIngredient<@NotNull ItemStack> {
@@ -75,11 +75,19 @@ public final class ItemRecipeIngredient
         return of(1, item);
     }
 
+    public static ItemRecipeIngredient of(Supplier<? extends @NotNull ItemLike> item) {
+        return of(1, item.get());
+    }
+
     public static ItemRecipeIngredient of(int count, ItemLike item) {
 
         Preconditions.checkNotNull(item, "Item must not be null");
 
         return new ItemRecipeIngredient(count, Optional.empty(), item);
+    }
+
+    public static ItemRecipeIngredient of(int count, Supplier<? extends @NotNull ItemLike> item) {
+        return of(count, item.get());
     }
 
     public static ItemRecipeIngredient of(int count, DataComponentPredicate componentPredicate, ItemLike item) {
@@ -89,8 +97,26 @@ public final class ItemRecipeIngredient
         return new ItemRecipeIngredient(count, Optional.of(componentPredicate), item);
     }
 
+    public static ItemRecipeIngredient of(int count, DataComponentPredicate componentPredicate,
+                                          Supplier<? extends @NotNull ItemLike> item) {
+        return of(count, componentPredicate, item.get());
+    }
+
     public static ItemRecipeIngredient of(ItemLike fistItem, ItemLike... otherItems) {
         return of(1, fistItem, otherItems);
+    }
+
+    @SafeVarargs
+    public static ItemRecipeIngredient of(Supplier<? extends @NotNull ItemLike> fistItem,
+                                          Supplier<? extends @NotNull ItemLike>... otherItems) {
+
+        Preconditions.checkNotNull(fistItem, "First item must not be null");
+
+        if (otherItems.length > 0) {
+            return of(fistItem.get(), CodeHelper.resolveSuppliers(ItemLike[]::new, otherItems));
+        } else {
+            return of(fistItem.get());
+        }
     }
 
     public static ItemRecipeIngredient of(int count, ItemLike fistItem, ItemLike... otherItems) {
@@ -100,12 +126,39 @@ public final class ItemRecipeIngredient
         return new ItemRecipeIngredient(count, Optional.empty(), fistItem, otherItems);
     }
 
+    @SafeVarargs
+    public static ItemRecipeIngredient of(int count, Supplier<? extends @NotNull ItemLike> fistItem,
+                                          Supplier<? extends @NotNull ItemLike>... otherItems) {
+
+        Preconditions.checkNotNull(fistItem, "First item must not be null");
+
+        if (otherItems.length > 0) {
+            return of(count, fistItem.get(), CodeHelper.resolveSuppliers(ItemLike[]::new, otherItems));
+        } else {
+            return of(count, fistItem.get());
+        }
+    }
+
     public static ItemRecipeIngredient of(int count, DataComponentPredicate componentPredicate, ItemLike fistItem,
                                           ItemLike... otherItems) {
 
         Preconditions.checkNotNull(fistItem, "First item must not be null");
 
         return new ItemRecipeIngredient(count, Optional.of(componentPredicate), fistItem, otherItems);
+    }
+
+    @SafeVarargs
+    public static ItemRecipeIngredient of(int count, DataComponentPredicate componentPredicate,
+                                          Supplier<? extends @NotNull ItemLike> fistItem,
+                                          Supplier<? extends @NotNull ItemLike>... otherItems) {
+
+        Preconditions.checkNotNull(fistItem, "First item must not be null");
+
+        if (otherItems.length > 0) {
+            return of(count, componentPredicate, fistItem.get(), CodeHelper.resolveSuppliers(ItemLike[]::new, otherItems));
+        } else {
+            return of(count, componentPredicate, fistItem.get());
+        }
     }
 
     public static ItemRecipeIngredient of(TagKey<Item> tag, HolderGetter<Item> holderGetter) {

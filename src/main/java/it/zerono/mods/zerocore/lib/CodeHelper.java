@@ -693,7 +693,8 @@ public final class CodeHelper {
     }
 
     @SafeVarargs
-    public static <T> T[] resolveSuppliers(IntFunction<T[]> arrayFactory, java.util.function.Supplier<T>... suppliers) {
+    public static <T> T[] resolveSuppliers(IntFunction<T[]> arrayFactory,
+                                           java.util.function.Supplier<? extends T>... suppliers) {
 
         Preconditions.checkNotNull(arrayFactory);
         Preconditions.checkNotNull(suppliers);
