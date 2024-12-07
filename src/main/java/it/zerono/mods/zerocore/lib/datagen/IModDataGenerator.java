@@ -104,7 +104,7 @@ public interface IModDataGenerator {
 
     default <Provider extends ModRecipeProvider>
     void addRecipeProvider(String name,
-                           TriFunction<@NotNull ModRecipeProviderRunner<? extends ModRecipeProvider>,
+                           TriFunction<@NotNull ModRecipeProviderRunner<Provider>,
                                    HolderLookup.@NotNull Provider, @NotNull RecipeOutput,
                                    @NotNull Provider> providerFactory) {
         this.addProvider((output, registryLookup, modLocationRoot) ->

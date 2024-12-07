@@ -30,8 +30,10 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
 import java.util.LinkedHashMap;
@@ -65,7 +67,17 @@ public abstract class AbstractModRecipeBuilder<Recipe extends IModRecipe, Result
         this.build(output, recipe, recipe.getRegistrationKey());
     }
 
+    public void build(RecipeOutput output, ResourceLocation id) {
+
+        Preconditions.checkNotNull(id, "Id must not be null");
+
+        this.build(output, this.buildRecipe(), ResourceKey.create(Registries.RECIPE, id));
+    }
+
     public void build(RecipeOutput output, ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> id) {
+
+        Preconditions.checkNotNull(id, "Id must not be null");
+
         this.build(output, this.buildRecipe(), id);
     }
 
