@@ -19,7 +19,6 @@
 package it.zerono.mods.zerocore.lib.block.multiblock;
 
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
-import it.zerono.mods.zerocore.lib.multiblock.IMultiblockPart;
 import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
@@ -58,18 +57,17 @@ public class MultiblockPartTypeProperties<Controller extends IMultiblockControll
         this._extendedPropertiesFixer = partPropertiesFixer;
     }
 
-    public MultiblockPartBlock<Controller, PartType> createBlock(final PartType type) {
+    public MultiblockPartBlock<Controller, PartType> createBlock(final PartType type, final Block.Properties properties) {
         return this._blockFactory.apply(
                 this._extendedPropertiesFixer.apply(
-                        MultiblockPartBlock.MultiblockPartProperties.create(type, this._blockPropertiesFixer.apply(
-                                        (IMultiblockPart.getDefaultBlockProperties())))));
+                        MultiblockPartBlock.MultiblockPartProperties.create(type, this._blockPropertiesFixer.apply(properties))));
     }
 
-    public MultiblockPartBlock<Controller, PartType> createBlock(final PartType type, final IMultiblockVariant variant) {
+    public MultiblockPartBlock<Controller, PartType> createBlock(final PartType type, final IMultiblockVariant variant,
+                                                                 final Block.Properties properties) {
         return this._blockFactory.apply(
                 this._extendedPropertiesFixer.apply(
-                        MultiblockPartBlock.MultiblockPartProperties.create(type, this._blockPropertiesFixer.apply(
-                                variant.getDefaultBlockProperties()))
+                        MultiblockPartBlock.MultiblockPartProperties.create(type, this._blockPropertiesFixer.apply(properties))
                 .variant(variant)));
     }
 

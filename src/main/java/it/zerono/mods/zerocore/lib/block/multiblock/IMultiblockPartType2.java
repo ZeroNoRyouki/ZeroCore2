@@ -21,6 +21,7 @@ package it.zerono.mods.zerocore.lib.block.multiblock;
 import it.zerono.mods.zerocore.lib.multiblock.IMultiblockController;
 import it.zerono.mods.zerocore.lib.multiblock.variant.IMultiblockVariant;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -31,14 +32,15 @@ public interface IMultiblockPartType2<Controller extends IMultiblockController<C
 
     MultiblockPartTypeProperties<Controller, PartType> getPartTypeProperties();
 
-    default MultiblockPartBlock<Controller, PartType> createBlock() {
+    default MultiblockPartBlock<Controller, PartType> createBlock(final Block.Properties properties) {
         //noinspection unchecked
-        return this.getPartTypeProperties().createBlock((PartType)this);
+        return this.getPartTypeProperties().createBlock((PartType)this, properties);
     }
 
-    default MultiblockPartBlock<Controller, PartType> createBlock(final IMultiblockVariant variant) {
+    default MultiblockPartBlock<Controller, PartType> createBlock(final IMultiblockVariant variant,
+                                                                  final Block.Properties properties) {
         //noinspection unchecked
-        return this.getPartTypeProperties().createBlock((PartType)this, variant);
+        return this.getPartTypeProperties().createBlock((PartType)this, variant, properties);
     }
 
     @Nullable
