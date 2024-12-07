@@ -39,7 +39,7 @@ public class ModRecipeProviderRunner<Provider extends ModRecipeProvider>
 
     public ModRecipeProviderRunner(String providerName, CompletableFuture<HolderLookup.Provider> registryLookup,
                                    PackOutput output, ResourceLocationBuilder modLocationRoot,
-                                   TriFunction<@NotNull ModRecipeProviderRunner<? extends ModRecipeProvider>,
+                                   TriFunction<@NotNull ModRecipeProviderRunner<Provider>,
                                            HolderLookup.@NotNull Provider, @NotNull RecipeOutput,
                                            @NotNull Provider> providerFactory) {
 
@@ -88,7 +88,7 @@ public class ModRecipeProviderRunner<Provider extends ModRecipeProvider>
     //region internals
 
     private final ProviderSettings _settings;
-    private final TriFunction<@NotNull ModRecipeProviderRunner<? extends ModRecipeProvider>, HolderLookup.@NotNull Provider,
+    private final TriFunction<@NotNull ModRecipeProviderRunner<Provider>, HolderLookup.@NotNull Provider,
             @NotNull RecipeOutput, @NotNull Provider> _providerFactory;
 
     //endregion
