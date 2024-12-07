@@ -21,18 +21,28 @@ package it.zerono.mods.zerocore.lib.recipe;
 import it.zerono.mods.zerocore.lib.item.inventory.EmptyVanillaInventory;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 public interface IModRecipe
         extends Recipe<EmptyVanillaInventory> {
 
     ResourceKey<Recipe<?>> getRegistrationKey();
 
-    SlotDisplay getCraftingStationSlotDisplay();
+    Supplier<? extends @NotNull Item> getRecipeIcon();
+
+    default SlotDisplay getCraftingStationSlotDisplay() {
+        return new SlotDisplay.ItemSlotDisplay(this.getRecipeIcon().get());
+    }
 
     //region Recipe
 
@@ -54,6 +64,11 @@ public interface IModRecipe
     @Override
     default PlacementInfo placementInfo() {
         return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    default RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     //endregion
