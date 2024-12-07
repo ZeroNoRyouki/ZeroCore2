@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
@@ -53,36 +54,40 @@ public abstract class ModRecipeProvider
         return (HolderGetter<T>) this._holderGettersCache.computeIfAbsent(registryKey, this.registries::lookupOrThrow);
     }
 
+    protected ResourceLocationBuilder root() {
+        return this._mainProvider.root();
+    }
+
     protected ResourceLocationBuilder craftingRoot() {
-        return this._mainProvider.root().appendPath("crafting");
+        return this.root().appendPath("crafting");
     }
 
     protected ResourceLocationBuilder blastingRoot() {
-        return this._mainProvider.root().appendPath("blasting");
+        return this.root().appendPath("blasting");
     }
 
     protected ResourceLocationBuilder smeltingRoot() {
-        return this._mainProvider.root().appendPath("smelting");
+        return this.root().appendPath("smelting");
     }
 
     protected ResourceLocationBuilder cookingRoot() {
-        return this._mainProvider.root().appendPath("cooking");
+        return this.root().appendPath("cooking");
     }
 
     protected ResourceLocationBuilder smokingRoot() {
-        return this._mainProvider.root().appendPath("smoking");
+        return this.root().appendPath("smoking");
     }
 
     protected ResourceLocationBuilder stonecuttingRoot() {
-        return this._mainProvider.root().appendPath("stonecutting");
+        return this.root().appendPath("stonecutting");
     }
 
     protected ResourceLocationBuilder smithingRoot() {
-        return this._mainProvider.root().appendPath("smithing");
+        return this.root().appendPath("smithing");
     }
 
     protected ResourceLocationBuilder miscRoot() {
-        return this._mainProvider.root().appendPath("misc");
+        return this.root().appendPath("misc");
     }
 
     protected static ResourceKey<Recipe<?>> recipeKeyFrom(ResourceLocation id) {
@@ -90,6 +95,13 @@ public abstract class ModRecipeProvider
         Preconditions.checkNotNull(id, "Id must not be null");
 
         return ResourceKey.create(Registries.RECIPE, id);
+    }
+
+    protected String group(String name) {
+
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must not be null or empty");
+
+        return this.root().namespace() + ":" + name;
     }
 
     protected ShapedRecipeBuilder shaped(RecipeCategory category, Supplier<? extends ItemLike> result, int amount) {
@@ -104,6 +116,10 @@ public abstract class ModRecipeProvider
         return this.shaped(category, result, 1);
     }
 
+    protected ShapedRecipeBuilder shaped(RecipeCategory category, ItemStack result) {
+        return ShapedRecipeBuilder.shaped(this.holderGetterOf(Registries.ITEM), category, result);
+    }
+
     protected ShapelessRecipeBuilder shapeless(RecipeCategory category, Supplier<? extends ItemLike> result, int amount) {
 
         validateResultAndCategory(category, result);
@@ -114,6 +130,10 @@ public abstract class ModRecipeProvider
 
     protected ShapelessRecipeBuilder shapeless(RecipeCategory category, Supplier<? extends ItemLike> result) {
         return this.shapeless(category, result, 1);
+    }
+
+    protected ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemStack result) {
+        return ShapelessRecipeBuilder.shapeless(this.holderGetterOf(Registries.ITEM), category, result);
     }
 
     protected SimpleCookingRecipeBuilder campfireCooking(RecipeCategory category, Supplier<? extends ItemLike> result,
