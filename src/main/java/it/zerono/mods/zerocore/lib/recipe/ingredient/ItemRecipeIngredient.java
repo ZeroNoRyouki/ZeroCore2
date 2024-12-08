@@ -217,6 +217,11 @@ public final class ItemRecipeIngredient
     }
 
     @Override
+    public List<Ingredient> asVanillaIngredients() {
+        return ObjectLists.singleton(this._ingredient);
+    }
+
+    @Override
     public SlotDisplay asSlotDisplay() {
 
         final var elements = this.getMatchingElements();
@@ -243,12 +248,16 @@ public final class ItemRecipeIngredient
     }
 
     @Override
-    public boolean test(ItemStack stack) {
+    public boolean testIgnoreAmount(@NotNull ItemStack stack) {
         return this._ingredient.test(stack) &&
-                this._count <= stack.getCount() &&
                 this._componentPredicate
                         .map(predicate -> predicate.test(stack.getComponents()))
                         .orElse(true);
+    }
+
+    @Override
+    public boolean test(ItemStack stack) {
+        return this.testIgnoreAmount(stack) && this._count <= stack.getCount();
     }
 
     //endregion

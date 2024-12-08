@@ -243,12 +243,16 @@ public class FluidRecipeIngredient
     }
 
     @Override
-    public boolean test(FluidStack stack) {
+    public boolean testIgnoreAmount(@NotNull FluidStack stack) {
         return this._ingredient.test(stack) &&
-                this._amount <= stack.getAmount() &&
                 this._componentPredicate
                         .map(predicate -> predicate.test(stack.getComponents()))
                         .orElse(true);
+    }
+
+    @Override
+    public boolean test(FluidStack stack) {
+        return this.testIgnoreAmount(stack) && this._amount <= stack.getAmount();
     }
 
     //endregion
