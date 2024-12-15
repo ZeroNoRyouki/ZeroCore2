@@ -24,18 +24,17 @@ import it.zerono.mods.zerocore.internal.network.ErrorReportMessage;
 import it.zerono.mods.zerocore.internal.network.InternalCommandMessage;
 import it.zerono.mods.zerocore.internal.network.ModSyncableTileMessage;
 import it.zerono.mods.zerocore.internal.network.TileCommandMessage;
+import it.zerono.mods.zerocore.internal.recipe.ModRecipeTypeRegistry;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;
 import it.zerono.mods.zerocore.lib.data.nbt.NBTBuilder;
 import it.zerono.mods.zerocore.lib.item.TintedBucketItem;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.sync.ContainerDataHandler;
 import it.zerono.mods.zerocore.lib.network.NetworkHandler;
-import it.zerono.mods.zerocore.lib.recipe.ModRecipeType;
 import it.zerono.mods.zerocore.lib.tag.TagList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -73,6 +72,7 @@ public final class Lib {
         NeoForge.EVENT_BUS.addListener(Lib::onWorldTick);
 
         TagList.initialize();
+        ModRecipeTypeRegistry.initialize();
     }
 
     public static boolean shouldInvalidateResourceCache() {
@@ -108,10 +108,11 @@ public final class Lib {
         registrar.playToClient(ErrorReportMessage.TYPE, ErrorReportMessage.STREAM_CODEC, ErrorReportMessage::handlePacket);
         registrar.playBidirectional(InternalCommandMessage.TYPE, InternalCommandMessage.STREAM_CODEC, InternalCommandMessage::handlePacket);
         ContainerDataHandler.registerPackets(registrar);
+        ModRecipeTypeRegistry.registerPackets(registrar);
     }
 
     private static void onAddReloadListener(AddReloadListenerEvent event) {
-        event.addListener(RECIPES_RELOADER);
+        event.addListener(RESOURCES_RELOADER);
     }
 
     private static void onRegisterCommands(RegisterCommandsEvent event) {
@@ -139,16 +140,7 @@ public final class Lib {
     }
 
     private static boolean s_resourceReloaded;
-
-    private static final ResourceManagerReloadListener RECIPES_RELOADER = new ResourceManagerReloadListener() {
-
-        @Override
-        public void onResourceManagerReload(ResourceManager p_10758_) {
-
-            s_resourceReloaded = true;
-            ModRecipeType.invalidate();
-        }
-    };
+    private static final ResourceManagerReloadListener RESOURCES_RELOADER = $ -> s_resourceReloaded = true;
 
     //endregion
 }

@@ -110,7 +110,7 @@ public interface ITwoToOneModRecipe<Ingredient1, Ingredient2, Result,
     }
 
     //endregion
-    //region OneToOneRecipeDisplay
+    //region TwoToOneRecipeDisplay
 
     record TwoToOneRecipeDisplay(SlotDisplay ingredient1, SlotDisplay ingredient2, SlotDisplay result,
                                  SlotDisplay craftingStation)

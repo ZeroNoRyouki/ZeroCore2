@@ -34,10 +34,7 @@ import it.zerono.mods.zerocore.lib.data.WideAmount;
 import it.zerono.mods.zerocore.lib.multiblock.validation.ValidationError;
 import net.minecraft.Util;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -508,6 +505,11 @@ public final class CodeHelper {
 
     public static Optional<MinecraftServer> getMinecraftServer() {
         return Optional.ofNullable(ServerLifecycleHooks.getCurrentServer());
+    }
+
+    public static Optional<RegistryAccess> getRegistryAccess() {
+        return getMinecraftServer()
+                .map(MinecraftServer::registryAccess);
     }
 
     public static Runnable delayedRunnable(final Runnable code, final int tickDelay) {

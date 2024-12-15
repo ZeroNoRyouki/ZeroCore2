@@ -143,7 +143,7 @@ public interface IManyToOneModRecipe<Ingredient, Result, RecipeIngredient extend
     }
 
     //endregion
-    //region OneToOneRecipeDisplay
+    //region ManyToOneRecipeDisplay
 
     record ManyToOneRecipeDisplay(List<SlotDisplay> ingredients, SlotDisplay result, SlotDisplay craftingStation)
             implements RecipeDisplay {

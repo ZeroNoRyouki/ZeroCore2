@@ -47,6 +47,9 @@ public interface IModRecipe
     //region Recipe
 
     @Override
+    IModRecipeType<? extends IModRecipe> getType();
+
+    @Override
     default boolean matches(EmptyVanillaInventory inv, Level world) {
         return true;
     }
