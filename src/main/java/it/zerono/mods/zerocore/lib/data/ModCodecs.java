@@ -30,6 +30,8 @@ import java.util.function.Function;
 
 public record ModCodecs<Type, Buffer extends ByteBuf>(Codec<Type> codec, StreamCodec<Buffer, Type> streamCodec) {
 
+    public static StreamCodec<ByteBuf, List<byte[]>> BYTE_ARRAY_LIST = ByteBufCodecs.BYTE_ARRAY.apply(ByteBufCodecs.list());
+
     public <Encoded> DataResult<Encoded> encode(Type value, DynamicOps<Encoded> ops) {
         return this.codec.encodeStart(ops, value);
     }
