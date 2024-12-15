@@ -16,7 +16,7 @@
  *
  */
 
-package it.zerono.mods.zerocore.lib.network;
+package it.zerono.mods.zerocore.lib.network.payload;
 
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.lib.data.ResourceLocationBuilder;

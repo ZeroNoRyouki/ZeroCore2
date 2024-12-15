@@ -21,7 +21,7 @@ package it.zerono.mods.zerocore.internal.network;
 import com.google.common.base.Preconditions;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.InternalCommand;
-import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
+import it.zerono.mods.zerocore.lib.network.payload.AbstractPlayPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

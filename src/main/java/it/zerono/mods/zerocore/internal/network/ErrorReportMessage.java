@@ -22,7 +22,7 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.zerono.mods.zerocore.ZeroCore;
-import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
+import it.zerono.mods.zerocore.lib.network.payload.AbstractPlayPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;

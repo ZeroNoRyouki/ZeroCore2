@@ -24,7 +24,7 @@ import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.data.nbt.INestedSyncableEntity;
 import it.zerono.mods.zerocore.lib.data.nbt.ISyncableEntity;
-import it.zerono.mods.zerocore.lib.network.AbstractBlockEntityPlayPacket;
+import it.zerono.mods.zerocore.lib.network.payload.AbstractBlockEntityPlayPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;

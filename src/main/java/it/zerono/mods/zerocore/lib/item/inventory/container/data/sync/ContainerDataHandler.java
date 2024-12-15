@@ -11,7 +11,7 @@ import it.zerono.mods.zerocore.internal.Lib;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.item.inventory.container.ModContainer;
 import it.zerono.mods.zerocore.lib.item.inventory.container.data.IContainerData;
-import it.zerono.mods.zerocore.lib.network.AbstractPlayPacket;
+import it.zerono.mods.zerocore.lib.network.payload.AbstractPlayPacket;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

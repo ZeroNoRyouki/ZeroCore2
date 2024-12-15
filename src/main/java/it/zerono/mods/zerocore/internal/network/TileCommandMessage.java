@@ -24,7 +24,7 @@ import io.netty.buffer.ByteBuf;
 import it.zerono.mods.zerocore.ZeroCore;
 import it.zerono.mods.zerocore.internal.Log;
 import it.zerono.mods.zerocore.lib.block.AbstractModBlockEntity;
-import it.zerono.mods.zerocore.lib.network.AbstractBlockEntityPlayPacket;
+import it.zerono.mods.zerocore.lib.network.payload.AbstractBlockEntityPlayPacket;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
