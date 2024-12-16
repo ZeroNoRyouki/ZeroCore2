@@ -6,7 +6,8 @@
   "mixins":[
     "SlotAccessor",
     "ServerboundCustomPayloadPacketAccessor",
-    "VarIntAccessor"
+    "VarIntAccessor",
+    "NeoForgeModTEMP_MIXIN"
   ],
   "client":[
     "client.GuiGraphicsAccessor"
