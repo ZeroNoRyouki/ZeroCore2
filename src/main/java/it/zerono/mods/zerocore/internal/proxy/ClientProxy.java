@@ -182,6 +182,11 @@ public class ClientProxy
         return null;
     }
 
+    @Override
+    public void executeOnClientThread(Runnable runnable) {
+        Minecraft.getInstance().execute(runnable);
+    }
+
     //endregion
     //region internals
 

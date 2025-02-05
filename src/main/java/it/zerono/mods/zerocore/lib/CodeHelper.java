@@ -507,6 +507,10 @@ public final class CodeHelper {
         }
     }
 
+    public static void executeOnClientThread(Runnable runnable) {
+        ZeroCore.getProxy().executeOnClientThread(runnable);
+    }
+
     public static Optional<MinecraftServer> getMinecraftServer() {
         return Optional.ofNullable(ServerLifecycleHooks.getCurrentServer());
     }

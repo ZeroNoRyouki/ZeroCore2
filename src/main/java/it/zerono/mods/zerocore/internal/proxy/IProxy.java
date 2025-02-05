@@ -94,4 +94,7 @@ public interface IProxy {
     default ModContainer getCurrentClientSideModContainer() {
         return null;
     }
+
+    default void executeOnClientThread(Runnable runnable) {
+    }
 }

@@ -117,7 +117,7 @@ public abstract class AbstractMultiblockEntity<Controller extends AbstractCuboid
         this.callOnLogicalClient(() -> {
 
             this._clientModelData = null;
-            this.requestModelDataUpdate();
+                this.requestModelDataUpdate();
             this.notifyBlockUpdate();
         });
     }

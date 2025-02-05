@@ -509,7 +509,8 @@ public abstract class AbstractModBlockEntity
     public void requestClientRenderUpdate() {
 
         if (null != this.level && this.level.isClientSide()) {
-            this.level.blockEvent(this.getBlockPos(), this.getBlockType(), EVENT_CLIENT_RENDER_UPDATE, 0);
+            CodeHelper.executeOnClientThread(() ->
+                    this.level.blockEvent(this.getBlockPos(), this.getBlockType(), EVENT_CLIENT_RENDER_UPDATE, 0));
         }
     }
 
