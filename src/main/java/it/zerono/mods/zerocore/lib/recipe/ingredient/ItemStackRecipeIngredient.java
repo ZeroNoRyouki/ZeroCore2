@@ -77,7 +77,7 @@ public class ItemStackRecipeIngredient
     }
 
     public static ItemStackRecipeIngredient from(final ItemLike item, final int amount) {
-        return from(new ItemStack(item), amount);
+        return from(Ingredient.of(item), amount);
     }
 
     public static ItemStackRecipeIngredient from(Supplier<? extends ItemLike> item) {
